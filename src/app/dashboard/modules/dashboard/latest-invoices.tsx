@@ -1,8 +1,8 @@
+import { lusitana } from '@/src/components/fonts';
 import { fetchLatestInvoices } from '@/src/lib/data';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Image from 'next/image';
-import { lusitana } from '../fonts';
 export default async function LatestInvoices() {
   const latestInvoices = await fetchLatestInvoices();
   return (

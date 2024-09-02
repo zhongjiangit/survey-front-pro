@@ -1,6 +1,6 @@
+import { lusitana } from '@/src/components/fonts';
 import { FormattedCustomersTable } from '@/src/lib/definitions';
 import Image from 'next/image';
-import { lusitana } from '../fonts';
 import Search from '../search';
 
 export default async function CustomersTable({

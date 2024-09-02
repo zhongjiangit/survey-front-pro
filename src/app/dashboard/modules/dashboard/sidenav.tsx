@@ -1,8 +1,8 @@
 import { signOut } from '@/auth';
+import AcmeLogo from '@/src/components/acme-logo';
 import { cn } from '@/src/lib/utils';
 import { PowerIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import AcmeLogo from '../acme-logo';
 import NavLinks from './nav-links';
 
 export default function SideNav() {

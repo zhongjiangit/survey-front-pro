@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/src/components/button';
 import { State, updateInvoice } from '@/src/lib/actions';
 import { CustomerField, InvoiceForm } from '@/src/lib/definitions';
 import {
@@ -10,7 +11,6 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useActionState } from 'react';
-import { Button } from '../button';
 
 export default function EditInvoiceForm({
   invoice,

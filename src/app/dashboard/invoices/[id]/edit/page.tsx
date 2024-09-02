@@ -1,7 +1,7 @@
-import Breadcrumbs from '@/src/components/invoices/breadcrumbs';
-import Form from '@/src/components/invoices/edit-form';
 import { fetchCustomers, fetchInvoiceById } from '@/src/lib/data';
 import { notFound } from 'next/navigation';
+import Breadcrumbs from '../../../modules/invoices/breadcrumbs';
+import Form from '../../../modules/invoices/edit-form';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = params;
