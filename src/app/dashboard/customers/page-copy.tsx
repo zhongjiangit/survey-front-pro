@@ -1,6 +1,4 @@
-'use client';
-
-import { Button } from '@/src/components/button';
+import { Button } from '@/src/components/ui/button';
 import {
   Form,
   FormControl,
@@ -21,12 +19,12 @@ const formSchema = z.object({
     .min(2, {
       message: 'Username must be at least 2 characters.',
     })
-    .max(20, {
-      message: 'Username must be at most 20 characters.',
+    .max(50, {
+      message: 'Username must be at most 2 characters.',
     }),
 });
 
-export default function Page() {
+function Page() {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,3 +64,5 @@ export default function Page() {
     </Form>
   );
 }
+
+export default Page;
