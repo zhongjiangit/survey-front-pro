@@ -1,6 +1,10 @@
 import '@/src/styles/global.css';
 import { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { inter } from '../components/fonts';
+import { ColorScheme } from '../interfaces/colorScheme';
+import { cn } from '../lib/utils';
+import { Provider } from './provider';
 
 export const metadata: Metadata = {
   title: {
@@ -15,9 +19,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  const colorScheme =
+    cookieStore.get('color-scheme')?.value ?? ColorScheme.DARK;
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+    <html lang="en" className={cn({ dark: colorScheme === ColorScheme.DARK })}>
+      <body className={`${inter.className} antialiased`}>
+        <Provider colorScheme={colorScheme as ColorScheme}>{children}</Provider>
+      </body>
     </html>
   );
 }
