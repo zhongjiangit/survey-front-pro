@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/src/components/button';
+import { Button } from '@/components/button';
 import {
   Form,
   FormControl,
@@ -8,17 +8,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/src/components/ui/form';
-import { Input } from '@/src/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/src/components/ui/radio-group';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/src/components/ui/select';
-import { CustomerField } from '@/src/lib/definitions';
+} from '@/components/ui/select';
+import { CustomerField } from '@/lib/definitions';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { CheckIcon, ClockIcon } from 'lucide-react';

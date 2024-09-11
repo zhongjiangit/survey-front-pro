@@ -1,5 +1,5 @@
-import { fetchFilteredInvoices } from '@/src/lib/data';
-import { formatCurrency, formatDateToLocal } from '@/src/lib/utils';
+import { fetchFilteredInvoices } from '@/lib/data';
+import { formatCurrency, formatDateToLocal } from '@/lib/utils';
 import Image from 'next/image';
 import { DeleteInvoice, UpdateInvoice } from './buttons';
 import InvoiceStatus from './status';

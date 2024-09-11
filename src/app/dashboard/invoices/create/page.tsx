@@ -1,4 +1,4 @@
-import { fetchCustomers } from '@/src/lib/data';
+import { fetchCustomers } from '@/lib/data';
 import Breadcrumbs from '../../modules/invoices/breadcrumbs';
 import Form from '../../modules/invoices/create-form-copy';
 
