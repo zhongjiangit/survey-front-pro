@@ -1,4 +1,4 @@
-import '@/src/styles/global.css';
+import '@/styles/global.css';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { inter } from '../components/fonts';

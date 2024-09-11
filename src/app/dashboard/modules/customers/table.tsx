@@ -1,5 +1,5 @@
-import { lusitana } from '@/src/components/fonts';
-import { FormattedCustomersTable } from '@/src/lib/definitions';
+import { lusitana } from '@/components/fonts';
+import { FormattedCustomersTable } from '@/lib/definitions';
 import Image from 'next/image';
 import Search from '../search';
 

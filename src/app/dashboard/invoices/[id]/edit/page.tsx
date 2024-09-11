@@ -1,4 +1,4 @@
-import { fetchCustomers, fetchInvoiceById } from '@/src/lib/data';
+import { fetchCustomers, fetchInvoiceById } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Breadcrumbs from '../../../modules/invoices/breadcrumbs';
 import Form from '../../../modules/invoices/edit-form';

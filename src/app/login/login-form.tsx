@@ -1,81 +1,196 @@
 'use client';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
+import logo from '@/assets/icons/logo.png';
 import {
-  AtSymbolIcon,
-  ExclamationCircleIcon,
-  KeyIcon,
-} from '@heroicons/react/24/outline';
-import { useActionState } from 'react';
+  CodepenOutlined,
+  LockOutlined,
+  MobileOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import {
+  LoginForm as Form,
+  ProFormCaptcha,
+  ProFormText,
+} from '@ant-design/pro-components';
+import Image from 'next/image';
+import { useActionState, useEffect, useState } from 'react';
 import { authenticate } from '../../lib/actions';
-import { Button } from '../../components/button';
-import { lusitana } from '../../components/fonts';
+
+import { message, Tabs } from 'antd';
+import Link from 'next/link';
 
 export default function LoginForm() {
+  const [messageApi, contextHolder] = message.useMessage();
   const [errorMessage, formAction, isPending] = useActionState(
     authenticate,
     undefined
   );
 
+  useEffect(() => {
+    messageApi.open({
+      type: 'error',
+      content: errorMessage,
+    });
+  }, [errorMessage, messageApi]);
+
+  const [type, setType] = useState<string>('account');
+
   return (
-    <form action={formAction} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-        <h1 className={`${lusitana.className} mb-3 text-2xl`}>
-          Please log in to continue.
-        </h1>
-        <div className="w-full">
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Enter your email address"
-                required
-              />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+    <div className="w-96 -mt-[16vh] py-8 md:w-[28rem] md:shadow-2xl rounded-lg">
+      {contextHolder}
+      <Form
+        contentStyle={{
+          minWidth: 280,
+          maxWidth: '75vw',
+        }}
+        logo={<Image alt="logo" src={logo} />}
+        title={<Link href="/">试题抽检与征集</Link>}
+        subTitle={'教育督导评估信息化平台集群'}
+        initialValues={{
+          autoLogin: true,
+        }}
+        onFinish={formAction}
+        loading={isPending}
+      >
+        <Tabs
+          activeKey={type}
+          onChange={setType}
+          centered
+          items={[
+            {
+              key: 'account',
+              label: '账户密码登录',
+            },
+            {
+              key: 'mobile',
+              label: '手机验证码登录',
+            },
+          ]}
+        />
+
+        {type === 'account' && (
+          <>
+            <ProFormText
+              name="email"
+              fieldProps={{
+                size: 'large',
+                prefix: <UserOutlined />,
+              }}
+              placeholder={'用户名: xxx xxxx xxxx'}
+              rules={[
+                {
+                  required: true,
+                  message: '用户名是必填项！',
+                },
+              ]}
+            />
+            <ProFormText.Password
+              name="password"
+              fieldProps={{
+                size: 'large',
+                prefix: <LockOutlined />,
+              }}
+              placeholder={'密码: ******'}
+              rules={[
+                {
+                  required: true,
+                  message: '密码是必填项！',
+                },
+              ]}
+            />
+            <div className="mt-6">
+              <a
+                className="float-right my-2"
+                onClick={() => {
+                  setType('mobile');
+                }}
+              >
+                忘记密码 ?
+              </a>
             </div>
-          </div>
-          <div className="mt-4">
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                required
-                minLength={6}
+          </>
+        )}
+
+        {type === 'mobile' && (
+          <>
+            <ProFormText
+              fieldProps={{
+                size: 'large',
+                prefix: <MobileOutlined />,
+              }}
+              name="mobile"
+              placeholder={'请输入手机号！'}
+              rules={[
+                {
+                  required: true,
+                  message: '手机号是必填项！',
+                },
+                {
+                  pattern: /^1\d{10}$/,
+                  message: '不合法的手机号！',
+                },
+              ]}
+            />
+            <div className="flex gap-2 items-start">
+              <ProFormText
+                fieldProps={{
+                  size: 'large',
+                  prefix: <CodepenOutlined />,
+                }}
+                name="verification"
+                placeholder={'请输入右侧图形码！'}
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入图形码！',
+                  },
+                ]}
               />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              {/* <Image
+                width={124}
+                height={40}
+                alt="captcha"
+                style={{ cursor: 'pointer', borderRadius: 4 }}
+                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+              /> */}
             </div>
-          </div>
-        </div>
-        <Button aria-disabled={isPending} className="mt-4 w-full">
-          Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-        </Button>
-        <div className="flex h-8 items-end space-x-1">
-          {/* Add form errors here */}
-          {errorMessage && (
-            <>
-              <ExclamationCircleIcon className="h-4 w-4 text-red-500" />
-              <p className="text-xs text-red-500">{errorMessage}</p>
-            </>
-          )}
-        </div>
-      </div>
-    </form>
+
+            <ProFormCaptcha
+              fieldProps={{
+                size: 'large',
+                prefix: <LockOutlined />,
+              }}
+              captchaProps={{
+                size: 'large',
+              }}
+              placeholder={'请输入验证码！'}
+              captchaTextRender={(timing, count) => {
+                if (timing) {
+                  return `${count} ${'秒后重新获取'}`;
+                }
+                return '获取验证码';
+              }}
+              name="captcha"
+              rules={[
+                {
+                  required: true,
+                  message: '验证码是必填项！',
+                },
+              ]}
+              onGetCaptcha={async phone => {
+                // const result = await getFakeCaptcha({
+                //   phone,
+                // });
+                // if (!result) {
+                //   return;
+                // }
+                console.log(phone);
+
+                message.success('获取验证码成功！验证码为：1234');
+              }}
+            />
+          </>
+        )}
+      </Form>
+    </div>
   );
 }

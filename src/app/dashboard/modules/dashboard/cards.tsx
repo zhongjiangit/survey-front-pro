@@ -1,5 +1,5 @@
-import { lusitana } from '@/src/components/fonts';
-import { fetchCardData } from '@/src/lib/data';
+import { lusitana } from '@/components/fonts';
+import { fetchCardData } from '@/lib/data';
 import {
   BanknotesIcon,
   ClockIcon,

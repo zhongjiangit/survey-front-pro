@@ -1,7 +1,7 @@
-import { signOut } from '@/auth';
-import AcmeLogo from '@/src/components/acme-logo';
-import { cn } from '@/src/lib/utils';
+import AcmeLogo from '@/components/header-logo';
+import { cn } from '@/lib/utils';
 import { PowerIcon } from '@heroicons/react/24/outline';
+import { signOut } from 'auth';
 import Link from 'next/link';
 import NavLinks from './nav-links';
 

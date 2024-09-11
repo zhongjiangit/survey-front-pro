@@ -1,7 +1,7 @@
-import Search from '@/src/app/dashboard/modules/search';
-import { InvoicesTableSkeleton } from '@/src/app/dashboard/modules/skeletons';
-import { lusitana } from '@/src/components/fonts';
-import { fetchInvoicesPages } from '@/src/lib/data';
+import Search from '@/app/dashboard/modules/search';
+import { InvoicesTableSkeleton } from '@/app/dashboard/modules/skeletons';
+import { lusitana } from '@/components/fonts';
+import { fetchInvoicesPages } from '@/lib/data';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { CreateInvoice } from '../modules/invoices/buttons';

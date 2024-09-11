@@ -1,9 +1,4 @@
-import {
-  customers,
-  invoices,
-  revenue,
-  users,
-} from '@/src/lib/placeholder-data';
+import { customers, invoices, revenue, users } from '@/lib/placeholder-data';
 import { db } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 

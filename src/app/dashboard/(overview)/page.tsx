@@ -2,8 +2,8 @@ import {
   CardsSkeleton,
   LatestInvoicesSkeleton,
   RevenueChartSkeleton,
-} from '@/src/app/dashboard/modules/skeletons';
-import { lusitana } from '@/src/components/fonts';
+} from '@/app/dashboard/modules/skeletons';
+import { lusitana } from '@/components/fonts';
 import { Suspense } from 'react';
 import CardWrapper from '../modules/dashboard/cards';
 import LatestInvoices from '../modules/dashboard/latest-invoices';
