@@ -1,81 +1,283 @@
 'use client';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
+
+import logo from '@/src/assets/icons/logo.png';
+import business from '@/src/assets/images/business.svg';
+import computer from '@/src/assets/images/computer.svg';
+import magnifying from '@/src/assets/images/magnifying.svg';
+import person from '@/src/assets/images/person.svg';
+import road from '@/src/assets/images/road.svg';
+import Footer from '@/src/components/footer';
+
 import {
-  AtSymbolIcon,
-  ExclamationCircleIcon,
-  KeyIcon,
-} from '@heroicons/react/24/outline';
-import { useActionState } from 'react';
-import { authenticate } from '../../lib/actions';
-import { Button } from '../../components/button';
-import { lusitana } from '../../components/fonts';
+  CodepenOutlined,
+  FormOutlined,
+  LockOutlined,
+  MobileOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import {
+  LoginForm,
+  ProFormCaptcha,
+  ProFormText,
+} from '@ant-design/pro-components';
+import { Card, Tabs } from 'antd';
+import Image from 'next/image';
+import React, { useState } from 'react';
 
-export default function LoginForm() {
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined
-  );
+const Login: React.FC = () => {
+  const [type, setType] = useState<string>('account');
 
+  const handleSubmit = async () => {
+    console.log(111);
+  };
   return (
-    <form action={formAction} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-        <h1 className={`${lusitana.className} mb-3 text-2xl`}>
-          Please log in to continue.
-        </h1>
-        <div className="w-full">
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="email"
+    <div
+      style={{
+        backgroundImage:
+          "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
+        backgroundSize: '100% 100%',
+      }}
+      className="flex flex-col h-lvh overflow-auto"
+    >
+      <div className="flex justify-center items-center h-full">
+        <div className="text-center w-1/2 pl-20">
+          <Image src={business} alt="business" className="p-4" />
+          <div className="flex gap-2 m-4">
+            <Card
+              onClick={() => {
+                window.open('https://dxjy.online/', '_blank');
+              }}
+              bordered={false}
+              hoverable
+              style={{ width: '50%', backgroundColor: '#e6f4ff' }}
             >
-              Email
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Enter your email address"
-                required
-              />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
+              <div className="flex gap-2 justify-center font-extrabold text-[#595959]">
+                <Image src={computer} width={24} alt="img" />
+                平台服务
+              </div>
+              <div className="mt-1 text-xs text-[#8c8c8c]">
+                打造智慧督导创新平台
+              </div>
+            </Card>
+            <Card
+              onClick={() => {
+                window.open('https://dxjy.online/', '_blank');
+              }}
+              bordered={false}
+              hoverable
+              style={{ width: '50%', backgroundColor: '#e6f4ff' }}
+            >
+              <div className="flex gap-2 justify-center font-extrabold text-[#595959]">
+                <Image src={magnifying} width={24} alt="img" />
+                数据采集与挖掘
+              </div>
+              <div className="mt-1 text-xs text-[#8c8c8c]">
+                你身边的教育数据治理专家
+              </div>
+            </Card>
           </div>
-          <div className="mt-4">
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="password"
+          <div style={{ display: 'flex', gap: '8px', margin: '16px' }}>
+            <Card
+              onClick={() => {
+                window.open('https://dxjy.online/', '_blank');
+              }}
+              bordered={false}
+              hoverable
+              style={{ width: '50%', backgroundColor: '#e6f4ff' }}
             >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                required
-                minLength={6}
-              />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
+              <div className="flex gap-2 justify-center font-extrabold text-[#595959]">
+                <Image src={road} width={24} alt="img" />
+                学校发展咨询
+              </div>
+              <div className="mt-1 text-xs text-[#8c8c8c]">
+                学校特色发展的指导师
+              </div>
+            </Card>
+            <Card
+              onClick={() => {
+                window.open('https://dxjy.online/', '_blank');
+              }}
+              bordered={false}
+              hoverable
+              style={{ width: '50%', backgroundColor: '#e6f4ff' }}
+            >
+              <div className="flex gap-2 justify-center font-extrabold text-[#595959]">
+                <Image src={person} width={24} alt="img" />
+                教育决策咨询
+              </div>
+              <div className="mt-1 text-xs text-[#8c8c8c]">
+                区域教育发展的智囊团
+              </div>
+            </Card>
           </div>
         </div>
-        <Button aria-disabled={isPending} className="mt-4 w-full">
-          Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-        </Button>
-        <div className="flex h-8 items-end space-x-1">
-          {/* Add form errors here */}
-          {errorMessage && (
-            <>
-              <ExclamationCircleIcon className="h-4 w-4 text-red-500" />
-              <p className="text-xs text-red-500">{errorMessage}</p>
-            </>
-          )}
+        <div className="flex justify-center items-center flex-1 w-1/2">
+          <div className="w-[28rem] py-8 rounded-md shadow-xl">
+            <LoginForm
+              contentStyle={{
+                minWidth: 280,
+                maxWidth: '75vw',
+              }}
+              logo={<Image alt="logo" src={logo} />}
+              title="试题抽检与征集"
+              subTitle={'教育督导评估信息化平台集群'}
+              initialValues={{
+                autoLogin: true,
+              }}
+              actions={
+                <a className="text-gray-500 text-sm flex gap-1">
+                  <div>系统试用</div>
+                  <FormOutlined />
+                </a>
+              }
+              onFinish={async values => {
+                // @ts-ignore
+                await handleSubmit(values as API.LoginParams);
+              }}
+            >
+              <Tabs
+                activeKey={type}
+                onChange={setType}
+                centered
+                items={[
+                  {
+                    key: 'account',
+                    label: '账户密码登录',
+                  },
+                  {
+                    key: 'mobile',
+                    label: '手机验证码登录',
+                  },
+                ]}
+              />
+
+              {type === 'account' && (
+                <>
+                  <ProFormText
+                    name="username"
+                    fieldProps={{
+                      size: 'large',
+                      prefix: <UserOutlined />,
+                    }}
+                    placeholder={'用户名: admin or user'}
+                    rules={[
+                      {
+                        required: true,
+                        message: '用户名是必填项！',
+                      },
+                    ]}
+                  />
+                  <ProFormText.Password
+                    name="password"
+                    fieldProps={{
+                      size: 'large',
+                      prefix: <LockOutlined />,
+                    }}
+                    placeholder={'密码: ant.design'}
+                    rules={[
+                      {
+                        required: true,
+                        message: '密码是必填项！',
+                      },
+                    ]}
+                  />
+                  <div className="mb-6">
+                    <a
+                      className="float-right mb-2"
+                      onClick={() => {
+                        setType('mobile');
+                      }}
+                    >
+                      忘记密码 ?
+                    </a>
+                  </div>
+                </>
+              )}
+
+              {type === 'mobile' && (
+                <>
+                  <ProFormText
+                    fieldProps={{
+                      size: 'large',
+                      prefix: <MobileOutlined />,
+                    }}
+                    name="mobile"
+                    placeholder={'请输入手机号！'}
+                    rules={[
+                      {
+                        required: true,
+                        message: '手机号是必填项！',
+                      },
+                      {
+                        pattern: /^1\d{10}$/,
+                        message: '不合法的手机号！',
+                      },
+                    ]}
+                  />
+                  <div className="flex gap-2 items-start">
+                    <ProFormText
+                      fieldProps={{
+                        size: 'large',
+                        prefix: <CodepenOutlined />,
+                      }}
+                      name="verification"
+                      placeholder={'请输入图形码！'}
+                      rules={[
+                        {
+                          required: true,
+                          message: '请输入图形码！',
+                        },
+                      ]}
+                    />
+                    {/* <Image
+                      width={124}
+                      height={40}
+                      alt="img"
+                      style={{ cursor: 'pointer', borderRadius: 4 }}
+                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                    /> */}
+                  </div>
+
+                  <ProFormCaptcha
+                    fieldProps={{
+                      size: 'large',
+                      prefix: <LockOutlined />,
+                    }}
+                    captchaProps={{
+                      size: 'large',
+                    }}
+                    placeholder={'请输入验证码！'}
+                    captchaTextRender={(timing, count) => {
+                      if (timing) {
+                        return `${count} ${'秒后重新获取'}`;
+                      }
+                      return '获取验证码';
+                    }}
+                    name="captcha"
+                    rules={[
+                      {
+                        required: true,
+                        message: '验证码是必填项！',
+                      },
+                    ]}
+                    onGetCaptcha={async phone => {
+                      // const result = await getFakeCaptcha({
+                      //   phone,
+                      // });
+                      // if (!result) {
+                      //   return;
+                      // }
+                      return;
+                    }}
+                  />
+                </>
+              )}
+            </LoginForm>
+          </div>
         </div>
       </div>
-    </form>
+      <Footer />
+    </div>
   );
-}
+};
+export default Login;
