@@ -1,9 +1,9 @@
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
-import useColorScheme from '../contexts/useColorScheme';
-import { ColorScheme } from '../interfaces/colorScheme';
 import { useEffect } from 'react';
+import useColorScheme from '../../contexts/useColorScheme';
+import { ColorScheme } from '../../interfaces/colorScheme';
 
 function ThemeSwitcher() {
   const { colorScheme, setColorScheme } = useColorScheme();
@@ -25,11 +25,11 @@ function ThemeSwitcher() {
   };
 
   return (
-    <div onClick={onColorSchemeChange}>
+    <div className="cursor-pointer" onClick={onColorSchemeChange}>
       {colorScheme === ColorScheme.LIGHT ? (
-        <Sun className="mr-2 h-4 w-4" />
+        <Sun className="mr-2 h-6 w-6" />
       ) : (
-        <Moon className="mr-2 h-4 w-4" />
+        <Moon className="mr-2 h-6 w-6" />
       )}
     </div>
   );

@@ -8,7 +8,7 @@ export default function LoginPage() {
           "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
         backgroundSize: '100% 100%',
       }}
-      className="flex h-lvh items-center justify-center md:h-screen"
+      className="h-lvh bg-white/60 dark:bg-gray-400/10 flex items-center justify-center md:h-screen"
     >
       <LoginForm />
     </main>

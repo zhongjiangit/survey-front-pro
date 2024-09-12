@@ -44,7 +44,11 @@ export default function LoginForm() {
         }}
         logo={<Image alt="logo" src={logo} />}
         title={<Link href="/">试题抽检与征集</Link>}
-        subTitle={'教育督导评估信息化平台集群'}
+        subTitle={
+          <div className="text-gray-800 dark:text-gray-100">
+            教育督导评估信息化平台集群
+          </div>
+        }
         initialValues={{
           autoLogin: true,
         }}
@@ -99,7 +103,7 @@ export default function LoginForm() {
             />
             <div className="mt-6">
               <a
-                className="float-right my-2"
+                className="float-right my-2 text-gray-800 dark:text-gray-100"
                 onClick={() => {
                   setType('mobile');
                 }}
