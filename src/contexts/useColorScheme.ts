@@ -19,7 +19,7 @@ export const createColorSchemeStore = (
   initialProps?: Pick<ColorSchemeState, 'colorScheme'>
 ) => {
   const defaultProps: ColorSchemeProps = {
-    colorScheme: ColorScheme.DARK,
+    colorScheme: ColorScheme.LIGHT,
   };
   return createStore<ColorSchemeState>()(set => ({
     ...defaultProps,

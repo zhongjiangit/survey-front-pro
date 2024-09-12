@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   const cookieStore = cookies();
   const colorScheme =
-    cookieStore.get('color-scheme')?.value ?? ColorScheme.DARK;
+    cookieStore.get('color-scheme')?.value ?? ColorScheme.LIGHT;
   return (
     <html lang="en" className={cn({ dark: colorScheme === ColorScheme.DARK })}>
       <body className={`${inter.className} antialiased`}>
