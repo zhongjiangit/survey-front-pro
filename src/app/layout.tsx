@@ -1,7 +1,7 @@
 import '@/styles/global.css';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { inter } from '../components/fonts';
+import { inter } from '../components/common/fonts';
 import { ColorScheme } from '../interfaces/colorScheme';
 import { cn } from '../lib/utils';
 import { Provider } from './provider';

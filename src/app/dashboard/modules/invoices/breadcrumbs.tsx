@@ -1,4 +1,4 @@
-import { lusitana } from '@/components/fonts';
+import { lusitana } from '@/components/common/fonts';
 import { clsx } from 'clsx';
 import Link from 'next/link';
 

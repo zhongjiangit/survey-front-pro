@@ -2,14 +2,14 @@ import type { RadioChangeEvent } from 'antd';
 import { Modal, Radio, Space } from 'antd';
 import { FunctionComponent, useState } from 'react';
 
-interface SystemSwitchModalProps {
-  isSystemModalOpen: boolean;
-  setIsSystemModalOpen: (isSystemModalOpen: boolean) => void;
+interface UnitSwitchModalProps {
+  isUnitModalOpen: boolean;
+  setIsUnitModalOpen: (isUnitModalOpen: boolean) => void;
 }
 
-const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
-  isSystemModalOpen,
-  setIsSystemModalOpen,
+const UnitSwitchModal: FunctionComponent<UnitSwitchModalProps> = ({
+  isUnitModalOpen,
+  setIsUnitModalOpen,
 }) => {
   const [value, setValue] = useState(1);
 
@@ -19,20 +19,22 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
   };
 
   const handleOk = () => {
-    setIsSystemModalOpen(false);
+    setIsUnitModalOpen(false);
   };
 
   const handleCancel = () => {
-    setIsSystemModalOpen(false);
+    setIsUnitModalOpen(false);
   };
 
   return (
     <Modal
       width={400}
-      title="系统切换"
-      open={isSystemModalOpen}
+      title="单位切换"
+      open={isUnitModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      okText="确认"
+      cancelText="取消"
     >
       <div
         style={{
@@ -41,9 +43,11 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
       >
         <Radio.Group onChange={onChange} value={value}>
           <Space direction="vertical">
-            <Radio value={1}>系统1</Radio>
-            <Radio value={2}>系统2</Radio>
-            <Radio value={3}>系统3</Radio>
+            <Radio value={1}>省机构</Radio>
+            <Radio value={2}>市机构</Radio>
+            <Radio value={3}>区机构</Radio>
+            <Radio value={4}>高校</Radio>
+            <Radio value={5}>中小学</Radio>
           </Space>
         </Radio.Group>
       </div>
@@ -51,4 +55,4 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
   );
 };
 
-export default SystemSwitchModal;
+export default UnitSwitchModal;

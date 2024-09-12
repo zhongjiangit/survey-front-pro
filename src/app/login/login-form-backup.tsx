@@ -6,8 +6,8 @@ import {
   KeyIcon,
 } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
-import { Button } from '../../components/button';
-import { lusitana } from '../../components/fonts';
+import { Button } from '../../components/common/button';
+import { lusitana } from '../../components/common/fonts';
 import { authenticate } from '../../lib/actions';
 
 export default function LoginForm() {

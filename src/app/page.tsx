@@ -1,6 +1,6 @@
 import business from '@/assets/images/business.svg';
+import { lusitana } from '@/components/common/fonts';
 import Footer from '@/components/common/footer';
-import { lusitana } from '@/components/fonts';
 import { Button } from '@/components/ui/button';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import { FlaskConical } from 'lucide-react';

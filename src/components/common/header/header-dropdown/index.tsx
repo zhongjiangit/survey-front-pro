@@ -18,7 +18,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProps> = ({
   overlayClassName: cls,
   ...restProps
 }) => {
-  return <Dropdown overlayClassName={cn('w-full', cls)} {...restProps} />;
+  return <Dropdown overlayClassName={cn('w-30', cls)} {...restProps} />;
 };
 
 export default HeaderDropdown;

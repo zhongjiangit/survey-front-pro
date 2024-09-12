@@ -2,14 +2,14 @@ import type { RadioChangeEvent } from 'antd';
 import { Modal, Radio, Space } from 'antd';
 import { FunctionComponent, useState } from 'react';
 
-interface UnitSwitchModalProps {
-  isUnitModalOpen: boolean;
-  setIsUnitModalOpen: (isUnitModalOpen: boolean) => void;
+interface SystemSwitchModalProps {
+  isSystemModalOpen: boolean;
+  setIsSystemModalOpen: (isSystemModalOpen: boolean) => void;
 }
 
-const UnitSwitchModal: FunctionComponent<UnitSwitchModalProps> = ({
-  isUnitModalOpen,
-  setIsUnitModalOpen,
+const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
+  isSystemModalOpen,
+  setIsSystemModalOpen,
 }) => {
   const [value, setValue] = useState(1);
 
@@ -19,20 +19,22 @@ const UnitSwitchModal: FunctionComponent<UnitSwitchModalProps> = ({
   };
 
   const handleOk = () => {
-    setIsUnitModalOpen(false);
+    setIsSystemModalOpen(false);
   };
 
   const handleCancel = () => {
-    setIsUnitModalOpen(false);
+    setIsSystemModalOpen(false);
   };
 
   return (
     <Modal
       width={400}
-      title="单位切换"
-      open={isUnitModalOpen}
+      title="系统切换"
+      open={isSystemModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      okText="确认"
+      cancelText="取消"
     >
       <div
         style={{
@@ -41,11 +43,9 @@ const UnitSwitchModal: FunctionComponent<UnitSwitchModalProps> = ({
       >
         <Radio.Group onChange={onChange} value={value}>
           <Space direction="vertical">
-            <Radio value={1}>省机构</Radio>
-            <Radio value={2}>市机构</Radio>
-            <Radio value={3}>区机构</Radio>
-            <Radio value={4}>高校</Radio>
-            <Radio value={5}>中小学</Radio>
+            <Radio value={1}>系统1</Radio>
+            <Radio value={2}>系统2</Radio>
+            <Radio value={3}>系统3</Radio>
           </Space>
         </Radio.Group>
       </div>
@@ -53,4 +53,4 @@ const UnitSwitchModal: FunctionComponent<UnitSwitchModalProps> = ({
   );
 };
 
-export default UnitSwitchModal;
+export default SystemSwitchModal;
