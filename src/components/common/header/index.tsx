@@ -4,13 +4,12 @@ import {
   TeamOutlined,
   UserSwitchOutlined,
 } from '@ant-design/icons';
-import { PowerIcon } from '@heroicons/react/24/outline';
 import { MenuProps } from 'antd';
-import { signOut } from 'auth';
 import Image from 'next/image';
 import Link from 'next/link';
 import { lusitana } from '../fonts';
-import ThemeSwitcher from './theme-switcher';
+import ThemeSwitcher from '../theme-switcher';
+import { AvatarDropdown } from './avatar-dropdown';
 
 interface HeaderProps {
   isThemeShow?: boolean;
@@ -51,9 +50,9 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
       </Link>
       <div className="flex items-center gap-2">
         {isThemeShow && <ThemeSwitcher />}
-        {/* <AvatarDropdown /> */}
+        <AvatarDropdown />
 
-        <form
+        {/* <form
           action={async () => {
             'use server';
             await signOut();
@@ -63,7 +62,7 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
             <PowerIcon className="w-6" />
             <div className="hidden md:block">Sign Out</div>
           </button>
-        </form>
+        </form> */}
       </div>
     </div>
   );

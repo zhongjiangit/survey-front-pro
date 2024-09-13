@@ -5,19 +5,54 @@ import {
   HomeIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
+import {
+  BookOpenCheck,
+  BookUser,
+  MonitorCog,
+  SquareLibrary,
+  UserRoundCog,
+  UsersRound,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
 const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
+  { name: 'Home', href: '/dashboard', icon: HomeIcon, hide: false },
   {
     name: 'Invoices',
     href: '/dashboard/invoices',
     icon: DocumentDuplicateIcon,
+    hide: true,
   },
-  { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
+  {
+    name: 'Customers',
+    href: '/dashboard/customers',
+    icon: UserGroupIcon,
+    hide: true,
+  },
+  { name: '系统管理', href: '/survey/system', icon: MonitorCog, hide: false },
+  { name: '成员管理', href: '/survey/member', icon: UsersRound, hide: false },
+  { name: '专家配置', href: '/survey/expert', icon: BookUser, hide: false },
+  {
+    name: '数据收集一览',
+    href: '/survey/collect',
+    icon: SquareLibrary,
+    hide: false,
+  },
+  {
+    name: '试题抽检一览',
+    href: '/survey/check',
+    icon: BookOpenCheck,
+    hide: false,
+  },
+  {
+    name: '个人中心',
+    href: '/survey/profile',
+    icon: UserRoundCog,
+    hide: false,
+  },
 ];
 
 export default function NavLinks() {
@@ -25,6 +60,7 @@ export default function NavLinks() {
   return (
     <>
       {links.map(link => {
+        if (link.hide) return null;
         const LinkIcon = link.icon;
         return (
           <Link

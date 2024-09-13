@@ -1,19 +1,19 @@
 'use client';
+import { Button } from '@/components/ui/button';
 import {
   ApartmentOutlined,
   LogoutOutlined,
   TeamOutlined,
   UserSwitchOutlined,
 } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Dropdown } from 'antd';
-import { signOut } from 'auth';
+import { type MenuProps } from 'antd';
+import { CircleUserRound } from 'lucide-react';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback, useState } from 'react';
-import { Button } from '../ui/button';
-import RoleSwitchModal from './RoleSwitchModal';
-import SystemSwitchModal from './SystemSwitchModal';
-import UnitSwitchModal from './UnitSwitchModal';
+import HeaderDropdown from './header-dropdown';
+import RoleSwitchModal from './role-switch-modal';
+import SystemSwitchModal from './system-switch-modal';
+import UnitSwitchModal from './unit-switch-modal';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -46,8 +46,8 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
     //   });
     // }
     async () => {
-      'use server';
-      await signOut();
+      // 'use server';
+      // await signOut();
     };
   };
 
@@ -57,8 +57,8 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
       // flushSync(() => {
       //   setInitialState(s => ({ ...s, currentUser: undefined }));
       // });
-      ('use server');
-      loginOut();
+      // ('use server');
+      // loginOut();
       return;
     }
     if (key === 'role') {
@@ -104,9 +104,19 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
 
   return (
     <>
-      <Dropdown menu={{ items }} placement="bottomRight">
-        <Button variant="ghost">测试员</Button>
-      </Dropdown>
+      <HeaderDropdown
+        menu={{
+          selectedKeys: [],
+          onClick: onMenuClick,
+          items: items,
+        }}
+        placement="bottomRight"
+      >
+        <Button size="sm" variant="ghost" className="flex gap-1 items-center">
+          <CircleUserRound className="w-5 h-5" />
+          测试员
+        </Button>
+      </HeaderDropdown>
       <RoleSwitchModal
         isRoleModalOpen={isRoleModalOpen}
         setIsRoleModalOpen={setIsRoleModalOpen}

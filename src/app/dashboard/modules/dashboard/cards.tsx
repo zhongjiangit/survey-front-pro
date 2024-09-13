@@ -1,4 +1,4 @@
-import { lusitana } from '@/components/fonts';
+import { lusitana } from '@/components/common/fonts';
 import { fetchCardData } from '@/lib/data';
 import {
   BanknotesIcon,

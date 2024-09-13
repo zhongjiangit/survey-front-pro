@@ -33,6 +33,8 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
       open={isRoleModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      okText="确认"
+      cancelText="取消"
     >
       <div
         style={{
