@@ -1,5 +1,12 @@
+'use client';
+import CustomTree from '@/components/common/custom-tree';
+
 function Page() {
-  return <div>expert</div>;
+  return (
+    <div>
+      <CustomTree />
+    </div>
+  );
 }
 
 export default Page;

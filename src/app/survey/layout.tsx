@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="w-full flex-none md:w-64">
           <SideNav />
         </div>
-        <div className="min-h-[88vh] flex-grow p-6 md:overflow-y-auto md:m-4 rounded-lg bg-gray-50">
+        <div className="min-h-[88vh] flex-grow p-6 md:overflow-y-auto md:m-4 rounded-lg">
           {children}
         </div>
       </div>
