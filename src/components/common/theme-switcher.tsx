@@ -22,6 +22,8 @@ function ThemeSwitcher() {
     setColorScheme(
       colorScheme === ColorScheme.LIGHT ? ColorScheme.DARK : ColorScheme.LIGHT
     );
+    // 重新渲染页面
+    window.location.reload();
   };
 
   return (

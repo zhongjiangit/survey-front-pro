@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@ant-design/cssinjs':
+        specifier: ^1.21.1
+        version: 1.21.1(react-dom@19.0.0-rc-f38c22b244-20240704(react@19.0.0-rc-f38c22b244-20240704))(react@19.0.0-rc-f38c22b244-20240704)
       '@ant-design/icons':
         specifier: ^5.4.0
         version: 5.4.0(react-dom@19.0.0-rc-f38c22b244-20240704(react@19.0.0-rc-f38c22b244-20240704))(react@19.0.0-rc-f38c22b244-20240704)

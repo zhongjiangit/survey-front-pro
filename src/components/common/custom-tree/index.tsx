@@ -2,56 +2,24 @@
 
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
-import { Form, Input, message, Modal, Popconfirm, Tree } from 'antd';
+import { Button, Form, Input, message, Modal, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 
-const mockData: TreeDataNode[] = [
-  {
-    title: '四川省',
-    key: '0-0',
-    children: [
-      {
-        title: '绵阳市',
-        key: '0-0-0',
-        children: [
-          {
-            title: '涪城区',
-            key: '0-0-0-0',
-            children: [
-              { title: '绵阳中学', key: '0-0-0-0-0' },
-              { title: '南山中学', key: '0-0-0-1-1' },
-            ],
-          },
-          { title: '游仙区', key: '0-0-0-1' },
-          { title: '江油市', key: '0-0-0-2' },
-        ],
-      },
-      {
-        title: '自贡市',
-        key: '0-0-1',
-        children: [{ title: '二中', key: '0-0-1-0' }],
-      },
-      {
-        title: '内江市',
-        key: '0-0-2',
-      },
-    ],
-  },
-];
-
-interface CustomTreeProps {}
+interface CustomTreeProps {
+  dataSource: TreeDataNode[];
+}
 
 interface Values {
   title?: string;
 }
 
 function CustomTree(props: CustomTreeProps) {
-  const {} = props;
+  const { dataSource } = props;
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
-  const [treeData, setTreeData] = useState(mockData);
+  const [treeData, setTreeData] = useState(dataSource);
   const [open, setOpen] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
@@ -63,6 +31,11 @@ function CustomTree(props: CustomTreeProps) {
       key: uuidv4(),
       title: values.title,
     };
+    if (treeData.length === 0) {
+      setTreeData([node]);
+      setSelectedKeys([node.key]);
+      return;
+    }
     // 递归遍历树节点，找到指定节点并添加子节点
     const addNode = (
       treeData: TreeDataNode[],
@@ -82,6 +55,10 @@ function CustomTree(props: CustomTreeProps) {
         return item;
       });
     };
+    // 如果expandedKeys中没有当前节点的key，则添加当前节点的key
+    if (!expandedKeys.includes(String(selectedKeys[0]))) {
+      setExpandedKeys([...expandedKeys, selectedKeys[0]]);
+    }
     setTreeData(addNode(treeData, String(selectedKeys[0]), node));
     setOpen(false);
   };
@@ -118,6 +95,32 @@ function CustomTree(props: CustomTreeProps) {
   return (
     <>
       {contextHolder}
+      {/* ------- 根节点不存在时显示表单 ------- */}
+      {treeData.length === 0 && (
+        <Form
+          name="form-node"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          style={{ maxWidth: 600 }}
+          initialValues={{ remember: true }}
+          onFinish={onCreate}
+          autoComplete="on"
+        >
+          <Form.Item<Values>
+            label="根节点名称"
+            name="title"
+            rules={[{ required: true, message: '请输入根节点名称!' }]}
+          >
+            <Input type="textarea" />
+          </Form.Item>
+
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Button type="primary" htmlType="submit">
+              提交
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
       <Tree
         onExpand={onExpand}
         expandedKeys={expandedKeys}

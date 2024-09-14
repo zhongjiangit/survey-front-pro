@@ -1,5 +1,6 @@
 'use client';
 
+import { ConfigProvider, theme } from 'antd';
 import { ReactNode, useRef } from 'react';
 import { TouchProvider } from '../components/display/hybrid';
 import {
@@ -7,6 +8,7 @@ import {
   createColorSchemeStore,
 } from '../contexts/useColorScheme';
 import { ColorScheme } from '../interfaces/colorScheme';
+const { darkAlgorithm, defaultAlgorithm } = theme;
 
 interface Props {
   colorScheme: ColorScheme;
@@ -25,9 +27,17 @@ export function Provider({ colorScheme, children }: Props) {
   //     document.documentElement.classList.remove(...classNames);
   //   };
   // }, [ethereumNetwork.network]);
+
   return (
     <ColorSchemeContext.Provider value={store}>
-      <TouchProvider>{children}</TouchProvider>
+      <ConfigProvider
+        theme={{
+          algorithm:
+            colorScheme === ColorScheme.DARK ? darkAlgorithm : defaultAlgorithm,
+        }}
+      >
+        <TouchProvider>{children}</TouchProvider>
+      </ConfigProvider>
     </ColorSchemeContext.Provider>
   );
 }
