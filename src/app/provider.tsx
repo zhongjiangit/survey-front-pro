@@ -17,16 +17,6 @@ interface Props {
 
 export function Provider({ colorScheme, children }: Props) {
   const store = useRef(createColorSchemeStore({ colorScheme })).current;
-  // useEffect(() => {
-  //   const classNames = [
-  //     ethereumNetwork.testnet ? 'testnet' : 'mainnet',
-  //     ethereumNetwork.network,
-  //   ];
-  //   document.documentElement.classList.add(...classNames);
-  //   return () => {
-  //     document.documentElement.classList.remove(...classNames);
-  //   };
-  // }, [ethereumNetwork.network]);
 
   return (
     <ColorSchemeContext.Provider value={store}>

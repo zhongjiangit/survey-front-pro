@@ -8,11 +8,11 @@ import { Provider } from './provider';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Acme Dashboard',
-    default: 'Acme Dashboard',
+    template: '%s | 四川鼎兴数智教育咨询有限公司',
+    default: '四川鼎兴数智教育咨询有限公司',
   },
-  description: 'The official Next.js Learn Dashboard built with App Router.',
-  metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
+  description: '四川鼎兴数智教育咨询有限公司教育督导评估信息化平台集群。',
+  metadataBase: new URL('https://dxjy.online/'),
 };
 export default function RootLayout({
   children,
@@ -20,8 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = cookies();
+
   const colorScheme =
     cookieStore.get('color-scheme')?.value ?? ColorScheme.LIGHT;
+
   return (
     <html lang="en" className={cn({ dark: colorScheme === ColorScheme.DARK })}>
       <body className={`${inter.className} antialiased`}>
