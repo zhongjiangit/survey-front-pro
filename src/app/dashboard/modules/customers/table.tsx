@@ -1,4 +1,4 @@
-import { lusitana } from '@/components/common/fonts';
+import { lusitana } from '@/components/display/fonts';
 import { FormattedCustomersTable } from '@/lib/definitions';
 import Image from 'next/image';
 import Search from '../search';

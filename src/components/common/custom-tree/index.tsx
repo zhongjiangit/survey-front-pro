@@ -8,10 +8,12 @@ import {
 import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
 import { Button, Form, Input, message, Modal, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 
 interface CustomTreeProps {
+  setParam?: boolean;
   dataSource: TreeDataNode[];
 }
 
@@ -20,14 +22,36 @@ interface Values {
 }
 
 function CustomTree(props: CustomTreeProps) {
-  const { dataSource } = props;
+  const { dataSource, setParam = false } = props;
   const [messageApi, contextHolder] = message.useMessage();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
   const [form] = Form.useForm();
   const [treeData, setTreeData] = useState(dataSource);
   const [open, setOpen] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!setParam) return;
+    if (selectedKeys.length === 0) {
+      setUrlParams();
+    } else {
+      setUrlParams(selectedKeys[0] as string);
+    }
+  }, [selectedKeys, setParam]);
+
+  const setUrlParams = (key?: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (key) {
+      params.set('node', key);
+    } else {
+      params.delete('node');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  };
 
   const onCreate = (values: Values) => {
     const node = {
@@ -81,6 +105,9 @@ function CustomTree(props: CustomTreeProps) {
     const deleteNode = (treeData: TreeDataNode[], key: string) => {
       return treeData.filter(node => {
         if (node.key === key) {
+          if (selectedKeys.length > 0 && key === selectedKeys[0]) {
+            setSelectedKeys([]);
+          }
           return false;
         }
         if (node.children) {
@@ -166,24 +193,26 @@ function CustomTree(props: CustomTreeProps) {
         {treeData.length === 0 && (
           <Form
             name="form-node"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            style={{ maxWidth: 600 }}
+            labelCol={{ span: 24 }}
+            wrapperCol={{ span: 24 }}
+            style={{ maxWidth: 400 }}
             initialValues={{ remember: true }}
             onFinish={onCreate}
             autoComplete="on"
+            layout="vertical"
+            requiredMark={false}
           >
             <Form.Item<Values>
-              label="根节点名称"
+              label=""
               name="title"
               rules={[{ required: true, message: '请输入根节点名称!' }]}
             >
-              <Input type="textarea" />
+              <Input type="textarea" placeholder="请输入根节点名称" />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Button type="primary" htmlType="submit">
-                提交
+                确认
               </Button>
             </Form.Item>
           </Form>
@@ -215,19 +244,17 @@ function CustomTree(props: CustomTreeProps) {
                     onClick={() => setOpen(true)}
                   />
                 </Tooltip>
-                <Tooltip title="删除该节点">
-                  <Popconfirm
-                    title="删除节点"
-                    description="该节点及子级节点将被删除且不可恢复，确认删除？"
-                    onConfirm={confirm}
-                    okText="确定"
-                    cancelText="取消"
-                  >
-                    <div onClick={e => e.stopPropagation()}>
-                      <DeleteOutlined className="hover:text-blue-400" />
-                    </div>
-                  </Popconfirm>
-                </Tooltip>
+                <Popconfirm
+                  title="删除节点"
+                  description="该节点及子级节点将被删除且不可恢复，确认删除？"
+                  onConfirm={confirm}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <div onClick={e => e.stopPropagation()}>
+                    <DeleteOutlined className="hover:text-red-500" />
+                  </div>
+                </Popconfirm>
               </div>
             )}
           </div>

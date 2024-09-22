@@ -1,13 +1,7 @@
 import logo from '@/assets/icons/logo.png';
-import {
-  ApartmentOutlined,
-  TeamOutlined,
-  UserSwitchOutlined,
-} from '@ant-design/icons';
-import { MenuProps } from 'antd';
 import Image from 'next/image';
 import Link from 'next/link';
-import { lusitana } from '../fonts';
+import { lusitana } from '../../display/fonts';
 import ThemeSwitcher from '../theme-switcher';
 import { AvatarDropdown } from './avatar-dropdown';
 
@@ -15,26 +9,6 @@ interface HeaderProps {
   isThemeShow?: boolean;
 }
 
-const items: MenuProps['items'] = [
-  {
-    key: 'system',
-    icon: <TeamOutlined />,
-    label: '系统切换',
-  },
-  {
-    key: 'unit',
-    icon: <ApartmentOutlined />,
-    label: '单位切换',
-  },
-  {
-    key: 'role',
-    icon: <UserSwitchOutlined />,
-    label: '角色切换',
-  },
-  {
-    type: 'divider' as const,
-  },
-];
 export default function Header({ isThemeShow = false }: HeaderProps) {
   return (
     <div className="w-full flex items-center justify-between">
@@ -51,18 +25,6 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
       <div className="flex items-center gap-2">
         {isThemeShow && <ThemeSwitcher />}
         <AvatarDropdown />
-
-        {/* <form
-          action={async () => {
-            'use server';
-            await signOut();
-          }}
-        >
-          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 dark:bg-gray-800 p-3 text-sm font-medium hover:bg-sky-100 dark:hover:bg-gray-950 hover:text-blue-600 dark:hover:text-blue-50 md:flex-none md:justify-start md:p-2 md:px-3">
-            <PowerIcon className="w-6" />
-            <div className="hidden md:block">Sign Out</div>
-          </button>
-        </form> */}
       </div>
     </div>
   );

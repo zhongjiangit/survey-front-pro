@@ -1,6 +1,7 @@
 'use client';
 
 import { ConfigProvider, theme } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
 import { ReactNode, useRef } from 'react';
 import { TouchProvider } from '../components/display/hybrid';
 import {
@@ -21,6 +22,7 @@ export function Provider({ colorScheme, children }: Props) {
   return (
     <ColorSchemeContext.Provider value={store}>
       <ConfigProvider
+        locale={zhCN}
         theme={{
           algorithm:
             colorScheme === ColorScheme.DARK ? darkAlgorithm : defaultAlgorithm,

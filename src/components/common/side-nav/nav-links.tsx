@@ -1,10 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import {
-  DocumentDuplicateIcon,
-  HomeIcon,
-  UserGroupIcon,
-} from '@heroicons/react/24/outline';
+import { HomeIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import {
   BookOpenCheck,
   BookUser,
@@ -20,12 +16,6 @@ import { usePathname } from 'next/navigation';
 // Depending on the size of the application, this would be stored in a database.
 const links = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon, hide: false },
-  {
-    name: 'Invoices',
-    href: '/dashboard/invoices',
-    icon: DocumentDuplicateIcon,
-    hide: true,
-  },
   {
     name: 'Customers',
     href: '/dashboard/customers',
@@ -70,7 +60,7 @@ export default function NavLinks() {
               'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 dark:bg-gray-900 p-3 text-sm font-medium hover:bg-sky-100 dark:hover:bg-sky-800 hover:text-blue-600 dark:hover:text-blue-50 md:flex-none md:justify-start md:p-2 md:px-3',
               {
                 'bg-sky-100 dark:bg-sky-800 text-blue-600 dark:text-blue-50':
-                  pathname === link.href,
+                  pathname.includes(link.href),
               }
             )}
           >

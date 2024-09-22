@@ -1,6 +1,6 @@
 import Search from '@/app/dashboard/modules/search';
 import { InvoicesTableSkeleton } from '@/app/dashboard/modules/skeletons';
-import { lusitana } from '@/components/common/fonts';
+import { lusitana } from '@/components/display/fonts';
 import { fetchInvoicesPages } from '@/lib/data';
 import { Metadata } from 'next';
 import { Suspense } from 'react';

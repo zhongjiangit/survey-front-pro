@@ -1,4 +1,4 @@
-import { lusitana } from '@/components/common/fonts';
+import { lusitana } from '@/components/display/fonts';
 import { fetchLatestInvoices } from '@/lib/data';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';

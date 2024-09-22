@@ -53,7 +53,7 @@ const Profile: React.FC = () => {
   };
   return (
     <div className="flex flex-col lg:flex-row w-full h-[76vh] overflow-auto py-4 rounded-lg">
-      <div className="w-full lg:w-56 border-r-0 lg:border-r border-gray-200">
+      <div className="w-full lg:w-56 border-r-0 lg:border-r border-gray-200 dark:border-gray-800">
         <Menu
           mode={initConfig.mode}
           selectedKeys={[initConfig.selectKey]}

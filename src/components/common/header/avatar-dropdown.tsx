@@ -11,9 +11,9 @@ import { CircleUserRound } from 'lucide-react';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback, useState } from 'react';
 import HeaderDropdown from './header-dropdown';
-import RoleSwitchModal from './role-switch-modal';
-import SystemSwitchModal from './system-switch-modal';
-import UnitSwitchModal from './unit-switch-modal';
+import RoleSwitchModal from './switch-modal/role-switch-modal';
+import SystemSwitchModal from './switch-modal/system-switch-modal';
+import UnitSwitchModal from './switch-modal/unit-switch-modal';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;

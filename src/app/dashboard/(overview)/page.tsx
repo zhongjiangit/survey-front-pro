@@ -3,7 +3,7 @@ import {
   LatestInvoicesSkeleton,
   RevenueChartSkeleton,
 } from '@/app/dashboard/modules/skeletons';
-import { lusitana } from '@/components/common/fonts';
+import { lusitana } from '@/components/display/fonts';
 import { Suspense } from 'react';
 import CardWrapper from '../modules/dashboard/cards';
 import LatestInvoices from '../modules/dashboard/latest-invoices';

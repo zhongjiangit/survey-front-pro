@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/common/button';
+import { Button } from '@/components/ui/button';
 import { State, updateInvoice } from '@/lib/actions';
 import { CustomerField, InvoiceForm } from '@/lib/definitions';
 import {

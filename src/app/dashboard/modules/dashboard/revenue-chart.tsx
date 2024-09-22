@@ -1,4 +1,4 @@
-import { lusitana } from '@/components/common/fonts';
+import { lusitana } from '@/components/display/fonts';
 import { fetchRevenue } from '@/lib/data';
 import { generateYAxis } from '@/lib/utils';
 import { CalendarIcon } from '@heroicons/react/24/outline';
