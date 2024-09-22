@@ -12,20 +12,15 @@ export default function Page() {
         <Header isThemeShow />
       </div>
       <div className="mt-4 flex grow flex-col-reverse sm:flex-col gap-4 md:flex-row">
-        <div className="flex flex-col gap-10 justify-center p-4 md:w-1/2 md:p-12">
-          <Image
-            src={business}
-            width={1000}
-            className="hidden md:block"
-            alt="Screenshots of the dashboard project showing desktop version"
-          />
-          <Image
-            src={business}
-            width={560}
-            height={620}
-            className="block md:hidden"
-            alt="Screenshot of the dashboard project showing mobile version"
-          />
+        <div className="flex flex-col gap-10 justify-center p-4 md:w-1/2">
+          <div className="flex justify-center items-center">
+            <Image
+              src={business}
+              width={400}
+              alt="Screenshot of the dashboard project showing mobile version"
+            />
+          </div>
+
           <CardList />
         </div>
         <div className="flex flex-col justify-center items-center gap-6 rounded-lg bg-gray-50 dark:bg-gray-900 px-6 py-10 md:w-1/2 md:px-12">

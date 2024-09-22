@@ -36,7 +36,7 @@ export default function LoginForm() {
   const [type, setType] = useState<string>('account');
 
   return (
-    <div className="w-96 md:-mt-[16vh] md:py-8 md:w-[28rem] md:shadow-2xl rounded-lg">
+    <div className="w-96 md:shadow-2xl rounded-lg">
       {contextHolder}
       <Form
         contentStyle={{

@@ -16,7 +16,7 @@ function CardList() {
         }}
         bordered={false}
         hoverable
-        className="bg-sky-100 dark:bg-sky-900 p-4"
+        className="bg-sky-100 dark:bg-sky-900"
       >
         <div className="flex flex-row sm:flex-col gap-4 sm:gap-0">
           <div className="flex flex-col w-6 sm:w-auto sm:flex-row justify-center gap-2 font-extrabold text-zinc-600 dark:text-zinc-200">
@@ -34,7 +34,7 @@ function CardList() {
         }}
         bordered={false}
         hoverable
-        className="bg-sky-100 dark:bg-sky-900 p-4"
+        className="bg-sky-100 dark:bg-sky-900"
       >
         <div className="flex flex-row sm:flex-col gap-4 sm:gap-0">
           <div className="flex flex-col w-6 sm:w-auto sm:flex-row justify-center gap-2 font-extrabold text-zinc-600 dark:text-zinc-200">
@@ -52,7 +52,7 @@ function CardList() {
         }}
         bordered={false}
         hoverable
-        className="bg-sky-100 dark:bg-sky-900 p-4"
+        className="bg-sky-100 dark:bg-sky-900"
       >
         <div className="flex flex-row sm:flex-col gap-4 sm:gap-0">
           <div className="flex flex-col w-6 sm:w-auto sm:flex-row justify-center gap-2 font-extrabold text-zinc-600 dark:text-zinc-200">
@@ -70,7 +70,7 @@ function CardList() {
         }}
         bordered={false}
         hoverable
-        className="bg-sky-100 dark:bg-sky-900 p-4"
+        className="bg-sky-100 dark:bg-sky-900"
       >
         <div className="flex flex-row sm:flex-col gap-4 sm:gap-0">
           <div className="flex flex-col w-6 sm:w-auto sm:flex-row items-center justify-center gap-2 font-extrabold text-zinc-600 dark:text-zinc-200">
