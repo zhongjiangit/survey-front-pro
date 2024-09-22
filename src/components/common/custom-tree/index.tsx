@@ -4,21 +4,22 @@ import {
   DeleteOutlined,
   DownOutlined,
   PlusCircleOutlined,
+  SaveOutlined,
 } from '@ant-design/icons';
 import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
-import { Button, Form, Input, message, Modal, Popconfirm, Tree } from 'antd';
+import { Input, message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
+
+interface CustomTreeDataNode extends TreeDataNode {
+  type?: string;
+}
 
 interface CustomTreeProps {
   setParam?: boolean;
-  dataSource: TreeDataNode[];
-}
-
-interface Values {
-  title?: string;
+  dataSource: CustomTreeDataNode[];
 }
 
 function CustomTree(props: CustomTreeProps) {
@@ -27,13 +28,15 @@ function CustomTree(props: CustomTreeProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [form] = Form.useForm();
   const [treeData, setTreeData] = useState(dataSource);
-  const [open, setOpen] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
+  const [nodeTitle, setNodeTitle] = useState('');
 
+  /**
+   * 监听是否需要设置url参数
+   */
   useEffect(() => {
     if (!setParam) return;
     if (selectedKeys.length === 0) {
@@ -43,32 +46,73 @@ function CustomTree(props: CustomTreeProps) {
     }
   }, [selectedKeys, setParam]);
 
-  const setUrlParams = (key?: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (key) {
-      params.set('node', key);
-    } else {
-      params.delete('node');
-    }
-    replace(`${pathname}?${params.toString()}`);
+  /**
+   * 设置url参数
+   */
+  const setUrlParams = useCallback(
+    (key?: string) => {
+      const params = new URLSearchParams(searchParams);
+      if (key) {
+        params.set('node', key);
+      } else {
+        params.delete('node');
+      }
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, pathname]
+  );
+
+  /**
+   * 检查是否存在input类型节点  存在则不允许新增
+   * @param treeData
+   * @returns
+   */
+  const checkNode = (treeData: CustomTreeDataNode[]): boolean => {
+    return treeData.some(node => {
+      if (node.type === 'input') {
+        messageApi.open({
+          type: 'error',
+          content: '请先保存编辑中节点',
+        });
+        return true;
+      }
+      if (node.children) {
+        return checkNode(node.children);
+      }
+      return false;
+    });
   };
 
-  const onCreate = (values: Values) => {
+  /**
+   * 创建节点
+   * @returns
+   */
+  const onCreate = () => {
+    // 递归遍历树节点，如果树节点中已经有input类型节点，则不允许新增
+    if (checkNode(treeData)) {
+      return;
+    }
     const node = {
       // 生成 uuid 作为 key
       key: uuidv4(),
-      title: values.title,
+      type: 'input',
+      isLeaf: false,
+      title: (
+        <Input
+          type="textarea"
+          size="small"
+          placeholder="请输入节点名称"
+          onChange={e => {
+            setNodeTitle(e.target.value);
+          }}
+        />
+      ),
     };
-    if (treeData.length === 0) {
-      setTreeData([node]);
-      setSelectedKeys([node.key]);
-      return;
-    }
     // 递归遍历树节点，找到指定节点并添加子节点
     const addNode = (
-      treeData: TreeDataNode[],
+      treeData: CustomTreeDataNode[],
       key: string,
-      node: TreeDataNode
+      node: CustomTreeDataNode
     ) => {
       return treeData.map(item => {
         if (item.key === key) {
@@ -88,21 +132,74 @@ function CustomTree(props: CustomTreeProps) {
       setExpandedKeys([...expandedKeys, selectedKeys[0]]);
     }
     setTreeData(addNode(treeData, String(selectedKeys[0]), node));
-    setOpen(false);
   };
 
+  /**
+   * 保存节点
+   * @param key
+   * @param title
+   * @returns
+   */
+  const saveNode = (key: string, title: string) => {
+    if (!title) {
+      messageApi.open({
+        type: 'error',
+        content: '请输入节点名称',
+      });
+      return;
+    }
+    if (treeData.length === 0) {
+      setTreeData([{ key, title }]);
+      setSelectedKeys([key]);
+      return;
+    }
+    // 递归遍历树节点，找到指定节点并更新节点名称
+    const saveNode = (
+      treeData: CustomTreeDataNode[],
+      key: string,
+      title: string
+    ) => {
+      return treeData.map(node => {
+        if (node.key === key) {
+          node.title = nodeTitle;
+          node.type = 'text';
+        } else if (node.children) {
+          saveNode(node.children, key, title);
+        }
+        return node;
+      });
+    };
+    setTreeData(saveNode(treeData, key, title));
+    setNodeTitle('');
+    messageApi.open({
+      type: 'success',
+      content: '节点保存成功',
+    });
+  };
+
+  /**
+   * 打开/关闭节点
+   * @param expandedKeysValue
+   */
   const onExpand: TreeProps['onExpand'] = expandedKeysValue => {
     setExpandedKeys(expandedKeysValue);
     setAutoExpandParent(false);
   };
 
+  /**
+   * 选择节点
+   * @param selectedKeysValue
+   */
   const onSelect: TreeProps['onSelect'] = selectedKeysValue => {
     setSelectedKeys(selectedKeysValue);
   };
 
+  /**
+   * 删除节点
+   */
   const confirm: PopconfirmProps['onConfirm'] = () => {
     // 递归遍历树节点，删除指定节点
-    const deleteNode = (treeData: TreeDataNode[], key: string) => {
+    const deleteNode = (treeData: CustomTreeDataNode[], key: string) => {
       return treeData.filter(node => {
         if (node.key === key) {
           if (selectedKeys.length > 0 && key === selectedKeys[0]) {
@@ -123,12 +220,20 @@ function CustomTree(props: CustomTreeProps) {
     });
   };
 
+  /**
+   * 进入拖动节点
+   * @param info
+   */
   const onDragEnter: TreeProps['onDragEnter'] = info => {
     console.log(info);
     // expandedKeys, set it when controlled is needed
     // setExpandedKeys(info.expandedKeys)
   };
 
+  /**
+   * 拖动节点
+   * @param info
+   */
   const onDrop: TreeProps['onDrop'] = info => {
     console.log(info);
     const dropKey = info.node.key;
@@ -138,9 +243,13 @@ function CustomTree(props: CustomTreeProps) {
       info.dropPosition - Number(dropPos[dropPos.length - 1]); // the drop position relative to the drop node, inside 0, top -1, bottom 1
 
     const loop = (
-      data: TreeDataNode[],
+      data: CustomTreeDataNode[],
       key: React.Key,
-      callback: (node: TreeDataNode, i: number, data: TreeDataNode[]) => void
+      callback: (
+        node: CustomTreeDataNode,
+        i: number,
+        data: CustomTreeDataNode[]
+      ) => void
     ) => {
       for (let i = 0; i < data.length; i++) {
         if (data[i].key === key) {
@@ -154,7 +263,7 @@ function CustomTree(props: CustomTreeProps) {
     const data = [...treeData];
 
     // Find dragObject
-    let dragObj: TreeDataNode;
+    let dragObj: CustomTreeDataNode;
     loop(data, dragKey, (item, index, arr) => {
       arr.splice(index, 1);
       dragObj = item;
@@ -168,7 +277,7 @@ function CustomTree(props: CustomTreeProps) {
         item.children.unshift(dragObj);
       });
     } else {
-      let ar: TreeDataNode[] = [];
+      let ar: CustomTreeDataNode[] = [];
       let i: number;
       loop(data, dropKey, (_item, index, arr) => {
         ar = arr;
@@ -191,34 +300,25 @@ function CustomTree(props: CustomTreeProps) {
       {/* ------- 根节点不存在时显示表单 ------- */}
       <div className="flex justify-start items-start">
         {treeData.length === 0 && (
-          <Form
-            name="form-node"
-            labelCol={{ span: 24 }}
-            wrapperCol={{ span: 24 }}
-            style={{ maxWidth: 400 }}
-            initialValues={{ remember: true }}
-            onFinish={onCreate}
-            autoComplete="on"
-            layout="vertical"
-            requiredMark={false}
-          >
-            <Form.Item<Values>
-              label=""
-              name="title"
-              rules={[{ required: true, message: '请输入根节点名称!' }]}
-            >
-              <Input type="textarea" placeholder="请输入根节点名称" />
-            </Form.Item>
-
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                确认
-              </Button>
-            </Form.Item>
-          </Form>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="textarea"
+              size="small"
+              placeholder="请输入根节点名称"
+              onChange={e => {
+                setNodeTitle(e.target.value);
+              }}
+            />
+            <Tooltip title="保存节点">
+              <SaveOutlined
+                className="hover:text-blue-400"
+                onClick={() => saveNode(uuidv4(), nodeTitle)}
+              />
+            </Tooltip>
+          </div>
         )}
       </div>
-
+      {/* ----------- 树展示 ---------------- */}
       <Tree
         onExpand={onExpand}
         expandedKeys={expandedKeys}
@@ -235,15 +335,28 @@ function CustomTree(props: CustomTreeProps) {
         onDrop={onDrop}
         titleRender={nodeData => (
           <div className="group flex items-center justify-center gap-1">
-            {`${nodeData.title}`}
+            {typeof nodeData.title === 'function'
+              ? nodeData.title(nodeData)
+              : nodeData.title}
             {nodeData.key === selectedKeys[0] && (
               <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                <Tooltip title="新增下级节点">
-                  <PlusCircleOutlined
-                    className="hover:text-blue-400"
-                    onClick={() => setOpen(true)}
-                  />
-                </Tooltip>
+                {nodeData.type === 'input' ? (
+                  <Tooltip title="保存节点">
+                    <SaveOutlined
+                      className="hover:text-blue-400"
+                      onClick={() =>
+                        saveNode(nodeData.key as string, nodeTitle)
+                      }
+                    />
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="新增下级节点">
+                    <PlusCircleOutlined
+                      className="hover:text-blue-400"
+                      onClick={() => onCreate()}
+                    />
+                  </Tooltip>
+                )}
                 <Popconfirm
                   title="删除节点"
                   description="该节点及子级节点将被删除且不可恢复，确认删除？"
@@ -260,40 +373,6 @@ function CustomTree(props: CustomTreeProps) {
           </div>
         )}
       />
-      <Modal
-        open={open}
-        title="新增节点"
-        okText="确定"
-        cancelText="取消"
-        okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
-        onCancel={() => setOpen(false)}
-        destroyOnClose
-        modalRender={dom => (
-          <Form
-            layout="horizontal"
-            form={form}
-            name="form_in_modal"
-            initialValues={{ modifier: 'public' }}
-            clearOnDestroy
-            onFinish={values => onCreate(values)}
-          >
-            {dom}
-          </Form>
-        )}
-      >
-        <Form.Item
-          name="title"
-          label="节点名称"
-          rules={[
-            {
-              required: true,
-              message: '请输入节点名称!',
-            },
-          ]}
-        >
-          <Input type="textarea" />
-        </Form.Item>
-      </Modal>
     </>
   );
 }
