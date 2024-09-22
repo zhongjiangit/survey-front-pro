@@ -1,4 +1,5 @@
 'use client';
+
 import CustomTree from '@/components/common/custom-tree';
 import MemberManage from '@/components/common/member-manage';
 import { Button } from '@/components/ui/button';
@@ -20,42 +21,9 @@ import { TagIcon } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-const treeData = [
-  {
-    value: 'parent 1',
-    title: 'parent 1',
-    children: [
-      {
-        value: 'parent 1-0',
-        title: 'parent 1-0',
-        children: [
-          {
-            value: 'leaf1',
-            title: 'my leaf',
-          },
-          {
-            value: 'leaf2',
-            title: 'your leaf',
-          },
-        ],
-      },
-      {
-        value: 'parent 1-1',
-        title: 'parent 1-1',
-        children: [
-          {
-            value: 'sss',
-            title: 'sss',
-          },
-        ],
-      },
-    ],
-  },
-];
-
 interface BasicProps {}
 
-const Basic = () => {
+const Basic = (props: BasicProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -164,9 +132,8 @@ const Basic = () => {
               <span className="w-24 text-right font-medium">各层级名称：</span>
               <div className="flex gap-2">
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <div className="flex items-center gap-2">
+                  <div key={index} className="flex items-center gap-2">
                     <Input
-                      key={index}
                       type="text"
                       className="h-8 w-32"
                       placeholder={`第${index + 1}层级名称`}
@@ -180,7 +147,7 @@ const Basic = () => {
               <span className="w-24 text-right font-medium">各层级标签：</span>
               <div className="flex gap-2">
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <div className="flex items-center gap-2">
+                  <div key={index} className="flex items-center gap-2">
                     <Tag
                       className="flex items-center gap-1 cursor-pointer hover:scale-105"
                       icon={<TagIcon className="h-3 w-3" />}
@@ -219,7 +186,7 @@ const Basic = () => {
                   multiple
                   treeDefaultExpandAll
                   onChange={onChange}
-                  treeData={treeData}
+                  treeData={[]}
                 />
               </div>
               <div className="flex items-center">
