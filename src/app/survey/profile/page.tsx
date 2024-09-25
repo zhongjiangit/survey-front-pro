@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useMedia } from 'react-use';
 import BaseView from './components/base';
 import Phone from './components/phone';
+import Recharge from './components/recharge';
 import SecurityView from './components/security';
 
-type SettingsStateKeys = 'base' | 'security' | 'notification';
+type SettingsStateKeys = 'base' | 'security' | 'notification' | 'recharge';
 type SettingsState = {
   mode: 'inline' | 'horizontal';
   selectKey: SettingsStateKeys;
@@ -18,6 +19,7 @@ const Profile: React.FC = () => {
     base: '基本设置',
     security: '安全设置',
     notification: '手机更换',
+    recharge: '充值/续费',
   };
   const [initConfig, setInitConfig] = useState<SettingsState>({
     mode: 'inline',
@@ -29,6 +31,7 @@ const Profile: React.FC = () => {
       ...initConfig,
       mode: isDesktop ? 'inline' : 'horizontal',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDesktop]);
 
   const getMenu = () => {
@@ -47,6 +50,8 @@ const Profile: React.FC = () => {
         return <SecurityView />;
       case 'notification':
         return <Phone />;
+      case 'recharge':
+        return <Recharge />;
       default:
         return null;
     }
