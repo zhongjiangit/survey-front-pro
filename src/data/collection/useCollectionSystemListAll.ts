@@ -8,7 +8,7 @@ import useSWR from 'swr';
  */
 
 export default function useCollectionSystemListAll() {
-  return useSWR('/api/collection/system/list-all', url =>
+  return useSWR('/api/system/list-all', url =>
     request.post<ResponseObject>(url)
   );
 }

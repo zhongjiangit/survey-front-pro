@@ -16,7 +16,7 @@ type LoginParams = {
 
 export default function useCollectionLogin(params: LoginParams) {
   return useSWR(
-    params != null ? ['/api/collection/login/user-login', params] : null,
+    params != null ? ['/api/login/user-login', params] : null,
     ([url, params]) => request.post<ResponseObject>(url, { params })
   );
 }
