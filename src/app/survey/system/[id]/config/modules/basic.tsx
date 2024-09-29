@@ -1,16 +1,13 @@
 'use client';
 
 import CustomTree from '@/components/common/custom-tree';
-import MemberManage from '@/components/common/member-manage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { TeamOutlined } from '@ant-design/icons';
 import {
   Col,
   Divider,
   Drawer,
   Empty,
-  Modal,
   Row,
   Space,
   Switch,
@@ -25,9 +22,6 @@ interface BasicProps {}
 
 const Basic = (props: BasicProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-
   const [tags, setTags] = useState([]);
   const [drawerName, setDrawerName] = useState('');
   const searchParams = useSearchParams();
@@ -47,23 +41,6 @@ const Basic = (props: BasicProps) => {
 
   const onClose = () => {
     setDrawerOpen(false);
-  };
-
-  const showModal = () => {
-    setModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setModalOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const handleCancel = () => {
-    console.log('Clicked cancel button');
-    setModalOpen(false);
   };
 
   return (
@@ -189,16 +166,28 @@ const Basic = (props: BasicProps) => {
                   treeData={[]}
                 />
               </div>
-              <div className="flex items-center">
+              <div className="flex flex-col items-start">
                 <span className="w-24 text-right font-medium">成员管理：</span>
-                <Tag
+                {/* <Tag
                   className="flex items-center gap-1 cursor-pointer hover:scale-105"
                   icon={<TeamOutlined className="h-3 w-3" />}
                   color="#f50"
-                  onClick={showModal}
                 >
                   管理节点所属成员
-                </Tag>
+                </Tag> */}
+                <div className="flex flex-col gap-2 py-3 px-10">
+                  <span className="font-medium">单位管理员</span>
+                  <div className="flex gap-5">
+                    <div>
+                      姓名：<span>张三</span>
+                    </div>
+                    <div>
+                      电话：<span>1xxx</span>
+                    </div>
+                  </div>
+
+                  <span className="font-medium">其他用户</span>
+                </div>
               </div>
               <div className="flex justify-end px-5">
                 <Button size="sm">保存节点配置</Button>
@@ -230,17 +219,6 @@ const Basic = (props: BasicProps) => {
       >
         <CustomTree dataSource={tags} />
       </Drawer>
-      <Modal
-        title="节点所属成员"
-        destroyOnClose
-        open={modalOpen}
-        onOk={handleOk}
-        confirmLoading={confirmLoading}
-        onCancel={handleCancel}
-        width={'95%'}
-      >
-        <MemberManage />
-      </Modal>
     </div>
   );
 };
