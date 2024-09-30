@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useMedia } from 'react-use';
 import BaseView from './components/base';
 import Phone from './components/phone';
-import Recharge from './components/recharge';
 import SecurityView from './components/security';
 
 type SettingsStateKeys = 'base' | 'security' | 'notification' | 'recharge';
@@ -19,7 +18,7 @@ const Profile: React.FC = () => {
     base: '基本设置',
     security: '安全设置',
     notification: '手机更换',
-    recharge: '充值/续费',
+    // recharge: '充值/续费',
   };
   const [initConfig, setInitConfig] = useState<SettingsState>({
     mode: 'inline',
@@ -50,8 +49,8 @@ const Profile: React.FC = () => {
         return <SecurityView />;
       case 'notification':
         return <Phone />;
-      case 'recharge':
-        return <Recharge />;
+      // case 'recharge':
+      //   return <Recharge />;
       default:
         return null;
     }

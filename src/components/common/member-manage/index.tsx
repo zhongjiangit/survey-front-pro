@@ -37,24 +37,38 @@ const MemberManage: FunctionComponent<
         dataIndex: 'name',
         key: 'name',
         width: '15%',
+        formItemProps: (form, { rowIndex }) => {
+          return {
+            rules:
+              rowIndex > 1 ? [{ required: true, message: '姓名为必填项' }] : [],
+          };
+        },
+        // 第一行不允许编辑
+        editable: (text, record, index) => {
+          return index !== 0;
+        },
       },
       {
         title: '电话',
-        dataIndex: 'workId',
-        key: 'workId',
-        width: '15%',
+        dataIndex: 'phone',
+        key: 'phone',
+        width: '20%',
+        formItemProps: (form, { rowIndex }) => {
+          return {
+            rules: [{ required: true, message: '电话为必填项' }],
+          };
+        },
       },
       {
-        title: '可见范围',
-        dataIndex: 'department',
-        key: 'department',
-        width: '15%',
-      },
-      {
-        title: '成员属性',
-        dataIndex: 'attribute',
-        key: 'attribute',
-        width: '15%',
+        title: '角色',
+        dataIndex: 'role',
+        key: 'role',
+        width: '20%',
+        formItemProps: (form, { rowIndex }) => {
+          return {
+            rules: [{ required: true, message: '角色为必选项' }],
+          };
+        },
         renderFormItem() {
           return (
             <Select
@@ -63,12 +77,12 @@ const MemberManage: FunctionComponent<
               placeholder="请选择节点标签"
               options={[
                 {
-                  label: '管理员',
-                  value: '管理员',
+                  label: '普通管理员',
+                  value: 'normalAdmin',
                 },
                 {
                   label: '普通成员',
-                  value: '普通成员',
+                  value: 'normalMember',
                 },
               ]}
             />
@@ -80,9 +94,9 @@ const MemberManage: FunctionComponent<
       },
       {
         title: '标签',
-        dataIndex: 'tag',
-        key: 'tag',
-        width: '15%',
+        dataIndex: 'tags',
+        key: 'tags',
+        width: '30%',
         renderFormItem() {
           return (
             <TreeSelect

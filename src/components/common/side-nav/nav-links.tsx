@@ -4,6 +4,7 @@ import { HomeIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import {
   BookOpenCheck,
   BookUser,
+  Cable,
   MonitorCog,
   SquareLibrary,
   UserRoundCog,
@@ -43,12 +44,18 @@ const links = [
     icon: UserRoundCog,
     hide: false,
   },
+  {
+    name: '充值/续费',
+    href: '/survey/recharge',
+    icon: Cable,
+    hide: false,
+  },
 ];
 
 export default function NavLinks() {
   const pathname = usePathname();
   return (
-    <>
+    <div>
       {links.map(link => {
         if (link.hide) return null;
         const LinkIcon = link.icon;
@@ -69,6 +76,6 @@ export default function NavLinks() {
           </Link>
         );
       })}
-    </>
+    </div>
   );
 }

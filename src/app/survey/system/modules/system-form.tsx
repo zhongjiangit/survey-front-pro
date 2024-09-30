@@ -1,5 +1,6 @@
 'use client';
 
+import type { FormItemProps } from 'antd';
 import {
   Button,
   DatePicker,
@@ -10,6 +11,22 @@ import {
   Switch,
 } from 'antd';
 import Link from 'next/link';
+import React from 'react';
+
+const MyFormItemContext = React.createContext<(string | number)[]>([]);
+
+// 各层级名称label枚举
+const levelNames = ['一', '二', '三', '四'];
+
+interface MyFormItemGroupProps {
+  prefix: string | number | (string | number)[];
+}
+
+function toArr(
+  str: string | number | (string | number)[]
+): (string | number)[] {
+  return Array.isArray(str) ? str : [str];
+}
 
 interface Props {
   initialValues?: any;
@@ -79,10 +96,41 @@ const SystemForm = (props: Props) => {
         >
           <InputNumber
             min={0}
+            max={4}
             placeholder="请输入系统最多允许层级"
             className="w-full"
+            onChange={e => {
+              if (e) form.setFieldValue('levelNames', e);
+            }}
           />
         </Form.Item>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, currentValues) =>
+            prevValues.levelNames !== currentValues.levelNames
+          }
+        >
+          {({ getFieldValue }) =>
+            getFieldValue('levelNames') !== 0 ? (
+              <MyFormItemGroup prefix={['levelNames']}>
+                {/* 获取levelCount之后实时遍历生成表单 */}
+                {[...Array(getFieldValue('levelCount') || 0)].map(
+                  (_, index) => (
+                    <MyFormItem
+                      key={index}
+                      name={index}
+                      label={`第${levelNames[index]}级名称`}
+                      rules={[{ required: true }]}
+                    >
+                      <Input type="textarea" />
+                    </MyFormItem>
+                  )
+                )}
+              </MyFormItemGroup>
+            ) : null
+          }
+        </Form.Item>
+
         <Form.Item name="allowSubInitiate" label="是否允许下层级使用该系统">
           <Switch
             onChange={e => {
@@ -121,3 +169,27 @@ const SystemForm = (props: Props) => {
 };
 
 export default SystemForm;
+
+const MyFormItemGroup: React.FC<
+  React.PropsWithChildren<MyFormItemGroupProps>
+> = ({ prefix, children }) => {
+  const prefixPath = React.useContext(MyFormItemContext);
+  const concatPath = React.useMemo(
+    () => [...prefixPath, ...toArr(prefix)],
+    [prefixPath, prefix]
+  );
+
+  return (
+    <MyFormItemContext.Provider value={concatPath}>
+      {children}
+    </MyFormItemContext.Provider>
+  );
+};
+
+const MyFormItem = ({ name, ...props }: FormItemProps) => {
+  const prefixPath = React.useContext(MyFormItemContext);
+  const concatName =
+    name !== undefined ? [...prefixPath, ...toArr(name)] : undefined;
+
+  return <Form.Item name={concatName} {...props} />;
+};

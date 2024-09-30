@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import Basic from './modules/basic';
 import Check from './modules/check';
 import Collect from './modules/collect';
+import Node from './modules/node';
 
 export const metadata: Metadata = {
   title: '系统配置',
@@ -16,6 +17,11 @@ const items: TabsProps['items'] = [
     key: 'basic',
     label: '基本信息配置',
     children: <Basic />,
+  },
+  {
+    key: 'node',
+    label: '节点配置',
+    children: <Node />,
   },
   {
     key: 'collect',
