@@ -1,24 +1,23 @@
 'use client';
 
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import useSystemListAllSWR from '@/data/system/useSystemListAllSWR';
 import type { TableProps } from 'antd';
 import { Table, Tag } from 'antd';
 import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
+import { useMemo } from 'react';
+import { SystemType } from '@/interfaces/SystemType';
 
-interface DataType {
-  id: string;
-  systemName: string;
-  levelCount: number;
-  levelNames: string[];
-  remaining: number;
-  count: number;
-  validDate: string;
-}
-
-const columns: TableProps<DataType>['columns'] = [
+const columns: TableProps<SystemType>['columns'] = [
   {
     title: '系统名称',
     dataIndex: 'systemName',
     key: 'systemName',
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'createDate',
+    key: 'createDate',
   },
   {
     title: '层级',
@@ -27,30 +26,30 @@ const columns: TableProps<DataType>['columns'] = [
   },
   {
     title: '各层级名称',
-    key: 'levelNames',
-    render: (_, { levelNames }) => (
+    key: 'levels',
+    render: (_, { levels }) => (
       <div className="flex">
-        {levelNames.map((name, index) => (
+        {levels.map((level, index) => (
           <Tag key={index} color={index % 2 === 0 ? 'blue' : 'green'}>
-            {name}
+            {level.levelName}
           </Tag>
         ))}
       </div>
     ),
   },
   {
-    title: '创建时间',
-    dataIndex: 'validDate',
-    key: 'validDate',
+    title: '剩余次数/总次数',
+    key: 'freeTimes',
+    render: (_, { leftTimes, freeTimes }) => (
+      <div>
+        {leftTimes} / {freeTimes}
+      </div>
+    ),
   },
   {
-    title: '剩余次数/总次数',
-    key: 'count',
-    render: (_, { remaining, count }) => (
-      <>
-        {remaining} / {count}
-      </>
-    ),
+    title: '账号有效期',
+    dataIndex: 'validDate',
+    key: 'validDate',
   },
   {
     title: '操作',
@@ -65,50 +64,24 @@ const columns: TableProps<DataType>['columns'] = [
   },
 ];
 
-const data: DataType[] = [
-  {
-    id: 'ae42d64d-c0bf-4008-b729-60b7ad865433',
-    systemName: 'John Brown',
-    levelCount: 3,
-    remaining: 2,
-    count: 5,
-    levelNames: ['nice', 'developer'],
-    validDate: '2021-09-01',
-  },
-  {
-    id: '648be994-df23-4115-8083-724308936ad1',
-    systemName: 'Jim Green',
-    levelCount: 4,
-    remaining: 1,
-    count: 3,
-    levelNames: ['loser'],
-    validDate: '2021-09-01',
-  },
-  {
-    id: '648be994-df23-4115-8083-724308936ad2',
-    systemName: 'Joe Black',
-    levelCount: 2,
-    remaining: 0,
-    count: 1,
-    levelNames: ['cool', 'teacher'],
-    validDate: '2021-09-01',
-  },
-  // 生成50条数据
-  ...Array.from({ length: 50 }, (_, index) => ({
-    id: String(index),
-    systemName: `Edward King ${index}`,
-    levelCount: 2,
-    remaining: 0,
-    count: 1,
-    levelNames: ['nice', 'developer'],
-    validDate: '2021-09-01',
-  })),
-];
-
 export default function SystemsTableList({ query }: { query: string }) {
-  const dataSources = data.filter(({ systemName }) =>
-    systemName.toLowerCase().includes(query.toLowerCase())
-  );
+  const user = useSurveyUserStore(state => state.user);
+  const { data: list } = useSystemListAllSWR({
+    currentSystemId: user?.systems[0].systemId,
+  });
 
+  const dataSources = useMemo(() => {
+    if ((list?.data.data ?? []).length > 0) {
+      const dataList = list?.data.data;
+      const dataSources = (dataList ?? []).filter(
+        ({ systemName }: { systemName: string }) =>
+          systemName.toLowerCase().includes(query.toLowerCase())
+      );
+      return dataSources;
+    }
+    return [];
+  }, [list?.data.data, query]);
+
+  // @ts-ignore
   return <Table columns={columns} dataSource={dataSources} />;
 }

@@ -1,22 +1,20 @@
 import { NextResponse } from 'next/server';
-import { baseUrl } from '../../config';
+import { baseUrl, cookieValue } from '../../config';
 
 export async function POST(req: Request) {
-  const { params } = await req.json();
-  console.log('params================', JSON.stringify({ ...params }));
+  const params = await req.json();
 
   try {
     const res = await fetch(`${baseUrl}/login/userLogin`, {
       headers: {
         'Content-Type': 'application/json',
+        Cookie: `JSESSIONID=${cookieValue}`,
       },
       method: 'POST',
       body: JSON.stringify({ ...params }),
     });
-    console.log('res======================', res);
 
     const resJson = await res.json();
-    console.log('resJson======================', resJson);
     if (resJson.result === 0) {
       return NextResponse.json({
         code: 'success',

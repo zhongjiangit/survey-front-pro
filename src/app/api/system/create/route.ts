@@ -1,14 +1,10 @@
-// import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { baseUrl, cookieValue } from '../../config';
 
 export async function POST(req: Request) {
   const params = await req.json();
-  // const cookieStore = cookies();
-  // const JSESSIONID = cookieStore.get('JSESSIONID');
-
   try {
-    const res = await fetch(`${baseUrl}/system/listAll`, {
+    const res = await fetch(`${baseUrl}/system/create`, {
       headers: {
         'Content-Type': 'application/json',
         Cookie: `JSESSIONID=${cookieValue}`,

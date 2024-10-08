@@ -62,8 +62,6 @@ const Profile: React.FC = () => {
           mode={initConfig.mode}
           selectedKeys={[initConfig.selectKey]}
           onClick={({ key }) => {
-            console.log(key);
-
             setInitConfig({
               ...initConfig,
               selectKey: key as SettingsStateKeys,

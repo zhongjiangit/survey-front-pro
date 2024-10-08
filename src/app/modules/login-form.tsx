@@ -13,27 +13,40 @@ import {
   ProFormText,
 } from '@ant-design/pro-components';
 import Image from 'next/image';
-import { useActionState, useEffect, useState } from 'react';
-import { authenticate } from '../../lib/actions';
+import { useEffect, useState } from 'react';
 
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import useLoginMutation from '@/data/login/useLoginMutation';
 import { message, Tabs } from 'antd';
 import { FlaskConical } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined
+  const router = useRouter();
+  const setUser = useSurveyUserStore(state => state.setUser);
+  const setCurrentSystem = useSurveySystemStore(
+    state => state.setCurrentSystem
   );
+  const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
+  const { data, trigger, isMutating } = useLoginMutation();
 
   useEffect(() => {
-    messageApi.open({
-      type: 'error',
-      content: errorMessage,
-    });
-  }, [errorMessage, messageApi]);
+    if (data?.data?.message) {
+      messageApi.open({
+        type: 'error',
+        content: data.data.message,
+      });
+    } else if (data?.data?.data) {
+      setUser(data.data.data);
+      setCurrentSystem(data.data.data.systems[0]);
+      setCurrentOrg(data.data.data.systems[0].orgs[0]);
+      router.push('/survey/system');
+    }
+  }, [data, messageApi, router, setCurrentOrg, setCurrentSystem, setUser]);
 
   const [type, setType] = useState<string>('account');
 
@@ -55,8 +68,15 @@ export default function LoginForm() {
         initialValues={{
           autoLogin: true,
         }}
-        onFinish={formAction}
-        loading={isPending}
+        onFinish={values => {
+          console.log('Received values of form:', values);
+          trigger({
+            loginType: type === 'account' ? 1 : 2,
+            cellphone: values.cellphone,
+            password: values.password,
+          });
+        }}
+        loading={isMutating}
       >
         <Tabs
           activeKey={type}
@@ -75,9 +95,9 @@ export default function LoginForm() {
         />
 
         {type === 'account' && (
-          <>
+          <div>
             <ProFormText
-              name="email"
+              name="cellphone"
               fieldProps={{
                 size: 'large',
                 prefix: <UserOutlined />,
@@ -117,11 +137,11 @@ export default function LoginForm() {
                 忘记密码 ?
               </a>
             </div>
-          </>
+          </div>
         )}
 
         {type === 'mobile' && (
-          <>
+          <div>
             <ProFormText
               fieldProps={{
                 size: 'large',
@@ -203,7 +223,7 @@ export default function LoginForm() {
                 <span>系统试用</span> <FlaskConical className="w-4" />
               </a>
             </div>
-          </>
+          </div>
         )}
       </Form>
     </div>

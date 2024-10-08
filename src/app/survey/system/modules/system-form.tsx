@@ -1,5 +1,6 @@
 'use client';
 
+import useSystemCreateMutation from '@/data/system/useSystemCreateMutation';
 import type { FormItemProps } from 'antd';
 import {
   Button,
@@ -10,8 +11,10 @@ import {
   Space,
   Switch,
 } from 'antd';
+import dayjs from 'dayjs';
 import Link from 'next/link';
-import React from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 const MyFormItemContext = React.createContext<(string | number)[]>([]);
 
@@ -42,16 +45,68 @@ const tailLayout = {
 };
 
 const SystemForm = (props: Props) => {
+  const router = useRouter();
   const [form] = Form.useForm();
   const { initialValues = { allowSubInitiate: false, allowSupCheck: false } } =
     props;
+  const {
+    trigger: createTrigger,
+    isMutating: createMutating,
+    data: createCallbackData,
+  } = useSystemCreateMutation();
   const onFinish = (values: any) => {
-    console.log(values);
+    // 日期格式化
+    values.validDate = values.validDate.format('YYYY-MM-DD');
+    // switch 转换为 0 ｜ 1
+    values.allowSubInitiate = values.allowSubInitiate ? 1 : 0;
+    values.allowSupCheck = values.allowSupCheck ? 1 : 0;
+    // 各层级名称转换成{levelName: 'name'}格式
+    values.levels = values.levels.map((name: string) => ({ levelName: name }));
+
+    if (initialValues.id !== undefined) {
+      values.id = initialValues.id;
+      const editedValues = { ...initialValues, ...values };
+      console.log('editedValues', editedValues);
+      // TODO 更新系统数据
+    } else {
+      createTrigger(values);
+    }
   };
 
-  const onReset = () => {
-    form.resetFields();
-  };
+  useEffect(() => {
+    console.log('createCallbackData', createCallbackData);
+
+    if (!!createCallbackData?.data.data) {
+      // 跳转到系统列表页, 清空表单, 重新获取数据
+      router.push('/survey/system');
+      form.resetFields();
+    }
+  }, [createCallbackData, form, router]);
+
+  useEffect(() => {
+    if (initialValues?.id !== undefined) {
+      // initialValues中的levels转换为数组
+      const levels = initialValues.levels.map(
+        (item: { levelName: string }) => item.levelName
+      );
+      // initialValues中的validDate转换为dayjs对象
+      initialValues.validDate = dayjs(initialValues.validDate, 'YYYY-MM-DD');
+
+      // 转换allowSubInitiate和allowSupCheck为boolean
+      initialValues.allowSubInitiate = initialValues.allowSubInitiate === 1;
+      initialValues.allowSupCheck = initialValues.allowSupCheck === 1;
+      // 设置form的初始值
+      form.setFieldsValue({
+        ...initialValues,
+        levels,
+      });
+    } else {
+      form.setFieldsValue({
+        allowSubInitiate: false,
+        allowSupCheck: false,
+      });
+    }
+  }, [form, initialValues]);
 
   return (
     <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -62,7 +117,7 @@ const SystemForm = (props: Props) => {
         name="control-hooks"
         onFinish={onFinish}
         style={{ maxWidth: 600 }}
-        initialValues={initialValues}
+        // initialValues={initialValues}
       >
         <Form.Item
           name="systemName"
@@ -99,6 +154,7 @@ const SystemForm = (props: Props) => {
             max={4}
             placeholder="请输入系统最多允许层级"
             className="w-full"
+            disabled={initialValues?.id !== undefined}
             onChange={e => {
               if (e) form.setFieldValue('levelNames', e);
             }}
@@ -111,10 +167,10 @@ const SystemForm = (props: Props) => {
           }
         >
           {({ getFieldValue }) =>
-            getFieldValue('levelNames') !== 0 ? (
-              <MyFormItemGroup prefix={['levelNames']}>
+            getFieldValue('levels') !== 0 ? (
+              <MyFormItemGroup prefix={['levels']}>
                 {/* 获取levelCount之后实时遍历生成表单 */}
-                {[...Array(getFieldValue('levelCount') || 0)].map(
+                {[...Array(getFieldValue('levelCount') || 0)]?.map(
                   (_, index) => (
                     <MyFormItem
                       key={index}
@@ -155,10 +211,15 @@ const SystemForm = (props: Props) => {
 
         <Form.Item {...tailLayout}>
           <Space>
-            <Button htmlType="button" onClick={onReset}>
+            <Button
+              htmlType="button"
+              onClick={() => {
+                form.resetFields();
+              }}
+            >
               <Link href="/survey/system">取消</Link>
             </Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={createMutating}>
               {`${initialValues.id ? '保存' : '创建'}系统`}
             </Button>
           </Space>

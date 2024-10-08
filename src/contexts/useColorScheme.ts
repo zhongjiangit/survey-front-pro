@@ -3,7 +3,7 @@
 import Cookies from 'js-cookie';
 import React, { useContext } from 'react';
 import { createStore, useStore } from 'zustand';
-import { ColorScheme } from '../interfaces/colorScheme';
+import { ColorScheme } from '../interfaces/ColorScheme';
 
 interface ColorSchemeProps {
   colorScheme: ColorScheme;

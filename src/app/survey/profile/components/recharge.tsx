@@ -67,7 +67,7 @@ const Recharge: React.FC = () => {
     <div className="flex flex-col gap-5 pt-3">
       <Table columns={columns} dataSource={data} />
       <div className="flex justify-center items-center">
-        <Button variant="outline" size="lg" className="text-lg">
+        <Button disabled variant="outline" size="lg" className="text-lg">
           充值/续费
         </Button>
       </div>

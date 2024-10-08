@@ -19,7 +19,7 @@ export function CreateSystem() {
 export function UpdateSystem({ id }: { id: string }) {
   return (
     <Link
-      href={`/survey/system/${id}/edit`}
+      href={`/survey/system/edit?id=${id}`}
       className="rounded-md border p-1 h-7 w-7 hover:bg-gray-100"
     >
       <Tooltip title="系统基本信息修改">
@@ -50,7 +50,7 @@ export function DeleteSystem({ id }: { id: string }) {
 export function ConfigSystem({ id }: { id: string }) {
   return (
     <Link
-      href={`/survey/system/${id}/config`}
+      href={`/survey/system/config?id=${id}`}
       className="rounded-md border p-1 h-7 w-7 hover:bg-gray-100"
     >
       <Tooltip title="系统配置">

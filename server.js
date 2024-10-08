@@ -1,16 +1,7 @@
-const { setGlobalDispatcher, ProxyAgent } = require('undici');
 const { createServer } = require('http');
 const { parse } = require('url');
 const { Command, Option } = require('next/dist/compiled/commander');
 const next = require('next');
-
-const HTTP_PROXY = process.env.HTTP_PROXY;
-if (HTTP_PROXY) {
-  console.log('====================================');
-  console.log('HTTP_PROXY', HTTP_PROXY);
-  console.log('====================================');
-  setGlobalDispatcher(new ProxyAgent(HTTP_PROXY));
-}
 
 const program = new Command();
 program

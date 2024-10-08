@@ -2,13 +2,15 @@
 
 import { ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { TouchProvider } from '../components/display/hybrid';
 import {
   ColorSchemeContext,
   createColorSchemeStore,
 } from '../contexts/useColorScheme';
-import { ColorScheme } from '../interfaces/colorScheme';
+import { ColorScheme } from '../interfaces/ColorScheme';
+import { useRoles } from '@/hooks/useRoles';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
 interface Props {
@@ -18,6 +20,18 @@ interface Props {
 
 export function Provider({ colorScheme, children }: Props) {
   const store = useRef(createColorSchemeStore({ colorScheme })).current;
+  const setRoles = useSurveyCurrentRoleStore(state => state.setRoles);
+  const setCurrentRole = useSurveyCurrentRoleStore(
+    state => state.setCurrentRole
+  );
+  const roles = useRoles();
+  useEffect(() => {
+    if (roles.length > 0) {
+      const activeRoles = roles.filter(role => role.isActive);
+      setRoles(roles);
+      setCurrentRole(activeRoles[0]);
+    }
+  }, [roles]);
 
   return (
     <ColorSchemeContext.Provider value={store}>

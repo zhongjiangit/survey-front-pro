@@ -13,7 +13,9 @@ import React, { useCallback, useState } from 'react';
 import HeaderDropdown from './header-dropdown';
 import RoleSwitchModal from './switch-modal/role-switch-modal';
 import SystemSwitchModal from './switch-modal/system-switch-modal';
-import UnitSwitchModal from './switch-modal/unit-switch-modal';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import OrgSwitchModal from './switch-modal/org-switch-modal';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -24,8 +26,11 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
   menu,
   children,
 }) => {
+  const user = useSurveyUserStore(state => state.user);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-  const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
+  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const [isSystemModalOpen, setIsSystemModalOpen] = useState(false);
   /**
    * 退出登录，并且将当前的 url 保存
@@ -65,8 +70,8 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
       setIsRoleModalOpen(true);
       return;
     }
-    if (key === 'unit') {
-      setIsUnitModalOpen(true);
+    if (key === 'org') {
+      setIsOrgModalOpen(true);
       return;
     }
     if (key === 'system') {
@@ -83,7 +88,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
       label: '系统切换',
     },
     {
-      key: 'unit',
+      key: 'org',
       icon: <ApartmentOutlined />,
       label: '单位切换',
     },
@@ -114,18 +119,19 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
       >
         <Button size="sm" variant="ghost" className="flex gap-1 items-center">
           <CircleUserRound className="w-5 h-5" />
-          测试员
+          {currentRole?.name}
         </Button>
       </HeaderDropdown>
       <RoleSwitchModal
         isRoleModalOpen={isRoleModalOpen}
         setIsRoleModalOpen={setIsRoleModalOpen}
       />
-      <UnitSwitchModal
-        isUnitModalOpen={isUnitModalOpen}
-        setIsUnitModalOpen={setIsUnitModalOpen}
+      <OrgSwitchModal
+        isOrgModalOpen={isOrgModalOpen}
+        setIsOrgModalOpen={setIsOrgModalOpen}
       />
       <SystemSwitchModal
+        systems={user?.systems}
         isSystemModalOpen={isSystemModalOpen}
         setIsSystemModalOpen={setIsSystemModalOpen}
       />

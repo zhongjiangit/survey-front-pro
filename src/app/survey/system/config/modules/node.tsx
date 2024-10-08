@@ -2,6 +2,7 @@
 
 import CustomTree from '@/components/common/custom-tree';
 import { Button } from '@/components/ui/button';
+import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import {
   Divider,
   Drawer,
@@ -24,9 +25,13 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 
-interface BasicProps {}
+interface NodeProps {
+  system: SystemListType;
+}
 
-const Node = (props: BasicProps) => {
+const Node = (props: NodeProps) => {
+  const { system } = props;
+  console.log('system', system);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [tags, setTags] = useState([]);
   const [drawerName, setDrawerName] = useState('');
@@ -50,7 +55,7 @@ const Node = (props: BasicProps) => {
       </div>
       <div className="flex-1 shadow-md h-[78vh] p-2 overflow-auto">
         <div>
-          <Divider orientation="left">节点基本信息</Divider>
+          <Divider orientation="left">单位基本信息</Divider>
           {nodeSelected ? (
             <Form
               {...layout}
@@ -75,12 +80,12 @@ const Node = (props: BasicProps) => {
               </Form.Item>
               <Form.Item
                 name="adminEmail"
-                label="节点启用"
+                label="是否启用"
                 rules={[{ required: true }]}
               >
                 <Switch />
               </Form.Item>
-              <Form.Item name="tags" label="节点标签">
+              <Form.Item name="tags" label="层级标签">
                 <TreeSelect
                   showSearch
                   style={{ width: '320px' }}
@@ -94,7 +99,7 @@ const Node = (props: BasicProps) => {
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>
-                <Button size="sm">保存节点配置</Button>
+                <Button size="sm">保存单位配置</Button>
               </Form.Item>
             </Form>
           ) : (

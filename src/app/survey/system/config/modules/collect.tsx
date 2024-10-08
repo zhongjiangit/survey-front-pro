@@ -14,6 +14,8 @@ import {
 } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import NewCollectItem from './new-collect-item';
+import React from 'react';
+import { SystemListType } from '@/data/system/useSystemListAllSWR';
 
 const props: UploadProps = {
   name: 'file',
@@ -68,9 +70,13 @@ const treeData: TreeDataNode[] = [
   },
 ];
 
-interface CollectProps {}
+interface CollectProps {
+  system: SystemListType;
+}
 
-const Collect: FunctionComponent<CollectProps> = () => {
+const Collect: FunctionComponent<CollectProps> = props => {
+  const { system } = props;
+  console.log('system', system);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any>([]);
 

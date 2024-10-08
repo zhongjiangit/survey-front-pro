@@ -10,6 +10,7 @@ import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
 import { Input, message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 
@@ -20,10 +21,11 @@ interface CustomTreeDataNode extends TreeDataNode {
 interface CustomTreeProps {
   setParam?: boolean;
   dataSource: CustomTreeDataNode[];
+  setDataSource?: (data: CustomTreeDataNode[]) => void;
 }
 
 function CustomTree(props: CustomTreeProps) {
-  const { dataSource, setParam = false } = props;
+  const { dataSource, setParam = false, setDataSource } = props;
   const [messageApi, contextHolder] = message.useMessage();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -33,6 +35,19 @@ function CustomTree(props: CustomTreeProps) {
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
   const [nodeTitle, setNodeTitle] = useState('');
+
+  /**
+   * 设置dataSource, 用于外部控制
+   */
+  const setTreeSourceData = useCallback(
+    (data: CustomTreeDataNode[]) => {
+      setTreeData(data);
+      if (setDataSource) {
+        setDataSource(data);
+      }
+    },
+    [setTreeData, setDataSource]
+  );
 
   /**
    * 监听是否需要设置url参数
@@ -131,7 +146,7 @@ function CustomTree(props: CustomTreeProps) {
     if (!expandedKeys.includes(String(selectedKeys[0]))) {
       setExpandedKeys([...expandedKeys, selectedKeys[0]]);
     }
-    setTreeData(addNode(treeData, String(selectedKeys[0]), node));
+    setTreeSourceData(addNode(treeData, String(selectedKeys[0]), node));
   };
 
   /**
@@ -149,7 +164,7 @@ function CustomTree(props: CustomTreeProps) {
       return;
     }
     if (treeData.length === 0) {
-      setTreeData([{ key, title }]);
+      setTreeSourceData([{ key, title }]);
       setSelectedKeys([key]);
       return;
     }
@@ -169,7 +184,7 @@ function CustomTree(props: CustomTreeProps) {
         return node;
       });
     };
-    setTreeData(saveNode(treeData, key, title));
+    setTreeSourceData(saveNode(treeData, key, title));
     setNodeTitle('');
     messageApi.open({
       type: 'success',
@@ -213,7 +228,7 @@ function CustomTree(props: CustomTreeProps) {
         return true;
       });
     };
-    setTreeData(deleteNode(treeData, String(selectedKeys[0])));
+    setTreeSourceData(deleteNode(treeData, String(selectedKeys[0])));
     messageApi.open({
       type: 'success',
       content: '节点删除成功',
@@ -291,7 +306,7 @@ function CustomTree(props: CustomTreeProps) {
         ar.splice(i! + 1, 0, dragObj!);
       }
     }
-    setTreeData(data);
+    setTreeSourceData(data);
   };
 
   return (

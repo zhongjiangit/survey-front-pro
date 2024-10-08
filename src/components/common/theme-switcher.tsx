@@ -3,7 +3,7 @@
 import { Moon, Sun } from 'lucide-react';
 import { useEffect } from 'react';
 import useColorScheme from '../../contexts/useColorScheme';
-import { ColorScheme } from '../../interfaces/colorScheme';
+import { ColorScheme } from '../../interfaces/ColorScheme';
 
 function ThemeSwitcher() {
   const { colorScheme, setColorScheme } = useColorScheme();

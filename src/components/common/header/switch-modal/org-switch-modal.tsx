@@ -1,48 +1,41 @@
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { UserSystemType } from '@/interfaces/SystemType';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
 import { FunctionComponent } from 'react';
 
-interface SystemSwitchModalProps {
-  systems?: UserSystemType[];
-  isSystemModalOpen: boolean;
-  setIsSystemModalOpen: (isSystemModalOpen: boolean) => void;
+interface OrgSwitchModalProps {
+  isOrgModalOpen: boolean;
+  setIsOrgModalOpen: (isOrgModalOpen: boolean) => void;
 }
 
-const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
-  systems,
-  isSystemModalOpen,
-  setIsSystemModalOpen,
+const OrgSwitchModal: FunctionComponent<OrgSwitchModalProps> = ({
+  isOrgModalOpen,
+  setIsOrgModalOpen,
 }) => {
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
 
   const onChange = (e: RadioChangeEvent) => {
-    const currentSystem = systems?.find(
-      system => system.systemId === e.target.value
+    setCurrentOrg(
+      currentSystem?.orgs?.find(org => org.orgId === e.target.value)
     );
-    setCurrentSystem(currentSystem);
-    setCurrentOrg(currentSystem?.orgs[0]);
   };
 
   const handleOk = () => {
-    setIsSystemModalOpen(false);
+    setIsOrgModalOpen(false);
   };
 
   const handleCancel = () => {
-    setIsSystemModalOpen(false);
+    setIsOrgModalOpen(false);
   };
 
   return (
     <Modal
       width={400}
-      title="系统切换"
-      open={isSystemModalOpen}
+      title="单位切换"
+      open={isOrgModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
       okText="确认"
@@ -59,11 +52,11 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
           padding: '24px 40px',
         }}
       >
-        <Radio.Group onChange={onChange} value={currentSystem?.systemId}>
+        <Radio.Group onChange={onChange} value={currentOrg?.orgId}>
           <Space direction="vertical">
-            {systems?.map(system => (
-              <Radio key={system.systemId} value={system.systemId}>
-                {system.systemName}
+            {currentSystem?.orgs?.map(org => (
+              <Radio key={org.orgId} value={org.orgId}>
+                {org.orgName}
               </Radio>
             ))}
           </Space>
@@ -73,4 +66,4 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
   );
 };
 
-export default SystemSwitchModal;
+export default OrgSwitchModal;

@@ -17,8 +17,12 @@ import {
 import { FunctionComponent, useState } from 'react';
 import NewCheckItem from './new-check-item';
 import NewCollectItem from './new-collect-item';
+import React from 'react';
+import { SystemListType } from '@/data/system/useSystemListAllSWR';
 
-interface CheckProps {}
+interface CheckProps {
+  system: SystemListType;
+}
 
 const props: UploadProps = {
   name: 'file',
@@ -73,7 +77,10 @@ const treeData: TreeDataNode[] = [
   },
 ];
 
-const SpotCheck: FunctionComponent<CheckProps> = () => {
+const SpotCheck: FunctionComponent<CheckProps> = props => {
+  const { system } = props;
+  console.log('system', system);
+
   const [newCollectItemDrawerOpen, setNewCollectItemDrawerOpen] =
     useState(false);
   const [newCheckItemOpen, setNewCheckItemOpen] = useState(false);
