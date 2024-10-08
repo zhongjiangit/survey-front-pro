@@ -4,6 +4,7 @@ import CustomTree from '@/components/common/custom-tree';
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import useTagCreateMutation from '@/data/tag/useTagCreateMutation';
 import useTagListSWR, { TagType } from '@/data/tag/useTagListSWR';
+import { useFormatToLocalTreeData } from '@/hooks/useFormatTreeData';
 import { SystemType } from '@/interfaces/SystemType';
 import { Button, Col, Divider, Drawer, Row, Space, Tag } from 'antd';
 import { TagIcon } from 'lucide-react';
@@ -16,9 +17,9 @@ interface BasicProps {
 const Basic = (props: BasicProps) => {
   const { system } = props;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [orgTags, setOrgTags] = useState<TagType[]>([]);
-  const [memberTags, setMemberTags] = useState<TagType[]>([]);
-  const [expertTags, setExpertTags] = useState<TagType[]>([]);
+  const [orgTags, setOrgTags] = useState<TagType>();
+  const [memberTags, setMemberTags] = useState<TagType>();
+  const [expertTags, setExpertTags] = useState<TagType>();
   const [drawerData, setDrawerData] = useState<{
     type: 1 | 2 | 3;
     title: string;
@@ -52,7 +53,7 @@ const Basic = (props: BasicProps) => {
           break;
       }
     }
-  }, [tagsData]);
+  }, [drawerData?.type, tagsData]);
 
   const showDrawer = ({ type, title }: { type: 1 | 2 | 3; title: string }) => {
     setDrawerData({
@@ -84,7 +85,6 @@ const Basic = (props: BasicProps) => {
           ? memberTags
           : expertTags,
     });
-
     setDrawerOpen(false);
   };
 
@@ -103,9 +103,9 @@ const Basic = (props: BasicProps) => {
       default:
         return [];
     }
-  }, [drawerData?.type]);
+  }, [drawerData?.type, expertTags, memberTags, orgTags]);
 
-  const setTags = useCallback(() => {
+  const setTags = useCallback(
     (tags: any) => {
       switch (drawerData?.type) {
         case 1:
@@ -120,8 +120,11 @@ const Basic = (props: BasicProps) => {
         default:
           break;
       }
-    };
-  }, [drawerData?.type]);
+    },
+    [drawerData?.type]
+  );
+
+  console.log('setMemberTags', memberTags);
 
   return (
     <div className="flex h-auto gap-3 min-h-[78vh]">

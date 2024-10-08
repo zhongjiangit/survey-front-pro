@@ -9,7 +9,7 @@ export type TagType = {
   subTags: TagType[];
 };
 export interface TagListType {
-  tags: TagType[];
+  tags: TagType;
 }
 
 export default function useTagListSWR(params: {

@@ -14,7 +14,7 @@ import React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 
-interface CustomTreeDataNode extends TreeDataNode {
+export interface CustomTreeDataNode extends TreeDataNode {
   type?: string;
 }
 
@@ -22,10 +22,16 @@ interface CustomTreeProps {
   setParam?: boolean;
   dataSource: CustomTreeDataNode[];
   setDataSource?: (data: CustomTreeDataNode[]) => void;
+  setDataSelected?: (data: React.Key[]) => void;
 }
 
 function CustomTree(props: CustomTreeProps) {
-  const { dataSource, setParam = false, setDataSource } = props;
+  const {
+    dataSource,
+    setParam = false,
+    setDataSource,
+    setDataSelected,
+  } = props;
   const [messageApi, contextHolder] = message.useMessage();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -43,10 +49,25 @@ function CustomTree(props: CustomTreeProps) {
     (data: CustomTreeDataNode[]) => {
       setTreeData(data);
       if (setDataSource) {
+        console.log('setDataSource', data);
         setDataSource(data);
       }
     },
     [setTreeData, setDataSource]
+  );
+
+  /**
+   * 设置selectedKeys, 用于外部控制
+   */
+
+  const setSelectedKeysData = useCallback(
+    (data: React.Key[]) => {
+      setSelectedKeys(data);
+      if (setDataSelected) {
+        setDataSelected(data);
+      }
+    },
+    [setDataSelected]
   );
 
   /**
@@ -59,6 +80,7 @@ function CustomTree(props: CustomTreeProps) {
     } else {
       setUrlParams(selectedKeys[0] as string);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKeys, setParam]);
 
   /**
@@ -146,7 +168,7 @@ function CustomTree(props: CustomTreeProps) {
     if (!expandedKeys.includes(String(selectedKeys[0]))) {
       setExpandedKeys([...expandedKeys, selectedKeys[0]]);
     }
-    setTreeSourceData(addNode(treeData, String(selectedKeys[0]), node));
+    setTreeData(addNode(treeData, String(selectedKeys[0]), node));
   };
 
   /**
@@ -165,7 +187,11 @@ function CustomTree(props: CustomTreeProps) {
     }
     if (treeData.length === 0) {
       setTreeSourceData([{ key, title }]);
-      setSelectedKeys([key]);
+      setSelectedKeysData([key]);
+      // messageApi.open({
+      //   type: 'success',
+      //   content: '节点保存成功',
+      // });
       return;
     }
     // 递归遍历树节点，找到指定节点并更新节点名称
@@ -186,10 +212,10 @@ function CustomTree(props: CustomTreeProps) {
     };
     setTreeSourceData(saveNode(treeData, key, title));
     setNodeTitle('');
-    messageApi.open({
-      type: 'success',
-      content: '节点保存成功',
-    });
+    // messageApi.open({
+    //   type: 'success',
+    //   content: '节点保存成功',
+    // });
   };
 
   /**
@@ -206,7 +232,7 @@ function CustomTree(props: CustomTreeProps) {
    * @param selectedKeysValue
    */
   const onSelect: TreeProps['onSelect'] = selectedKeysValue => {
-    setSelectedKeys(selectedKeysValue);
+    setSelectedKeysData(selectedKeysValue);
   };
 
   /**
@@ -218,7 +244,7 @@ function CustomTree(props: CustomTreeProps) {
       return treeData.filter(node => {
         if (node.key === key) {
           if (selectedKeys.length > 0 && key === selectedKeys[0]) {
-            setSelectedKeys([]);
+            setSelectedKeysData([]);
           }
           return false;
         }
@@ -229,10 +255,10 @@ function CustomTree(props: CustomTreeProps) {
       });
     };
     setTreeSourceData(deleteNode(treeData, String(selectedKeys[0])));
-    messageApi.open({
-      type: 'success',
-      content: '节点删除成功',
-    });
+    // messageApi.open({
+    //   type: 'success',
+    //   content: '节点删除成功',
+    // });
   };
 
   /**

@@ -156,6 +156,11 @@ const MemberManage: FunctionComponent<
       }}
       columns={columns}
       rowKey="key"
+      editable={{
+        onSave: async (rowKey, data, row) => {
+          console.log(rowKey, data, row);
+        },
+      }}
     />
   );
 };

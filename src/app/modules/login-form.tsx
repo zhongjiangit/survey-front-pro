@@ -56,8 +56,10 @@ export default function LoginForm() {
       <Form
         contentStyle={{
           minWidth: 280,
+          width: 320,
           maxWidth: '75vw',
         }}
+        className="overflow-hidden"
         logo={<Image alt="logo" src={logo} />}
         title={<Link href="/">试题抽检与征集</Link>}
         subTitle={
