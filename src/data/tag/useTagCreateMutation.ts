@@ -1,18 +1,19 @@
+import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { ResponseObject } from '@/interfaces';
 import { TagTypeType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWRMutation from 'swr/mutation';
 
 type TagsType = {
-  tagId: number;
-  tagName: string;
-  subTags: TagsType[];
+  key: number;
+  title: string;
+  children: TagsType[];
 };
 
 type TagCreateParamsType = {
   currentSystemId: number;
   tagType: TagTypeType;
-  tags: TagsType[];
+  tags: CustomTreeDataNode;
 };
 
 /**

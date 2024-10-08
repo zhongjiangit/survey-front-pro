@@ -1,15 +1,16 @@
+import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { ResponseObject } from '@/interfaces';
 import { TagTypeType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWR from 'swr';
 
-export type TagType = {
-  tagId: number;
-  tagName: string;
-  subTags: TagType[];
-};
+// export type TagType = {
+//   key: number;
+//   title: string;
+//   children: TagType[];
+// };
 export interface TagListType {
-  tags: TagType;
+  tags: CustomTreeDataNode;
 }
 
 export default function useTagListSWR(params: {

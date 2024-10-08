@@ -6,7 +6,7 @@ import BaseView from './components/base';
 import Phone from './components/phone';
 import SecurityView from './components/security';
 
-type SettingsStateKeys = 'base' | 'security' | 'notification' | 'recharge';
+type SettingsStateKeys = 'base' | 'security' | 'notification';
 type SettingsState = {
   mode: 'inline' | 'horizontal';
   selectKey: SettingsStateKeys;

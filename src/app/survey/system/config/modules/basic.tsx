@@ -1,12 +1,12 @@
 'use client';
 
-import CustomTree from '@/components/common/custom-tree';
+import CustomTree, {
+  CustomTreeDataNode,
+} from '@/components/common/custom-tree';
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import useTagCreateMutation from '@/data/tag/useTagCreateMutation';
-import useTagListSWR, { TagType } from '@/data/tag/useTagListSWR';
-import { useFormatToLocalTreeData } from '@/hooks/useFormatTreeData';
-import { SystemType } from '@/interfaces/SystemType';
-import { Button, Col, Divider, Drawer, Row, Space, Tag } from 'antd';
+import useTagListSWR from '@/data/tag/useTagListSWR';
+import { Button, Col, Divider, Drawer, message, Row, Space, Tag } from 'antd';
 import { TagIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -16,10 +16,11 @@ interface BasicProps {
 
 const Basic = (props: BasicProps) => {
   const { system } = props;
+  const [messageApi, contextHolder] = message.useMessage();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [orgTags, setOrgTags] = useState<TagType>();
-  const [memberTags, setMemberTags] = useState<TagType>();
-  const [expertTags, setExpertTags] = useState<TagType>();
+  const [orgTags, setOrgTags] = useState<CustomTreeDataNode>();
+  const [memberTags, setMemberTags] = useState<CustomTreeDataNode>();
+  const [expertTags, setExpertTags] = useState<CustomTreeDataNode>();
   const [drawerData, setDrawerData] = useState<{
     type: 1 | 2 | 3;
     title: string;
@@ -38,16 +39,16 @@ const Basic = (props: BasicProps) => {
 
   useEffect(() => {
     // 如果tagsData.data.data存在，存放到相应的标签中
-    if (tagsData?.data.data?.tags) {
+    if (!!tagsData?.data.data?.tags) {
       switch (drawerData?.type) {
         case 1:
-          setOrgTags(tagsData.data.data?.tags);
+          setOrgTags(tagsData.data.data.tags);
           break;
         case 2:
-          setMemberTags(tagsData.data.data?.tags);
+          setMemberTags(tagsData.data.data.tags);
           break;
         case 3:
-          setExpertTags(tagsData.data.data?.tags);
+          setExpertTags(tagsData.data.data.tags);
           break;
         default:
           break;
@@ -63,29 +64,41 @@ const Basic = (props: BasicProps) => {
     setDrawerOpen(true);
   };
 
-  console.log('tagsData', tagsData);
-
   const onCreate = () => {
-    console.log(
-      'create',
+    const tags =
       drawerData.type === 1
         ? orgTags
         : drawerData.type === 2
         ? memberTags
-        : expertTags
-    );
+        : expertTags;
+    console.log('create', tags);
+    // 如果tags存在，递归遍历删除里面的key
+    if (tags) {
+      const removeKey = (node?: CustomTreeDataNode) => {
+        if (node?.children) {
+          node.children.forEach(child => {
+            removeKey(child);
+          });
+        }
+        delete node?.key;
+      };
+      removeKey(tags);
+    }
+
     // 保存到相应的标签中
-    createTrigger({
-      currentSystemId: system.id,
-      tagType: drawerData.type,
-      tags:
-        drawerData.type === 1
-          ? orgTags
-          : drawerData.type === 2
-          ? memberTags
-          : expertTags,
-    });
-    setDrawerOpen(false);
+    if (tags) {
+      createTrigger({
+        currentSystemId: system.id,
+        tagType: drawerData.type,
+        tags: tags[0],
+      });
+      setDrawerOpen(false);
+    } else {
+      messageApi.open({
+        type: 'info',
+        content: '请先添加标签',
+      });
+    }
   };
 
   const onClose = () => {
@@ -95,11 +108,11 @@ const Basic = (props: BasicProps) => {
   const tags = useMemo(() => {
     switch (drawerData?.type) {
       case 1:
-        return orgTags;
+        return orgTags ? [orgTags] : [];
       case 2:
-        return memberTags;
+        return memberTags ? [memberTags] : [];
       case 3:
-        return expertTags;
+        return expertTags ? [expertTags] : [];
       default:
         return [];
     }
@@ -124,10 +137,11 @@ const Basic = (props: BasicProps) => {
     [drawerData?.type]
   );
 
-  console.log('setMemberTags', memberTags);
+  console.log('orgTags------', orgTags);
 
   return (
     <div className="flex h-auto gap-3 min-h-[78vh]">
+      {contextHolder}
       <div className="flex-1 shadow-md h-[78vh] p-2 overflow-auto">
         <div>
           <Divider orientation="left">系统基本信息</Divider>
