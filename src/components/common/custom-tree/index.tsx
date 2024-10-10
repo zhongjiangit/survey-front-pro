@@ -10,8 +10,7 @@ import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
 import { Input, message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 
 export interface CustomTreeDataNode extends TreeDataNode {
@@ -74,7 +73,10 @@ function CustomTree(props: CustomTreeProps) {
    * 监听是否需要设置url参数
    */
   useEffect(() => {
-    if (!setParam) return;
+    if (!setParam || treeData.length === 0 || selectedKeys.length === 0) {
+      setUrlParams();
+      return;
+    }
     if (selectedKeys.length === 0) {
       setUrlParams();
     } else {

@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@/lib/utils';
-import { HomeIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import type { MenuProps } from 'antd';
+import { Menu } from 'antd';
 import {
   BookOpenCheck,
   BookUser,
@@ -10,53 +10,118 @@ import {
   UserRoundCog,
   UsersRound,
 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+type MenuItem = Required<MenuProps>['items'][number];
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
-const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon, hide: true },
+// const links = [
+//   { name: 'Home', href: '/dashboard', icon: HomeIcon, hide: true },
+//   {
+//     name: 'Customers',
+//     href: '/dashboard/customers',
+//     icon: UserGroupIcon,
+//     hide: true,
+//   },
+//   { name: '系统管理', href: '/survey/system', icon: MonitorCog, hide: false },
+//   { name: '成员管理', href: '/survey/member', icon: UsersRound, hide: false },
+//   { name: '专家配置', href: '/survey/expert', icon: BookUser, hide: false },
+//   {
+//     name: '数据收集一览',
+//     href: '/survey/collect',
+//     icon: SquareLibrary,
+//     hide: false,
+//   },
+//   {
+//     name: '试题抽检一览',
+//     href: '/survey/check',
+//     icon: BookOpenCheck,
+//     hide: false,
+//   },
+//   {
+//     name: '个人中心',
+//     href: '/survey/profile',
+//     icon: UserRoundCog,
+//     hide: false,
+//   },
+//   {
+//     name: '充值/续费',
+//     href: '/survey/recharge',
+//     icon: Cable,
+//     hide: false,
+//   },
+// ];
+
+const items = [
   {
-    name: 'Customers',
-    href: '/dashboard/customers',
-    icon: UserGroupIcon,
-    hide: true,
+    label: '系统管理',
+    key: '/survey/system',
+    icon: <MonitorCog className="w-4 h-4" />,
   },
-  { name: '系统管理', href: '/survey/system', icon: MonitorCog, hide: false },
-  { name: '成员管理', href: '/survey/member', icon: UsersRound, hide: false },
-  { name: '专家配置', href: '/survey/expert', icon: BookUser, hide: false },
   {
-    name: '数据收集一览',
-    href: '/survey/collect',
-    icon: SquareLibrary,
-    hide: false,
+    label: '成员管理',
+    key: '/survey/member',
+    icon: <UsersRound className="w-4 h-4" />,
   },
   {
-    name: '试题抽检一览',
-    href: '/survey/check',
-    icon: BookOpenCheck,
-    hide: false,
+    label: '专家配置',
+    key: '/survey/expert',
+    icon: <BookUser className="w-4 h-4" />,
   },
   {
-    name: '个人中心',
-    href: '/survey/profile',
-    icon: UserRoundCog,
-    hide: false,
+    label: '资料收集',
+    key: '/survey/collect',
+    icon: <SquareLibrary className="w-4 h-4" />,
+    children: [
+      {
+        label: '管理',
+        key: '/survey/collect/manage',
+      },
+      {
+        label: '分配',
+        key: '/survey/collect/allocate',
+      },
+      {
+        label: '填报',
+        key: '/survey/collect/fill',
+      },
+    ],
   },
   {
-    name: '充值/续费',
-    href: '/survey/recharge',
-    icon: Cable,
-    hide: false,
+    label: '试题抽检',
+    key: '/survey/check',
+    icon: <BookOpenCheck className="w-4 h-4" />,
+  },
+  {
+    label: '个人中心',
+    key: '/survey/profile',
+    icon: <UserRoundCog className="w-4 h-4" />,
+  },
+  {
+    label: '充值/续费',
+    key: '/survey/recharge',
+    icon: <Cable className="w-4 h-4" />,
   },
 ];
 
 export default function NavLinks() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  useEffect(() => {
+    setSelectedKeys([pathname]);
+  }, [pathname]);
+
+  const onSelect: MenuProps['onSelect'] = e => {
+    console.log('onSelect', e);
+    setSelectedKeys(e.selectedKeys);
+    router.push(e.key);
+  };
   return (
     <div>
-      {links.map(link => {
+      {/* {links.map(link => {
         if (link.hide) return null;
         const LinkIcon = link.icon;
         return (
@@ -75,7 +140,15 @@ export default function NavLinks() {
             <p className="hidden md:block">{link.name}</p>
           </Link>
         );
-      })}
+      })} */}
+      <Menu
+        selectedKeys={selectedKeys}
+        onSelect={onSelect}
+        defaultOpenKeys={['/survey/collect']}
+        style={{ width: 240 }}
+        mode="inline"
+        items={items}
+      />
     </div>
   );
 }

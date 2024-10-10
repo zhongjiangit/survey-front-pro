@@ -1,9 +1,9 @@
 'use client';
 
 import CustomTree from '@/components/common/custom-tree';
-import { Button } from '@/components/ui/button';
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import {
+  Button,
   Divider,
   Drawer,
   Empty,
@@ -63,6 +63,9 @@ const Node = (props: NodeProps) => {
               name="control-hooks"
               onFinish={onFinish}
               style={{ maxWidth: 600 }}
+              initialValues={{
+                active: true,
+              }}
             >
               <Form.Item
                 name="adminName"
@@ -79,19 +82,19 @@ const Node = (props: NodeProps) => {
                 <Input type="textarea" />
               </Form.Item>
               <Form.Item
-                name="adminEmail"
+                name="active"
                 label="是否启用"
                 rules={[{ required: true }]}
               >
                 <Switch />
               </Form.Item>
-              <Form.Item name="tags" label="层级标签">
+              <Form.Item name="tags" label="单位标签">
                 <TreeSelect
                   showSearch
                   style={{ width: '320px' }}
                   value={value}
                   dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                  placeholder="请选择节点标签"
+                  placeholder="请选择单位标签"
                   allowClear
                   multiple
                   treeDefaultExpandAll
@@ -99,7 +102,7 @@ const Node = (props: NodeProps) => {
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>
-                <Button size="sm">保存单位配置</Button>
+                <Button type="primary">保存单位配置</Button>
               </Form.Item>
             </Form>
           ) : (
@@ -117,10 +120,8 @@ const Node = (props: NodeProps) => {
         open={drawerOpen}
         extra={
           <Space>
-            <Button onClick={onClose} size="sm" variant="outline">
-              取消
-            </Button>
-            <Button onClick={onClose} size="sm">
+            <Button onClick={onClose}>取消</Button>
+            <Button onClick={onClose} type="primary">
               保存
             </Button>
           </Space>

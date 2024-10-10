@@ -74,7 +74,7 @@ const MemberManage: FunctionComponent<
             <Select
               allowClear
               style={{ minWidth: '240px' }}
-              placeholder="请选择节点标签"
+              placeholder="请选择成员角色"
               options={[
                 {
                   label: '普通管理员',
