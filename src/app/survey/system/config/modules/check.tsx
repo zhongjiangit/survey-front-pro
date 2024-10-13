@@ -1,11 +1,12 @@
 'use client';
 
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
-import { Space, Table, TableProps, Tag } from 'antd';
+import { Popconfirm, Space, Table, TableProps, Tag } from 'antd';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import React, { useMemo, useRef, useState } from 'react';
 import NewCheckSet from './new-check-set';
+import CreateModal from './create-modal';
 
 interface DataType {
   key: string;
@@ -45,6 +46,7 @@ const Check = ({ system }: CollectProps) => {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
   const selectedTab = searchParams.get('tab');
+  const [open, setOpen] = useState(false);
   const initialItems = [
     { label: '问卷 1', children: <NewCheckSet system={system} />, key: '1' },
   ];
@@ -96,7 +98,20 @@ const Check = ({ system }: CollectProps) => {
               详情
             </Link>
             <a>复制</a>
-            <a>删除</a>
+            <a
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              编辑
+            </a>
+            <Popconfirm
+              title="删除模版"
+              description="删除后将不可恢复，您确定要删除此模版吗？"
+              // onConfirm={confirm}
+            >
+              <a>删除</a>
+            </Popconfirm>
           </Space>
         ),
       },
@@ -153,6 +168,12 @@ const Check = ({ system }: CollectProps) => {
   return (
     <main>
       <Table<DataType> columns={columns} dataSource={data} />
+      <CreateModal
+        open={open}
+        setOpen={setOpen}
+        title={'试题抽检'}
+        initValues={{ name: '111', isValid: 1 }}
+      />
     </main>
   );
 };

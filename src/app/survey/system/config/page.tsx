@@ -11,12 +11,14 @@ import Basic from './modules/basic';
 import Check from './modules/check';
 import Collect from './modules/collect';
 import Node from './modules/node';
+import CreateModal from './modules/create-modal';
 
 export default function Page() {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
   const selectedTab = searchParams.get('tab');
   const [activeKey, setActiveKey] = useState(selectedTab || 'basic');
+  const [open, setOpen] = useState(false);
   const user = useSurveyUserStore(state => state.user);
   const { data: list, isLoading } = useSystemListAllSWR({
     currentSystemId: user?.systems[0].systemId,
@@ -46,22 +48,24 @@ export default function Page() {
     switch (activeKey) {
       case 'collect':
         return (
-          <Button type="primary">
-            <Link
-              href={`/survey/system/config/collect?id=${selectedId}&tab=${activeKey}`}
-            >
-              新增数据收集
-            </Link>
+          <Button
+            type="primary"
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            新增数据收集
           </Button>
         );
       case 'spotCheck':
         return (
-          <Button type="primary">
-            <Link
-              href={`/survey/system/config/check?id=${selectedId}&tab=${activeKey}`}
-            >
-              新增试题抽检问卷
-            </Link>
+          <Button
+            type="primary"
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            新增试题抽检问卷
           </Button>
         );
       default:
@@ -125,6 +129,11 @@ export default function Page() {
           }}
         />
       )}
+      <CreateModal
+        open={open}
+        setOpen={setOpen}
+        title={activeKey === 'collect' ? '资料收集' : '试题抽检'}
+      />
     </main>
   );
 }

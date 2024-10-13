@@ -26,7 +26,7 @@ const Basic = (props: BasicProps) => {
     title: string;
   }>({ type: 1, title: '单位标签管理' });
 
-  const { data: tagsData } = useTagListSWR({
+  const { data: tagsData, mutate: muteTags } = useTagListSWR({
     currentSystemId: system.id,
     tagType: drawerData?.type,
   });
@@ -38,23 +38,24 @@ const Basic = (props: BasicProps) => {
   } = useTagCreateMutation();
 
   useEffect(() => {
+    // @ts-ignore
+    const tags: CustomTreeDataNode = tagsData?.data.data?.tags || null;
+
     // 如果tagsData.data.data存在，存放到相应的标签中
-    if (!!tagsData?.data.data?.tags) {
-      switch (drawerData?.type) {
-        case 1:
-          setOrgTags(tagsData.data.data.tags);
-          break;
-        case 2:
-          setMemberTags(tagsData.data.data.tags);
-          break;
-        case 3:
-          setExpertTags(tagsData.data.data.tags);
-          break;
-        default:
-          break;
-      }
+    switch (drawerData?.type) {
+      case 1:
+        setOrgTags(tags);
+        break;
+      case 2:
+        setMemberTags(tags);
+        break;
+      case 3:
+        setExpertTags(tags);
+        break;
+      default:
+        break;
     }
-  }, [drawerData?.type, tagsData]);
+  }, [drawerData, tagsData]);
 
   const showDrawer = ({ type, title }: { type: 1 | 2 | 3; title: string }) => {
     setDrawerData({
@@ -71,7 +72,7 @@ const Basic = (props: BasicProps) => {
         : drawerData.type === 2
         ? memberTags
         : expertTags;
-    console.log('create', tags);
+
     // 如果tags存在，递归遍历删除里面的key
     if (tags) {
       const removeKey = (node?: CustomTreeDataNode) => {
@@ -80,7 +81,16 @@ const Basic = (props: BasicProps) => {
             removeKey(child);
           });
         }
-        delete node?.key;
+        // 如果node.key为string类型，删除
+        if (typeof node?.key === 'string') {
+          // @ts-ignore
+          delete node?.key;
+          delete node?.type;
+          delete node?.isLeaf;
+        } else if (node?.key) {
+          delete node?.type;
+          delete node?.isLeaf;
+        }
       };
       removeKey(tags);
     }
@@ -90,7 +100,8 @@ const Basic = (props: BasicProps) => {
       createTrigger({
         currentSystemId: system.id,
         tagType: drawerData.type,
-        tags: tags[0],
+        // @ts-ignore
+        tags: tags,
       });
       setDrawerOpen(false);
     } else {
@@ -122,13 +133,13 @@ const Basic = (props: BasicProps) => {
     (tags: any) => {
       switch (drawerData?.type) {
         case 1:
-          setOrgTags(tags);
+          setOrgTags(tags[0]);
           break;
         case 2:
-          setMemberTags(tags);
+          setMemberTags(tags[0]);
           break;
         case 3:
-          setExpertTags(tags);
+          setExpertTags(tags[0]);
           break;
         default:
           break;
@@ -137,7 +148,11 @@ const Basic = (props: BasicProps) => {
     [drawerData?.type]
   );
 
-  console.log('orgTags------', orgTags);
+  useEffect(() => {
+    if (createCallbackData?.data.data?.tags) {
+      setTags([createCallbackData?.data.data?.tags]);
+    }
+  }, [createCallbackData, setTags]);
 
   return (
     <div className="flex h-auto gap-3 min-h-[78vh]">

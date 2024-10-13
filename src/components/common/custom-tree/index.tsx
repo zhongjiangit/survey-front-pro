@@ -22,6 +22,7 @@ interface CustomTreeProps {
   dataSource: CustomTreeDataNode[];
   setDataSource?: (data: CustomTreeDataNode[]) => void;
   setDataSelected?: (data: React.Key[]) => void;
+  onHandleCreate?: (tags: CustomTreeDataNode[]) => void;
 }
 
 function CustomTree(props: CustomTreeProps) {
@@ -30,7 +31,9 @@ function CustomTree(props: CustomTreeProps) {
     setParam = false,
     setDataSource,
     setDataSelected,
+    onHandleCreate,
   } = props;
+
   const [messageApi, contextHolder] = message.useMessage();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -42,17 +45,28 @@ function CustomTree(props: CustomTreeProps) {
   const [nodeTitle, setNodeTitle] = useState('');
 
   /**
+   * 初始化数据
+   */
+  useEffect(() => {
+    if (dataSource && dataSource.length > 0) {
+      setTreeData(dataSource);
+    }
+  }, [dataSource]);
+
+  /**
    * 设置dataSource, 用于外部控制
    */
   const setTreeSourceData = useCallback(
     (data: CustomTreeDataNode[]) => {
       setTreeData(data);
       if (setDataSource) {
-        console.log('setDataSource', data);
         setDataSource(data);
       }
+      if (onHandleCreate) {
+        onHandleCreate(data);
+      }
     },
-    [setTreeData, setDataSource]
+    [setDataSource, onHandleCreate]
   );
 
   /**
@@ -98,7 +112,7 @@ function CustomTree(props: CustomTreeProps) {
       }
       replace(`${pathname}?${params.toString()}`);
     },
-    [searchParams, pathname]
+    [searchParams, replace, pathname]
   );
 
   /**
@@ -154,7 +168,7 @@ function CustomTree(props: CustomTreeProps) {
       node: CustomTreeDataNode
     ) => {
       return treeData.map(item => {
-        if (item.key === key) {
+        if (item.key == key) {
           if (item.children) {
             item.children.push(node);
           } else {
@@ -170,7 +184,8 @@ function CustomTree(props: CustomTreeProps) {
     if (!expandedKeys.includes(String(selectedKeys[0]))) {
       setExpandedKeys([...expandedKeys, selectedKeys[0]]);
     }
-    setTreeData(addNode(treeData, String(selectedKeys[0]), node));
+    const newTreeData = addNode(treeData, String(selectedKeys[0]), node);
+    setTreeData(newTreeData);
   };
 
   /**
@@ -203,7 +218,7 @@ function CustomTree(props: CustomTreeProps) {
       title: string
     ) => {
       return treeData.map(node => {
-        if (node.key === key) {
+        if (node.key == key) {
           node.title = nodeTitle;
           node.type = 'text';
         } else if (node.children) {
@@ -244,7 +259,7 @@ function CustomTree(props: CustomTreeProps) {
     // 递归遍历树节点，删除指定节点
     const deleteNode = (treeData: CustomTreeDataNode[], key: string) => {
       return treeData.filter(node => {
-        if (node.key === key) {
+        if (node.key == key) {
           if (selectedKeys.length > 0 && key === selectedKeys[0]) {
             setSelectedKeysData([]);
           }
@@ -295,7 +310,7 @@ function CustomTree(props: CustomTreeProps) {
       ) => void
     ) => {
       for (let i = 0; i < data.length; i++) {
-        if (data[i].key === key) {
+        if (data[i].key == key) {
           return callback(data[i], i, data);
         }
         if (data[i].children) {
@@ -381,7 +396,7 @@ function CustomTree(props: CustomTreeProps) {
             {typeof nodeData.title === 'function'
               ? nodeData.title(nodeData)
               : nodeData.title}
-            {nodeData.key === selectedKeys[0] && (
+            {nodeData.key == selectedKeys[0] && (
               <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                 {nodeData.type === 'input' ? (
                   <Tooltip title="保存节点">

@@ -12,12 +12,11 @@ type TagsType = {
 
 interface TagCreateParamsType {
   currentSystemId: number;
-  tagType: TagTypeType;
-  tags: TagsType;
+  orgs: TagsType;
 }
 
 interface TagCreateResponse {
-  tags: TagsType;
+  orgs: TagsType;
 }
 
 /**
@@ -28,16 +27,12 @@ interface TagCreateResponse {
 
 export default function useTagCreateMutation() {
   return useSWRMutation(
-    'api/tag/save',
-    (
-      url,
-      { arg: { currentSystemId, tagType, tags } }: { arg: TagCreateParamsType }
-    ) =>
+    'api/org/save',
+    (url, { arg: { currentSystemId, orgs } }: { arg: TagCreateParamsType }) =>
       request
         .post<ResponseObject<TagCreateResponse>>(url, {
           currentSystemId,
-          tagType,
-          tags,
+          orgs,
         })
         .catch(e => {
           console.error('useTagCreateMutation error', e);

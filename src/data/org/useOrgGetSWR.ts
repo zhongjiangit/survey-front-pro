@@ -12,7 +12,7 @@ export default function useTagListSWR(params: {
   currentSystemId?: number;
   tagType?: TagTypeType;
 }) {
-  return useSWR(['/api/tag/list', params], async ([url, params]) =>
+  return useSWR(['/api/org/get', params], async ([url, params]) =>
     request.post<ResponseObject<TagListType>>(url, params)
   );
 }
