@@ -1,6 +1,5 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { ResponseObject } from '@/interfaces';
-import { TagTypeType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWR from 'swr';
 
@@ -9,8 +8,11 @@ interface StaffListParamsType {
   currentOrgId?: number;
 }
 
-interface StaffListResponse {
+export interface StaffListResponse {
   id: number;
+  currentOrgId: number;
+  currentRoleId: number;
+  currentSystemId: number;
   staffName: string;
   cellphone: string;
   staffType: number;
@@ -21,7 +23,7 @@ export default function useTagListSWR(params: StaffListParamsType) {
   return useSWR(
     ['/api/staff/list', params],
     async ([url, params]) =>
-      request.post<ResponseObject<StaffListResponse>>(url, params),
+      request.post<ResponseObject<StaffListResponse[]>>(url, params),
     {
       refreshInterval: 0,
     }
