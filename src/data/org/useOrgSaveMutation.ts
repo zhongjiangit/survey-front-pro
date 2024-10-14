@@ -20,12 +20,12 @@ interface TagCreateResponse {
 }
 
 /**
- * useTagCreateMutation
+ * useOrgSaveMutation
  * @param params
  * @returns
  */
 
-export default function useTagCreateMutation() {
+export default function useOrgSaveMutation() {
   return useSWRMutation(
     'api/org/save',
     (url, { arg: { currentSystemId, orgs } }: { arg: TagCreateParamsType }) =>

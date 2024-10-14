@@ -59,7 +59,7 @@ const Node = (props: NodeProps) => {
     data: setCallbackData,
   } = useOrgSetMutation();
 
-  const { data: orgsData, mutate: muteTags } = useOrgListSWR({
+  const { data: orgsData, mutate: muteOrgs } = useOrgListSWR({
     currentSystemId: system.id,
   });
 

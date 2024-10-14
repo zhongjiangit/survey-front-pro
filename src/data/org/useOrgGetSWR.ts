@@ -8,9 +8,9 @@ export interface TagListType {
   tags: CustomTreeDataNode;
 }
 
-export default function useTagListSWR(params: {
+export default function useOrgGetSWR(params: {
   currentSystemId?: number;
-  tagType?: TagTypeType;
+  orgId?: number;
 }) {
   return useSWR(['/api/org/get', params], async ([url, params]) =>
     request.post<ResponseObject<TagListType>>(url, params)

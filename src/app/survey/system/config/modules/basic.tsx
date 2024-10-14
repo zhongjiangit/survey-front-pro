@@ -96,6 +96,8 @@ const Basic = (props: BasicProps) => {
     }
 
     // 保存到相应的标签中
+    console.log('tags', tags);
+
     if (tags) {
       createTrigger({
         currentSystemId: system.id,
@@ -116,18 +118,18 @@ const Basic = (props: BasicProps) => {
     setDrawerOpen(false);
   };
 
-  const tags = useMemo(() => {
-    switch (drawerData?.type) {
-      case 1:
-        return orgTags ? [orgTags] : [];
-      case 2:
-        return memberTags ? [memberTags] : [];
-      case 3:
-        return expertTags ? [expertTags] : [];
-      default:
-        return [];
-    }
-  }, [drawerData?.type, expertTags, memberTags, orgTags]);
+  // const tags = useMemo(() => {
+  //   switch (drawerData?.type) {
+  //     case 1:
+  //       return orgTags ? [orgTags] : [];
+  //     case 2:
+  //       return memberTags ? [memberTags] : [];
+  //     case 3:
+  //       return expertTags ? [expertTags] : [];
+  //     default:
+  //       return [];
+  //   }
+  // }, [drawerData?.type, expertTags, memberTags, orgTags]);
 
   const setTags = useCallback(
     (tags: any) => {
@@ -153,6 +155,38 @@ const Basic = (props: BasicProps) => {
       setTags([createCallbackData?.data.data?.tags]);
     }
   }, [createCallbackData, setTags]);
+
+  const renderTree = useCallback(
+    (type: number) => {
+      switch (type) {
+        case 1:
+          return (
+            <CustomTree
+              dataSource={orgTags ? [orgTags] : []}
+              setDataSource={setTags}
+            />
+          );
+        case 2:
+          return (
+            <CustomTree
+              dataSource={memberTags ? [memberTags] : []}
+              setDataSource={setTags}
+            />
+          );
+        case 3:
+          return (
+            <CustomTree
+              dataSource={expertTags ? [expertTags] : []}
+              setDataSource={setTags}
+            />
+          );
+
+        default:
+          break;
+      }
+    },
+    [orgTags, setTags, memberTags, expertTags]
+  );
 
   return (
     <div className="flex h-auto gap-3 min-h-[78vh]">
@@ -305,7 +339,8 @@ const Basic = (props: BasicProps) => {
           </Space>
         }
       >
-        <CustomTree dataSource={tags} setDataSource={setTags} />
+        {renderTree(drawerData.type)}
+        {/* <CustomTree dataSource={tags} setDataSource={setTags} /> */}
       </Drawer>
     </div>
   );

@@ -18,12 +18,12 @@ export interface TagCreateParamsType {
 }
 
 /**
- * useTagCreateMutation
+ * useOrgSetMutation
  * @param params
  * @returns
  */
 
-export default function useTagCreateMutation() {
+export default function useOrgSetMutation() {
   return useSWRMutation(
     'api/org/set',
     (

@@ -56,7 +56,7 @@ const Collect = ({ system }: CollectProps) => {
   const columns: TableProps<DataType>['columns'] = useMemo(
     () => [
       {
-        title: '模板',
+        title: '收集模板',
         dataIndex: 'name',
         key: 'name',
         render: (_, { key }) => <span>{`模板${key}`}</span>,

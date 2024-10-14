@@ -28,7 +28,12 @@ export interface SystemListType {
 export default function useSystemListAllSWR(params: {
   currentSystemId?: number;
 }) {
-  return useSWR(['/api/system/list-all', params], async ([url, params]) =>
-    request.post<ResponseObject<SystemListType[]>>(url, params)
+  return useSWR(
+    ['/api/system/list-all', params],
+    async ([url, params]) =>
+      request.post<ResponseObject<SystemListType[]>>(url, params),
+    {
+      refreshInterval: 0,
+    }
   );
 }
