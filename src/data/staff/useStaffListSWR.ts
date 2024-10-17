@@ -1,11 +1,12 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { ResponseObject } from '@/interfaces';
+import { TagTypeType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWR from 'swr';
 
 interface StaffListParamsType {
   currentSystemId?: number;
-  currentOrgId?: number;
+  currentOrgId?: TagTypeType;
 }
 
 export interface StaffListResponse {
@@ -19,7 +20,7 @@ export interface StaffListResponse {
   tags: CustomTreeDataNode[];
 }
 
-export default function useTagListSWR(params: StaffListParamsType) {
+export default function useStaffListSWR(params: StaffListParamsType) {
   return useSWR(
     ['/api/staff/list', params],
     async ([url, params]) =>

@@ -24,4 +24,11 @@ export const StaffTypeObject = {
   [StaffTypeEnum.Member]: '普通成员',
 };
 
+// 列举标签类型 1: 单位标签 2：组织人员标签  3: 专家标签 的枚举类型
+export enum TagTypeEnum {
+  Org = 1,
+  Member = 2,
+  Expert = 3,
+}
+
 export type TagTypeType = 1 | 2 | 3; // 标签类型 1: 单位标签 2：组织人员标签  3: 专家标签

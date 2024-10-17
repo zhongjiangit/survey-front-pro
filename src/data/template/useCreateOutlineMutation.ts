@@ -10,37 +10,33 @@ type TagsType = {
   children: TagsType[];
 };
 
-export interface TagCreateParamsType {
+interface TagCreateParamsType {
   currentSystemId: number;
-  orgId: number;
-  managerName?: string;
-  cellphone?: string;
-  isValid: 1 | 0;
-  tags?: number[];
+  tagType: TagTypeType;
+  tags: TagsType;
+}
+
+interface TagCreateResponse {
+  tags: TagsType;
 }
 
 /**
- * useOrgSetMutation
+ * useCreateOutlineMutation
  * @param params
  * @returns
  */
 
-export default function useOrgSetMutation() {
+export default function useCreateOutlineMutation() {
   return useSWRMutation(
-    'api/org/set',
+    'api/tag/save',
     (
       url,
-      {
-        arg: { currentSystemId, orgId, managerName, cellphone, isValid, tags },
-      }: { arg: TagCreateParamsType }
+      { arg: { currentSystemId, tagType, tags } }: { arg: TagCreateParamsType }
     ) =>
       request
-        .post<ResponseObject>(url, {
+        .post<ResponseObject<TagCreateResponse>>(url, {
           currentSystemId,
-          orgId,
-          managerName,
-          cellphone,
-          isValid,
+          tagType,
           tags,
         })
         .catch(e => {

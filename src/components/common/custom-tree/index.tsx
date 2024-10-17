@@ -48,7 +48,7 @@ function CustomTree(props: CustomTreeProps) {
    * 初始化数据
    */
   useEffect(() => {
-    if (dataSource && dataSource.length > 0) {
+    if (dataSource) {
       setTreeData(dataSource);
     }
   }, [dataSource]);

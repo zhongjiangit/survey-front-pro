@@ -3,12 +3,15 @@
 import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';
+import useOrgGetSWR from '@/data/org/useOrgGetSWR';
 import useOrgListSWR from '@/data/org/useOrgListSWR';
 import useOrgSaveMutation from '@/data/org/useOrgSaveMutation';
 import useOrgSetMutation, {
   TagCreateParamsType,
 } from '@/data/org/useOrgSetMutation';
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
+import useTagListSWR from '@/data/tag/useTagListSWR';
+import { TagTypeEnum } from '@/interfaces/CommonType';
 import {
   Button,
   Divider,
@@ -37,11 +40,36 @@ interface NodeProps {
 
 const Node = (props: NodeProps) => {
   const { system } = props;
+  const [treeSelectData, setTreeSelectData] = useState([]);
   const [orgTags, setOrgTags] = useState<CustomTreeDataNode[]>();
   const searchParams = useSearchParams();
   const nodeSelected = searchParams.get('node');
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
+
+  const { data: tagsData, mutate: muteTags } = useTagListSWR({
+    currentSystemId: system.id,
+    tagType: TagTypeEnum.Org,
+  });
+
+  useEffect(() => {
+    if (tagsData?.data.data?.tags) {
+      const tags = tagsData.data.data.tags;
+      // 递归遍历增加value字段，用于TreeSelect，value为key
+      const addValue = (node: CustomTreeDataNode) => {
+        if (node.children) {
+          node.children.forEach(child => {
+            addValue(child);
+          });
+        }
+        // @ts-ignore
+        node.value = node.key;
+      };
+      addValue(tags);
+      // @ts-ignore
+      setTreeSelectData([tags]);
+    }
+  }, [tagsData]);
 
   const setTags = useCallback((tags: any) => {
     setOrgTags(tags);
@@ -58,6 +86,13 @@ const Node = (props: NodeProps) => {
     isMutating: setMutating,
     data: setCallbackData,
   } = useOrgSetMutation();
+
+  const { data: nodeData } = useOrgGetSWR({
+    currentSystemId: system.id,
+    orgId: Number(nodeSelected),
+  });
+
+  console.log('nodeData', nodeData);
 
   const { data: orgsData, mutate: muteOrgs } = useOrgListSWR({
     currentSystemId: system.id,
@@ -81,8 +116,8 @@ const Node = (props: NodeProps) => {
       orgId: Number(nodeSelected),
       // isValid 转换为1或0
       isValid: values.isValid ? 1 : 0,
-      // adminName: values.adminName,
-      // adminPhone: values.adminPhone,
+      managerName: values.managerName,
+      cellphone: values.cellphone,
       tags: [],
     };
     if (!!values.tags) {
@@ -159,14 +194,14 @@ const Node = (props: NodeProps) => {
               }}
             >
               <Form.Item
-                name="adminName"
+                name="managerName"
                 label="管理员姓名"
                 rules={[{ required: true }]}
               >
                 <Input type="textarea" />
               </Form.Item>
               <Form.Item
-                name="adminPhone"
+                name="cellphone"
                 label="管理员电话"
                 rules={[{ required: true }]}
               >
@@ -188,7 +223,9 @@ const Node = (props: NodeProps) => {
                   allowClear
                   multiple
                   treeDefaultExpandAll
-                  treeData={[]}
+                  treeData={
+                    tagsData?.data.data?.tags ? [tagsData?.data.data?.tags] : []
+                  }
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>

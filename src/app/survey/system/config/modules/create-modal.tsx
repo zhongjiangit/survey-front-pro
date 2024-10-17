@@ -28,7 +28,7 @@ const CreateModal = ({
     if (initValues) {
       form.setFieldsValue(initValues);
     }
-  }, [initValues]);
+  }, [form, initValues]);
 
   const onCreate = (values: Values) => {
     console.log('Received values of form: ', values);
