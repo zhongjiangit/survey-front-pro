@@ -4,7 +4,7 @@ import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import useListOutlineSWR, {
   TemplateListResponse,
 } from '@/data/temp/useListOutlineSWR';
-import { TemplateTypeEnum, ZeroOrOne } from '@/interfaces/CommonType';
+import { TemplateTypeEnum, ZeroOrOneType } from '@/interfaces/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
@@ -60,7 +60,7 @@ const Check = ({ system }: CollectProps) => {
         title: '启用状态',
         key: 'isValid',
         dataIndex: 'isValid',
-        render: (value: ZeroOrOne) => (
+        render: (value: ZeroOrOneType) => (
           <Tag color={value === 1 ? 'green' : 'geekblue'}>
             {value === 1 ? '启用' : '停用'}
           </Tag>

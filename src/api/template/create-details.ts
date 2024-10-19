@@ -1,29 +1,24 @@
-import { TemplateType, ZeroOrOne } from '@/interfaces/CommonType';
+import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
 
-export interface TemplateListParamsType {
+export interface CollectItemType {
+  itemCaption: string;
+  isRequired: ZeroOrOneType;
+  widgetId: number;
+  itemMemo?: string;
+}
+
+export interface CollectParamsType {
   currentSystemId: number;
   templateType: TemplateType;
-}
-
-export interface TemplateListType {
   templateId: number;
-  templateTitle: string;
-  isValid: ZeroOrOne;
-  memo: string;
+  items: CollectItemType[];
 }
 
-interface TemplateLisResponse {
-  result: number;
-  message?: string;
-  data: TemplateListType[];
-  total: number;
-}
-
-export function getTemplateOutlineList(params: TemplateListParamsType) {
-  return SurveyService.post<TemplateLisResponse>('/api/template/list-outline', {
+export function createCollectDetails(params: CollectParamsType) {
+  return SurveyService.post('/api/template/create-details', {
     ...params,
   });
 }
 
-export default getTemplateOutlineList;
+export default createCollectDetails;

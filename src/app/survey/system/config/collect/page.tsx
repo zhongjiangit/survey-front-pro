@@ -1,24 +1,36 @@
 'use client';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import { CaretDownOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  CaretDownOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 import type { TreeDataNode, UploadProps } from 'antd';
 import {
   Button,
+  Checkbox,
   Divider,
   Empty,
   Form,
   Input,
   message,
   Radio,
+  Spin,
   Tree,
   Upload,
 } from 'antd';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
 import { useRequest } from 'ahooks';
 import Api from '@/api';
 import { TemplateTypeEnum } from '@/interfaces/CommonType';
+import { CollectItemType } from '@/api/template/get-details';
+
+const { TextArea } = Input;
+
+export type NewCollectItemType = CollectItemType & { id: number };
 
 const props: UploadProps = {
   name: 'file',
@@ -78,39 +90,86 @@ const NewCollectSet = () => {
   const systemId = searchParams.get('id');
   const tempId = searchParams.get('tempId');
   const [open, setOpen] = useState(false);
+  const [canEdit, setCanEdit] = useState(true);
   const [items, setItems] = useState<any>([]);
+  const [currentItem, setCurrentItem] = useState<NewCollectItemType>();
+  const [messageApi, contextHolder] = message.useMessage();
+  const router = useRouter();
 
-  const {
-    run: getCollectList,
-    data: collectList,
-    loading,
-  } = useRequest(() => {
-    return Api.getTemplateDetails({
-      currentSystemId: Number(systemId),
-      templateType: TemplateTypeEnum.Collect,
-      templateId: Number(tempId),
-    });
-  });
+  const { loading, data: responseData } = useRequest(
+    () => {
+      return Api.getTemplateDetails({
+        currentSystemId: Number(systemId),
+        templateType: TemplateTypeEnum.Collect,
+        templateId: Number(tempId),
+      });
+    },
+    {
+      onSuccess: response => {
+        if (response?.data.items?.length > 0) {
+          setItems(response.data.items);
+          setCanEdit(false);
+        }
+      },
+    }
+  );
 
-  const { run: getAllWidgetsList, data: widgetList } = useRequest(() => {
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(systemId),
-    });
-  });
+  const { run: createDetails, loading: createLoading } = useRequest(
+    items => {
+      // 删除items中的id
+      items.forEach((item: any) => {
+        delete item.id;
+      });
+      return Api.createCollectDetails({
+        currentSystemId: Number(systemId),
+        templateType: TemplateTypeEnum.Collect,
+        templateId: Number(tempId),
+        items: items,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        router.push(`/survey/system/config?id=${systemId}&tab=collect`);
+        messageApi.open({
+          type: 'success',
+          content: '保存成功',
+        });
+      },
+    }
+  );
 
-  const showDrawer = () => {
+  const createItem = () => {
     setOpen(true);
+    setCurrentItem(undefined);
   };
 
   const pushItem = (item: any) => {
-    const newItem: any = { ...item, id: new Date().getTime() };
-    setItems([...items, newItem]);
+    if (item?.id) {
+      const newItems = items.map((oldItem: any) => {
+        if (oldItem.id === item.id) {
+          return item;
+        }
+        return oldItem;
+      });
+      setItems(newItems);
+    } else {
+      const newItem: any = { ...item, id: new Date().getTime() };
+      setItems([...items, newItem]);
+    }
+  };
+
+  const removeItem = (id: number) => {
+    const newItems = items.filter((item: any) => item.id !== id);
+    setItems(newItems);
   };
 
   const renderFormItem = (key: string) => {
     switch (key) {
       case 'input':
         return <Input type="textarea" />;
+      case 'textarea':
+        return <TextArea rows={3} />;
       case 'radio':
         return (
           <Radio.Group>
@@ -120,7 +179,16 @@ const NewCollectSet = () => {
             <Radio value={4}>D</Radio>
           </Radio.Group>
         );
-
+      case 'checkbox':
+        return (
+          <Checkbox.Group
+            options={[
+              { label: 'Apple', value: 'Apple' },
+              { label: 'Pear', value: 'Pear' },
+              { label: 'Orange', value: 'Orange' },
+            ]}
+          />
+        );
       case 'file':
         return (
           <Upload {...props}>
@@ -143,8 +211,10 @@ const NewCollectSet = () => {
         break;
     }
   };
+
   return (
     <main>
+      {contextHolder}
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
@@ -161,11 +231,11 @@ const NewCollectSet = () => {
           },
         ]}
       />
-      <div className="shadow-md h-[83vh] p-2 w-full overflow-auto">
+      <div className="shadow-md pt-6 h-[83vh] p-2 w-full overflow-auto">
         <div className="flex justify-end px-5">
-          <Button onClick={showDrawer}>新增题目</Button>
+          {canEdit && <Button onClick={createItem}>新增题目</Button>}
         </div>
-        <div className="min-w-[50vh] flex justify-center">
+        <div className="min-w-[50vw] flex justify-start">
           <Form
             name="basic"
             labelCol={{ span: 8 }}
@@ -174,27 +244,42 @@ const NewCollectSet = () => {
             // onFinish={onFinish}
             // onFinishFailed={onFinishFailed}
             autoComplete="off"
-            className="w-96"
+            className="min-w-96 w-[40vw]"
           >
-            {items.length > 0 ? (
-              items.map((item: any) => (
-                <Form.Item
-                  key={item.id}
-                  label={item.label}
-                  name={item.label}
-                  rules={[
-                    {
-                      required: item.required,
-                      message: 'Please input your username!',
-                    },
-                  ]}
-                >
-                  {renderFormItem(item.widget)}
-                </Form.Item>
-              ))
-            ) : (
-              <Empty />
-            )}
+            {items.length > 0 &&
+              items.map((item: NewCollectItemType, index: number) => (
+                <div className="flex">
+                  <Form.Item
+                    className="flex-1"
+                    key={index}
+                    label={item.itemCaption}
+                    name={item.widgetId}
+                    rules={[
+                      {
+                        required: item.isRequired === 1,
+                        message: 'Please input your username!',
+                      },
+                    ]}
+                  >
+                    {renderFormItem(item.widgetType || 'input')}
+                  </Form.Item>
+                  <div className="flex items-start justify-end gap-2 w-10 pt-2">
+                    <EditOutlined
+                      className="hover:scale-125 cursor-pointer"
+                      onClick={() => {
+                        setCurrentItem(item);
+                        setOpen(true);
+                      }}
+                    />
+                    <DeleteOutlined
+                      className="text-red-500 hover:scale-125 cursor-pointer"
+                      onClick={() => {
+                        removeItem(item.id);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
 
             {items.length > 0 && (
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -205,17 +290,36 @@ const NewCollectSet = () => {
             )}
           </Form>
         </div>
-
-        {items.length > 0 && (
+        {loading ? (
+          <div className="h-32 flex items-center justify-center">
+            <Spin size="large" />
+          </div>
+        ) : items.length === 0 ? (
+          <Empty />
+        ) : canEdit ? (
           <>
             <Divider orientation="left">配置保存</Divider>
             <div className="flex justify-end px-5">
-              <Button type="primary">保存配置</Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  createDetails(items);
+                }}
+                loading={createLoading}
+                disabled={loading || responseData?.data.items.length !== 0}
+              >
+                保存配置
+              </Button>
             </div>
           </>
-        )}
+        ) : null}
 
-        <NewCollectItem open={open} setOpen={setOpen} pushItem={pushItem} />
+        <NewCollectItem
+          open={open}
+          setOpen={setOpen}
+          pushItem={pushItem}
+          initValues={currentItem}
+        />
       </div>
     </main>
   );

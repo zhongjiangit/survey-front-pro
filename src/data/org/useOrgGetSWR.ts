@@ -1,5 +1,5 @@
 import { ResponseObject } from '@/interfaces';
-import { ZeroOrOne } from '@/interfaces/CommonType';
+import { ZeroOrOneType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWR from 'swr';
 
@@ -10,7 +10,7 @@ type TagsType = {
 export interface OrgNodeResponse {
   managerName: string;
   cellphone: string;
-  isValid: ZeroOrOne;
+  isValid: ZeroOrOneType;
   tags: TagsType[];
 }
 
