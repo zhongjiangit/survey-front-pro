@@ -14,16 +14,9 @@ export async function POST(req: Request) {
       body: JSON.stringify({ ...params }),
     });
 
-    const resJson = await res.json();
-    if (resJson.result === 0) {
-      return NextResponse.json({
-        code: 'success',
-        msg: resJson.message,
-        data: resJson.data,
-      });
-    }
+    return res;
   } catch (error) {
     console.log('error======================', error);
   }
-  return NextResponse.json({ code: 'error', msg: 'Error', data: null });
+  return NextResponse.json({ code: 'error', message: 'Error', data: null });
 }

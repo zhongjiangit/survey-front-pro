@@ -13,16 +13,16 @@ import {
   ProFormText,
 } from '@ant-design/pro-components';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-
+import { useState } from 'react';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import useLoginMutation from '@/data/login/useLoginMutation';
 import { message, Tabs } from 'antd';
 import { FlaskConical } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useRequest } from 'ahooks';
+import Api from '@/api';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -32,21 +32,28 @@ export default function LoginForm() {
     state => state.setCurrentSystem
   );
   const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
-  const { data, trigger, isMutating } = useLoginMutation();
 
-  useEffect(() => {
-    if (data?.data?.message) {
-      messageApi.open({
-        type: 'error',
-        content: data.data.message,
-      });
-    } else if (data?.data?.data) {
-      setUser(data.data.data);
-      setCurrentSystem(data.data.data.systems[0]);
-      setCurrentOrg(data.data.data.systems[0].orgs[0]);
-      router.push('/survey/system');
+  const { run, loading } = useRequest(
+    params => {
+      return Api.login(params);
+    },
+    {
+      manual: true,
+      onSuccess: response => {
+        if (response?.message) {
+          messageApi.open({
+            type: 'error',
+            content: response.message,
+          });
+        } else if (response?.data) {
+          setUser(response.data);
+          setCurrentSystem(response.data.systems[0]);
+          setCurrentOrg(response.data.systems[0].orgs[0]);
+          router.push('/survey/system');
+        }
+      },
     }
-  }, [data, messageApi, router, setCurrentOrg, setCurrentSystem, setUser]);
+  );
 
   const [type, setType] = useState<string>('account');
 
@@ -71,14 +78,13 @@ export default function LoginForm() {
           autoLogin: true,
         }}
         onFinish={values => {
-          console.log('Received values of form:', values);
-          trigger({
+          run({
             loginType: type === 'account' ? 1 : 2,
             cellphone: values.cellphone,
             password: values.password,
           });
         }}
-        loading={isMutating}
+        loading={loading}
       >
         <Tabs
           activeKey={type}
