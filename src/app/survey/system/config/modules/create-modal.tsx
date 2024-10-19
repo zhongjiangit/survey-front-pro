@@ -1,28 +1,43 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import useCreateOutlineMutation, {
+  TemplateOutlineCreateParamsType,
+} from '@/data/temp/useCreateOutlineMutation';
 import { Button, Form, Input, Modal, Radio, Space } from 'antd';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface Values {
-  name: string;
+  currentSystemId?: number;
+  templateType?: number;
+  templateTitle: string;
   isValid: 0 | 1;
-  description?: string;
+  memo: string;
 }
 
 interface CreateModalProps {
-  title: string;
+  type: 'spotCheck' | 'collect';
   open: boolean;
   setOpen: (open: boolean) => void;
-  initValues?: Values;
+  initValues?: TemplateOutlineCreateParamsType;
 }
 
-const CreateModal = ({
-  title,
-  open,
-  setOpen,
-  initValues,
-}: CreateModalProps) => {
+// 创建枚举 spotCheck | collect
+enum TemplateType {
+  spotCheck = '试题抽检',
+  collect = '资料收集',
+}
+
+const CreateModal = ({ type, open, setOpen, initValues }: CreateModalProps) => {
   const [form] = Form.useForm();
+  const searchParams = useSearchParams();
+  const systemId = searchParams.get('id');
+
+  const {
+    trigger: createOutline,
+    isMutating: isCreating,
+    data: createOutlineData,
+  } = useCreateOutlineMutation();
 
   useEffect(() => {
     if (initValues) {
@@ -31,7 +46,13 @@ const CreateModal = ({
   }, [form, initValues]);
 
   const onCreate = (values: Values) => {
-    console.log('Received values of form: ', values);
+    const params: TemplateOutlineCreateParamsType = {
+      ...values,
+      currentSystemId: Number(systemId),
+      templateType: type === 'collect' ? 1 : 2,
+    };
+    console.log('Received values of form: ', params);
+    createOutline(params);
     form.resetFields();
     setOpen(false);
   };
@@ -44,10 +65,11 @@ const CreateModal = ({
   return (
     <Modal
       open={open}
-      title={`${!!initValues ? '编辑' : '创建'}${title}模版`}
+      title={`${!!initValues ? '编辑' : '创建'}${TemplateType[type]}模版`}
       onCancel={onCancel}
       destroyOnClose
       footer={null}
+      maskClosable={false}
     >
       <Form
         layout="vertical"
@@ -57,7 +79,7 @@ const CreateModal = ({
         onFinish={values => onCreate(values)}
       >
         <Form.Item
-          name="name"
+          name="templateTitle"
           label="模版名称"
           rules={[
             {
@@ -84,7 +106,16 @@ const CreateModal = ({
             <Radio value={0}>停用</Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item name="description" label="模版描述">
+        <Form.Item
+          name="memo"
+          label="模版描述"
+          rules={[
+            {
+              required: true,
+              message: '请输入模板描述!',
+            },
+          ]}
+        >
           <Input.TextArea />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 17, span: 7 }}>

@@ -8,12 +8,12 @@ export interface TagListType {
   tags: CustomTreeDataNode;
 }
 
-export default function useListOutlineSWR(params: {
+export default function useListAllWidgetsSWR(params: {
   currentSystemId?: number;
   tagType?: TagTypeType;
 }) {
   return useSWR(
-    ['/api/template/list-all-widgets', params],
+    ['/api/temp/list-all-widgets', params],
     async ([url, params]) =>
       request.post<ResponseObject<TagListType>>(url, params),
     {

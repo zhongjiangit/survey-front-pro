@@ -93,6 +93,17 @@ const Node = (props: NodeProps) => {
   });
 
   console.log('nodeData', nodeData);
+  useEffect(() => {
+    if (nodeData?.data.data) {
+      const values = nodeData?.data.data;
+      form.setFieldsValue({
+        managerName: values.managerName,
+        cellphone: values.cellphone,
+        isValid: values.isValid === 1,
+        tags: values.tags.map((tag: { key: number }) => String(tag.key)),
+      });
+    }
+  }, [form, nodeData]);
 
   const { data: orgsData, mutate: muteOrgs } = useOrgListSWR({
     currentSystemId: system.id,
@@ -223,9 +234,7 @@ const Node = (props: NodeProps) => {
                   allowClear
                   multiple
                   treeDefaultExpandAll
-                  treeData={
-                    tagsData?.data.data?.tags ? [tagsData?.data.data?.tags] : []
-                  }
+                  treeData={treeSelectData}
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>

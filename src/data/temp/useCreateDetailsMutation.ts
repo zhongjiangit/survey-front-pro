@@ -28,7 +28,7 @@ interface TagCreateResponse {
 
 export default function useCreateDetailsMutation() {
   return useSWRMutation(
-    'api/tag/save',
+    'api/temp/save',
     (
       url,
       { arg: { currentSystemId, tagType, tags } }: { arg: TagCreateParamsType }

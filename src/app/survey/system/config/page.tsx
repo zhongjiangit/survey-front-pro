@@ -4,19 +4,18 @@ import Breadcrumbs from '@/components/common/breadcrumbs';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import useSystemListAllSWR from '@/data/system/useSystemListAllSWR';
 import { Button, Spin, Tabs, TabsProps } from 'antd';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import Basic from './modules/basic';
 import Check from './modules/check';
 import Collect from './modules/collect';
-import Node from './modules/node';
 import CreateModal from './modules/create-modal';
+import Node from './modules/node';
 
 export default function Page() {
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get('id');
   const selectedTab = searchParams.get('tab');
+  const selectedId = searchParams.get('id');
   const [activeKey, setActiveKey] = useState(selectedTab || 'basic');
   const [open, setOpen] = useState(false);
   const user = useSurveyUserStore(state => state.user);
@@ -132,7 +131,7 @@ export default function Page() {
       <CreateModal
         open={open}
         setOpen={setOpen}
-        title={activeKey === 'collect' ? '资料收集' : '试题抽检'}
+        type={activeKey as 'spotCheck' | 'collect'}
       />
     </main>
   );

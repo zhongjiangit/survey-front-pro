@@ -1,4 +1,3 @@
-import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { ResponseObject } from '@/interfaces';
 import { TagTypeType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
@@ -28,7 +27,7 @@ interface TagCreateResponse {
 
 export default function useCreateDetailsMutation() {
   return useSWRMutation(
-    'api/tag/save',
+    'api/temp/save',
     (
       url,
       { arg: { currentSystemId, tagType, tags } }: { arg: TagCreateParamsType }

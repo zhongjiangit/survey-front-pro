@@ -1,12 +1,11 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { ResponseObject } from '@/interfaces';
-import { TagTypeType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWR from 'swr';
 
 interface StaffListParamsType {
   currentSystemId?: number;
-  currentOrgId?: TagTypeType;
+  currentOrgId?: number;
 }
 
 export interface StaffListResponse {

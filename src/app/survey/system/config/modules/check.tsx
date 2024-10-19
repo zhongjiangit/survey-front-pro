@@ -1,57 +1,39 @@
 'use client';
 
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
-import { Popconfirm, Space, Table, TableProps, Tag } from 'antd';
+import useListOutlineSWR, {
+  TemplateListResponse,
+} from '@/data/temp/useListOutlineSWR';
+import { TemplateTypeEnum, ZeroOrOne } from '@/interfaces/CommonType';
+import { Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { useMemo, useRef, useState } from 'react';
-import CreateModal from './create-modal';
-
-interface DataType {
-  key: string;
-  name: string;
-  time: string;
-  status: string[];
-}
+import { useMemo, useState } from 'react';
 
 interface CollectProps {
   system: SystemListType;
 }
 
-const data: DataType[] = [
-  {
-    key: '1',
-    name: 'John Brown',
-    time: '2024-09-01',
-    status: ['停用'],
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    time: '2024-09-01',
-    status: ['启用'],
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    time: '2024-09-01',
-    status: ['启用'],
-  },
-];
-
 const Check = ({ system }: CollectProps) => {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
   const selectedTab = searchParams.get('tab');
+  const [currentTemplate, setCurrentTemplate] =
+    useState<TemplateListResponse>();
   const [open, setOpen] = useState(false);
+  const { data: collectList } = useListOutlineSWR({
+    currentSystemId: system.id,
+    templateType: TemplateTypeEnum.Check,
+  });
 
-  const columns: TableProps<DataType>['columns'] = useMemo(
+  console.log('collectList', collectList);
+
+  const columns = useMemo(
     () => [
       {
-        title: '抽检模板',
-        dataIndex: 'name',
-        key: 'name',
-        render: (_, { key }) => <span>{`模板${key}`}</span>,
+        title: '收集模板',
+        dataIndex: 'templateTitle',
+        key: 'collectList',
       },
 
       {
@@ -61,37 +43,28 @@ const Check = ({ system }: CollectProps) => {
       },
       {
         title: '启用状态',
-        key: 'status',
-        dataIndex: 'status',
-        render: (_, { status }) => (
-          <>
-            {status.map(tag => {
-              let color = tag.length > 5 ? 'geekblue' : 'green';
-              if (tag === '停用') {
-                color = 'volcano';
-              }
-              return (
-                <Tag color={color} key={tag}>
-                  {tag.toUpperCase()}
-                </Tag>
-              );
-            })}
-          </>
+        key: 'isValid',
+        dataIndex: 'isValid',
+        render: (value: ZeroOrOne) => (
+          <Tag color={value === 1 ? 'green' : 'geekblue'}>
+            {value === 1 ? '启用' : '停用'}
+          </Tag>
         ),
       },
       {
         title: '操作',
         key: 'action',
-        render: (_, record) => (
+        render: (_: any, record: TemplateListResponse) => (
           <Space size="middle">
             <Link
-              href={`/survey/system/config/collect?id=${selectedId}&tab=${selectedTab}&check=${record.key}`}
+              href={`/survey/system/config/check?id=${selectedId}&tab=${selectedTab}&check=${record.templateId}`}
             >
               详情
             </Link>
             <a>复制</a>
             <a
               onClick={() => {
+                setCurrentTemplate(record);
                 setOpen(true);
               }}
             >
@@ -113,13 +86,17 @@ const Check = ({ system }: CollectProps) => {
 
   return (
     <main>
-      <Table<DataType> columns={columns} dataSource={data} />
-      <CreateModal
+      <Table columns={columns} dataSource={collectList?.data.data || []} />
+      {/* <CreateModal
         open={open}
         setOpen={setOpen}
-        title={'试题抽检'}
-        initValues={{ name: '111', isValid: 1 }}
-      />
+        type={'collect'}
+        initValues={{
+          ...currentTemplate,
+          currentSystemId: system.id,
+          templateType: TemplateTypeEnum.Check,
+        }}
+      /> */}
     </main>
   );
 };

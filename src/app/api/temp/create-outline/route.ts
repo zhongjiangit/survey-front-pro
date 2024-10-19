@@ -4,7 +4,7 @@ import { baseUrl, cookieValue } from '../../config';
 export async function POST(req: Request) {
   const params = await req.json();
   try {
-    const res = await fetch(`${baseUrl}/tag/save`, {
+    const res = await fetch(`${baseUrl}/template/createOutline`, {
       headers: {
         'Content-Type': 'application/json',
         Cookie: `JSESSIONID=${cookieValue}`,
@@ -14,6 +14,8 @@ export async function POST(req: Request) {
     });
 
     const resJson = await res.json();
+    console.log('resJson======================', resJson);
+
     if (resJson.result === 0) {
       return NextResponse.json({
         code: 'success',

@@ -4,7 +4,7 @@ import { baseUrl, cookieValue } from '../../config';
 export async function POST(req: Request) {
   const params = await req.json();
   try {
-    const res = await fetch(`${baseUrl}/org/save`, {
+    const res = await fetch(`${baseUrl}/org/set`, {
       headers: {
         'Content-Type': 'application/json',
         Cookie: `JSESSIONID=${cookieValue}`,

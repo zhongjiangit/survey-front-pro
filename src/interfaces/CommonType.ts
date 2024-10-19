@@ -32,3 +32,10 @@ export enum TagTypeEnum {
 }
 
 export type TagTypeType = 1 | 2 | 3; // 标签类型 1: 单位标签 2：组织人员标签  3: 专家标签
+
+export enum TemplateTypeEnum {
+  Collect = 1,
+  Check = 2,
+}
+
+export type TemplateType = 1 | 2; // 模板类型 1: 资料收集 2: 试题抽检

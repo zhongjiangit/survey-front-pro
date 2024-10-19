@@ -73,7 +73,7 @@ function Page() {
       );
       setAdminStaff(adminStaff[0]);
     }
-  }, [staffList]);
+  }, [staffList?.data?.data]);
 
   return (
     <main className="flex flex-col gap-5">
