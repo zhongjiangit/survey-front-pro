@@ -1,13 +1,13 @@
 import { ResponseObject } from '@/interfaces';
-import { ZeroOrOne } from '@/interfaces/CommonType';
+import { ZeroOrOneType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWRMutation from 'swr/mutation';
 
 type SystemCreateParamsType = {
   systemName: string;
   freeTimes: number;
-  allowSubInitiate: ZeroOrOne;
-  allowSupCheck: ZeroOrOne;
+  allowSubInitiate: ZeroOrOneType;
+  allowSupCheck: ZeroOrOneType;
   validDate: string;
   levelCount: number;
   levels: string[];

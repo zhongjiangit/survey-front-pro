@@ -1,4 +1,4 @@
-import { TemplateType, ZeroOrOne } from '@/interfaces/CommonType';
+import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
 
 export interface TemplateListParamsType {
@@ -9,7 +9,7 @@ export interface TemplateListParamsType {
 export interface TemplateListType {
   templateId: number;
   templateTitle: string;
-  isValid: ZeroOrOne;
+  isValid: ZeroOrOneType;
   memo: string;
 }
 

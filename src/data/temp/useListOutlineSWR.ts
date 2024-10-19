@@ -1,12 +1,12 @@
 import { ResponseObject } from '@/interfaces';
-import { TemplateType, ZeroOrOne } from '@/interfaces/CommonType';
+import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import request from '@/lib/request';
 import useSWR from 'swr';
 
 export interface TemplateListResponse {
   templateId: number;
   templateTitle: string;
-  isValid: ZeroOrOne;
+  isValid: ZeroOrOneType;
   memo: string;
 }
 

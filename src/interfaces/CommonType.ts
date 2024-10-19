@@ -1,5 +1,10 @@
 // 返回 0 ｜ 1 的类型， 0 代表否，1 代表是
-export type ZeroOrOne = 0 | 1;
+export type ZeroOrOneType = 0 | 1;
+
+export enum ZeroOrOneTypeEnum {
+  Zero = 0,
+  One = 1,
+}
 
 export type RoleType = {
   key: string;
@@ -42,10 +47,8 @@ export type TemplateType = 1 | 2; // 模板类型 1: 资料收集 2: 试题抽�
 
 export type WidgetType =
   | 'input'
-  | 'select'
   | 'radio'
   | 'checkbox'
-  | 'number'
   | 'textarea'
   | 'file'
   | 'tree';

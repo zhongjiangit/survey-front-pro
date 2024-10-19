@@ -1,50 +1,62 @@
+'use client';
+
 import { useRequest } from 'ahooks';
 import type { FormProps } from 'antd';
 import { Button, Drawer, Form, Input, Select, Switch } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Api from '@/api';
 import { useSearchParams } from 'next/navigation';
+import { ZeroOrOneType, ZeroOrOneTypeEnum } from '@/interfaces/CommonType';
+import { NewCollectItemType } from './page';
 
 interface Props {
   open: boolean;
+  initValues?: NewCollectItemType;
   setOpen: (open: boolean) => void;
   pushItem: (item: any) => void;
 }
 
 const NewCollectItem: React.FC<Props> = ({
   open,
+  initValues,
   setOpen,
   pushItem,
 }: Props) => {
-  // const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
 
-  const { run: getAllWidgetsList, data: widgetList = { data: [] } } =
-    useRequest(() => {
-      return Api.getAllWidgetsList({
-        currentSystemId: Number(systemId),
-      });
+  useEffect(() => {
+    if (initValues) {
+      form.setFieldsValue({ ...initValues });
+    } else {
+      form.setFieldsValue({ isRequired: true });
+    }
+  }, [initValues]);
+
+  const { data: widgetList = { data: [] } } = useRequest(() => {
+    return Api.getAllWidgetsList({
+      currentSystemId: Number(systemId),
     });
+  });
 
   const onClose = () => {
+    form.resetFields();
     setOpen(false);
   };
 
-  type FieldType = {
-    label?: string;
-    required?: string;
-    remember?: string;
-    widget?: string;
-  };
-
-  const onFinish: FormProps<FieldType>['onFinish'] = values => {
+  const onFinish: FormProps['onFinish'] = values => {
+    // isRequired 为switch组件，需要转换为0或1
+    values.isRequired = values.isRequired
+      ? ZeroOrOneTypeEnum.One
+      : ZeroOrOneTypeEnum.Zero;
     console.log('Success:', values);
-    pushItem(values);
+
+    pushItem({ ...initValues, ...values });
     onClose();
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = errorInfo => {
+  const onFinishFailed: FormProps['onFinishFailed'] = errorInfo => {
     console.log('Failed:', errorInfo);
   };
 
@@ -58,33 +70,32 @@ const NewCollectItem: React.FC<Props> = ({
         open={open}
       >
         <Form
-          name="item"
+          name="item123"
+          form={form}
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
-          initialValues={{ required: true }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
-          clearOnDestroy={true}
         >
-          <Form.Item<FieldType>
+          <Form.Item
             label="标题"
-            name="label"
+            name="itemCaption"
             rules={[{ required: true, message: '请输入标题' }]}
           >
             <Input type="textarea" placeholder="输入标题" />
           </Form.Item>
-          <Form.Item<FieldType>
+          <Form.Item
             label="是否必填"
-            name="required"
+            name="isRequired"
             rules={[{ required: true, message: '请选择是否必填!' }]}
           >
             <Switch />
           </Form.Item>
-          <Form.Item<FieldType>
+          <Form.Item
             label="选择控件"
-            name="widget"
+            name="widgetId"
             rules={[{ required: true, message: '请选择展示控件' }]}
           >
             <Select
@@ -96,9 +107,9 @@ const NewCollectItem: React.FC<Props> = ({
               }))}
             />
           </Form.Item>
-          <Form.Item<FieldType>
+          <Form.Item
             label="提醒事项"
-            name="remember"
+            name="itemMemo"
             rules={[{ required: false, message: '请输入提醒事项!' }]}
           >
             <Input type="textarea" placeholder="输入提醒事项" />
