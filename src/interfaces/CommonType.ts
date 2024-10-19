@@ -39,3 +39,13 @@ export enum TemplateTypeEnum {
 }
 
 export type TemplateType = 1 | 2; // 模板类型 1: 资料收集 2: 试题抽检
+
+export type WidgetType =
+  | 'input'
+  | 'select'
+  | 'radio'
+  | 'checkbox'
+  | 'number'
+  | 'textarea'
+  | 'file'
+  | 'tree';

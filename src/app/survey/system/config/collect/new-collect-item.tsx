@@ -1,6 +1,9 @@
+import { useRequest } from 'ahooks';
 import type { FormProps } from 'antd';
 import { Button, Drawer, Form, Input, Select, Switch } from 'antd';
 import React from 'react';
+import Api from '@/api';
+import { useSearchParams } from 'next/navigation';
 
 interface Props {
   open: boolean;
@@ -14,6 +17,15 @@ const NewCollectItem: React.FC<Props> = ({
   pushItem,
 }: Props) => {
   // const [open, setOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const systemId = searchParams.get('id');
+
+  const { run: getAllWidgetsList, data: widgetList = { data: [] } } =
+    useRequest(() => {
+      return Api.getAllWidgetsList({
+        currentSystemId: Number(systemId),
+      });
+    });
 
   const onClose = () => {
     setOpen(false);
@@ -78,24 +90,10 @@ const NewCollectItem: React.FC<Props> = ({
             <Select
               placeholder="选择控件"
               optionFilterProp="label"
-              options={[
-                {
-                  label: '输入框',
-                  value: 'input',
-                },
-                {
-                  label: '附件',
-                  value: 'file',
-                },
-                {
-                  label: '单选（题型）',
-                  value: 'radio',
-                },
-                {
-                  label: '内容素养（树状结构）',
-                  value: 'tree',
-                },
-              ]}
+              options={widgetList.data?.map(item => ({
+                label: item.widgetName,
+                value: item.id,
+              }))}
             />
           </Form.Item>
           <Form.Item<FieldType>

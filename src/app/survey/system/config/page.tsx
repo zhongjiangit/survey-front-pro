@@ -3,17 +3,18 @@
 import Breadcrumbs from '@/components/common/breadcrumbs';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import useSystemListAllSWR from '@/data/system/useSystemListAllSWR';
-import { Button, Spin, Tabs, TabsProps } from 'antd';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Spin, Tabs, TabsProps } from 'antd';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Basic from './modules/basic';
 import Check from './modules/check';
 import Collect from './modules/collect';
-import CreateModal from './modules/create-modal';
 import Node from './modules/node';
 
 export default function Page() {
   const searchParams = useSearchParams();
+  const { replace } = useRouter();
+  const pathname = usePathname();
   const selectedTab = searchParams.get('tab');
   const selectedId = searchParams.get('id');
   const [activeKey, setActiveKey] = useState(selectedTab || 'basic');
@@ -37,40 +38,27 @@ export default function Page() {
     return null;
   }, [list?.data.data, selectedId]);
 
+  /**
+   * 设置url参数
+   */
+  const setUrlParams = useCallback(
+    (key?: string) => {
+      const params = new URLSearchParams(searchParams);
+      if (key) {
+        params.set('tab', key);
+      } else {
+        params.delete('tab');
+      }
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, replace, pathname]
+  );
+
   useEffect(() => {
     if (!!selectedTab) {
       setActiveKey(selectedTab);
     }
   }, [selectedTab]);
-
-  const extraButton = useMemo(() => {
-    switch (activeKey) {
-      case 'collect':
-        return (
-          <Button
-            type="primary"
-            onClick={() => {
-              setOpen(true);
-            }}
-          >
-            新增数据收集
-          </Button>
-        );
-      case 'spotCheck':
-        return (
-          <Button
-            type="primary"
-            onClick={() => {
-              setOpen(true);
-            }}
-          >
-            新增试题抽检问卷
-          </Button>
-        );
-      default:
-        return <></>;
-    }
-  }, [activeKey]);
 
   const items: TabsProps['items'] = useMemo(() => {
     if (!!system) {
@@ -120,19 +108,14 @@ export default function Page() {
         </div>
       ) : (
         <Tabs
-          tabBarExtraContent={extraButton}
           items={items}
           activeKey={activeKey}
           onChange={(activeKey: string) => {
             setActiveKey(activeKey);
+            setUrlParams(activeKey);
           }}
         />
       )}
-      <CreateModal
-        open={open}
-        setOpen={setOpen}
-        type={activeKey as 'spotCheck' | 'collect'}
-      />
     </main>
   );
 }

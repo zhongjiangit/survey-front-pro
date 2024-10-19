@@ -1,6 +1,5 @@
 'use client';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import { CaretDownOutlined, UploadOutlined } from '@ant-design/icons';
 import type { TreeDataNode, UploadProps } from 'antd';
 import {
@@ -15,8 +14,11 @@ import {
   Upload,
 } from 'antd';
 import { useSearchParams } from 'next/navigation';
-import { FunctionComponent, useState } from 'react';
+import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
+import { useRequest } from 'ahooks';
+import Api from '@/api';
+import { TemplateTypeEnum } from '@/interfaces/CommonType';
 
 const props: UploadProps = {
   name: 'file',
@@ -71,17 +73,30 @@ const treeData: TreeDataNode[] = [
   },
 ];
 
-interface CollectProps {
-  system: SystemListType;
-}
-
-const NewCollectSet: FunctionComponent<CollectProps> = props => {
-  const { system } = props;
-  console.log('system', system);
+const NewCollectSet = () => {
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get('id');
+  const systemId = searchParams.get('id');
+  const tempId = searchParams.get('tempId');
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any>([]);
+
+  const {
+    run: getCollectList,
+    data: collectList,
+    loading,
+  } = useRequest(() => {
+    return Api.getTemplateDetails({
+      currentSystemId: Number(systemId),
+      templateType: TemplateTypeEnum.Collect,
+      templateId: Number(tempId),
+    });
+  });
+
+  const { run: getAllWidgetsList, data: widgetList } = useRequest(() => {
+    return Api.getAllWidgetsList({
+      currentSystemId: Number(systemId),
+    });
+  });
 
   const showDrawer = () => {
     setOpen(true);
@@ -136,12 +151,12 @@ const NewCollectSet: FunctionComponent<CollectProps> = props => {
           { label: '系统', href: '/survey/system' },
           {
             label: '配置系统',
-            href: `/survey/system/config?id=${selectedId}&tab=collect`,
+            href: `/survey/system/config?id=${systemId}&tab=collect`,
             active: true,
           },
           {
             label: '资料收集配置',
-            href: `/survey/system/config?id=${selectedId}&tab=collect`,
+            href: `/survey/system/config?id=${systemId}&tab=collect`,
             active: false,
           },
         ]}

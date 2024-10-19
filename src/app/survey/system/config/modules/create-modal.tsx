@@ -1,11 +1,11 @@
 'use client';
 
-import useCreateOutlineMutation, {
-  TemplateOutlineCreateParamsType,
-} from '@/data/temp/useCreateOutlineMutation';
+import { useRequest } from 'ahooks';
 import { Button, Form, Input, Modal, Radio, Space } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import Api from '@/api';
+import { TemplateOutlineCreateParamsType } from '@/api/template/create-outline';
 
 interface Values {
   currentSystemId?: number;
@@ -19,7 +19,8 @@ interface CreateModalProps {
   type: 'spotCheck' | 'collect';
   open: boolean;
   setOpen: (open: boolean) => void;
-  initValues?: TemplateOutlineCreateParamsType;
+  refreshList: () => void;
+  initValues?: any;
 }
 
 // 创建枚举 spotCheck | collect
@@ -28,16 +29,44 @@ enum TemplateType {
   collect = '资料收集',
 }
 
-const CreateModal = ({ type, open, setOpen, initValues }: CreateModalProps) => {
+const CreateModal = ({
+  type,
+  open,
+  setOpen,
+  refreshList,
+  initValues,
+}: CreateModalProps) => {
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
 
-  const {
-    trigger: createOutline,
-    isMutating: isCreating,
-    data: createOutlineData,
-  } = useCreateOutlineMutation();
+  const { run: createOutline, loading: submitLoading } = useRequest(
+    params => {
+      return Api.createTemplateOutline(params);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        form.resetFields();
+        setOpen(false);
+        refreshList();
+      },
+    }
+  );
+
+  const { run: updateOutline, loading: updateLoading } = useRequest(
+    params => {
+      return Api.updateTemplateOutline(params);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        form.resetFields();
+        setOpen(false);
+        refreshList();
+      },
+    }
+  );
 
   useEffect(() => {
     if (initValues) {
@@ -51,10 +80,11 @@ const CreateModal = ({ type, open, setOpen, initValues }: CreateModalProps) => {
       currentSystemId: Number(systemId),
       templateType: type === 'collect' ? 1 : 2,
     };
-    console.log('Received values of form: ', params);
-    createOutline(params);
-    form.resetFields();
-    setOpen(false);
+    if (!!initValues) {
+      updateOutline({ ...params, templateId: initValues.templateId });
+    } else {
+      createOutline(params);
+    }
   };
 
   const onCancel = () => {
@@ -101,7 +131,7 @@ const CreateModal = ({ type, open, setOpen, initValues }: CreateModalProps) => {
             },
           ]}
         >
-          <Radio.Group>
+          <Radio.Group disabled={!!initValues}>
             <Radio value={1}>启用</Radio>
             <Radio value={0}>停用</Radio>
           </Radio.Group>
@@ -116,12 +146,16 @@ const CreateModal = ({ type, open, setOpen, initValues }: CreateModalProps) => {
             },
           ]}
         >
-          <Input.TextArea />
+          <Input.TextArea disabled={!!initValues} />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 17, span: 7 }}>
           <Space>
             <Button onClick={onCancel}>取消</Button>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={submitLoading || updateLoading}
+            >
               保存
             </Button>
           </Space>

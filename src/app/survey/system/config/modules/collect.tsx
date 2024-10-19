@@ -5,10 +5,13 @@ import useListOutlineSWR, {
   TemplateListResponse,
 } from '@/data/temp/useListOutlineSWR';
 import { TemplateTypeEnum, ZeroOrOne } from '@/interfaces/CommonType';
-import { Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import CreateModal from './create-modal';
+import Api from '@/api';
+import { useRequest } from 'ahooks';
 
 interface CollectProps {
   system: SystemListType;
@@ -21,9 +24,16 @@ const Collect = ({ system }: CollectProps) => {
   const [currentTemplate, setCurrentTemplate] =
     useState<TemplateListResponse>();
   const [open, setOpen] = useState(false);
-  const { data: collectList } = useListOutlineSWR({
-    currentSystemId: system.id,
-    templateType: TemplateTypeEnum.Collect,
+
+  const {
+    run: getCollectList,
+    data: collectList,
+    loading,
+  } = useRequest(() => {
+    return Api.getTemplateOutlineList({
+      currentSystemId: system.id,
+      templateType: TemplateTypeEnum.Collect,
+    });
   });
 
   const columns = useMemo(
@@ -55,7 +65,7 @@ const Collect = ({ system }: CollectProps) => {
         render: (_: any, record: TemplateListResponse) => (
           <Space size="middle">
             <Link
-              href={`/survey/system/config/collect?id=${selectedId}&tab=${selectedTab}&check=${record.templateId}`}
+              href={`/survey/system/config/collect?id=${selectedId}&tab=${selectedTab}&tempId=${record.templateId}`}
             >
               详情
             </Link>
@@ -83,18 +93,37 @@ const Collect = ({ system }: CollectProps) => {
   );
 
   return (
-    <main>
-      <Table columns={columns} dataSource={collectList?.data.data || []} />
-      {/* <CreateModal
+    <main className="relative">
+      <Button
+        type="primary"
+        className="absolute -top-14 right-0"
+        onClick={() => {
+          setCurrentTemplate(undefined);
+          setOpen(true);
+        }}
+      >
+        新增数据收集
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={collectList?.data || []}
+        loading={loading}
+      />
+      <CreateModal
+        type={selectedTab as 'spotCheck' | 'collect'}
         open={open}
         setOpen={setOpen}
-        type={'collect'}
-        initValues={{
-          ...currentTemplate,
-          currentSystemId: system.id,
-          templateType: TemplateTypeEnum.Collect,
-        }}
-      /> */}
+        refreshList={getCollectList}
+        initValues={
+          currentTemplate
+            ? {
+                ...currentTemplate,
+                currentSystemId: system.id,
+                templateType: TemplateTypeEnum.Collect,
+              }
+            : undefined
+        }
+      />
     </main>
   );
 };

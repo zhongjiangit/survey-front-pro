@@ -5,10 +5,12 @@ import useListOutlineSWR, {
   TemplateListResponse,
 } from '@/data/temp/useListOutlineSWR';
 import { TemplateTypeEnum, ZeroOrOne } from '@/interfaces/CommonType';
-import { Popconfirm, Space, Table, Tag } from 'antd';
+import { useRequest } from 'ahooks';
+import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import Api from '@/api';
 
 interface CollectProps {
   system: SystemListType;
@@ -21,12 +23,25 @@ const Check = ({ system }: CollectProps) => {
   const [currentTemplate, setCurrentTemplate] =
     useState<TemplateListResponse>();
   const [open, setOpen] = useState(false);
-  const { data: collectList } = useListOutlineSWR({
-    currentSystemId: system.id,
-    templateType: TemplateTypeEnum.Check,
-  });
 
-  console.log('collectList', collectList);
+  const {
+    run: getCollectList,
+    data: collectList,
+    loading,
+  } = useRequest(
+    () => {
+      return Api.getTemplateOutlineList({
+        currentSystemId: system.id,
+        templateType: TemplateTypeEnum.Check,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        setOpen(false);
+      },
+    }
+  );
 
   const columns = useMemo(
     () => [
@@ -85,8 +100,21 @@ const Check = ({ system }: CollectProps) => {
   );
 
   return (
-    <main>
-      <Table columns={columns} dataSource={collectList?.data.data || []} />
+    <main className="relative">
+      <Button
+        type="primary"
+        className="absolute -top-14 right-0"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        新增试题抽检问卷
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={collectList?.data || []}
+        loading={loading}
+      />
       {/* <CreateModal
         open={open}
         setOpen={setOpen}

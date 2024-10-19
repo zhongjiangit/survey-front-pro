@@ -4,7 +4,7 @@ import { baseUrl, cookieValue } from '../../config';
 export async function POST(req: Request) {
   const params = await req.json();
   try {
-    const res = await fetch(`${baseUrl}/template/listOutline`, {
+    const res = await fetch(`${baseUrl}/template/listAllWidgets`, {
       headers: {
         'Content-Type': 'application/json',
         Cookie: `JSESSIONID=${cookieValue}`,
