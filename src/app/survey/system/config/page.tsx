@@ -98,7 +98,7 @@ export default function Page() {
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '系统', href: '/survey/system' },
+          { label: '系统管理', href: '/survey/system' },
           {
             label: '配置系统',
             href: `/survey/system/config?id=${selectedId}`,

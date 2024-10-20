@@ -14,6 +14,8 @@ export async function POST(req: Request) {
     });
 
     const resJson = await res.json();
+    console.log('resJson======================', resJson);
+
     if (resJson.result === 0) {
       return NextResponse.json({
         code: 'success',

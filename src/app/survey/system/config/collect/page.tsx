@@ -235,7 +235,7 @@ const NewCollectSet = () => {
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '系统', href: '/survey/system' },
+          { label: '系统管理', href: '/survey/system' },
           {
             label: '配置系统',
             href: `/survey/system/config?id=${systemId}&tab=collect`,
@@ -250,7 +250,11 @@ const NewCollectSet = () => {
       />
       <div className="shadow-md pt-6 h-[83vh] p-2 w-full overflow-auto">
         <div className="flex justify-end px-5">
-          {canEdit && <Button onClick={createItem}>新增题目</Button>}
+          {canEdit && (
+            <Button type="primary" onClick={createItem}>
+              新增题目
+            </Button>
+          )}
         </div>
         <div className="min-w-[50vw] flex justify-start">
           <Form

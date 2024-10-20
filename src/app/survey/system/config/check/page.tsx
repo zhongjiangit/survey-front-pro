@@ -1,29 +1,38 @@
 'use client';
-
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import { UploadOutlined } from '@ant-design/icons';
+import {
+  CaretDownOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 import type { TreeDataNode, UploadProps } from 'antd';
 import {
   Button,
+  Checkbox,
   Divider,
   Empty,
   Form,
   Input,
-  InputNumber,
   message,
   Radio,
+  Spin,
   Tree,
   Upload,
 } from 'antd';
-import { useSearchParams } from 'next/navigation';
-import { FunctionComponent, useState } from 'react';
-import NewCheckItem from './new-check-item';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
-import { SystemListType } from '@/api/system/get-system-list';
+import { useLocalStorageState, useRequest } from 'ahooks';
+import Api from '@/api';
+import { TemplateTypeEnum } from '@/interfaces/CommonType';
+import { CollectItemType } from '@/api/template/get-details';
+import { cn } from '@/lib/utils';
+import ScoreTable from './score-table';
 
-interface CheckProps {
-  system: SystemListType;
-}
+const { TextArea } = Input;
+
+export type NewCollectItemType = CollectItemType & { id: number };
 
 const props: UploadProps = {
   name: 'file',
@@ -78,35 +87,117 @@ const treeData: TreeDataNode[] = [
   },
 ];
 
-const NewCheckSet: FunctionComponent<CheckProps> = props => {
-  const { system } = props;
-  console.log('system', system);
+const NewCheckSet = () => {
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get('id');
-  const [newCollectItemDrawerOpen, setNewCollectItemDrawerOpen] =
-    useState(false);
-  const [newCheckItemOpen, setNewCheckItemOpen] = useState(false);
-  const [collectItems, setCollectItems] = useState<any>([]);
-  const [checkItems, setCheckItems] = useState<any>([]);
+  const systemId = searchParams.get('id');
+  const tempId = searchParams.get('tempId');
+  const [open, setOpen] = useState(false);
+  const [canEdit, setCanEdit] = useState(true);
+  const [items, setItems] = useState<any>([]);
+  const [dimensions, setDimensions] = useState<any>([]);
+  const [currentItem, setCurrentItem] = useState<NewCollectItemType>();
+  const [messageApi, contextHolder] = message.useMessage();
+  const router = useRouter();
+  const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
+    'copied-template-detail',
+    {
+      defaultValue: { items: [] },
+    }
+  );
 
-  const showDrawer = () => {
-    setNewCollectItemDrawerOpen(true);
+  const { loading, data: responseData } = useRequest(
+    () => {
+      return Api.getTemplateDetails({
+        currentSystemId: Number(systemId),
+        templateType: TemplateTypeEnum.Collect,
+        templateId: Number(tempId),
+      });
+    },
+    {
+      onSuccess: response => {
+        if (
+          response?.data.items?.length > 0 ||
+          response?.data.dimensions?.length > 0
+        ) {
+          setItems(response.data.items);
+          // 为response.data.dimensions添加id
+          response.data.dimensions.forEach((item: any, index) => {
+            item.id = new Date().getTime() - index;
+          });
+          setDimensions(response.data.dimensions);
+          setCanEdit(false);
+        } else {
+          if (response?.data.templateId === templateDetail?.newTemplateId) {
+            setCanEdit(true);
+            setItems(templateDetail?.items);
+            setDimensions(templateDetail?.dimensions);
+          }
+        }
+      },
+    }
+  );
+
+  const { run: createDetails, loading: createLoading } = useRequest(
+    (items, dimensions) => {
+      // 删除items中的id
+      items.forEach((item: any) => {
+        delete item.id;
+      });
+      // 删除dimensions中的id
+      dimensions.forEach((item: any) => {
+        delete item.id;
+      });
+      return Api.createCollectDetails({
+        currentSystemId: Number(systemId),
+        templateType: TemplateTypeEnum.Collect,
+        templateId: Number(tempId),
+        items: items,
+        dimensions: dimensions,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        router.push(`/survey/system/config?id=${systemId}&tab=check`);
+        messageApi.open({
+          type: 'success',
+          content: '保存成功',
+        });
+      },
+    }
+  );
+
+  const createItem = () => {
+    setOpen(true);
+    setCurrentItem(undefined);
   };
 
-  const pushCollectItem = (item: any) => {
-    const newItem: any = { ...item, id: new Date().getTime() };
-    setCollectItems([...collectItems, newItem]);
+  const pushItem = (item: any) => {
+    if (item?.id) {
+      const newItems = items.map((oldItem: any) => {
+        if (oldItem.id === item.id) {
+          return item;
+        }
+        return oldItem;
+      });
+      setItems(newItems);
+    } else {
+      const newItem: any = { ...item, id: new Date().getTime() };
+      setItems([...items, newItem]);
+    }
   };
 
-  const pushCheckItem = (item: any) => {
-    const newItem: any = { ...item, id: new Date().getTime() };
-    setCheckItems([...checkItems, newItem]);
+  const removeItem = (id: number) => {
+    const newItems = items.filter((item: any) => item.id !== id);
+    setItems(newItems);
   };
 
   const renderFormItem = (key: string) => {
     switch (key) {
       case 'input':
         return <Input type="textarea" />;
+      case 'textarea':
+        return <TextArea rows={3} />;
       case 'radio':
         return (
           <Radio.Group>
@@ -116,7 +207,16 @@ const NewCheckSet: FunctionComponent<CheckProps> = props => {
             <Radio value={4}>D</Radio>
           </Radio.Group>
         );
-
+      case 'checkbox':
+        return (
+          <Checkbox.Group
+            options={[
+              { label: 'Apple', value: 'Apple' },
+              { label: 'Pear', value: 'Pear' },
+              { label: 'Orange', value: 'Orange' },
+            ]}
+          />
+        );
       case 'file':
         return (
           <Upload {...props}>
@@ -125,7 +225,16 @@ const NewCheckSet: FunctionComponent<CheckProps> = props => {
         );
 
       case 'tree':
-        return <Tree checkable treeData={treeData} />;
+        return (
+          <Tree
+            style={{ width: 400, paddingTop: 4 }}
+            switcherIcon={
+              <CaretDownOutlined className="absolute top-[7px] right-[7px]" />
+            }
+            checkable
+            treeData={treeData}
+          />
+        );
       default:
         break;
     }
@@ -133,116 +242,140 @@ const NewCheckSet: FunctionComponent<CheckProps> = props => {
 
   return (
     <main>
+      {contextHolder}
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '系统', href: '/survey/system' },
+          { label: '系统管理', href: '/survey/system' },
           {
             label: '配置系统',
-            href: `/survey/system/config?id=${selectedId}&tab=check`,
+            href: `/survey/system/config?id=${systemId}&tab=check`,
             active: true,
           },
           {
-            label: '试题抽检配置',
-            href: `/survey/system/config?id=${selectedId}&tab=check`,
+            label: '资料收集配置',
+            href: `/survey/system/config?id=${systemId}&tab=check`,
             active: false,
           },
         ]}
       />
+      <div className="shadow-md pt-6 h-[83vh] p-2 w-full overflow-auto">
+        <div className="flex justify-end px-5">
+          {canEdit && (
+            <Button type="primary" onClick={createItem}>
+              新增题目
+            </Button>
+          )}
+        </div>
+        {items.length !== 0 ? (
+          <div className="min-w-[50vw] flex justify-start">
+            <Form
+              name="basic"
+              labelCol={{ span: 8 }}
+              wrapperCol={{ span: 16 }}
+              initialValues={{ remember: true }}
+              // onFinish={onFinish}
+              // onFinishFailed={onFinishFailed}
+              autoComplete="off"
+              className="min-w-96 w-[40vw]"
+            >
+              {items.length > 0 &&
+                items.map((item: NewCollectItemType, index: number) => (
+                  <div className="flex" key={index}>
+                    <Form.Item
+                      className="flex-1"
+                      label={item.itemCaption}
+                      name={item.widgetId}
+                      rules={[
+                        {
+                          required: item.isRequired === 1,
+                          message: 'Please input your username!',
+                        },
+                      ]}
+                    >
+                      {renderFormItem(item.widgetType || 'input')}
+                    </Form.Item>
+                    <div
+                      className={cn(
+                        'flex items-start justify-end gap-2 w-10 pt-2',
+                        {
+                          hidden: !canEdit,
+                        }
+                      )}
+                    >
+                      <EditOutlined
+                        className="hover:scale-125 cursor-pointer"
+                        onClick={() => {
+                          setCurrentItem(item);
+                          setOpen(true);
+                        }}
+                      />
+                      <DeleteOutlined
+                        className="text-red-500 hover:scale-125 cursor-pointer"
+                        onClick={() => {
+                          removeItem(item.id);
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
 
-      <div className="shadow-md h-[83vh] p-2 w-full overflow-auto">
+              {items.length > 0 && (
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Button disabled htmlType="submit">
+                    提交调查
+                  </Button>
+                </Form.Item>
+              )}
+            </Form>
+          </div>
+        ) : (
+          <Empty />
+        )}
         <div
-          style={{
-            display: 'flex',
-            height: '40px',
-            gap: '24px',
-            justifyContent: 'flex-end',
-          }}
+          className={cn({
+            hidden: loading,
+          })}
         >
-          <Button
-            onClick={() => {
-              setNewCheckItemOpen(true);
-            }}
-          >
-            调查配置
-          </Button>
-          <Button onClick={showDrawer} type="primary">
-            新增题目
-          </Button>
+          <Divider orientation="left">评分维度</Divider>
+          <ScoreTable
+            canEdit={canEdit}
+            dataSource={dimensions}
+            setDimensions={setDimensions}
+          />
         </div>
 
-        <Form
-          name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          initialValues={{ remember: true }}
-          // onFinish={onFinish}
-          // onFinishFailed={onFinishFailed}
-          autoComplete="off"
-        >
-          <Divider orientation="left">新增题目</Divider>
-
-          {collectItems.length > 0 ? (
-            collectItems.map((item: any) => (
-              <Form.Item
-                key={item.id}
-                label={item.label}
-                name={item.label}
-                rules={[
-                  {
-                    required: item.required,
-                    message: 'Please input your username!',
-                  },
-                ]}
-              >
-                {renderFormItem(item.widget)}
-              </Form.Item>
-            ))
-          ) : (
-            <Empty />
-          )}
-
-          <Divider orientation="left">评分维度</Divider>
-          {checkItems.length > 0 ? (
-            checkItems.map((item: any) => (
-              <Form.Item
-                key={item.id}
-                label={item.label}
-                name={item.label}
-                tooltip={item.standards}
-                rules={[
-                  {
-                    required: item.required,
-                    message: 'Please input your username!',
-                  },
-                ]}
-              >
-                <InputNumber width={320} min={1} max={10} defaultValue={1} />
-              </Form.Item>
-            ))
-          ) : (
-            <Empty />
-          )}
-        </Form>
-
-        {(collectItems.length > 0 || checkItems.length > 0) && (
+        {loading ? (
+          <div className="h-32 flex items-center justify-center">
+            <Spin size="large" />
+          </div>
+        ) : canEdit ? (
           <>
             <Divider orientation="left">配置保存</Divider>
             <div className="flex justify-end px-5">
-              <Button type="primary">保存配置</Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  createDetails(items, dimensions);
+                }}
+                loading={createLoading}
+                disabled={
+                  loading ||
+                  responseData?.data.items.length !== 0 ||
+                  responseData?.data.dimensions.length !== 0
+                }
+              >
+                保存配置
+              </Button>
             </div>
           </>
-        )}
+        ) : null}
 
         <NewCollectItem
-          open={newCollectItemDrawerOpen}
-          setOpen={setNewCollectItemDrawerOpen}
-          pushItem={pushCollectItem}
-        />
-        <NewCheckItem
-          open={newCheckItemOpen}
-          setOpen={setNewCheckItemOpen}
-          pushItem={pushCheckItem}
+          open={open}
+          setOpen={setOpen}
+          pushItem={pushItem}
+          initValues={currentItem}
         />
       </div>
     </main>

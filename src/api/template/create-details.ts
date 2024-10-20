@@ -8,11 +8,18 @@ export interface CollectItemType {
   itemMemo?: string;
 }
 
+export interface DimensionsType {
+  dimensionName: string;
+  score: number;
+  guideline: string;
+}
+
 export interface CollectParamsType {
   currentSystemId: number;
   templateType: TemplateType;
   templateId: number;
   items: CollectItemType[];
+  dimensions?: DimensionsType[];
 }
 
 export function createCollectDetails(params: CollectParamsType) {

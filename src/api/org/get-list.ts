@@ -4,6 +4,7 @@ import { SurveyService } from '@/service';
 
 export interface ListParamsType {
   currentSystemId?: number;
+  currentOrgId?: number;
 }
 
 export interface TagListType {

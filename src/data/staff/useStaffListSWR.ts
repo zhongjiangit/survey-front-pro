@@ -5,7 +5,7 @@ import useSWR from 'swr';
 
 interface StaffListParamsType {
   currentSystemId?: number;
-  currentOrgId?: number;
+  currentOrgId?: number | undefined;
 }
 
 export interface StaffListResponse {

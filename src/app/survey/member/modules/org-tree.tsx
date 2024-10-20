@@ -5,28 +5,20 @@ import { Tree } from 'antd';
 import { useEffect, useState } from 'react';
 
 interface OrgTreeProps {
+  selectedOrg: React.Key | undefined;
   dataSource: TreeDataNode[];
   setOrg: (org: React.Key) => void;
 }
 
-function OrgTree({ dataSource, setOrg }: OrgTreeProps) {
+function OrgTree({ dataSource, setOrg, selectedOrg }: OrgTreeProps) {
   const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
-    console.log('selected', selectedKeys, info);
+    setOrg(selectedKeys[0]);
   };
-  const [selectedOrg, setSelectedOrg] = useState<React.Key[]>([]);
-  useEffect(() => {
-    if (selectedOrg.length > 0) {
-      setOrg(selectedOrg[0]);
-    }
-  }, [selectedOrg, setOrg]);
-
-  console.log('dataSource', dataSource);
 
   return (
     <Tree
-      defaultExpandedKeys={['0-0-0', '0-0-1']}
-      defaultSelectedKeys={['0-0-0', '0-0-1']}
-      defaultCheckedKeys={['0-0-0', '0-0-1']}
+      defaultExpandAll
+      selectedKeys={selectedOrg ? [selectedOrg] : []}
       onSelect={onSelect}
       treeData={dataSource}
     />

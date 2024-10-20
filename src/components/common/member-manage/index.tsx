@@ -30,14 +30,20 @@ interface TableFormDateType {
   staffName?: string;
   cellphone?: string;
   staffType?: StaffType;
-  tag?: string[];
+  tags?: { key: number; title: string }[];
 }
 
-interface MemberManageProps {}
+interface MemberManageProps {
+  canEdit: boolean;
+  orgId: React.Key | undefined;
+  memberTags: any;
+}
 
-const MemberManage: FunctionComponent<
-  MemberManageProps
-> = ({}: MemberManageProps) => {
+const MemberManage: FunctionComponent<MemberManageProps> = ({
+  canEdit,
+  orgId,
+  memberTags,
+}: MemberManageProps) => {
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
   const [dataSource, setDataSource] = useState<TableFormDateType[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -49,7 +55,7 @@ const MemberManage: FunctionComponent<
     mutate: listMutate,
   } = useStaffListSWR({
     currentSystemId: currentSystem?.systemId,
-    currentOrgId: currentOrg?.orgId,
+    currentOrgId: Number(orgId),
   });
 
   const {
@@ -72,9 +78,13 @@ const MemberManage: FunctionComponent<
 
   useEffect(() => {
     if (Array.isArray(list?.data?.data)) {
-      setDataSource(list.data.data);
+      const data = list?.data?.data.filter(
+        item => item.id !== currentOrg?.staffId
+      );
+      // @ts-ignore
+      setDataSource(data);
     }
-  }, [list]);
+  }, [list, currentOrg?.staffId]);
 
   useEffect(() => {
     if (createCallbackData || deleteCallbackData || updateCallbackData) {
@@ -86,6 +96,8 @@ const MemberManage: FunctionComponent<
     (values: any) => {
       console.log('onSave', values);
       console.log('editableKeys', editableKeys);
+      // 将tags转成对象数组
+      values.tags = values.tags?.map((tag: number) => ({ key: tag }));
 
       if (currentSystem?.systemId && currentOrg?.orgId) {
         if (typeof values.id === 'number') {
@@ -199,7 +211,14 @@ const MemberManage: FunctionComponent<
         dataIndex: 'tags',
         key: 'tags',
         width: '30%',
-        renderFormItem() {
+        renderFormItem(_, { record }) {
+          console.log(
+            'record',
+            record?.tags?.map(tag => tag.key)
+          );
+
+          console.log('memberTags', memberTags);
+
           return (
             <TreeSelect
               showSearch
@@ -207,18 +226,23 @@ const MemberManage: FunctionComponent<
               placeholder="请选择成员标签"
               allowClear
               multiple
+              value={[36, 37]}
+              // defaultValue={record?.tags?.map(tag => tag.key)}
+              onChange={value => {
+                console.log('value', value);
+              }}
               treeDefaultExpandAll
-              treeData={[]}
+              treeData={memberTags}
             />
           );
         },
         render: (_, record: TableFormDateType) => {
           return (
             <span>
-              {record.tag?.map(item => {
+              {record.tags?.map(item => {
                 return (
-                  <Tag key={item} color="success">
-                    {item}
+                  <Tag key={item.key} color="success">
+                    {item.title}
                   </Tag>
                 );
               })}
@@ -231,43 +255,49 @@ const MemberManage: FunctionComponent<
         key: 'action',
         valueType: 'option',
         render: (_, record: TableFormDateType, index, action) => {
-          return [
-            <a
-              key="edit"
-              onClick={() => {
-                action?.startEditable(record.id);
-              }}
-            >
-              编辑
-            </a>,
+          if (canEdit) {
+            return [
+              <a
+                key="edit"
+                onClick={() => {
+                  action?.startEditable(record.id);
+                }}
+              >
+                编辑
+              </a>,
 
-            <Popconfirm
-              key="delete"
-              title="删除此项"
-              onConfirm={() => {
-                onDelete(record.id as number);
-              }}
-            >
-              <Button danger type="link">
-                删除
-              </Button>
-            </Popconfirm>,
-          ];
+              <Popconfirm
+                key="delete"
+                title="删除此项"
+                onConfirm={() => {
+                  onDelete(record.id as number);
+                }}
+              >
+                <a className="hover:text-red-500">删除</a>
+              </Popconfirm>,
+            ];
+          } else {
+            return [<span>-</span>];
+          }
         },
       },
     ],
-    []
+    [memberTags, canEdit]
   );
 
   return (
     <EditableProTable<TableFormDateType>
-      recordCreatorProps={{
-        record: () => {
-          return {
-            id: String(Date.now()),
-          };
-        },
-      }}
+      recordCreatorProps={
+        canEdit
+          ? {
+              record: () => {
+                return {
+                  id: String(Date.now()),
+                };
+              },
+            }
+          : false
+      }
       columns={columns}
       rowKey="id"
       value={dataSource}
