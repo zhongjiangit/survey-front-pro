@@ -4,12 +4,7 @@ import { SystemListType } from '@/api/system/get-system-list';
 import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';
-import useOrgGetSWR from '@/data/org/useOrgGetSWR';
-import useOrgListSWR from '@/data/org/useOrgListSWR';
-import useOrgSaveMutation from '@/data/org/useOrgSaveMutation';
-import useOrgSetMutation, {
-  TagCreateParamsType,
-} from '@/data/org/useOrgSetMutation';
+
 import { TagTypeEnum } from '@/interfaces/CommonType';
 import { useRequest } from 'ahooks';
 import {
@@ -25,6 +20,7 @@ import {
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import Api from '@/api';
+import { TagCreateParamsType } from '@/api/org/set-detail';
 
 const layout = {
   labelCol: { span: 8 },
@@ -48,7 +44,6 @@ const Node = (props: NodeProps) => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  // 使用ahooks的useRequest 取代useTagListSWR
   const { data: tagList } = useRequest(() => {
     return Api.getTagList({
       currentSystemId: system.id,
@@ -79,51 +74,67 @@ const Node = (props: NodeProps) => {
     setOrgTags(tags);
   }, []);
 
-  const {
-    trigger: createTrigger,
-    isMutating: createMutating,
-    data: createCallbackData,
-  } = useOrgSaveMutation();
+  const { run: saveOrgTree } = useRequest(
+    params => {
+      return Api.saveOrgTree(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response?.data?.orgs) {
+          setTags([response?.data?.orgs]);
+        }
+      },
+    }
+  );
 
-  const {
-    trigger: setTrigger,
-    isMutating: setMutating,
-    data: setCallbackData,
-  } = useOrgSetMutation();
+  const { run: setOrgDetail } = useRequest(
+    params => {
+      return Api.setOrgDetail(params);
+    },
+    {
+      manual: true,
+    }
+  );
 
-  const { data: nodeData } = useOrgGetSWR({
-    currentSystemId: system.id,
-    orgId: Number(nodeSelected),
-  });
-
-  console.log('nodeData', nodeData);
-  useEffect(() => {
-    if (nodeData?.data.data) {
-      const values = nodeData?.data.data;
-      form.setFieldsValue({
-        managerName: values.managerName,
-        cellphone: values.cellphone,
-        isValid: values.isValid === 1,
-        tags: values.tags.map((tag: { key: number }) => String(tag.key)),
+  const {} = useRequest(
+    () => {
+      return Api.getOrgList({
+        currentSystemId: system.id,
       });
+    },
+    {
+      refreshDeps: [system.id],
+      onSuccess(response) {
+        if (response?.data?.orgs) {
+          setTags([response?.data?.orgs]);
+        }
+      },
     }
-  }, [form, nodeData]);
+  );
 
-  const { data: orgsData, mutate: muteOrgs } = useOrgListSWR({
-    currentSystemId: system.id,
-  });
-
-  useEffect(() => {
-    if (orgsData?.data.data?.orgs) {
-      setTags([orgsData?.data.data?.orgs]);
+  const {} = useRequest(
+    () => {
+      return Api.getOrgDetails({
+        currentSystemId: system.id,
+        orgId: Number(nodeSelected),
+      });
+    },
+    {
+      refreshDeps: [system.id, nodeSelected],
+      onSuccess(response) {
+        if (response?.data) {
+          const values = response?.data;
+          form.setFieldsValue({
+            managerName: values.managerName,
+            cellphone: values.cellphone,
+            isValid: values.isValid === 1,
+            tags: values.tags.map((tag: { key: number }) => String(tag.key)),
+          });
+        }
+      },
     }
-  }, [orgsData, setTags]);
-
-  useEffect(() => {
-    if (createCallbackData?.data.data?.orgs) {
-      setTags([createCallbackData?.data.data?.orgs]);
-    }
-  }, [createCallbackData, setTags]);
+  );
 
   const onFinish = (values: any) => {
     const params: TagCreateParamsType = {
@@ -141,7 +152,7 @@ const Node = (props: NodeProps) => {
         key: Number(tag),
       }));
     }
-    setTrigger(params);
+    setOrgDetail(params);
   };
 
   const onCreate = (tags: CustomTreeDataNode[]) => {
@@ -170,7 +181,7 @@ const Node = (props: NodeProps) => {
 
     // 保存到相应的标签中
     if (orgTags) {
-      createTrigger({
+      saveOrgTree({
         currentSystemId: system.id,
         // @ts-ignore
         orgs: orgTags,

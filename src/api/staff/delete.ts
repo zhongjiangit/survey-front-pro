@@ -8,7 +8,7 @@ interface StaffDeleteParamsType {
 }
 
 /**
- * useStaffDeleteMutation
+ * deleteStaff
  * @param params
  * @returns
  */

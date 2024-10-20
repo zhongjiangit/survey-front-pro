@@ -1,9 +1,5 @@
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import useStaffCreateMutation from '@/data/staff/useStaffCreateMutation';
-import useStaffDeleteMutation from '@/data/staff/useStaffDeleteMutation';
-import useStaffListSWR from '@/data/staff/useStaffListSWR';
-import useStaffUpdateMutation from '@/data/staff/useStaffUpdateMutation';
 import {
   StaffType,
   StaffTypeEnum,
@@ -13,7 +9,8 @@ import {
   EditableProTable,
   type ProColumnType,
 } from '@ant-design/pro-components';
-import { Button, Popconfirm, Select, SelectProps, Tag, TreeSelect } from 'antd';
+import { useRequest } from 'ahooks';
+import { Popconfirm, Select, Tag, TreeSelect } from 'antd';
 import {
   FunctionComponent,
   useCallback,
@@ -21,6 +18,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import Api from '@/api';
 
 interface TableFormDateType {
   id: number | string;
@@ -49,59 +47,77 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
-  const {
-    data: list,
-    isLoading,
-    mutate: listMutate,
-  } = useStaffListSWR({
-    currentSystemId: currentSystem?.systemId,
-    currentOrgId: Number(orgId),
-  });
-
-  const {
-    trigger: createTrigger,
-    isMutating: createMutating,
-    data: createCallbackData,
-  } = useStaffCreateMutation();
-
-  const {
-    trigger: updateTrigger,
-    isMutating: updateMutating,
-    data: updateCallbackData,
-  } = useStaffUpdateMutation();
-
-  const {
-    trigger: deleteTrigger,
-    isMutating: deleteMutating,
-    data: deleteCallbackData,
-  } = useStaffDeleteMutation();
-
-  useEffect(() => {
-    if (Array.isArray(list?.data?.data)) {
-      const data = list?.data?.data.filter(
-        item => item.id !== currentOrg?.staffId
-      );
-      // @ts-ignore
-      setDataSource(data);
+  const { run: getStaffList } = useRequest(
+    () => {
+      return Api.getStaffList({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: Number(orgId),
+      });
+    },
+    {
+      refreshDeps: [orgId, currentSystem?.systemId],
+      onSuccess(response) {
+        if (Array.isArray(response?.data)) {
+          const data = response?.data.filter(
+            item => item.id !== currentOrg?.staffId
+          );
+          // @ts-ignore
+          setDataSource(data);
+        }
+      },
     }
-  }, [list, currentOrg?.staffId]);
+  );
 
-  useEffect(() => {
-    if (createCallbackData || deleteCallbackData || updateCallbackData) {
-      listMutate();
+  const { run: createStaff } = useRequest(
+    params => {
+      return Api.createStaff(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response.result === 0) {
+          getStaffList();
+        }
+      },
     }
-  }, [createCallbackData, deleteCallbackData, updateCallbackData, listMutate]);
+  );
+
+  const { run: updateStaff } = useRequest(
+    params => {
+      return Api.updateStaff(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response.result === 0) {
+          getStaffList();
+        }
+      },
+    }
+  );
+
+  const { run: deleteStaff } = useRequest(
+    params => {
+      return Api.deleteStaff(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response.result === 0) {
+          getStaffList();
+        }
+      },
+    }
+  );
 
   const onSave = useCallback(
     (values: any) => {
-      console.log('onSave', values);
-      console.log('editableKeys', editableKeys);
       // 将tags转成对象数组
       values.tags = values.tags?.map((tag: number) => ({ key: tag }));
 
       if (currentSystem?.systemId && currentOrg?.orgId) {
         if (typeof values.id === 'number') {
-          updateTrigger({
+          updateStaff({
             id: values.id,
             currentSystemId: currentSystem?.systemId,
             currentOrgId: currentOrg?.orgId,
@@ -111,7 +127,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
             tags: values?.tags || [],
           });
         } else {
-          createTrigger({
+          createStaff({
             currentSystemId: currentSystem?.systemId,
             currentOrgId: currentOrg?.orgId,
             staffName: values.staffName,
@@ -126,22 +142,22 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       editableKeys,
       currentSystem?.systemId,
       currentOrg?.orgId,
-      updateTrigger,
-      createTrigger,
+      updateStaff,
+      createStaff,
     ]
   );
 
   const onDelete = useCallback(
     (id: number) => {
       if (currentSystem?.systemId && currentOrg?.orgId) {
-        deleteTrigger({
+        deleteStaff({
           id,
           currentSystemId: currentSystem?.systemId,
           currentOrgId: currentOrg?.orgId,
         });
       }
     },
-    [currentSystem?.systemId, currentOrg?.orgId, deleteTrigger]
+    [currentSystem, currentOrg, deleteStaff]
   );
 
   const columns: ProColumnType<TableFormDateType>[] = useMemo(
@@ -212,13 +228,6 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         key: 'tags',
         width: '30%',
         renderFormItem(_, { record }) {
-          console.log(
-            'record',
-            record?.tags?.map(tag => tag.key)
-          );
-
-          console.log('memberTags', memberTags);
-
           return (
             <TreeSelect
               showSearch
@@ -282,7 +291,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         },
       },
     ],
-    [memberTags, canEdit]
+    [memberTags, canEdit, onDelete]
   );
 
   return (
@@ -306,7 +315,6 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         type: 'single',
         editableKeys,
         onSave: async (rowKey, data, row) => {
-          console.log(rowKey, data, row);
           onSave(data);
         },
         onChange: setEditableRowKeys,

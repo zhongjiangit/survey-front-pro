@@ -17,7 +17,7 @@ interface StaffUpdateParamsType {
 }
 
 /**
- * useStaffUpdateMutation
+ * updateStaff
  * @param params
  * @returns
  */

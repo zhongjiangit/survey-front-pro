@@ -4,17 +4,14 @@ import MemberManage from '@/components/common/member-manage';
 import { lusitana } from '@/components/display/fonts';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import useOrgListSWR from '@/data/org/useOrgListSWR';
-import useStaffListSWR, {
-  StaffListResponse,
-} from '@/data/staff/useStaffListSWR';
-import { StaffTypeEnum, TagTypeEnum } from '@/interfaces/CommonType';
+import { TagTypeEnum } from '@/interfaces/CommonType';
 import { Button, Divider, Form, message, TreeSelect } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import OrgTree from './modules/org-tree';
 import { useRequest } from 'ahooks';
 import Api from '@/api';
 import { SaveOutlined } from '@ant-design/icons';
+import { StaffListResponse } from '@/api/staff/get-staff-list';
 
 function Page() {
   const [org, setOrg] = useState<React.Key>();
@@ -28,10 +25,25 @@ function Page() {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { data: orgsData, mutate: muteOrgs } = useOrgListSWR({
-    currentSystemId: currentSystem?.systemId,
-    currentOrgId: currentOrg?.orgId,
-  });
+  const {} = useRequest(
+    () => {
+      return Api.getOrgList({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+      });
+    },
+    {
+      refreshDeps: [currentSystem?.systemId, currentOrg?.orgId],
+      onSuccess(response) {
+        const treeData = response?.data?.orgs;
+        if (treeData && currentOrg?.orgId) {
+          setOrgList([treeData]);
+          const orgNode = findOrg([treeData], currentOrg.orgId);
+          orgNode && setStaffOrg(orgNode);
+        }
+      },
+    }
+  );
 
   useEffect(() => {
     if (org && currentOrg?.orgId) {
@@ -49,14 +61,13 @@ function Page() {
     () => {
       return Api.getTagList({
         // TODO
-        currentSystemId: 5,
-        // currentSystemId: currentSystem?.systemId,
+        // currentSystemId: 5,
+        currentSystemId: currentSystem?.systemId,
         tagType: TagTypeEnum.Member,
       });
     },
     {
       onSuccess(response) {
-        console.log('response', response);
         // 递归将response.data.tags中的key改为value
         const tags = response?.data?.tags;
         if (tags) {
@@ -98,12 +109,10 @@ function Page() {
 
   const onAdminUpdate = useCallback(
     (values: any) => {
-      console.log('values', values);
       // 转成 tags = [key: number, key: number]
       const tags = values.tags?.map((tag: number) => ({ key: tag }));
       //找到当前的管理员
       const admin = adminStaff;
-      console.log('adminStaff', adminStaff);
       const newAdmin = {
         ...admin,
         tags,
@@ -114,14 +123,28 @@ function Page() {
     [adminStaff]
   );
 
-  const {
-    data: staffList,
-    isLoading,
-    mutate: listMutate,
-  } = useStaffListSWR({
-    currentSystemId: currentSystem?.systemId,
-    currentOrgId: Number(org),
-  });
+  const {} = useRequest(
+    () => {
+      return Api.getStaffList({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: Number(org),
+      });
+    },
+    {
+      refreshDeps: [org, currentSystem?.systemId],
+      onSuccess(response) {
+        const list = response?.data;
+        if (list) {
+          const adminStaff = list.filter(
+            staff => staff.id === currentOrg?.staffId
+          );
+          if (!!adminStaff[0]) {
+            setAdminStaff(adminStaff[0]);
+          }
+        }
+      },
+    }
+  );
 
   // 递归遍历treeData,找到其中key与currentOrg中的orgId相同的对象
   const findOrg = useCallback(
@@ -145,25 +168,6 @@ function Page() {
     },
     []
   );
-
-  useEffect(() => {
-    const treeData = orgsData?.data?.data?.orgs;
-    if (treeData && currentOrg?.orgId) {
-      setOrgList([treeData]);
-      const orgNode = findOrg([treeData], currentOrg.orgId);
-      orgNode && setStaffOrg(orgNode);
-    }
-  }, [currentOrg?.orgId, findOrg, orgsData?.data?.data?.orgs]);
-
-  useEffect(() => {
-    const list = staffList?.data?.data;
-    if (list) {
-      const adminStaff = list.filter(staff => staff.id === currentOrg?.staffId);
-      if (!!adminStaff[0]) {
-        setAdminStaff(adminStaff[0]);
-      }
-    }
-  }, [staffList?.data?.data]);
 
   return (
     <main className="flex flex-col gap-5">

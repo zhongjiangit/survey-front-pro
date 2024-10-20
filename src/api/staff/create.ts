@@ -20,7 +20,7 @@ interface StaffCreateResponse {
 }
 
 /**
- * useStaffCreateMutation
+ * createStaff
  * @param params
  * @returns
  */

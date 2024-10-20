@@ -7,12 +7,12 @@ export interface ListParamsType {
   currentOrgId?: number;
 }
 
-export interface TagListType {
+export interface OrgListType {
   orgs: CustomTreeDataNode;
 }
 
 function getOrgList(params: ListParamsType) {
-  return SurveyService.post<CommonResponseType<TagListType>>('/api/org/list', {
+  return SurveyService.post<CommonResponseType<OrgListType>>('/api/org/list', {
     ...params,
   });
 }
