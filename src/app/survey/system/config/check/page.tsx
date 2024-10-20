@@ -139,12 +139,12 @@ const NewCheckSet: FunctionComponent<CheckProps> = props => {
           { label: '系统', href: '/survey/system' },
           {
             label: '配置系统',
-            href: `/survey/system/config?id=${selectedId}&tab=spotCheck`,
+            href: `/survey/system/config?id=${selectedId}&tab=check`,
             active: true,
           },
           {
             label: '试题抽检配置',
-            href: `/survey/system/config?id=${selectedId}&tab=spotCheck`,
+            href: `/survey/system/config?id=${selectedId}&tab=check`,
             active: false,
           },
         ]}

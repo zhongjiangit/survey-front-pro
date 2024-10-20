@@ -23,7 +23,7 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
-import { useRequest } from 'ahooks';
+import { useLocalStorageState, useRequest } from 'ahooks';
 import Api from '@/api';
 import { TemplateTypeEnum } from '@/interfaces/CommonType';
 import { CollectItemType } from '@/api/template/get-details';
@@ -96,6 +96,12 @@ const NewCollectSet = () => {
   const [currentItem, setCurrentItem] = useState<NewCollectItemType>();
   const [messageApi, contextHolder] = message.useMessage();
   const router = useRouter();
+  const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
+    'copied-template-detail',
+    {
+      defaultValue: { items: [] },
+    }
+  );
 
   const { loading, data: responseData } = useRequest(
     () => {
@@ -107,9 +113,19 @@ const NewCollectSet = () => {
     },
     {
       onSuccess: response => {
+        console.log('response', response);
+        console.log('templateDetail', templateDetail);
+
         if (response?.data.items?.length > 0) {
           setItems(response.data.items);
           setCanEdit(false);
+        } else {
+          if (response?.data.templateId === templateDetail?.newTemplateId) {
+            console.log('templateDetail', templateDetail);
+
+            setCanEdit(true);
+            setItems(templateDetail?.items);
+          }
         }
       },
     }

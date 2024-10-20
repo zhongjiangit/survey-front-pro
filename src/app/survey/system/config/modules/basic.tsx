@@ -26,19 +26,6 @@ const Basic = (props: BasicProps) => {
     title: string;
   }>({ type: 1, title: '单位标签管理' });
 
-  // 使用ahooks的useRequest 取代useTagListSWR
-  const { data: tagList } = useRequest(
-    () => {
-      return Api.getTagList({
-        currentSystemId: system.id,
-        tagType: drawerData?.type,
-      });
-    },
-    {
-      refreshDeps: [drawerData?.type],
-    }
-  );
-
   const setTags = useCallback(
     (tags: any) => {
       switch (drawerData?.type) {
@@ -58,6 +45,21 @@ const Basic = (props: BasicProps) => {
     [drawerData?.type]
   );
 
+  const { run: getTagList } = useRequest(
+    type => {
+      const tagType = type || 1;
+      return Api.getTagList({
+        currentSystemId: system.id,
+        tagType: tagType,
+      });
+    },
+    {
+      onSuccess(response) {
+        setTags([response?.data?.tags]);
+      },
+    }
+  );
+
   const { run: createTag, loading: createLoading } = useRequest(
     params => {
       return Api.createTag(params);
@@ -69,26 +71,6 @@ const Basic = (props: BasicProps) => {
       },
     }
   );
-
-  useEffect(() => {
-    // @ts-ignore
-    const tags: CustomTreeDataNode = tagList?.data?.tags || null;
-
-    // 如果tagsData.data.data存在，存放到相应的标签中
-    switch (drawerData?.type) {
-      case 1:
-        setOrgTags(tags);
-        break;
-      case 2:
-        setMemberTags(tags);
-        break;
-      case 3:
-        setExpertTags(tags);
-        break;
-      default:
-        break;
-    }
-  }, [drawerData, tagList]);
 
   const showDrawer = ({ type, title }: { type: 1 | 2 | 3; title: string }) => {
     setDrawerData({
@@ -129,7 +111,6 @@ const Basic = (props: BasicProps) => {
     }
 
     // 保存到相应的标签中
-    console.log('tags', tags);
 
     if (tags) {
       createTag({
@@ -266,6 +247,7 @@ const Basic = (props: BasicProps) => {
                     icon={<TagIcon className="h-3 w-3" />}
                     color="#2db7f5"
                     onClick={() => {
+                      getTagList(2);
                       showDrawer({
                         type: 2,
                         title: '人员标签管理',
@@ -286,6 +268,7 @@ const Basic = (props: BasicProps) => {
                     icon={<TagIcon className="h-3 w-3" />}
                     color="#87d068"
                     onClick={() => {
+                      getTagList(3);
                       showDrawer({
                         type: 3,
                         title: '专家标签管理',
@@ -320,6 +303,7 @@ const Basic = (props: BasicProps) => {
                   icon={<TagIcon className="h-3 w-3" />}
                   color="#3b5999"
                   onClick={() => {
+                    getTagList(1);
                     showDrawer({
                       type: 1,
                       title: '单位标签管理',

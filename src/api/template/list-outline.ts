@@ -7,6 +7,7 @@ export interface TemplateListParamsType {
 }
 
 export interface TemplateItemType {
+  currentSystemId: number;
   templateId: number;
   templateTitle: string;
   isValid: ZeroOrOneType;

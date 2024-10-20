@@ -11,7 +11,7 @@ function getTagList(params: {
   currentSystemId?: number;
   tagType?: TagTypeType;
 }) {
-  return SurveyService.post<CommonResponseType<TagListType>>('/api/org/save', {
+  return SurveyService.post<CommonResponseType<TagListType>>('/api/tag/list', {
     ...params,
   });
 }

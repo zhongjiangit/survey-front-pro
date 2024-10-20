@@ -16,16 +16,16 @@ interface Values {
 }
 
 interface CreateModalProps {
-  type: 'spotCheck' | 'collect';
+  type: 'check' | 'collect';
   open: boolean;
   setOpen: (open: boolean) => void;
   refreshList: () => void;
   initValues?: any;
 }
 
-// 创建枚举 spotCheck | collect
+// 创建枚举 check | collect
 enum TemplateType {
-  spotCheck = '试题抽检',
+  check = '试题抽检',
   collect = '资料收集',
 }
 

@@ -83,7 +83,7 @@ export default function Page() {
           children: <Collect system={system} />,
         },
         {
-          key: 'spotCheck',
+          key: 'check',
           label: '试题抽检配置',
           children: <Check system={system} />,
         },

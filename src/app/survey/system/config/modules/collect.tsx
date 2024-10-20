@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import CreateModal from './create-modal';
 import Api from '@/api';
-import { useRequest } from 'ahooks';
+import { useLocalStorageState, useRequest } from 'ahooks';
 import { TemplateItemType } from '@/api/template/list-outline';
 import { SystemListType } from '@/api/system/get-system-list';
 
@@ -22,6 +22,31 @@ const Collect = ({ system }: CollectProps) => {
   const [currentTemplate, setCurrentTemplate] = useState<TemplateItemType>();
   const [open, setOpen] = useState(false);
 
+  const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
+    'copied-template-detail',
+    {
+      defaultValue: { items: [] },
+    }
+  );
+
+  const { run: getTemplateDetails } = useRequest(
+    (id, newTemplateId) => {
+      return Api.getTemplateDetails({
+        currentSystemId: system.id,
+        templateType: TemplateTypeEnum.Collect,
+        templateId: id,
+      });
+    },
+    {
+      onSuccess: (response, params) => {
+        if (response?.data.items?.length > 0) {
+          const newTemplateId = params[1];
+          setTemplateDetail({ ...response.data, newTemplateId: newTemplateId });
+        }
+      },
+    }
+  );
+
   const {
     run: getCollectList,
     data: collectList,
@@ -35,18 +60,33 @@ const Collect = ({ system }: CollectProps) => {
 
   const { run: createOutline, loading: submitLoading } = useRequest(
     params => {
-      return Api.createTemplateOutline(params);
+      return Api.createTemplateOutline({
+        currentSystemId: params.currentSystemId,
+        templateType: params.templateType,
+        templateTitle: params.templateTitle,
+        isValid: params.isValid, // or 0, depending on your logic
+        memo: params.memo,
+      });
     },
     {
       manual: true,
-      onSuccess: () => {
+      onSuccess: (response, params) => {
+        console.log('params', params);
+        getTemplateDetails(params[0].templateId, response?.data.id);
         getCollectList();
       },
     }
   );
 
   const copyCollectTemplate = (record: TemplateItemType) => {
-    createOutline({});
+    createOutline({
+      templateId: record.templateId,
+      currentSystemId: record.currentSystemId,
+      templateType: TemplateTypeEnum.Collect,
+      templateTitle: `${record.templateTitle}_复制`,
+      isValid: record.isValid,
+      memo: record.memo,
+    });
   };
 
   const columns = useMemo(
@@ -123,13 +163,14 @@ const Collect = ({ system }: CollectProps) => {
       >
         新增数据收集
       </Button>
+
       <Table
         columns={columns}
         dataSource={collectList?.data || []}
-        loading={loading}
+        loading={loading || submitLoading}
       />
       <CreateModal
-        type={selectedTab as 'spotCheck' | 'collect'}
+        type={selectedTab as 'check' | 'collect'}
         open={open}
         setOpen={setOpen}
         refreshList={getCollectList}
