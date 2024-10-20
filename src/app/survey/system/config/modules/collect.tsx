@@ -1,9 +1,6 @@
 'use client';
 
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
-import useListOutlineSWR, {
-  TemplateListResponse,
-} from '@/data/temp/useListOutlineSWR';
 import { TemplateTypeEnum, ZeroOrOneType } from '@/interfaces/CommonType';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
@@ -12,6 +9,7 @@ import { useMemo, useState } from 'react';
 import CreateModal from './create-modal';
 import Api from '@/api';
 import { useRequest } from 'ahooks';
+import { TemplateItemType } from '@/api/template/list-outline';
 
 interface CollectProps {
   system: SystemListType;
@@ -21,8 +19,7 @@ const Collect = ({ system }: CollectProps) => {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
   const selectedTab = searchParams.get('tab');
-  const [currentTemplate, setCurrentTemplate] =
-    useState<TemplateListResponse>();
+  const [currentTemplate, setCurrentTemplate] = useState<TemplateItemType>();
   const [open, setOpen] = useState(false);
 
   const {
@@ -48,7 +45,7 @@ const Collect = ({ system }: CollectProps) => {
     }
   );
 
-  const copyCollectTemplate = (record: TemplateListResponse) => {
+  const copyCollectTemplate = (record: TemplateItemType) => {
     createOutline({});
   };
 
@@ -78,7 +75,7 @@ const Collect = ({ system }: CollectProps) => {
       {
         title: '操作',
         key: 'action',
-        render: (_: any, record: TemplateListResponse) => (
+        render: (_: any, record: TemplateItemType) => (
           <Space size="middle">
             <Link
               href={`/survey/system/config/collect?id=${selectedId}&tab=${selectedTab}&tempId=${record.templateId}`}

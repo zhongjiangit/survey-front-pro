@@ -1,9 +1,6 @@
 'use client';
 
 import { SystemListType } from '@/data/system/useSystemListAllSWR';
-import useListOutlineSWR, {
-  TemplateListResponse,
-} from '@/data/temp/useListOutlineSWR';
 import { TemplateTypeEnum, ZeroOrOneType } from '@/interfaces/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
@@ -11,6 +8,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import Api from '@/api';
+import { TemplateItemType } from '@/api/template/list-outline';
 
 interface CollectProps {
   system: SystemListType;
@@ -20,8 +18,7 @@ const Check = ({ system }: CollectProps) => {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
   const selectedTab = searchParams.get('tab');
-  const [currentTemplate, setCurrentTemplate] =
-    useState<TemplateListResponse>();
+  const [currentTemplate, setCurrentTemplate] = useState<TemplateItemType>();
   const [open, setOpen] = useState(false);
 
   const {
@@ -69,7 +66,7 @@ const Check = ({ system }: CollectProps) => {
       {
         title: '操作',
         key: 'action',
-        render: (_: any, record: TemplateListResponse) => (
+        render: (_: any, record: TemplateItemType) => (
           <Space size="middle">
             <Link
               href={`/survey/system/config/check?id=${selectedId}&tab=${selectedTab}&check=${record.templateId}`}

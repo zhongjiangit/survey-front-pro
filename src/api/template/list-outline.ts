@@ -6,7 +6,7 @@ export interface TemplateListParamsType {
   templateType: TemplateType;
 }
 
-export interface TemplateListType {
+export interface TemplateItemType {
   templateId: number;
   templateTitle: string;
   isValid: ZeroOrOneType;
@@ -16,7 +16,7 @@ export interface TemplateListType {
 interface TemplateLisResponse {
   result: number;
   message?: string;
-  data: TemplateListType[];
+  data: TemplateItemType[];
   total: number;
 }
 

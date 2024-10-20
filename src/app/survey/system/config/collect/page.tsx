@@ -27,6 +27,7 @@ import { useRequest } from 'ahooks';
 import Api from '@/api';
 import { TemplateTypeEnum } from '@/interfaces/CommonType';
 import { CollectItemType } from '@/api/template/get-details';
+import { cn } from '@/lib/utils';
 
 const { TextArea } = Input;
 
@@ -263,7 +264,14 @@ const NewCollectSet = () => {
                   >
                     {renderFormItem(item.widgetType || 'input')}
                   </Form.Item>
-                  <div className="flex items-start justify-end gap-2 w-10 pt-2">
+                  <div
+                    className={cn(
+                      'flex items-start justify-end gap-2 w-10 pt-2',
+                      {
+                        hidden: !canEdit,
+                      }
+                    )}
+                  >
                     <EditOutlined
                       className="hover:scale-125 cursor-pointer"
                       onClick={() => {
