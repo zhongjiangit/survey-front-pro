@@ -19,13 +19,13 @@ interface TagCreateResponse {
 }
 
 /**
- * useTagCreateMutation
+ * createTag
  * @param params
  * @returns
  */
 function createTag(params: TagCreateParamsType) {
   return SurveyService.post<CommonResponseType<TagCreateResponse>>(
-    'api/tag/save',
+    '/api/tag/save',
     {
       ...params,
     }

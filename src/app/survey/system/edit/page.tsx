@@ -4,29 +4,33 @@ import Breadcrumbs from '@/components/common/breadcrumbs';
 import SystemForm from '../modules/system-form';
 import NotFound from './not-found';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import useSystemListAllSWR from '@/data/system/useSystemListAllSWR';
 import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Api from '@/api';
+import { useRequest } from 'ahooks';
 
 export default function Page() {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
-
   const user = useSurveyUserStore(state => state.user);
-  const { data: list } = useSystemListAllSWR({
-    currentSystemId: user?.systems[0].systemId,
+
+  // 使用ahooks的useRequest
+  const { data: systemList } = useRequest(() => {
+    return Api.getSystemListAll({
+      currentSystemId: user?.systems[0].systemId,
+    });
   });
 
   const dataSources = useMemo(() => {
-    if ((list?.data.data ?? []).length > 0) {
-      const dataList = list?.data.data;
+    if ((systemList?.data ?? []).length > 0) {
+      const dataList = systemList?.data;
       const dataSources = (dataList ?? []).filter(
         ({ id }: { id: number }) => id === Number(selectedId)
       );
       return dataSources;
     }
     return [];
-  }, [list?.data.data, selectedId]);
+  }, [systemList?.data, selectedId]);
 
   if (dataSources.length === 0) {
     return <NotFound />;

@@ -1,6 +1,6 @@
 'use client';
 
-import useSystemCreateMutation from '@/data/system/useSystemCreateMutation';
+import { useRequest } from 'ahooks';
 import type { FormItemProps } from 'antd';
 import {
   Button,
@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
+import Api from '@/api';
 
 const MyFormItemContext = React.createContext<(string | number)[]>([]);
 
@@ -49,11 +50,20 @@ const SystemForm = (props: Props) => {
   const [form] = Form.useForm();
   const { initialValues = { allowSubInitiate: false, allowSupCheck: false } } =
     props;
-  const {
-    trigger: createTrigger,
-    isMutating: createMutating,
-    data: createCallbackData,
-  } = useSystemCreateMutation();
+
+  const { run: createSystem, loading: createLoading } = useRequest(
+    params => {
+      return Api.createSystem(params);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        router.push('/survey/system');
+        form.resetFields();
+      },
+    }
+  );
+
   const onFinish = (values: any) => {
     // 日期格式化
     values.validDate = values.validDate.format('YYYY-MM-DD');
@@ -69,19 +79,9 @@ const SystemForm = (props: Props) => {
       console.log('editedValues', editedValues);
       // TODO 更新系统数据
     } else {
-      createTrigger(values);
+      createSystem(values);
     }
   };
-
-  useEffect(() => {
-    console.log('createCallbackData', createCallbackData);
-
-    if (!!createCallbackData?.data.data) {
-      // 跳转到系统列表页, 清空表单, 重新获取数据
-      router.push('/survey/system');
-      form.resetFields();
-    }
-  }, [createCallbackData, form, router]);
 
   useEffect(() => {
     if (initialValues?.id !== undefined) {
@@ -219,7 +219,7 @@ const SystemForm = (props: Props) => {
             >
               <Link href="/survey/system">取消</Link>
             </Button>
-            <Button type="primary" htmlType="submit" loading={createMutating}>
+            <Button type="primary" htmlType="submit" loading={createLoading}>
               {`${initialValues.id ? '保存' : '创建'}系统`}
             </Button>
           </Space>

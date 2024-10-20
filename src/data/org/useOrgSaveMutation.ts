@@ -34,8 +34,6 @@ export default function useOrgSaveMutation() {
           currentSystemId,
           orgs,
         })
-        .catch(e => {
-          console.error('useTagCreateMutation error', e);
-        })
+        .catch(e => {})
   );
 }

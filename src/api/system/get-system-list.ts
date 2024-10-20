@@ -20,7 +20,7 @@ export interface SystemListType {
 }
 
 /**
- * useSystemListAllSWR
+ * getSystemListAll
  * @returns
  */
 function getSystemListAll(params: { currentSystemId?: number }) {

@@ -43,8 +43,6 @@ export default function useOrgSetMutation() {
           isValid,
           tags,
         })
-        .catch(e => {
-          console.error('useTagCreateMutation error', e);
-        })
+        .catch(e => {})
   );
 }

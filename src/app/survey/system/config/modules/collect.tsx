@@ -1,6 +1,5 @@
 'use client';
 
-import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import { TemplateTypeEnum, ZeroOrOneType } from '@/interfaces/CommonType';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
@@ -10,6 +9,7 @@ import CreateModal from './create-modal';
 import Api from '@/api';
 import { useRequest } from 'ahooks';
 import { TemplateItemType } from '@/api/template/list-outline';
+import { SystemListType } from '@/api/system/get-system-list';
 
 interface CollectProps {
   system: SystemListType;

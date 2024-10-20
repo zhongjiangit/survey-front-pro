@@ -1,24 +1,24 @@
-import { ZeroOrOne } from '@/interfaces/CommonType';
+import { ZeroOrOneType } from '@/interfaces/CommonType';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
 
 type SystemCreateParamsType = {
   systemName: string;
   freeTimes: number;
-  allowSubInitiate: ZeroOrOne;
-  allowSupCheck: ZeroOrOne;
+  allowSubInitiate: ZeroOrOneType;
+  allowSupCheck: ZeroOrOneType;
   validDate: string;
   levelCount: number;
   levels: string[];
 };
 
 /**
- * useSystemCreateMutation
+ * createSystem
  * @param params
  * @returns
  */
 function createSystem(params: SystemCreateParamsType) {
-  return SurveyService.post<CommonResponseType>('api/system/create', {
+  return SurveyService.post<CommonResponseType>('/api/system/create', {
     ...params,
   });
 }

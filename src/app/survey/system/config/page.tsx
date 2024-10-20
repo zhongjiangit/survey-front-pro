@@ -2,7 +2,6 @@
 
 import Breadcrumbs from '@/components/common/breadcrumbs';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import useSystemListAllSWR from '@/data/system/useSystemListAllSWR';
 import { Spin, Tabs, TabsProps } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -10,6 +9,8 @@ import Basic from './modules/basic';
 import Check from './modules/check';
 import Collect from './modules/collect';
 import Node from './modules/node';
+import { useRequest } from 'ahooks';
+import Api from '@/api';
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -18,15 +19,18 @@ export default function Page() {
   const selectedTab = searchParams.get('tab');
   const selectedId = searchParams.get('id');
   const [activeKey, setActiveKey] = useState(selectedTab || 'basic');
-  const [open, setOpen] = useState(false);
   const user = useSurveyUserStore(state => state.user);
-  const { data: list, isLoading } = useSystemListAllSWR({
-    currentSystemId: user?.systems[0].systemId,
+
+  // 使用ahooks的useRequest
+  const { data: systemList, loading: isLoading } = useRequest(() => {
+    return Api.getSystemListAll({
+      currentSystemId: user?.systems[0].systemId,
+    });
   });
 
   const system = useMemo(() => {
-    if ((list?.data.data ?? []).length > 0) {
-      const dataList = list?.data.data;
+    if ((systemList?.data ?? []).length > 0) {
+      const dataList = systemList?.data;
       const dataSources = (dataList ?? []).filter(
         ({ id }: { id: number }) => id === Number(selectedId)
       );
@@ -36,7 +40,7 @@ export default function Page() {
       return null;
     }
     return null;
-  }, [list?.data.data, selectedId]);
+  }, [systemList?.data, selectedId]);
 
   /**
    * 设置url参数

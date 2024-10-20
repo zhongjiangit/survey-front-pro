@@ -1,5 +1,6 @@
 'use client';
 
+import { SystemListType } from '@/api/system/get-system-list';
 import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';
@@ -9,9 +10,8 @@ import useOrgSaveMutation from '@/data/org/useOrgSaveMutation';
 import useOrgSetMutation, {
   TagCreateParamsType,
 } from '@/data/org/useOrgSetMutation';
-import { SystemListType } from '@/data/system/useSystemListAllSWR';
-import useTagListSWR from '@/data/tag/useTagListSWR';
 import { TagTypeEnum } from '@/interfaces/CommonType';
+import { useRequest } from 'ahooks';
 import {
   Button,
   Divider,
@@ -24,6 +24,7 @@ import {
 } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import Api from '@/api';
 
 const layout = {
   labelCol: { span: 8 },
@@ -47,14 +48,17 @@ const Node = (props: NodeProps) => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { data: tagsData, mutate: muteTags } = useTagListSWR({
-    currentSystemId: system.id,
-    tagType: TagTypeEnum.Org,
+  // 使用ahooks的useRequest 取代useTagListSWR
+  const { data: tagList } = useRequest(() => {
+    return Api.getTagList({
+      currentSystemId: system.id,
+      tagType: TagTypeEnum.Org,
+    });
   });
 
   useEffect(() => {
-    if (tagsData?.data.data?.tags) {
-      const tags = tagsData.data.data.tags;
+    if (tagList?.data?.tags) {
+      const tags = tagList.data.tags;
       // 递归遍历增加value字段，用于TreeSelect，value为key
       const addValue = (node: CustomTreeDataNode) => {
         if (node.children) {
@@ -69,7 +73,7 @@ const Node = (props: NodeProps) => {
       // @ts-ignore
       setTreeSelectData([tags]);
     }
-  }, [tagsData]);
+  }, [tagList]);
 
   const setTags = useCallback((tags: any) => {
     setOrgTags(tags);

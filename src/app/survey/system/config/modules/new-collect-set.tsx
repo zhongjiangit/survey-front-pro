@@ -1,5 +1,4 @@
 'use client';
-import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import { CaretDownOutlined, UploadOutlined } from '@ant-design/icons';
 import type { TreeDataNode, UploadProps } from 'antd';
 import {
@@ -15,6 +14,7 @@ import {
 } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import NewCollectItem from './new-collect-item';
+import { SystemListType } from '@/api/system/get-system-list';
 
 const props: UploadProps = {
   name: 'file',

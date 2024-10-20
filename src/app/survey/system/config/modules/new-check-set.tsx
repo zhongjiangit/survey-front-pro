@@ -1,6 +1,5 @@
 'use client';
 
-import { SystemListType } from '@/data/system/useSystemListAllSWR';
 import { UploadOutlined } from '@ant-design/icons';
 import type { TreeDataNode, UploadProps } from 'antd';
 import {
@@ -18,6 +17,7 @@ import {
 import { FunctionComponent, useState } from 'react';
 import NewCheckItem from './new-check-item';
 import NewCollectItem from './new-collect-item';
+import { SystemListType } from '@/api/system/get-system-list';
 
 interface CheckProps {
   system: SystemListType;

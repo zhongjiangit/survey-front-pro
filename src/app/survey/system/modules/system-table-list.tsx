@@ -1,12 +1,13 @@
 'use client';
 
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import useSystemListAllSWR from '@/data/system/useSystemListAllSWR';
 import type { TableProps } from 'antd';
 import { Table, Tag } from 'antd';
 import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 import { useMemo } from 'react';
 import { SystemType } from '@/interfaces/SystemType';
+import { useRequest } from 'ahooks';
+import Api from '@/api';
 
 const columns: TableProps<SystemType>['columns'] = [
   {
@@ -66,13 +67,16 @@ const columns: TableProps<SystemType>['columns'] = [
 
 export default function SystemsTableList({ query }: { query: string }) {
   const user = useSurveyUserStore(state => state.user);
-  const { data: list } = useSystemListAllSWR({
-    currentSystemId: user?.systems[0].systemId,
+
+  const { data: systemList, loading: isLoading } = useRequest(() => {
+    return Api.getSystemListAll({
+      currentSystemId: user?.systems[0].systemId,
+    });
   });
 
   const dataSources = useMemo(() => {
-    if ((list?.data.data ?? []).length > 0) {
-      const dataList = list?.data.data;
+    if ((systemList?.data ?? []).length > 0) {
+      const dataList = systemList?.data;
       const dataSources = (dataList ?? []).filter(
         ({ systemName }: { systemName: string }) =>
           systemName.toLowerCase().includes(query.toLowerCase())
@@ -80,8 +84,10 @@ export default function SystemsTableList({ query }: { query: string }) {
       return dataSources;
     }
     return [];
-  }, [list?.data.data, query]);
+  }, [systemList?.data, query]);
 
-  // @ts-ignore
-  return <Table columns={columns} dataSource={dataSources} />;
+  return (
+    // @ts-ignore
+    <Table columns={columns} dataSource={dataSources} loading={isLoading} />
+  );
 }

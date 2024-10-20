@@ -1,14 +1,14 @@
 'use client';
 
+import { SystemListType } from '@/api/system/get-system-list';
 import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';
-import { SystemListType } from '@/data/system/useSystemListAllSWR';
-import useTagCreateMutation from '@/data/tag/useTagCreateMutation';
-import useTagListSWR from '@/data/tag/useTagListSWR';
+import { useRequest } from 'ahooks';
 import { Button, Col, Divider, Drawer, message, Row, Space, Tag } from 'antd';
 import { TagIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Api from '@/api';
 
 interface BasicProps {
   system: SystemListType;
@@ -26,20 +26,53 @@ const Basic = (props: BasicProps) => {
     title: string;
   }>({ type: 1, title: '单位标签管理' });
 
-  const { data: tagsData, mutate: muteTags } = useTagListSWR({
-    currentSystemId: system.id,
-    tagType: drawerData?.type,
-  });
+  // 使用ahooks的useRequest 取代useTagListSWR
+  const { data: tagList } = useRequest(
+    () => {
+      return Api.getTagList({
+        currentSystemId: system.id,
+        tagType: drawerData?.type,
+      });
+    },
+    {
+      refreshDeps: [drawerData?.type],
+    }
+  );
 
-  const {
-    trigger: createTrigger,
-    isMutating: createMutating,
-    data: createCallbackData,
-  } = useTagCreateMutation();
+  const setTags = useCallback(
+    (tags: any) => {
+      switch (drawerData?.type) {
+        case 1:
+          setOrgTags(tags[0]);
+          break;
+        case 2:
+          setMemberTags(tags[0]);
+          break;
+        case 3:
+          setExpertTags(tags[0]);
+          break;
+        default:
+          break;
+      }
+    },
+    [drawerData?.type]
+  );
+
+  const { run: createTag, loading: createLoading } = useRequest(
+    params => {
+      return Api.createTag(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        setTags([response?.data?.tags]);
+      },
+    }
+  );
 
   useEffect(() => {
     // @ts-ignore
-    const tags: CustomTreeDataNode = tagsData?.data.data?.tags || null;
+    const tags: CustomTreeDataNode = tagList?.data?.tags || null;
 
     // 如果tagsData.data.data存在，存放到相应的标签中
     switch (drawerData?.type) {
@@ -55,7 +88,7 @@ const Basic = (props: BasicProps) => {
       default:
         break;
     }
-  }, [drawerData, tagsData]);
+  }, [drawerData, tagList]);
 
   const showDrawer = ({ type, title }: { type: 1 | 2 | 3; title: string }) => {
     setDrawerData({
@@ -99,7 +132,7 @@ const Basic = (props: BasicProps) => {
     console.log('tags', tags);
 
     if (tags) {
-      createTrigger({
+      createTag({
         currentSystemId: system.id,
         tagType: drawerData.type,
         // @ts-ignore
@@ -130,31 +163,6 @@ const Basic = (props: BasicProps) => {
   //       return [];
   //   }
   // }, [drawerData?.type, expertTags, memberTags, orgTags]);
-
-  const setTags = useCallback(
-    (tags: any) => {
-      switch (drawerData?.type) {
-        case 1:
-          setOrgTags(tags[0]);
-          break;
-        case 2:
-          setMemberTags(tags[0]);
-          break;
-        case 3:
-          setExpertTags(tags[0]);
-          break;
-        default:
-          break;
-      }
-    },
-    [drawerData?.type]
-  );
-
-  useEffect(() => {
-    if (createCallbackData?.data.data?.tags) {
-      setTags([createCallbackData?.data.data?.tags]);
-    }
-  }, [createCallbackData, setTags]);
 
   const renderTree = useCallback(
     (type: number) => {
@@ -333,7 +341,7 @@ const Basic = (props: BasicProps) => {
         extra={
           <Space>
             <Button onClick={onClose}>取消</Button>
-            <Button onClick={onCreate} loading={createMutating} type="primary">
+            <Button onClick={onCreate} loading={createLoading} type="primary">
               保存
             </Button>
           </Space>

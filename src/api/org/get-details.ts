@@ -1,4 +1,4 @@
-import { ZeroOrOne } from '@/interfaces/CommonType';
+import { ZeroOrOneType } from '@/interfaces/CommonType';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
 
@@ -14,7 +14,7 @@ type TagsType = {
 export interface DetailType {
   managerName: string;
   cellphone: string;
-  isValid: ZeroOrOne;
+  isValid: ZeroOrOneType;
   tags: TagsType[];
 }
 
