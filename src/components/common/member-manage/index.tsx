@@ -11,13 +11,7 @@ import {
 } from '@ant-design/pro-components';
 import { useRequest } from 'ahooks';
 import { Popconfirm, Select, Tag, TreeSelect } from 'antd';
-import {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import Api from '@/api';
 
 interface TableFormDateType {
@@ -138,13 +132,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         }
       }
     },
-    [
-      editableKeys,
-      currentSystem?.systemId,
-      currentOrg?.orgId,
-      updateStaff,
-      createStaff,
-    ]
+    [currentSystem?.systemId, currentOrg?.orgId, updateStaff, createStaff]
   );
 
   const onDelete = useCallback(
@@ -286,7 +274,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               </Popconfirm>,
             ];
           } else {
-            return [<span>-</span>];
+            return [<span key="1">-</span>];
           }
         },
       },

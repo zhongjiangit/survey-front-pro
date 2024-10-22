@@ -1,160 +1,277 @@
 'use client';
 
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
 import {
   Button,
   Form,
   Input,
+  message,
   Modal,
+  Popconfirm,
   Space,
   Table,
   Tag,
   TreeSelect,
 } from 'antd';
-import { FunctionComponent, useState } from 'react';
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import Api from '@/api';
 
-interface ExpertManageProps {}
-
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
+interface ExpertManageProps {
+  canEdit: boolean;
+  orgId: React.Key | undefined;
+  expertTags: any;
 }
 
-const columns: TableProps<DataType>['columns'] = [
-  {
-    title: '姓名',
-    dataIndex: 'name',
-    key: 'name',
-    render: text => <a>{text}</a>,
-  },
-
-  {
-    title: '电话',
-    dataIndex: 'phone',
-    key: 'phone',
-  },
-  {
-    title: '标签',
-    key: 'tags',
-    dataIndex: 'tags',
-    render: (_, { tags }) => (
-      <>
-        {tags.map(tag => {
-          let color = tag.length > 5 ? 'geekblue' : 'green';
-          if (tag === 'good') {
-            color = 'volcano';
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
-  },
-  {
-    title: '操作',
-    key: 'action',
-    render: () => (
-      <Space size="middle">
-        <a>删除</a>
-      </Space>
-    ),
-  },
-];
-
-const data: DataType[] = [
-  {
-    key: '1',
-    name: '专家1',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '2',
-    name: '专家2',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['good'],
-  },
-  {
-    key: '3',
-    name: '专家3',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-];
-
-const treeData = [
-  {
-    value: 'parent 1',
-    title: 'parent 1',
-    children: [
-      {
-        value: 'parent 1-0',
-        title: 'parent 1-0',
-        children: [
-          {
-            value: 'leaf1',
-            title: 'my leaf',
-          },
-          {
-            value: 'leaf2',
-            title: 'your leaf',
-          },
-        ],
-      },
-      {
-        value: 'parent 1-1',
-        title: 'parent 1-1',
-        children: [
-          {
-            value: 'sss',
-            title: <b style={{ color: '#08c' }}>sss</b>,
-          },
-        ],
-      },
-    ],
-  },
-];
+interface TableFormDateType {
+  id: number | string;
+  currentOrgId?: number;
+  currentRoleId?: number;
+  CurrentSystemId?: number;
+  expertName?: string;
+  cellphone?: string;
+  tags?: { key: number; title: string }[];
+}
 
 interface Values {
-  name?: string;
-  phone?: string;
+  expertName: string;
+  cellphone: string;
   tags?: string;
 }
 
-const ExpertManage: FunctionComponent<
-  ExpertManageProps
-> = ({}: ExpertManageProps) => {
+const ExpertManage: FunctionComponent<ExpertManageProps> = ({
+  canEdit,
+  orgId,
+  expertTags,
+}: ExpertManageProps) => {
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState<Values>();
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<string>();
+  const [dataSource, setDataSource] = useState<TableFormDateType[]>([]);
+  const [currentExpert, setCurrentExpert] = useState({} as TableFormDateType);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const onChange = (newValue: string) => {
-    console.log(newValue);
-    setValue(newValue);
-  };
+  useEffect(() => {
+    if (currentExpert.id) {
+      form.setFieldsValue(currentExpert);
+      setOpen(true);
+    }
+  }, [currentExpert, form]);
 
-  console.log(formValues);
-
-  const onCreate = (values: Values) => {
-    console.log('Received values of form: ', values);
-    setFormValues(values);
+  const closeModal = useCallback(() => {
+    form.resetFields();
+    setCurrentExpert({} as TableFormDateType);
     setOpen(false);
-  };
+  }, [form]);
+
+  const { run: getExpertList, loading: getListLoading } = useRequest(
+    () => {
+      return Api.getExpertList({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: Number(orgId),
+      });
+    },
+    {
+      refreshDeps: [orgId, currentSystem?.systemId],
+      onSuccess(response) {
+        if (Array.isArray(response?.data)) {
+          // @ts-ignore
+          setDataSource(response.data);
+        }
+      },
+    }
+  );
+
+  const { run: createExpert, loading: createLoading } = useRequest(
+    params => {
+      return Api.createExpert(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response.result === 0) {
+          closeModal();
+          getExpertList();
+          messageApi.success('新增成功');
+        } else {
+          messageApi.open({
+            type: 'error',
+            content: response.message,
+          });
+        }
+      },
+    }
+  );
+
+  const { run: updateExpert, loading: updateLoading } = useRequest(
+    params => {
+      return Api.updateExpert(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response.result === 0) {
+          closeModal();
+          getExpertList();
+          messageApi.success('更新成功');
+        } else {
+          messageApi.open({
+            type: 'error',
+            content: response.message,
+          });
+        }
+      },
+    }
+  );
+
+  const { run: deleteExpert, loading: deleteLoading } = useRequest(
+    params => {
+      return Api.deleteExpert(params);
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        if (response.result === 0) {
+          getExpertList();
+          messageApi.success('删除成功');
+        } else {
+          messageApi.open({
+            type: 'error',
+            content: response.message,
+          });
+        }
+      },
+    }
+  );
+
+  const onSave = useCallback(
+    (values: any) => {
+      // 将tags转成对象数组
+      values.tags = values.tags?.map((tag: number) => ({ key: tag }));
+
+      if (currentSystem?.systemId && currentOrg?.orgId) {
+        if (!!currentExpert.id) {
+          updateExpert({
+            id: currentExpert.id,
+            currentSystemId: currentSystem?.systemId,
+            currentOrgId: currentOrg?.orgId,
+            expertName: values.expertName,
+            cellphone: values.cellphone,
+            tags: values?.tags || [],
+          });
+        } else {
+          createExpert({
+            currentSystemId: currentSystem?.systemId,
+            currentOrgId: currentOrg?.orgId,
+            expertName: values.expertName,
+            cellphone: values.cellphone,
+            tags: values?.tags || [],
+          });
+        }
+      }
+    },
+    [
+      currentExpert,
+      currentSystem?.systemId,
+      currentOrg?.orgId,
+      updateExpert,
+      createExpert,
+    ]
+  );
+
+  const onDelete = useCallback(
+    (id: number) => {
+      if (currentSystem?.systemId && currentOrg?.orgId) {
+        deleteExpert({
+          id,
+          currentSystemId: currentSystem?.systemId,
+          currentOrgId: currentOrg?.orgId,
+        });
+      }
+    },
+    [currentSystem, currentOrg, deleteExpert]
+  );
+
+  const columns: TableProps<TableFormDateType>['columns'] = useMemo(
+    () => [
+      {
+        title: '专家姓名',
+        dataIndex: 'expertName',
+        key: 'expertName',
+        render: text => <a>{text}</a>,
+      },
+
+      {
+        title: '电话',
+        dataIndex: 'cellphone',
+        key: 'cellphone',
+      },
+      {
+        title: '标签',
+        key: 'tags',
+        dataIndex: 'tags',
+        render: (_, { tags }) => (
+          <>
+            {tags?.map(tag => {
+              return (
+                <Tag color={'geekblue'} key={tag.key}>
+                  {tag.title}
+                </Tag>
+              );
+            })}
+          </>
+        ),
+      },
+      {
+        title: '操作',
+        key: 'action',
+        render: (_, record) => {
+          if (canEdit) {
+            return (
+              <Space size="small">
+                <Popconfirm
+                  key="delete"
+                  title="删除此项"
+                  onConfirm={() => {
+                    onDelete(Number(record.id));
+                  }}
+                >
+                  <a className="hover:text-red-500">删除</a>
+                </Popconfirm>
+                <a
+                  onClick={() => {
+                    setCurrentExpert(record);
+                  }}
+                >
+                  编辑
+                </a>
+              </Space>
+            );
+          } else {
+            return <span>-</span>;
+          }
+        },
+      },
+    ],
+    [canEdit, onDelete]
+  );
+
   return (
     <div>
+      {contextHolder}
       <div className="flex justify-end mb-3">
         <Button
           type="primary"
+          disabled={!canEdit}
           onClick={() => {
             form.resetFields();
             setOpen(true);
@@ -163,37 +280,40 @@ const ExpertManage: FunctionComponent<
           新增专家
         </Button>
       </div>
-      <Table columns={columns} dataSource={data} />
+      <Table
+        loading={getListLoading}
+        columns={columns}
+        dataSource={dataSource}
+      />
       <Modal
         open={open}
-        title="新增专家"
+        title={`${1 ? '编辑' : '新增'}专家`}
         okText="确定"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
-        onCancel={() => setOpen(false)}
+        onCancel={closeModal}
         destroyOnClose
+        confirmLoading={createLoading || updateLoading}
         modalRender={dom => (
           <Form
             layout="vertical"
             form={form}
-            name="form_in_modal"
-            initialValues={{}}
-            clearOnDestroy
-            onFinish={values => onCreate(values)}
+            name="expert_form_in_modal"
+            onFinish={values => onSave(values)}
           >
             {dom}
           </Form>
         )}
       >
         <Form.Item
-          name="name"
-          label="姓名"
+          name="expertName"
+          label="专家姓名"
           rules={[{ required: true, message: '请输入专家姓名!' }]}
         >
           <Input type="textarea" />
         </Form.Item>
         <Form.Item
-          name="phone"
+          name="cellphone"
           label="电话"
           rules={[{ required: true, message: '请输入专家电话号码!' }]}
         >
@@ -206,14 +326,12 @@ const ExpertManage: FunctionComponent<
         >
           <TreeSelect
             showSearch
-            value={value}
             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
             placeholder="请选择节点标签"
             allowClear
             multiple
             treeDefaultExpandAll
-            onChange={onChange}
-            treeData={treeData}
+            treeData={[]}
           />
         </Form.Item>
       </Modal>
