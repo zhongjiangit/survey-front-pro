@@ -124,7 +124,7 @@ const SystemForm = (props: Props) => {
           label="系统名称"
           rules={[{ required: true }]}
         >
-          <Input type="textarea" placeholder="请输入系统名称" />
+          <Input type="input" placeholder="请输入系统名称" />
         </Form.Item>
         <Form.Item
           name="freeTimes"
@@ -178,7 +178,7 @@ const SystemForm = (props: Props) => {
                       label={`第${levelNames[index]}级名称`}
                       rules={[{ required: true }]}
                     >
-                      <Input type="textarea" />
+                      <Input type="input" />
                     </MyFormItem>
                   )
                 )}

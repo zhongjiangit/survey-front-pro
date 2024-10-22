@@ -195,7 +195,7 @@ const NewCheckSet = () => {
   const renderFormItem = (key: string) => {
     switch (key) {
       case 'input':
-        return <Input type="textarea" />;
+        return <Input type="input" />;
       case 'textarea':
         return <TextArea rows={3} />;
       case 'radio':

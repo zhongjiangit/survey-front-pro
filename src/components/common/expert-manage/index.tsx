@@ -310,14 +310,14 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
           label="专家姓名"
           rules={[{ required: true, message: '请输入专家姓名!' }]}
         >
-          <Input type="textarea" />
+          <Input type="input" />
         </Form.Item>
         <Form.Item
           name="cellphone"
           label="电话"
           rules={[{ required: true, message: '请输入专家电话号码!' }]}
         >
-          <Input type="textarea" addonBefore={'+86'} />
+          <Input type="input" addonBefore={'+86'} />
         </Form.Item>
         <Form.Item
           label="标签"

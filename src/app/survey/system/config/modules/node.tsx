@@ -224,14 +224,14 @@ const Node = (props: NodeProps) => {
                 label="管理员姓名"
                 rules={[{ required: true }]}
               >
-                <Input type="textarea" />
+                <Input type="input" />
               </Form.Item>
               <Form.Item
                 name="cellphone"
                 label="管理员电话"
                 rules={[{ required: true }]}
               >
-                <Input type="textarea" />
+                <Input type="input" />
               </Form.Item>
               <Form.Item
                 name="isValid"

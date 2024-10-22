@@ -60,7 +60,7 @@ const NewCollectItem: React.FC<Props> = ({
             name="label"
             rules={[{ required: true, message: '请输入指标名称' }]}
           >
-            <Input type="textarea" placeholder="输入指标名称" />
+            <Input type="input" placeholder="输入指标名称" />
           </Form.Item>
           <Form.Item<FieldType>
             label="是否必填"
@@ -74,7 +74,7 @@ const NewCollectItem: React.FC<Props> = ({
             name="standards"
             rules={[{ required: false, message: '请输入提醒事项!' }]}
           >
-            <Input type="textarea" placeholder="输入提醒事项" />
+            <Input type="input" placeholder="输入提醒事项" />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

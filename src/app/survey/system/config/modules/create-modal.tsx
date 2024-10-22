@@ -118,7 +118,7 @@ const CreateModal = ({
             },
           ]}
         >
-          <Input type="textarea" />
+          <Input type="input" />
         </Form.Item>
         <Form.Item
           name="isValid"

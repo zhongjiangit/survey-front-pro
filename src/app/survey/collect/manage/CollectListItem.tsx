@@ -1,6 +1,8 @@
 import { TaskStatusObject } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useState } from 'react';
+import TaskDeleteModal from '../modules/task-delete-modal';
+import TaskEditModal from '../modules/task-edit-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -33,12 +35,14 @@ interface CollectListItemProps {
 
 const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const { itemData } = props;
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   // 给columns添加ts类型
-  const columns: any = [
+  const columns = [
     {
       title: '发布单位发布人',
       dataIndex: 'orgAndUser',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         return `${record.orgName} / ${record.staffName}`;
       },
     },
@@ -54,7 +58,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     {
       title: '状态',
       dataIndex: 'taskStatus',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         // @ts-ignore
         return TaskStatusObject[record.taskStatus];
       },
@@ -63,7 +67,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       title: '任务预定期限',
       dataIndex: 'key5',
       width: '18%',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         return `${record.beginTimeFillEstimate} ~  ${record.endTimeFillEstimate}`;
       },
     },
@@ -75,14 +79,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     {
       title: '通过数',
       dataIndex: 'key7',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         return `${record.passPeople}人 / ${record.passCount}份`;
       },
     },
     {
       title: '填报数',
       dataIndex: 'key8',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         return `${record.fillPeople}人 / ${record.fillCount}份`;
       },
     },
@@ -90,7 +94,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       title: '操作',
       width: '10%',
       dataIndex: 'operation',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         return (
           <Space>
             <a className=" text-blue-500">详情</a>
@@ -108,8 +112,22 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           {itemData?.title}
         </div>
         <div className="flex gap-2">
-          <a className=" text-blue-500">编辑</a>
-          <a className=" text-blue-500">删除</a>
+          <a
+            className="text-blue-500"
+            onClick={() => {
+              setEditModalOpen(true);
+            }}
+          >
+            编辑
+          </a>
+          <a
+            className="text-blue-500"
+            onClick={() => {
+              setDeleteModalOpen(true);
+            }}
+          >
+            删除
+          </a>
         </div>
       </div>
 
@@ -123,6 +141,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         columns={columns}
         dataSource={itemData?.dataSource || []}
       ></Table>
+      <TaskDeleteModal
+        deleteModalOpen={deleteModalOpen}
+        setDeleteModalOpen={setDeleteModalOpen}
+      />
+      <TaskEditModal
+        editModalOpen={editModalOpen}
+        setEditModalOpen={setEditModalOpen}
+      />
     </>
   );
 };

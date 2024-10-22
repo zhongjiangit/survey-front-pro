@@ -152,7 +152,7 @@ function CustomTree(props: CustomTreeProps) {
       isLeaf: false,
       title: (
         <Input
-          type="textarea"
+          type="input"
           size="small"
           placeholder="请输入节点名称"
           onChange={e => {
@@ -360,7 +360,7 @@ function CustomTree(props: CustomTreeProps) {
         {treeData.length === 0 && (
           <div className="flex gap-3 items-center">
             <Input
-              type="textarea"
+              type="input"
               size="small"
               placeholder="请输入根节点名称"
               onChange={e => {

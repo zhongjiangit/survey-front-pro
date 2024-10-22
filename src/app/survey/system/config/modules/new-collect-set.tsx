@@ -91,7 +91,7 @@ const NewCollectSet: FunctionComponent<CollectProps> = props => {
   const renderFormItem = (key: string) => {
     switch (key) {
       case 'input':
-        return <Input type="textarea" />;
+        return <Input type="input" />;
       case 'radio':
         return (
           <Radio.Group>
