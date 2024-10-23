@@ -19,14 +19,14 @@ const CollectManage = () => {
               showNumber: 1,
             }}
           />
-          <CollectListItem
+          {/* <CollectListItem
             tabType="self"
             itemData={{
               title: '初中教学计划资料收集',
               dataSource: collectDataSource,
               showNumber: 2,
             }}
-          />
+          /> */}
         </>
       ),
     },
@@ -38,7 +38,7 @@ const CollectManage = () => {
           tabType="subordinate"
           itemData={{
             title: '中学教学计划资料收集',
-            dataSource: [],
+            dataSource: collectDataSource,
             showNumber: 1,
           }}
         />

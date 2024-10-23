@@ -1,8 +1,13 @@
-import { TaskStatusObject } from '@/interfaces/CommonType';
+import {
+  PublishTypeEnum,
+  PublishTypeObject,
+  TaskStatusObject,
+  TaskStatusTypeEnum,
+} from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
-import { FunctionComponent, useState } from 'react';
-import TaskDeleteModal from '../modules/task-delete-modal';
-import TaskEditModal from '../modules/task-edit-modal';
+import { FunctionComponent } from 'react';
+import TaskDeleteModal from './modules/task-delete-modal';
+import TaskEditModal from './modules/task-edit-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -34,26 +39,80 @@ interface CollectListItemProps {
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
 
 const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
-  const { itemData } = props;
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const { itemData, tabType } = props;
+  const operateButton = {
+    edit: (
+      <a className=" text-blue-500" key="edit">
+        修改
+      </a>
+    ),
+    detail: (
+      <a className=" text-blue-500" key="detail">
+        详情
+      </a>
+    ),
+    message: (
+      <a className=" text-blue-500" key="message">
+        短信提醒
+      </a>
+    ),
+    finish: (
+      <a className=" text-blue-500" key="finish">
+        完成
+      </a>
+    ),
+    download: (
+      <a className=" text-blue-500" key="download">
+        下载
+      </a>
+    ),
+  };
+
   // 给columns添加ts类型
-  const columns = [
+  const columns: any = [
     {
-      title: '发布单位发布人',
+      title: (
+        <div>
+          <div>发布单位/</div>
+          <div>发布人</div>
+        </div>
+      ),
       dataIndex: 'orgAndUser',
       render: (_: any, record: any) => {
-        return `${record.orgName} / ${record.staffName}`;
+        return (
+          <div>
+            <div>{record.orgName}/</div>
+            <div>{record.staffName}</div>
+          </div>
+        );
       },
     },
     {
-      title: '任务分配方',
-      dataIndex: 'key2',
+      title: '任务分配方式',
+      dataIndex: 'publishType',
+      render: (_: any, record: any) => {
+        // @ts-ignore
+        return PublishTypeObject[record.publishType];
+      },
     },
     {
       title: '模版每人需填报份数',
       width: '10%',
       dataIndex: 'maxFillCount',
+      render: (_: any, record: any) => {
+        return (
+          <div>
+            <div>
+              <a className="text-blue-500">模板详情</a>
+            </div>
+            {record.maxFillCount !== 0 ? (
+              <div>{record.maxFillCount}份以内</div>
+            ) : (
+              '不限数量'
+            )}
+          </div>
+        );
+      },
     },
     {
       title: '状态',
@@ -68,7 +127,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'key5',
       width: '18%',
       render: (_: any, record: any) => {
-        return `${record.beginTimeFillEstimate} ~  ${record.endTimeFillEstimate}`;
+        return (
+          <div>
+            <div>{record.beginTimeFillEstimate.slice(0, -3)}</div>
+            <div>~</div>
+            <div>{record.endTimeFillEstimate.slice(0, -3)}</div>
+          </div>
+        );
       },
     },
     {
@@ -77,30 +142,82 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       width: '11%',
     },
     {
-      title: '通过数',
+      title: '通过数量',
       dataIndex: 'key7',
       render: (_: any, record: any) => {
-        return `${record.passPeople}人 / ${record.passCount}份`;
+        return (
+          <>
+            {record.publishType === PublishTypeEnum.Org ? (
+              <div>
+                <a className="text-blue-500 block">{record.passPeople}人</a>
+                <a className="text-blue-500 block">{record.passCount}份</a>
+              </div>
+            ) : (
+              <div>
+                <div>{record.passPeople}人</div>
+                <div>{record.passCount}份</div>
+              </div>
+            )}
+          </>
+        );
       },
     },
     {
-      title: '填报数',
+      title: '填报数量',
       dataIndex: 'key8',
       render: (_: any, record: any) => {
-        return `${record.fillPeople}人 / ${record.fillCount}份`;
+        return (
+          <>
+            {record.publishType === PublishTypeEnum.Org ? (
+              <div>
+                <a className="text-blue-500 block">{record.fillPeople}人</a>
+                <a className="text-blue-500 block">{record.fillCount}份</a>
+              </div>
+            ) : (
+              <div>
+                <div>{record.fillPeople}人</div>
+                <div>{record.fillCount}份</div>
+              </div>
+            )}
+          </>
+        );
       },
     },
     {
       title: '操作',
       width: '10%',
+      hidden: tabType !== 'self',
       dataIndex: 'operation',
+      fixed: 'right',
       render: (_: any, record: any) => {
         return (
           <Space>
-            <a className=" text-blue-500">详情</a>
-            <a className=" text-blue-500">更多</a>
+            {record.taskStatus === TaskStatusTypeEnum.NotStart && [
+              operateButton.edit,
+            ]}
+            {record.taskStatus === TaskStatusTypeEnum.Processing && [
+              operateButton.detail,
+              operateButton.edit,
+              operateButton.message,
+              operateButton.finish,
+              operateButton.download,
+            ]}
+            {record.taskStatus === TaskStatusTypeEnum.Finished && [
+              operateButton.detail,
+              operateButton.download,
+            ]}
           </Space>
         );
+      },
+    },
+    {
+      title: '操作',
+      width: '10%',
+      hidden: tabType !== 'subordinate',
+      dataIndex: 'operation',
+      fixed: 'right',
+      render: (_: any, record: any) => {
+        return operateButton.detail;
       },
     },
   ];
@@ -111,44 +228,15 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           <span>NO.{itemData?.showNumber}</span>
           {itemData?.title}
         </div>
-        <div className="flex gap-2">
-          <a
-            className="text-blue-500"
-            onClick={() => {
-              setEditModalOpen(true);
-            }}
-          >
-            编辑
-          </a>
-          <a
-            className="text-blue-500"
-            onClick={() => {
-              setDeleteModalOpen(true);
-            }}
-          >
-            删除
-          </a>
-        </div>
+        {tabType === 'self' && (
+          <div className="flex gap-2">
+            <TaskEditModal />
+            <TaskDeleteModal />
+          </div>
+        )}
       </div>
 
-      <Table
-        //   title={() => (
-        //     <div className="font-bold text-lg py-1">
-        //       <span>NO.{itemData?.showNumber}</span>
-        //       {itemData?.title}
-        //     </div>
-        //   )}
-        columns={columns}
-        dataSource={itemData?.dataSource || []}
-      ></Table>
-      <TaskDeleteModal
-        deleteModalOpen={deleteModalOpen}
-        setDeleteModalOpen={setDeleteModalOpen}
-      />
-      <TaskEditModal
-        editModalOpen={editModalOpen}
-        setEditModalOpen={setEditModalOpen}
-      />
+      <Table columns={columns} dataSource={itemData?.dataSource}></Table>
     </>
   );
 };

@@ -1,21 +1,16 @@
 'use client';
 
+import { Button, Col, Form, Input, Modal, Row } from 'antd';
 import React, { useState } from 'react';
-import { Button, Col, Form, Input, Modal, Radio, Row } from 'antd';
 
-interface TaskDeleteModalProps {
-  deleteModalOpen: boolean;
-  setDeleteModalOpen: (open: boolean) => void;
-}
+interface TaskDeleteModalProps {}
 
 interface Values {
   taskName?: string;
 }
 
-const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({
-  deleteModalOpen: open,
-  setDeleteModalOpen: setOpen,
-}) => {
+const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
+  const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<Values>();
 
@@ -27,10 +22,9 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({
 
   return (
     <>
-      <a className="underline" onClick={() => setOpen(true)}>
-        编辑
+      <a className="underline text-blue-500" onClick={() => setOpen(true)}>
+        删除
       </a>
-      <pre>{JSON.stringify(formValues, null, 2)}</pre>
       <Modal
         open={open}
         title="删除调查确认"

@@ -1,21 +1,16 @@
 'use client';
 
+import { Form, Input, Modal } from 'antd';
 import React, { useState } from 'react';
-import { Button, Form, Input, Modal, Radio } from 'antd';
 
-interface TaskEditModalProps {
-  editModalOpen: boolean;
-  setEditModalOpen: (open: boolean) => void;
-}
+interface TaskEditModalProps {}
 
 interface Values {
   taskName?: string;
 }
 
-const TaskEditModal: React.FC<TaskEditModalProps> = ({
-  editModalOpen: open,
-  setEditModalOpen: setOpen,
-}) => {
+const TaskEditModal: React.FC<TaskEditModalProps> = ({}) => {
+  const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<Values>();
 
@@ -27,10 +22,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
 
   return (
     <>
-      <a className="underline" onClick={() => setOpen(true)}>
+      <a className="underline text-blue-500" onClick={() => setOpen(true)}>
         编辑
       </a>
-      <pre>{JSON.stringify(formValues, null, 2)}</pre>
       <Modal
         open={open}
         title="编辑调查"

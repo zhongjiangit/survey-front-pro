@@ -2,8 +2,7 @@
 
 import { Button, message, Progress, Space, Table, TableProps } from 'antd';
 import React, { ReactNode, useMemo, useState } from 'react';
-import DetailModal from './modules/detail-modal';
-import TaskDeleteModal from './modules/task-delete-modal';
+import TaskDeleteModal from './manage/modules/task-delete-modal';
 
 interface DataType {
   key: string;
@@ -150,10 +149,7 @@ const Page: React.FC = () => {
         新增任务
       </Button>
       <Table columns={columns} dataSource={data} />
-      <TaskDeleteModal
-        deleteModalOpen={isModalOpen}
-        setDeleteModalOpen={setIsModalOpen}
-      />
+      <TaskDeleteModal />
       {/* <DetailModal
         modalTitle={modalTitle}
         isModalOpen={isModalOpen}

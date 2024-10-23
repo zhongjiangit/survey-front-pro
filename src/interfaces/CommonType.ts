@@ -56,7 +56,7 @@ export type WidgetType =
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
 export type TaskStatusType = 0 | 1 | 2;
 
-enum TaskStatusTypeEnum {
+export enum TaskStatusTypeEnum {
   NotStart = 0,
   Processing = 1,
   Finished = 2,
@@ -67,4 +67,16 @@ export const TaskStatusObject = {
   [TaskStatusTypeEnum.NotStart]: '未开始',
   [TaskStatusTypeEnum.Processing]: '进行中',
   [TaskStatusTypeEnum.Finished]: '完成',
+};
+
+// publishType 1：分配至单位 2：分配至人
+export type PublishTypeType = 1 | 2;
+export enum PublishTypeEnum {
+  Org = 1,
+  Member = 2,
+}
+// 生成publish类型对象
+export const PublishTypeObject = {
+  [PublishTypeEnum.Org]: '分配至单位',
+  [PublishTypeEnum.Member]: '分配至人',
 };
