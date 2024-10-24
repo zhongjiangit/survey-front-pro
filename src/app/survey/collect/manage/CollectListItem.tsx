@@ -5,9 +5,11 @@ import {
   TaskStatusTypeEnum,
 } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useState } from 'react';
 import TaskDeleteModal from './modules/task-delete-modal';
 import TaskEditModal from './modules/task-edit-modal';
+import TaskFilledModal from './modules/task-filled-modal';
+import TaskPassedModal from './modules/task-passed-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -40,6 +42,10 @@ interface CollectListItemProps {
 
 const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const { itemData, tabType } = props;
+
+  const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
+  const [passedNumModalOpen, setPassedNumModalOpen] = useState(false);
+
   const operateButton = {
     edit: (
       <a className=" text-blue-500" key="edit">
@@ -146,7 +152,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'key7',
       render: (_: any, record: any) => {
         return (
-          <>
+          <div
+            onClick={() => {
+              setPassedNumModalOpen(true);
+            }}
+          >
             {record.publishType === PublishTypeEnum.Org ? (
               <div>
                 <a className="text-blue-500 block">{record.passPeople}人</a>
@@ -158,7 +168,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 <div>{record.passCount}份</div>
               </div>
             )}
-          </>
+          </div>
         );
       },
     },
@@ -167,7 +177,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'key8',
       render: (_: any, record: any) => {
         return (
-          <>
+          <div
+            onClick={() => {
+              setFilledNumModalOpen(true);
+            }}
+          >
             {record.publishType === PublishTypeEnum.Org ? (
               <div>
                 <a className="text-blue-500 block">{record.fillPeople}人</a>
@@ -179,7 +193,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 <div>{record.fillCount}份</div>
               </div>
             )}
-          </>
+          </div>
         );
       },
     },
@@ -237,6 +251,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       </div>
 
       <Table columns={columns} dataSource={itemData?.dataSource}></Table>
+      <TaskFilledModal
+        open={filledNumModalOpen}
+        setOpen={setFilledNumModalOpen}
+      />
+      <TaskPassedModal
+        open={passedNumModalOpen}
+        setOpen={setPassedNumModalOpen}
+      />
     </>
   );
 };
