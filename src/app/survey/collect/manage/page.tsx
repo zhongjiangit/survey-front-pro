@@ -1,7 +1,7 @@
 'use client';
 
-import { Tabs, TabsProps } from 'antd';
-import CollectListItem from './CollectListItem';
+import { Button, Tabs, TabsProps } from 'antd';
+import CollectListItem from './modules/CollectListItem';
 import { collectDataSource } from './testData';
 
 const CollectManage = () => {
@@ -10,7 +10,10 @@ const CollectManage = () => {
       key: '1',
       label: '我发布的任务',
       children: (
-        <>
+        <div className="relative">
+          <div className="absolute right-0 -top-14">
+            <Button type="primary">发布新任务</Button>
+          </div>
           <CollectListItem
             tabType="self"
             itemData={{
@@ -27,7 +30,7 @@ const CollectManage = () => {
               showNumber: 2,
             }}
           /> */}
-        </>
+        </div>
       ),
     },
     {

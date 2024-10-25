@@ -190,34 +190,40 @@ function Page() {
             <div> 电话：{adminStaff?.cellphone}</div>
             <div className="flex gap-2 items-center">
               标签：
-              <Form
-                form={form}
-                name="control-hooks"
-                className="flex items-center"
-                onFinish={onAdminUpdate}
-              >
-                <div className="flex gap-2 h-8">
-                  <Form.Item name="tags">
-                    <TreeSelect
-                      style={{ width: '200px' }}
-                      showSearch
-                      dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                      placeholder="请选择标签"
-                      allowClear
-                      multiple
-                      treeDefaultExpandAll
-                      treeData={memberTags}
-                    />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      type="link"
-                      htmlType="submit"
-                      icon={<SaveOutlined className="cursor-pointer" />}
-                    ></Button>
-                  </Form.Item>
+              {canEdit ? (
+                <Form
+                  form={form}
+                  name="control-hooks"
+                  className="flex items-center"
+                  onFinish={onAdminUpdate}
+                >
+                  <div className="flex gap-2 h-8">
+                    <Form.Item name="tags">
+                      <TreeSelect
+                        style={{ width: '200px' }}
+                        showSearch
+                        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                        placeholder="请选择标签"
+                        allowClear
+                        multiple
+                        treeDefaultExpandAll
+                        treeData={memberTags}
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        type="link"
+                        htmlType="submit"
+                        icon={<SaveOutlined className="cursor-pointer" />}
+                      ></Button>
+                    </Form.Item>
+                  </div>
+                </Form>
+              ) : (
+                <div>
+                  {adminStaff?.tags?.map((tag: any) => tag.title).join(',')}
                 </div>
-              </Form>
+              )}
             </div>
           </div>
           <Divider />

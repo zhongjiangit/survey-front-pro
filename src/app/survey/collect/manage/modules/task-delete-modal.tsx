@@ -1,37 +1,51 @@
 'use client';
 
 import { Button, Col, Form, Input, Modal, Row } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface TaskDeleteModalProps {}
-
-interface Values {
-  taskName?: string;
-}
 
 const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState<Values>();
 
-  const onCreate = (values: Values) => {
-    console.log('Received values of form: ', values);
-    setFormValues(values);
+  const onClose = () => {
+    console.log(1214);
+
+    form.setFieldsValue({
+      cellphone: '139820881',
+    });
     setOpen(false);
+  };
+
+  const onCreate = (values: any) => {
+    console.log('Received values of form: ', values);
+    console.log(form.getFieldsValue());
+    onClose();
   };
 
   return (
     <>
-      <a className="underline text-blue-500" onClick={() => setOpen(true)}>
+      <a
+        className="underline text-blue-500"
+        onClick={() => {
+          setOpen(true);
+          form.setFieldsValue({
+            cellphone: '13982088460',
+            pic: '',
+            captcha: '',
+          });
+        }}
+      >
         删除
       </a>
       <Modal
         open={open}
-        title="删除调查确认"
+        title="删除资料收集"
         okText="确定"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
-        onCancel={() => setOpen(false)}
+        onCancel={onClose}
         modalRender={dom => (
           <Form
             layout="vertical"
@@ -43,7 +57,7 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
           </Form>
         )}
       >
-        <p className="my-4">为了避免你的误删除，删除操作需要验证你的手机号</p>
+        <p className="my-4">为了避免您的误操作，请输入验证码</p>
         <Form.Item
           name="cellphone"
           label="手机号"
@@ -56,11 +70,15 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
         >
           <Row gutter={8}>
             <Col span={16}>
-              <Input type="input" placeholder="请输入手机号" />
+              <Form.Item name="cellphone" noStyle>
+                <Input disabled type="input" placeholder="请输入手机号" />
+              </Form.Item>
             </Col>
+            <Col span={8}></Col>
           </Row>
         </Form.Item>
         <Form.Item
+          name="pic"
           label="图形验证码"
           rules={[
             {
@@ -70,25 +88,17 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
         >
           <Row gutter={8}>
             <Col span={16}>
-              <Form.Item
-                name="captcha"
-                noStyle
-                rules={[
-                  {
-                    required: true,
-                    message: '图形码不能为空!',
-                  },
-                ]}
-              >
+              <Form.Item name="pic" noStyle>
                 <Input type="input" placeholder="请输入右侧图形码" />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Button>XIGN12</Button>
+              <Button>XIN2</Button>
             </Col>
           </Row>
         </Form.Item>
         <Form.Item
+          name="captcha"
           label="验证码"
           rules={[
             {
@@ -98,16 +108,7 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
         >
           <Row gutter={8}>
             <Col span={16}>
-              <Form.Item
-                name="captcha"
-                noStyle
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入手机验证码!',
-                  },
-                ]}
-              >
+              <Form.Item name="captcha" noStyle>
                 <Input type="input" placeholder="请输入手机验证码" />
               </Form.Item>
             </Col>

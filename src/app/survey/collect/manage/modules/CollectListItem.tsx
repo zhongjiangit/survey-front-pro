@@ -1,15 +1,18 @@
 import {
   PublishTypeEnum,
   PublishTypeObject,
+  PublishTypeType,
   TaskStatusObject,
   TaskStatusTypeEnum,
 } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
-import TaskDeleteModal from './modules/task-delete-modal';
-import TaskEditModal from './modules/task-edit-modal';
-import TaskFilledModal from './modules/task-filled-modal';
-import TaskPassedModal from './modules/task-passed-modal';
+import TaskDeleteModal from './task-delete-modal';
+import TaskEditModal from './task-edit-modal';
+import TaskFilledModal from './task-filled-modal';
+import TaskPassedModal from './task-passed-modal';
+import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
+import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -45,6 +48,9 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
 
   const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
   const [passedNumModalOpen, setPassedNumModalOpen] = useState(false);
+  const [filleOrgDetailModalOpen, setFillOrgDetailModalOpen] = useState(false);
+  const [filleMemberDetailModalOpen, setFillMemberDetailModalOpen] =
+    useState(false);
 
   const operateButton = {
     edit: (
@@ -52,11 +58,23 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         修改
       </a>
     ),
-    detail: (
-      <a className=" text-blue-500" key="detail">
-        详情
-      </a>
-    ),
+    detail: (type: PublishTypeType) => {
+      return (
+        <a
+          className=" text-blue-500"
+          key="detail"
+          onClick={() => {
+            if (type === PublishTypeEnum.Org) {
+              setFillOrgDetailModalOpen(true);
+            } else {
+              setFillMemberDetailModalOpen(true);
+            }
+          }}
+        >
+          详情
+        </a>
+      );
+    },
     message: (
       <a className=" text-blue-500" key="message">
         短信提醒
@@ -102,7 +120,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: '模版每人需填报份数',
+      title: '模版/每人需填报份数',
       width: '10%',
       dataIndex: 'maxFillCount',
       render: (_: any, record: any) => {
@@ -152,13 +170,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'key7',
       render: (_: any, record: any) => {
         return (
-          <div
-            onClick={() => {
-              setPassedNumModalOpen(true);
-            }}
-          >
+          <div>
             {record.publishType === PublishTypeEnum.Org ? (
-              <div>
+              <div
+                onClick={() => {
+                  setPassedNumModalOpen(true);
+                }}
+              >
                 <a className="text-blue-500 block">{record.passPeople}人</a>
                 <a className="text-blue-500 block">{record.passCount}份</a>
               </div>
@@ -177,13 +195,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'key8',
       render: (_: any, record: any) => {
         return (
-          <div
-            onClick={() => {
-              setFilledNumModalOpen(true);
-            }}
-          >
+          <div>
             {record.publishType === PublishTypeEnum.Org ? (
-              <div>
+              <div
+                onClick={() => {
+                  setFilledNumModalOpen(true);
+                }}
+              >
                 <a className="text-blue-500 block">{record.fillPeople}人</a>
                 <a className="text-blue-500 block">{record.fillCount}份</a>
               </div>
@@ -210,14 +228,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               operateButton.edit,
             ]}
             {record.taskStatus === TaskStatusTypeEnum.Processing && [
-              operateButton.detail,
+              operateButton.detail(record.publishType),
               operateButton.edit,
               operateButton.message,
               operateButton.finish,
               operateButton.download,
             ]}
             {record.taskStatus === TaskStatusTypeEnum.Finished && [
-              operateButton.detail,
+              operateButton.detail(record.publishType),
               operateButton.download,
             ]}
           </Space>
@@ -231,7 +249,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'operation',
       fixed: 'right',
       render: (_: any, record: any) => {
-        return operateButton.detail;
+        return operateButton.detail(record.publishType);
       },
     },
   ];
@@ -258,6 +276,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       <TaskPassedModal
         open={passedNumModalOpen}
         setOpen={setPassedNumModalOpen}
+      />
+      <TaskOrgFillDetailModal
+        open={filleOrgDetailModalOpen}
+        setOpen={setFillOrgDetailModalOpen}
+      />
+      <TaskMemberFillDetailModal
+        open={filleMemberDetailModalOpen}
+        setOpen={setFillMemberDetailModalOpen}
       />
     </>
   );

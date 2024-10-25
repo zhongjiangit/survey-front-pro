@@ -28,8 +28,8 @@ export const collectDataSource = [
     endTimeFillActual: '2024-08-10 12:00:00',
     passPeople: 10,
     passCount: 40,
-    fillPeople: 8,
-    fillCount: 30,
+    fillPeople: 0,
+    fillCount: 0,
     publishType: 2,
   },
   {
