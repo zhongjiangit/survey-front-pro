@@ -15,6 +15,7 @@ export interface CollectItemType {
   widgetType: WidgetType; // 控件类型
   widgetName: string; // 控件名称
   itemMemo: string; // 备注
+  widgetDetails: any; // 控件详情
 }
 
 export interface TemplateDetailType {

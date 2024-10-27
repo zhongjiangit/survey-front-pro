@@ -32,7 +32,7 @@ const NewCollectItem: React.FC<Props> = ({
     } else {
       form.setFieldsValue({ isRequired: true });
     }
-  }, [initValues]);
+  }, [form, initValues]);
 
   const { data: widgetList = { data: [] } } = useRequest(() => {
     return Api.getAllWidgetsList({
@@ -50,9 +50,14 @@ const NewCollectItem: React.FC<Props> = ({
     values.isRequired = values.isRequired
       ? ZeroOrOneTypeEnum.One
       : ZeroOrOneTypeEnum.Zero;
-    console.log('Success:', values);
-
-    pushItem({ ...initValues, ...values });
+    const widget = widgetList.data?.find(item => item.id === values.widgetId);
+    pushItem({
+      ...initValues,
+      ...values,
+      widgetDetails: widget?.widgetDetails,
+      widgetName: widget?.widgetName,
+      widgetType: widget?.widgetType,
+    });
     onClose();
   };
 

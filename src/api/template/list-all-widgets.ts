@@ -9,6 +9,7 @@ export interface TemplateListType {
   id: number;
   widgetName: string;
   widgetType: WidgetType;
+  widgetDetails: any;
 }
 
 interface WidgetLisResponse {

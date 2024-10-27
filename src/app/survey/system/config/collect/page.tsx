@@ -28,6 +28,7 @@ import Api from '@/api';
 import { TemplateTypeEnum } from '@/interfaces/CommonType';
 import { CollectItemType } from '@/api/template/get-details';
 import { cn } from '@/lib/utils';
+import renderFormItem from '@/lib/render-form-item';
 
 const { TextArea } = Input;
 
@@ -181,53 +182,7 @@ const NewCollectSet = () => {
     setItems(newItems);
   };
 
-  const renderFormItem = (key: string) => {
-    switch (key) {
-      case 'input':
-        return <Input type="input" />;
-      case 'textarea':
-        return <TextArea rows={3} />;
-      case 'radio':
-        return (
-          <Radio.Group>
-            <Radio value={1}>A</Radio>
-            <Radio value={2}>B</Radio>
-            <Radio value={3}>C</Radio>
-            <Radio value={4}>D</Radio>
-          </Radio.Group>
-        );
-      case 'checkbox':
-        return (
-          <Checkbox.Group
-            options={[
-              { label: 'Apple', value: 'Apple' },
-              { label: 'Pear', value: 'Pear' },
-              { label: 'Orange', value: 'Orange' },
-            ]}
-          />
-        );
-      case 'file':
-        return (
-          <Upload {...props}>
-            <Button icon={<UploadOutlined />}>点击上传文件</Button>
-          </Upload>
-        );
-
-      case 'tree':
-        return (
-          <Tree
-            style={{ width: 400, paddingTop: 4 }}
-            switcherIcon={
-              <CaretDownOutlined className="absolute top-[7px] right-[7px]" />
-            }
-            checkable
-            treeData={treeData}
-          />
-        );
-      default:
-        break;
-    }
-  };
+  console.log('items', items);
 
   return (
     <main>
@@ -269,7 +224,7 @@ const NewCollectSet = () => {
           >
             {items.length > 0 &&
               items.map((item: NewCollectItemType, index: number) => (
-                <div className="flex">
+                <div className="flex" key={index}>
                   <Form.Item
                     className="flex-1"
                     key={index}
@@ -282,7 +237,10 @@ const NewCollectSet = () => {
                       },
                     ]}
                   >
-                    {renderFormItem(item.widgetType || 'input')}
+                    {renderFormItem({
+                      type: item.widgetType || 'input',
+                      option: item.widgetDetails,
+                    })}
                   </Form.Item>
                   <div
                     className={cn(

@@ -122,8 +122,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     {
       title: (
         <>
-          <div>模板/</div>
-          <div>每人需填报份数</div>
+          <div>模板</div>
+          <div>每人需填报数</div>
         </>
       ),
       width: '10%',
