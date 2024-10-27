@@ -7,6 +7,8 @@ import {
 } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
 import { toAllotTaskData } from '../testData';
+import TaskAllocateModal from '../manage/modules/task-allocate-modal';
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -37,11 +39,8 @@ interface CollectListItemProps {
 
 const ToAllotTask = () => {
   const operateButton = {
-    allot: (
-      <a className=" text-blue-500" key="allot">
-        分配任务
-      </a>
-    ),
+    allot: (type: PublishTypeEnum) => <TaskAllocateModal type={type} />,
+
     detail: (
       <a className=" text-blue-500" key="detail">
         详情
@@ -85,7 +84,7 @@ const ToAllotTask = () => {
         return (
           <div>
             <div>
-              <a className="text-blue-500">模板详情</a>
+              <TemplateDetailModal />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>
@@ -169,11 +168,11 @@ const ToAllotTask = () => {
         return (
           <Space>
             {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-              operateButton.allot,
+              operateButton.allot(record.publishType),
             ]}
             {record.taskStatus === TaskStatusTypeEnum.Processing && [
               operateButton.detail,
-              operateButton.allot,
+              operateButton.allot(record.publishType),
             ]}
             {record.taskStatus === TaskStatusTypeEnum.Finished && [
               operateButton.detail,

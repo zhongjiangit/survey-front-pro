@@ -6,6 +6,8 @@ import {
 } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
 import { toAllotTaskData } from '../testData';
+import TemplateDetailModal from '@/components/common/template-detail-modal';
+import Link from 'next/link';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -32,9 +34,13 @@ interface CollectListItemProps {
 const ToAllotTask = () => {
   const operateButton = {
     fill: (
-      <a className=" text-blue-500" key="fill">
+      <Link
+        className=" text-blue-500"
+        key="fill"
+        href="/survey/collect/fill/detail"
+      >
         填报任务
-      </a>
+      </Link>
     ),
   };
 
@@ -73,7 +79,7 @@ const ToAllotTask = () => {
         return (
           <div>
             <div>
-              <a className="text-blue-500">模板详情</a>
+              <TemplateDetailModal />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>

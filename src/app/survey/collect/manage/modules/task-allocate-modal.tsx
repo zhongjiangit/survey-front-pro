@@ -1,37 +1,21 @@
 'use client';
 
 import { PublishTypeEnum } from '@/interfaces/CommonType';
-import {
-  Button,
-  Checkbox,
-  Col,
-  DatePicker,
-  Divider,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Radio,
-  Row,
-  Select,
-  Tree,
-} from 'antd';
+import { Checkbox, Divider, Form, Modal, Select, Tree } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { treeData } from '../../testData';
-import TemplateDetailModal from '@/components/common/template-detail-modal';
 
-interface TaskEditModalProps {}
-
-interface Values {
-  taskName?: string;
+interface TaskAllocateModalProps {
+  type: PublishTypeEnum;
 }
 
-const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
+const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
+  type,
+}: TaskAllocateModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
-  const { RangePicker } = DatePicker;
-  const onCreate = (values: Values) => {
+  const onCreate = (values: any) => {
     console.log('Received values of form: ', values);
     setOpen(false);
   };
@@ -170,19 +154,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
   );
 
   return (
-    <div className="absolute right-0 -top-14">
-      <Button
-        type="primary"
+    <>
+      <a
+        className="text-blue-500"
         onClick={() => {
           setOpen(true);
         }}
       >
-        发布新任务
-      </Button>
+        分配任务
+      </a>
       <Modal
         width={'70vw'}
         open={open}
-        title="新建任务"
+        title="分配任务"
         okText="确定"
         cancelText="取消"
         okButtonProps={{
@@ -193,111 +177,36 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         onCancel={() => setOpen(false)}
       >
         <Form
-          // layout="inline"
           form={form}
           name="form_new_task_modal"
           onFinish={values => onCreate(values)}
           labelCol={{ span: 9 }}
           wrapperCol={{ span: 24 }}
-          // style={{
-          //   marginTop: '30px',
-          // }}
-          initialValues={{ publishType: PublishTypeEnum.Org, maxFillCount: 1 }}
         >
-          <Row
-            gutter={24}
-            style={{
-              marginTop: '30px',
-              marginLeft: '-20px',
-              marginRight: '40px',
-            }}
-          >
-            <Col span={12}>
-              <Form.Item
-                name="taskName"
-                label="任务名称"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
+          <Form.Item>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  border: 'solid 1px #8b8787c2',
+                  width: '80%',
+                }}
               >
-                <Input type="input" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="timeFillEstimate"
-                label="任务起止时间"
-                rules={[{ required: true }]}
-              >
-                <RangePicker
-                  format="YYYY-MM-DD HH:mm"
-                  showTime={{ format: 'HH:mm' }}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="templateId"
-                label="选择资料收集模板"
-                rules={[{ required: true }]}
-              >
-                <Select
-                  options={[{ label: '关于2024基础建设费用收集', value: '1' }]}
-                ></Select>
-                <a className="text-blue-500">
-                  查看已选
-                  <TemplateDetailModal />
-                </a>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="maxFillCount" label="每位填报者可提交最多份数">
-                <InputNumber style={{ width: '100%' }} min={0}></InputNumber>
-                <span className="text-blue-400">*当不输入值时，为不限份数</span>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="publishType" label="任务分配方式">
-                <Radio.Group>
-                  <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
-                  <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
-                </Radio.Group>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item noStyle dependencies={['publishType']}>
-            {({ getFieldValue }) => {
-              return (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div
-                    style={{
-                      border: 'solid 1px #8b8787c2',
-                      width: '80%',
-                    }}
-                  >
-                    <Divider orientation="left">分配详情</Divider>
-                    <div style={{ marginLeft: '20px' }}>
-                      {getFieldValue('publishType') === PublishTypeEnum.Org
-                        ? OrgSelect
-                        : MemberSelect}
-                    </div>
-                  </div>
+                <Divider orientation="left">分配详情</Divider>
+                <div style={{ marginLeft: '20px' }}>
+                  {type === PublishTypeEnum.Org ? OrgSelect : MemberSelect}
                 </div>
-              );
-            }}
+              </div>
+            </div>
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </>
   );
 };
 
-export default TaskAddNewModal;
+export default TaskAllocateModal;

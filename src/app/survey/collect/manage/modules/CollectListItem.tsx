@@ -13,6 +13,8 @@ import TaskFilledModal from './task-filled-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
+import TaskDetailEditModal from './task-detail-edit-modal';
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -53,11 +55,9 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     useState(false);
 
   const operateButton = {
-    edit: (
-      <a className=" text-blue-500" key="edit">
-        修改
-      </a>
-    ),
+    edit: (type: PublishTypeType) => {
+      return <TaskDetailEditModal type={type} />;
+    },
     detail: (type: PublishTypeType) => {
       return (
         <a
@@ -132,7 +132,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div>
             <div>
-              <a className="text-blue-500">模板详情</a>
+              <TemplateDetailModal />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>
@@ -230,11 +230,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <Space>
             {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-              operateButton.edit,
+              operateButton.edit(record.publishType),
             ]}
             {record.taskStatus === TaskStatusTypeEnum.Processing && [
               operateButton.detail(record.publishType),
-              operateButton.edit,
+              operateButton.edit(record.publishType),
               operateButton.message,
               operateButton.finish,
               operateButton.download,
