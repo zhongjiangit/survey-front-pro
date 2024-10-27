@@ -54,6 +54,7 @@ export type WidgetType =
   | 'tree';
 
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
+// todo 看需求ui有已删除状态，接口无
 export type TaskStatusType = 0 | 1 | 2;
 
 export enum TaskStatusTypeEnum {
@@ -79,4 +80,18 @@ export enum PublishTypeEnum {
 export const PublishTypeObject = {
   [PublishTypeEnum.Org]: '分配至单位',
   [PublishTypeEnum.Member]: '分配至人',
+};
+
+// processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
+export type ProcessStatusType = 0 | 1 | 2;
+export enum ProcessStatusTypeEnum {
+  NotSubmit = 0,
+  Submitted = 1,
+  Reject = 2,
+}
+// 生成process类型对象
+export const ProcessStatusObject = {
+  [ProcessStatusTypeEnum.NotSubmit]: '未提交',
+  [ProcessStatusTypeEnum.Submitted]: '已提交',
+  [ProcessStatusTypeEnum.Reject]: '驳回',
 };

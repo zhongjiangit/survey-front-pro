@@ -16,7 +16,61 @@
 // FillPeople	int		填报人数
 // FillCount	int		填报份数
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
+
+import { TreeDataNode } from 'antd';
+
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
+export const toAllotTaskData = [
+  {
+    taskName: '小学教学计划资料收集1',
+    orgName: '四川省教育总局1',
+    staffName: '张三1',
+    maxFillCount: 5,
+    taskStatus: 0,
+    beginTimeFillEstimate: '2024-07-11 12:00:00',
+    endTimeFillEstimate: '2024-08-18 12:00:00',
+    endTimeFillActual: '2024-08-10 12:00:00',
+    passPeople: 10,
+    passCount: 40,
+    fillPeople: 8,
+    fillCount: 30,
+    publishType: 2,
+    processStatus: 0,
+  },
+  {
+    taskName: '小学教学计划资料收集2',
+    orgName: '四川省教育总局2',
+    staffName: '张三2',
+    maxFillCount: 0,
+    taskStatus: 1,
+    beginTimeFillEstimate: '2024-07-11 12:00:00',
+    endTimeFillEstimate: '2024-08-18 12:00:00',
+    endTimeFillActual: '2024-08-10 12:00:00',
+    passPeople: 10,
+    passCount: 40,
+    fillPeople: 8,
+    fillCount: 30,
+    publishType: 2,
+    processStatus: 1,
+  },
+  {
+    taskName: '小学教学计划资料收集3',
+    orgName: '四川省教育总局2',
+    staffName: '张三2',
+    maxFillCount: 0,
+    taskStatus: 2,
+    beginTimeFillEstimate: '2024-07-11 12:00:00',
+    endTimeFillEstimate: '2024-08-18 12:00:00',
+    endTimeFillActual: '2024-08-10 12:00:00',
+    passPeople: 10,
+    passCount: 40,
+    fillPeople: 8,
+    fillCount: 30,
+    publishType: 1,
+    processStatus: 2,
+  },
+];
+
 export const collectDataSource = [
   {
     orgName: '四川省教育总局1',
@@ -28,8 +82,8 @@ export const collectDataSource = [
     endTimeFillActual: '2024-08-10 12:00:00',
     passPeople: 10,
     passCount: 40,
-    fillPeople: 0,
-    fillCount: 0,
+    fillPeople: 8,
+    fillCount: 30,
     publishType: 2,
   },
   {
@@ -59,5 +113,31 @@ export const collectDataSource = [
     fillPeople: 8,
     fillCount: 30,
     publishType: 1,
+  },
+];
+
+export const treeData: TreeDataNode[] = [
+  {
+    title: '省**单位',
+    key: 's',
+    checkable: false,
+    children: [
+      {
+        title: '杨118999999',
+        key: '1',
+      },
+      {
+        title: '杨218999999',
+        key: '1',
+      },
+      {
+        title: '杨318999999',
+        key: '1',
+      },
+      {
+        title: '杨418999999',
+        key: '1',
+      },
+    ],
   },
 ];

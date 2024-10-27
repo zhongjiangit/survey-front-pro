@@ -1,8 +1,9 @@
 'use client';
 
-import { Button, Tabs, TabsProps } from 'antd';
+import { Tabs, TabsProps } from 'antd';
+import { collectDataSource } from '../testData';
 import CollectListItem from './modules/CollectListItem';
-import { collectDataSource } from './testData';
+import TaskAddNewModal from './modules/task-new-modal';
 
 const CollectManage = () => {
   const items: TabsProps['items'] = [
@@ -11,9 +12,7 @@ const CollectManage = () => {
       label: '我发布的任务',
       children: (
         <div className="relative">
-          <div className="absolute right-0 -top-14">
-            <Button type="primary">发布新任务</Button>
-          </div>
+          <TaskAddNewModal />
           <CollectListItem
             tabType="self"
             itemData={{
@@ -22,14 +21,6 @@ const CollectManage = () => {
               showNumber: 1,
             }}
           />
-          {/* <CollectListItem
-            tabType="self"
-            itemData={{
-              title: '初中教学计划资料收集',
-              dataSource: collectDataSource,
-              showNumber: 2,
-            }}
-          /> */}
         </div>
       ),
     },

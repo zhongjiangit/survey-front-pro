@@ -10,9 +10,9 @@ import { FunctionComponent, useState } from 'react';
 import TaskDeleteModal from './task-delete-modal';
 import TaskEditModal from './task-edit-modal';
 import TaskFilledModal from './task-filled-modal';
-import TaskPassedModal from './task-passed-modal';
-import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
+import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
+import TaskPassedModal from './task-passed-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -97,7 +97,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     {
       title: (
         <div>
-          <div>发布单位/</div>
+          <div>发布单位</div>
           <div>发布人</div>
         </div>
       ),
@@ -105,7 +105,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.orgName}/</div>
+            <div>{record.orgName}</div>
             <div>{record.staffName}</div>
           </div>
         );
@@ -120,7 +120,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: '模版/每人需填报份数',
+      title: (
+        <>
+          <div>模板/</div>
+          <div>每人需填报份数</div>
+        </>
+      ),
       width: '10%',
       dataIndex: 'maxFillCount',
       render: (_: any, record: any) => {
