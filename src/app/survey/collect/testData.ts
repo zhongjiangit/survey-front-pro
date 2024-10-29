@@ -73,6 +73,7 @@ export const toAllotTaskData = [
 
 export const collectDataSource = [
   {
+    title: '小学教学计划资料收集1',
     orgName: '四川省教育总局1',
     staffName: '张三1',
     maxFillCount: 5,
@@ -87,6 +88,7 @@ export const collectDataSource = [
     publishType: 2,
   },
   {
+    title: '小学教学计划资料收集2',
     orgName: '四川省教育总局2',
     staffName: '张三2',
     maxFillCount: 0,
@@ -101,6 +103,7 @@ export const collectDataSource = [
     publishType: 2,
   },
   {
+    title: '小学教学计划资料收集3',
     orgName: '四川省教育总局2',
     staffName: '张三2',
     maxFillCount: 0,

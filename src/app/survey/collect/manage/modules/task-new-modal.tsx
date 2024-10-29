@@ -16,7 +16,7 @@ import {
   Select,
   Tree,
 } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { treeData } from '../../testData';
 import TemplateDetailModal from '@/components/common/template-detail-modal';
 
@@ -29,29 +29,33 @@ interface Values {
 const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
-
+  const [checkAll, setCheckAll] = useState(false);
+  const [indeterminate, setIndeterminate] = useState(false);
   const { RangePicker } = DatePicker;
   const onCreate = (values: Values) => {
     console.log('Received values of form: ', values);
     setOpen(false);
   };
 
-  const plainOptions = [1, 2, 3, 4];
-
-  const indeterminate = useMemo(() => {
-    const checkedList = form.getFieldValue('orgs');
-    return checkedList?.length > 0 && checkedList?.length < plainOptions.length;
-  }, [form.getFieldValue('orgs'), plainOptions.length]);
+  const plainOptions = ['1', '2', '3', '4'];
 
   const onCheckAllChange = (e: any) => {
-    console.log(e);
-
-    form.setFieldValue('orgs', e.target.checked ? plainOptions : []);
+    if (e.target.checked) {
+      form.setFieldValue('orgs', plainOptions);
+      setCheckAll(true);
+    } else {
+      form.setFieldValue('orgs', []);
+      setCheckAll(false);
+    }
   };
 
-  const checkAll = useMemo(() => {
-    return plainOptions.length === form.getFieldValue('orgs')?.length;
-  }, [form.getFieldValue('orgs')]);
+  useEffect(() => {
+    const checkedList = form.getFieldValue('orgs');
+    setIndeterminate(
+      checkedList?.length > 0 && checkedList?.length < plainOptions.length
+    );
+    setCheckAll(plainOptions.length === form.getFieldValue('orgs')?.length);
+  }, [form, plainOptions.length]);
 
   const MemberSelect = (
     <div>
@@ -77,6 +81,16 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       </div>
 
       <Divider></Divider>
+      <div className="mb-3 pl-6">
+        <Checkbox
+          indeterminate={indeterminate}
+          onChange={onCheckAllChange}
+          checked={checkAll}
+        >
+          全选
+        </Checkbox>
+      </div>
+
       <div
         style={{
           display: 'flex',
@@ -271,16 +285,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           <Form.Item noStyle dependencies={['publishType']}>
             {({ getFieldValue }) => {
               return (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
+                <div className="flex justify-center">
                   <div
                     style={{
-                      border: 'solid 1px #8b8787c2',
-                      width: '80%',
+                      width: '90%',
                     }}
                   >
                     <Divider orientation="left">分配详情</Divider>

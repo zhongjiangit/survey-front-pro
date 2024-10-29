@@ -13,14 +13,7 @@ const CollectManage = () => {
       children: (
         <div className="relative">
           <TaskAddNewModal />
-          <CollectListItem
-            tabType="self"
-            itemData={{
-              title: '小学教学计划资料收集',
-              dataSource: collectDataSource,
-              showNumber: 1,
-            }}
-          />
+          <CollectListItem tabType="self" itemData={collectDataSource} />
         </div>
       ),
     },
@@ -28,14 +21,7 @@ const CollectManage = () => {
       key: '2',
       label: '下级发布的任务',
       children: (
-        <CollectListItem
-          tabType="subordinate"
-          itemData={{
-            title: '中学教学计划资料收集',
-            dataSource: collectDataSource,
-            showNumber: 1,
-          }}
-        />
+        <CollectListItem tabType="subordinate" itemData={collectDataSource} />
       ),
     },
   ];

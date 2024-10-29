@@ -15,11 +15,7 @@ import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
 import TaskDetailEditModal from './task-detail-edit-modal';
 import TemplateDetailModal from '@/components/common/template-detail-modal';
-interface ItemDataType {
-  title: string;
-  dataSource: any[];
-  showNumber: number;
-}
+type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
   itemData: ItemDataType;
@@ -260,20 +256,31 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   ];
   return (
     <>
-      <div className="flex justify-between items-center">
-        <div className="font-bold text-lg pb-2 pl-4">
-          <span>NO.{itemData?.showNumber}</span>
-          {itemData?.title}
-        </div>
-        {tabType === 'self' && (
-          <div className="flex gap-2">
-            <TaskEditModal />
-            <TaskDeleteModal />
-          </div>
-        )}
+      <div className="flex flex-col gap-5">
+        {itemData.map((item, index) => {
+          return (
+            <div key={index}>
+              <div className="flex justify-between items-center">
+                <div className="font-bold text-lg pb-2 pl-4">
+                  <span>NO.{index + 1}</span>
+                  {item?.title}
+                </div>
+                {tabType === 'self' && (
+                  <div className="flex gap-2">
+                    <TaskEditModal />
+                    <TaskDeleteModal />
+                  </div>
+                )}
+              </div>
+              <Table
+                pagination={false}
+                columns={columns}
+                dataSource={[item]}
+              ></Table>
+            </div>
+          );
+        })}
       </div>
-
-      <Table columns={columns} dataSource={itemData?.dataSource}></Table>
       <TaskFilledModal
         open={filledNumModalOpen}
         setOpen={setFilledNumModalOpen}
