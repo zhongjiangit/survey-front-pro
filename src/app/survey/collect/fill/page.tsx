@@ -49,7 +49,7 @@ const ToAllotTask = () => {
     {
       title: (
         <div>
-          <div>发布单位/</div>
+          <div>发布单位</div>
           <div>发布人</div>
         </div>
       ),
