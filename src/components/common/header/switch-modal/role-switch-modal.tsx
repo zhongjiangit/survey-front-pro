@@ -62,8 +62,10 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
       >
         <Radio.Group onChange={onChange} value={currentRole?.key}>
           <Space direction="vertical">
-            {activeRoles?.map(role => (
-              <Radio value={role.key}>{role.label}</Radio>
+            {activeRoles?.map((role, index) => (
+              <Radio key={index} value={role.key}>
+                {role.label}
+              </Radio>
             ))}
             {/* <Radio value={1}>平台管理员</Radio>
             <Radio value={2}>系统管理员（用户）</Radio>

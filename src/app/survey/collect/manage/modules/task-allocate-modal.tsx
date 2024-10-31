@@ -35,6 +35,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
 
   const checkAll = useMemo(() => {
     return plainOptions.length === form.getFieldValue('orgs')?.length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.getFieldValue('orgs')]);
 
   const MemberSelect = (

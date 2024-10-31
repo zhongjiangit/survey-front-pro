@@ -1,3 +1,4 @@
+import { AnyObject } from '@/typings/type';
 import {
   AxiosError,
   AxiosAdapter,
@@ -26,6 +27,7 @@ export interface ServiceReqConfig extends AxiosRequestConfig {
 
 export type ReqFulfilledType = (config: ServiceReqConfig) => ServiceReqConfig;
 
+// @ts-ignore
 export interface ServiceResConfig extends AxiosResponse {
   endTime?: number;
   duration?: number;

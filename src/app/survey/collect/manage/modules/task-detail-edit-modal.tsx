@@ -25,6 +25,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const indeterminate = useMemo(() => {
     const checkedList = form.getFieldValue('orgs');
     return checkedList?.length > 0 && checkedList?.length < plainOptions.length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.getFieldValue('orgs'), plainOptions.length]);
 
   const onCheckAllChange = (e: any) => {
@@ -35,6 +36,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
 
   const checkAll = useMemo(() => {
     return plainOptions.length === form.getFieldValue('orgs')?.length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.getFieldValue('orgs')]);
 
   const MemberSelect = (

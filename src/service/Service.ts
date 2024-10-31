@@ -44,7 +44,9 @@ export default class Service {
     onResRejected = defaultResRejected,
   }: ServiceConstructor = {}) {
     this.axios = axios.create(merge({}, defaultConfig));
+    // @ts-ignore
     this.axios.interceptors.request.use(onReqFulfilled);
+    // @ts-ignore
     this.axios.interceptors.response.use(onResFulfilled, onResRejected);
   }
 

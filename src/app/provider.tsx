@@ -31,7 +31,7 @@ export function Provider({ colorScheme, children }: Props) {
       setRoles(roles);
       setCurrentRole(activeRoles[0]);
     }
-  }, [roles]);
+  }, [roles, setCurrentRole, setRoles]);
 
   return (
     <ColorSchemeContext.Provider value={store}>

@@ -32,11 +32,14 @@ const ScoreTable: FunctionComponent<MemberManageProps> = ({
 }: MemberManageProps) => {
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
 
-  const onDelete = useCallback((id: number) => {
-    if (dataSource) {
-      setDimensions(dataSource.filter(item => item.id !== id));
-    }
-  }, []);
+  const onDelete = useCallback(
+    (id: number) => {
+      if (dataSource) {
+        setDimensions(dataSource.filter(item => item.id !== id));
+      }
+    },
+    [dataSource, setDimensions]
+  );
 
   const columns: ProColumnType<TableFormDateType>[] = useMemo(
     () => [
@@ -108,7 +111,7 @@ const ScoreTable: FunctionComponent<MemberManageProps> = ({
               </Popconfirm>,
             ];
           } else {
-            return [<span>-</span>];
+            return [<span key="1">-</span>];
           }
         },
       },
