@@ -18,7 +18,7 @@ const DEFAULT_ERROR_STATUS = 600;
 
 const resolveResponseMessageBlob = async (error: AxiosError<any>) => {
   return new Promise<string>(res => {
-    const type = error.config.responseType;
+    const type = error.config?.responseType;
     if (type === 'blob') {
       const data = error.response?.data;
       const reader = new FileReader();

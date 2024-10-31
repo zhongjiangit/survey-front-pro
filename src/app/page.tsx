@@ -1,8 +1,6 @@
 import business from '@/assets/images/business.svg';
-import Footer from '@/components/common/footer';
 import Image from 'next/image';
 import Header from '../components/common/header';
-import CardList from './modules/card-list';
 import LoginForm from './modules/login-form';
 
 export default function Page() {
@@ -20,14 +18,11 @@ export default function Page() {
               alt="Screenshot of the dashboard project showing mobile version"
             />
           </div>
-
-          {/* <CardList /> */}
         </div>
         <div className="flex flex-col justify-center items-center gap-6 rounded-lg bg-gray-50 dark:bg-gray-900 px-6 py-10 md:w-1/2 md:px-12">
           <LoginForm />
         </div>
       </div>
-      {/* <Footer /> */}
     </main>
   );
 }

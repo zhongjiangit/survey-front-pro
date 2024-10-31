@@ -1,4 +1,3 @@
-import { deleteInvoice } from '@/lib/actions';
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Button, Popconfirm, Tooltip } from 'antd';
 import { Bolt } from 'lucide-react';
@@ -30,7 +29,6 @@ export function UpdateSystem({ id }: { id: string }) {
 }
 
 export function DeleteSystem({ id }: { id: string }) {
-  const deleteSystemWithId = deleteInvoice.bind(null, id);
   return (
     <Popconfirm
       title="删除系统"
