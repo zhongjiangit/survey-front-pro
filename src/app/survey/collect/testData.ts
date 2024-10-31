@@ -119,28 +119,80 @@ export const collectDataSource = [
   },
 ];
 
-export const treeData: TreeDataNode[] = [
-  {
-    title: '省**单位',
-    key: 's',
-    checkable: false,
-    children: [
-      {
-        title: '杨118999999',
-        key: '1',
-      },
-      {
-        title: '杨218999999',
-        key: '1',
-      },
-      {
-        title: '杨318999999',
-        key: '1',
-      },
-      {
-        title: '杨418999999',
-        key: '1',
-      },
-    ],
-  },
+export const treeData: TreeDataNode[][] = [
+  [
+    {
+      title: '省**单位（已选3人）',
+      key: 's',
+      checkable: false,
+      children: [
+        {
+          title: '杨118999999',
+          key: '1',
+        },
+        {
+          title: '杨218999999',
+          key: '1',
+        },
+        {
+          title: '杨318999999',
+          key: '1',
+        },
+        {
+          title: '杨418999999',
+          key: '1',
+        },
+      ],
+    },
+  ],
+  [
+    {
+      title: '市**单位（已选2人）',
+      key: 's',
+      checkable: false,
+      children: [
+        {
+          title: '杨118999999',
+          key: '1',
+        },
+        {
+          title: '杨218999999',
+          key: '1',
+        },
+        {
+          title: '杨318999999',
+          key: '1',
+        },
+        {
+          title: '杨418999999',
+          key: '1',
+        },
+      ],
+    },
+  ],
+  [
+    {
+      title: '校**单位（已选6人）',
+      key: 's',
+      checkable: false,
+      children: [
+        {
+          title: '杨118999999',
+          key: '1',
+        },
+        {
+          title: '杨218999999',
+          key: '1',
+        },
+        {
+          title: '杨318999999',
+          key: '1',
+        },
+        {
+          title: '杨418999999',
+          key: '1',
+        },
+      ],
+    },
+  ],
 ];

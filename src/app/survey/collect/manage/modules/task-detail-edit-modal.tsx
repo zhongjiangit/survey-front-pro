@@ -72,7 +72,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       >
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[0]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -81,7 +81,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         />
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[1]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -90,7 +90,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         />
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[2]}
           defaultExpandAll
           style={{
             flexShrink: 1,

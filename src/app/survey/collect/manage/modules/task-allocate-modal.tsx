@@ -1,9 +1,11 @@
 'use client';
 
 import { PublishTypeEnum } from '@/interfaces/CommonType';
-import { Checkbox, Divider, Form, Modal, Select, Tree } from 'antd';
+import { Checkbox, DatePicker, Divider, Form, Modal, Select, Tree } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { treeData } from '../../testData';
+
+const { RangePicker } = DatePicker;
 
 interface TaskAllocateModalProps {
   type: PublishTypeEnum;
@@ -39,29 +41,31 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
   }, [form.getFieldValue('orgs')]);
 
   const MemberSelect = (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Select
-          mode="multiple"
-          style={{ width: '60%' }}
-          options={[
-            { label: 'aaaaa', value: '1' },
-            { label: 'bbbbb', value: '2' },
-            { label: 'ccccc', value: '3' },
-            { label: 'ddddd', value: '4' },
-          ]}
-        />
-        <span
-          style={{
-            marginRight: '20px',
-            color: 'red',
-          }}
-        >
-          已选：12人
-        </span>
+    <div className="flex flex-col gap-5">
+      <div className="w-full flex justify-start items-center">
+        <span>人员过滤：</span>
+        <div className="flex flex-1 justify-between items-center">
+          <Select
+            mode="multiple"
+            style={{ width: '320px' }}
+            options={[
+              { label: 'aaaaa', value: '1' },
+              { label: 'bbbbb', value: '2' },
+              { label: 'ccccc', value: '3' },
+              { label: 'ddddd', value: '4' },
+            ]}
+          />
+          <span
+            style={{
+              marginRight: '20px',
+              color: 'red',
+            }}
+          >
+            已选：12人
+          </span>
+        </div>
       </div>
 
-      <Divider></Divider>
       <div
         style={{
           display: 'flex',
@@ -71,7 +75,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
       >
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[0]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -80,7 +84,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
         />
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[1]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -89,7 +93,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
         />
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[2]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -133,7 +137,6 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
         ]}
       />
       <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
-      <Divider></Divider>
       <Checkbox
         indeterminate={indeterminate}
         onChange={onCheckAllChange}
@@ -193,10 +196,23 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
             >
               <div
                 style={{
-                  border: 'solid 1px #8b8787c2',
+                  border: '1px',
                   width: '80%',
                 }}
               >
+                <div>
+                  <Form.Item
+                    name="timeFillEstimate"
+                    label="任务起止时间"
+                    rules={[{ required: true }]}
+                  >
+                    <RangePicker
+                      format="YYYY-MM-DD HH:mm"
+                      showTime={{ format: 'HH:mm' }}
+                      style={{ width: '100%' }}
+                    />
+                  </Form.Item>
+                </div>
                 <Divider orientation="left">分配详情</Divider>
                 <div style={{ marginLeft: '20px' }}>
                   {type === PublishTypeEnum.Org ? OrgSelect : MemberSelect}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Modal, Space, Switch, Table } from 'antd';
+import { Button, Modal, Popover, Space, Switch, Table } from 'antd';
 import type { TreeDataNode, TableColumnsType, TableProps } from 'antd';
 
 type TableRowSelection<T extends object = object> =
@@ -21,6 +21,13 @@ const columns: TableColumnsType<DataType> = [
     dataIndex: 'org',
     key: 'org',
     width: '20%',
+    render: (_: any, record: any) => {
+      return (
+        <div className="cursor-pointer">
+          <Popover content={record.org}>{record.org.split('/')[0]}</Popover>
+        </div>
+      );
+    },
   },
   {
     title: '人员',
@@ -77,8 +84,8 @@ const TaskMemberFillDetailModal = ({
     <Modal
       open={open}
       title={
-        <div className="flex gap-5 items-center mb-3">
-          <h2 className="text-xl">填报详情</h2>
+        <div className="flex gap-5 items-center justify-between mb-3 pr-10">
+          <h2 className="text-xl">任务详情</h2>
           <Button type="primary">一键通过</Button>
         </div>
       }
@@ -90,6 +97,7 @@ const TaskMemberFillDetailModal = ({
         setOpen(false);
       }}
       maskClosable={false}
+      footer={false}
     >
       <Table<DataType> columns={columns} dataSource={data} />
     </Modal>

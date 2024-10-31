@@ -112,8 +112,8 @@ const TaskOrgFillDetailModal = ({
     <Modal
       open={open}
       title={
-        <div className="flex gap-5 items-center mb-3">
-          <h2 className="text-xl">填报详情</h2>
+        <div className="flex gap-5 items-center justify-between mb-3 pr-10">
+          <h2 className="text-xl">任务详情</h2>
           <Button type="primary">一键通过</Button>
         </div>
       }
@@ -125,6 +125,7 @@ const TaskOrgFillDetailModal = ({
         setOpen(false);
       }}
       maskClosable={false}
+      footer={false}
     >
       <Table<DataType> columns={columns} dataSource={data} />
     </Modal>

@@ -100,7 +100,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       >
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[0]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -109,7 +109,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         />
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[1]}
           defaultExpandAll
           style={{
             flexShrink: 1,
@@ -118,7 +118,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         />
         <Tree
           checkable
-          treeData={treeData}
+          treeData={treeData[2]}
           defaultExpandAll
           style={{
             flexShrink: 1,
