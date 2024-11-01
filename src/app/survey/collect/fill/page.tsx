@@ -1,13 +1,13 @@
 'use client';
 
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 import {
   ProcessStatusObject,
   ProcessStatusTypeEnum,
 } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
-import { toAllotTaskData } from '../testData';
-import TemplateDetailModal from '@/components/common/template-detail-modal';
 import Link from 'next/link';
+import { toAllotTaskData } from '../testData';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -42,6 +42,7 @@ const ToAllotTask = () => {
         填报任务
       </Link>
     ),
+    submit: <a className=" text-blue-500">提交</a>,
   };
 
   // 给columns添加ts类型
@@ -112,12 +113,9 @@ const ToAllotTask = () => {
       render: (_: any, record: any) => {
         return (
           <div className="flex flex-col justify-center items-center">
-            <div>
-              {`${record.beginTimeFillEstimate.slice(
-                0,
-                -3
-              )} ~ ${record.endTimeFillEstimate.slice(0, -3)}`}
-            </div>
+            <div>{record.beginTimeFillEstimate.slice(0, -3)}</div>
+            <div>~</div>
+            <div>{record.endTimeFillEstimate.slice(0, -3)}</div>
           </div>
         );
       },
@@ -141,20 +139,20 @@ const ToAllotTask = () => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">操作</div>
-      ),
-      width: '10%',
+      title: <div>操作</div>,
+      width: '8%',
       dataIndex: 'operation',
       fixed: 'right',
       render: (_: any, record: any) => {
         return (
-          <Space>
+          <Space className="fle justify-center items-center">
             {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
               operateButton.fill,
+              operateButton.submit,
             ]}
             {record.processStatus === ProcessStatusTypeEnum.Reject && [
               operateButton.fill,
+              operateButton.submit,
             ]}
           </Space>
         );

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Button, Modal, Popover, Space, Switch, Table } from 'antd';
-import type { TreeDataNode, TableColumnsType, TableProps } from 'antd';
+import type { TableColumnsType, TableProps } from 'antd';
+import { Button, Modal, Popover, Space, Table } from 'antd';
+import React from 'react';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -42,11 +42,13 @@ const columns: TableColumnsType<DataType> = [
     width: '20%',
   },
   {
-    title: '操作',
+    title: (
+      <div className="flex flex-col justify-center items-center">操作</div>
+    ),
     dataIndex: 'operation',
     render: (_: any, record: any) => {
       return (
-        <Space>
+        <Space className="flex justify-center items-center">
           {record.status && <a>资料详情</a>}
           {record.status === '已提交(需审核)' && <a>通过</a>}
           {record.status === '已提交(需审核)' && <a>驳回</a>}

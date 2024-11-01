@@ -1,14 +1,14 @@
 'use client';
 
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 import {
   PublishTypeEnum,
   TaskStatusObject,
   TaskStatusTypeEnum,
 } from '@/interfaces/CommonType';
 import { Space, Table } from 'antd';
-import { toAllotTaskData } from '../testData';
 import TaskAllocateModal from '../manage/modules/task-allocate-modal';
-import TemplateDetailModal from '@/components/common/template-detail-modal';
+import { toAllotTaskData } from '../testData';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -194,15 +194,13 @@ const ToAllotTask = () => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">操作</div>
-      ),
-      width: '10%',
+      title: <div>操作</div>,
+      width: '8%',
       dataIndex: 'operation',
       fixed: 'right',
       render: (_: any, record: any) => {
         return (
-          <Space>
+          <Space className="fle justify-center items-center">
             {record.taskStatus === TaskStatusTypeEnum.NotStart && [
               operateButton.allot(record.publishType),
             ]}

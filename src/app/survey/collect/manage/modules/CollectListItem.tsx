@@ -1,3 +1,4 @@
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 import {
   PublishTypeEnum,
   PublishTypeObject,
@@ -8,13 +9,12 @@ import {
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import TaskDeleteModal from './task-delete-modal';
+import TaskDetailEditModal from './task-detail-edit-modal';
 import TaskEditModal from './task-edit-modal';
 import TaskFilledModal from './task-filled-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
-import TaskDetailEditModal from './task-detail-edit-modal';
-import TemplateDetailModal from '@/components/common/template-detail-modal';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
@@ -267,7 +267,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       fixed: 'right',
       render: (_: any, record: any) => {
         return (
-          <Space>
+          <Space className="flex justify-center items-center">
             {record.taskStatus === TaskStatusTypeEnum.NotStart && [
               operateButton.edit(record.publishType),
             ]}
@@ -295,7 +295,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'operation',
       fixed: 'right',
       render: (_: any, record: any) => {
-        return operateButton.detail(record.publishType);
+        return (
+          <div className="flex flex-col justify-center items-center">
+            {operateButton.detail(record.publishType)}
+          </div>
+        );
       },
     },
   ];

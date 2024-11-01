@@ -117,6 +117,21 @@ export const collectDataSource = [
     fillCount: 30,
     publishType: 1,
   },
+  {
+    title: '小学教学计划资料收集4',
+    orgName: '四川省教育总局2',
+    staffName: '张三2',
+    maxFillCount: 0,
+    taskStatus: 1,
+    beginTimeFillEstimate: '2024-07-11 12:00:00',
+    endTimeFillEstimate: '2024-08-18 12:00:00',
+    endTimeFillActual: '2024-08-10 12:00:00',
+    passPeople: 10,
+    passCount: 40,
+    fillPeople: 8,
+    fillCount: 30,
+    publishType: 1,
+  },
 ];
 
 export const treeData: TreeDataNode[][] = [

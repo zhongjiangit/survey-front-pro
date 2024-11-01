@@ -1,5 +1,6 @@
 'use client';
 
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 import { PublishTypeEnum } from '@/interfaces/CommonType';
 import {
   Button,
@@ -16,9 +17,8 @@ import {
   Select,
   Tree,
 } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { treeData } from '../../testData';
-import TemplateDetailModal from '@/components/common/template-detail-modal';
 
 interface TaskEditModalProps {}
 
@@ -59,25 +59,22 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
 
   const MemberSelect = (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Select
-          mode="multiple"
-          style={{ width: '60%' }}
-          options={[
-            { label: 'aaaaa', value: '1' },
-            { label: 'bbbbb', value: '2' },
-            { label: 'ccccc', value: '3' },
-            { label: 'ddddd', value: '4' },
-          ]}
-        />
-        <span
-          style={{
-            marginRight: '20px',
-            color: 'red',
-          }}
-        >
-          已选：12人
-        </span>
+      <div className="flex justify-between items-center">
+        <div className="w-96 flex items-center">
+          <span>人员过滤：</span>
+          <Select
+            mode="multiple"
+            className="w-72 flex-1"
+            // onChange={handleChange}
+            options={[
+              { label: 'aaaaa', value: '1' },
+              { label: 'bbbbb', value: '2' },
+              { label: 'ccccc', value: '3' },
+              { label: 'ddddd', value: '4' },
+            ]}
+          />
+        </div>
+        <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
       </div>
 
       <Divider></Divider>
@@ -135,6 +132,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         label="任务分配路径（任务下放经由层级）"
         dependencies={['publishType']}
         labelCol={{ span: 7 }}
+        tooltip="分配第一个所选层级的参与单位"
         rules={[
           ({ getFieldValue }) => ({
             required: getFieldValue('publishType') === PublishTypeEnum.Org,
@@ -149,19 +147,24 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           ]}
         ></Checkbox.Group>
       </Form.Item>
-      <span> 分配第一个所选层级的参与单位：</span>
-      <Select
-        mode="multiple"
-        style={{ width: '50%' }}
-        // onChange={handleChange}
-        options={[
-          { label: 'aaaaa', value: '1' },
-          { label: 'bbbbb', value: '2' },
-          { label: 'ccccc', value: '3' },
-          { label: 'ddddd', value: '4' },
-        ]}
-      />
-      <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
+      <div className="flex justify-between items-center">
+        <div className="w-96 flex items-center">
+          <span>单位过滤：</span>
+          <Select
+            mode="multiple"
+            className="w-72 flex-1"
+            // onChange={handleChange}
+            options={[
+              { label: 'aaaaa', value: '1' },
+              { label: 'bbbbb', value: '2' },
+              { label: 'ccccc', value: '3' },
+              { label: 'ddddd', value: '4' },
+            ]}
+          />
+        </div>
+        <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
+      </div>
+
       <Divider></Divider>
       <Checkbox
         indeterminate={indeterminate}
@@ -207,22 +210,21 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         onCancel={() => setOpen(false)}
       >
         <Form
-          // layout="inline"
           form={form}
           name="form_new_task_modal"
           onFinish={values => onCreate(values)}
           labelCol={{ span: 9 }}
           wrapperCol={{ span: 24 }}
-          // style={{
-          //   marginTop: '30px',
-          // }}
+          style={{
+            maxHeight: '520px',
+            overflow: 'auto',
+            margin: '30px 0',
+          }}
           initialValues={{ publishType: PublishTypeEnum.Org, maxFillCount: 1 }}
         >
           <Row
             gutter={24}
             style={{
-              marginTop: '30px',
-              marginLeft: '-20px',
               marginRight: '40px',
             }}
           >
@@ -270,9 +272,21 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
             <Col span={12}>
               <Form.Item name="maxFillCount" label="每位填报者可提交最多份数">
                 <InputNumber style={{ width: '100%' }} min={0}></InputNumber>
-                <span className="text-blue-400">*当不输入值时，为不限份数</span>
+                <span className="text-slate-500">
+                  *当不输入值时，为不限份数
+                </span>
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item
+                name="testDescription"
+                label="任务描述"
+                rules={[{ required: true }]}
+              >
+                <Input.TextArea cols={3} placeholder="请输入任务描述" />
+              </Form.Item>
+            </Col>
+            <Col span={12}></Col>
             <Col span={12}>
               <Form.Item name="publishType" label="任务分配方式">
                 <Radio.Group>

@@ -1,9 +1,10 @@
 'use client';
 
 import { PublishTypeEnum } from '@/interfaces/CommonType';
-import { Checkbox, Divider, Form, Modal, Select, Tree } from 'antd';
+import { Checkbox, DatePicker, Divider, Form, Modal, Select, Tree } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { treeData } from '../../testData';
+const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
   type: PublishTypeEnum;
@@ -41,25 +42,31 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
 
   const MemberSelect = (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Select
-          mode="multiple"
-          style={{ width: '60%' }}
-          options={[
-            { label: 'aaaaa', value: '1' },
-            { label: 'bbbbb', value: '2' },
-            { label: 'ccccc', value: '3' },
-            { label: 'ddddd', value: '4' },
-          ]}
-        />
-        <span
-          style={{
-            marginRight: '20px',
-            color: 'red',
-          }}
+      <div className="w-full flex justify-start items-center">
+        <span>人员标签过滤：</span>
+        <div
+          className="flex flex-1 justify-between items-center"
+          style={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          已选：12人
-        </span>
+          <Select
+            mode="multiple"
+            style={{ width: '40%' }}
+            options={[
+              { label: 'aaaaa', value: '1' },
+              { label: 'bbbbb', value: '2' },
+              { label: 'ccccc', value: '3' },
+              { label: 'ddddd', value: '4' },
+            ]}
+          />
+          <span
+            style={{
+              marginRight: '20px',
+              color: 'red',
+            }}
+          >
+            已选：12人
+          </span>
+        </div>
       </div>
 
       <Divider></Divider>
@@ -194,10 +201,23 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
             >
               <div
                 style={{
-                  border: 'solid 1px #8b8787c2',
-                  width: '80%',
+                  border: '1px',
+                  width: '100%',
                 }}
               >
+                <div className="px-10">
+                  <Form.Item
+                    name="timeFillEstimate"
+                    label="任务起止时间"
+                    rules={[{ required: true }]}
+                  >
+                    <RangePicker
+                      format="YYYY-MM-DD HH:mm"
+                      showTime={{ format: 'HH:mm' }}
+                      style={{ width: '90%' }}
+                    />
+                  </Form.Item>
+                </div>
                 <Divider orientation="left">分配详情</Divider>
                 <div style={{ marginLeft: '20px' }}>
                   {type === PublishTypeEnum.Org ? OrgSelect : MemberSelect}
