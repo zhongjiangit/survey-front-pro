@@ -1,4 +1,5 @@
 'use client';
+
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import {
@@ -10,8 +11,8 @@ import {
   UserRoundCog,
   UsersRound,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const items = [
   {
@@ -52,6 +53,24 @@ const items = [
     label: '试题抽检',
     key: '/survey/check',
     icon: <BookOpenCheck className="w-4 h-4" />,
+    children: [
+      {
+        label: '管理',
+        key: '/survey/check/manage',
+      },
+      {
+        label: '分配',
+        key: '/survey/check/allocate',
+      },
+      {
+        label: '填报',
+        key: '/survey/check/fill',
+      },
+      {
+        label: '评审',
+        key: '/survey/check/review',
+      },
+    ],
   },
   {
     label: '个人中心',
@@ -67,7 +86,25 @@ const items = [
 
 export default function NavLinks() {
   const router = useRouter();
+  const pathname = usePathname();
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  useEffect(() => {
+    // 根据当前路径设置选中的菜单项，items是含有children的数组，所以需要遍历,返回匹配的key
+    const key = items
+      .map(item => {
+        if (pathname.includes(item.key) && !item.children) {
+          return item.key;
+        }
+        if (item.children) {
+          return item.children.find(child => pathname.includes(child.key))?.key;
+        }
+        return null;
+      })
+      .filter(Boolean)[0];
+    if (key && key !== selectedKeys[0]) {
+      setSelectedKeys([key]);
+    }
+  }, [pathname, selectedKeys]);
 
   const onSelect: MenuProps['onSelect'] = e => {
     setSelectedKeys(e.selectedKeys);
@@ -77,7 +114,7 @@ export default function NavLinks() {
     <Menu
       selectedKeys={selectedKeys}
       onSelect={onSelect}
-      defaultOpenKeys={['/survey/collect']}
+      defaultOpenKeys={['/survey/collect', '/survey/check']}
       style={{ width: 240 }}
       mode="inline"
       items={items}
