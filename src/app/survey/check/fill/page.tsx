@@ -49,15 +49,16 @@ const ToAllotTask = () => {
   const columns: any = [
     {
       title: (
-        <div className="flex flex-col justify-center items-center">
+        <div>
           <div>发布单位</div>
           <div>发布人</div>
         </div>
       ),
+      align: 'center',
       dataIndex: 'orgAndUser',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             <div>{record.orgName}</div>
             <div>{record.staffName}</div>
           </div>
@@ -65,31 +66,25 @@ const ToAllotTask = () => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          任务名称
-        </div>
-      ),
+      title: <div>任务名称</div>,
       dataIndex: 'taskName',
+      align: 'center',
       render: (_: any, record: any) => {
-        return (
-          <div className="flex flex-col justify-center items-center">
-            {record.taskName}
-          </div>
-        );
+        return <div>{record.taskName}</div>;
       },
     },
     {
       title: (
-        <div className="flex flex-col justify-center items-center">
+        <div>
           <div>模板</div>
           <div>每人填报数</div>
         </div>
       ),
       dataIndex: 'maxFillCount',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             <div>
               <TemplateDetailModal />
             </div>
@@ -103,16 +98,13 @@ const ToAllotTask = () => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          任务预定期限
-        </div>
-      ),
+      title: <div>任务预定期限</div>,
       dataIndex: 'key5',
       width: '20%',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             <div>{record.beginTimeFillEstimate.slice(0, -3)}</div>
             <div>~</div>
             <div>{record.endTimeFillEstimate.slice(0, -3)}</div>
@@ -121,15 +113,12 @@ const ToAllotTask = () => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          提交状态
-        </div>
-      ),
+      title: <div>提交状态</div>,
       dataIndex: 'processStatus',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             {
               // @ts-ignore
               ProcessStatusObject[record.processStatus]

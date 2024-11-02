@@ -92,15 +92,16 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const columns: any = [
     {
       title: (
-        <div className="flex flex-col justify-center items-center">
+        <div>
           <div>发布单位</div>
           <div>发布人</div>
         </div>
       ),
       dataIndex: 'orgAndUser',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             <div>{record.orgName}</div>
             <div>{record.staffName}</div>
           </div>
@@ -108,15 +109,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          任务分配方式
-        </div>
-      ),
+      title: <div>任务分配方式</div>,
       dataIndex: 'publishType',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             {
               // @ts-ignore
               PublishTypeObject[record.publishType]
@@ -127,16 +125,17 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     },
     {
       title: (
-        <div className="flex flex-col justify-center items-center">
+        <div>
           <div>模板</div>
           <div>每人填报数</div>
         </div>
       ),
       width: '10%',
       dataIndex: 'maxFillCount',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             <div>
               <TemplateDetailModal />
             </div>
@@ -150,13 +149,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">状态</div>
-      ),
+      title: <div>状态</div>,
       dataIndex: 'taskStatus',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             {
               // @ts-ignore
               TaskStatusObject[record.taskStatus]
@@ -166,16 +164,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          任务预定期限
-        </div>
-      ),
+      title: <div>任务预定期限</div>,
       dataIndex: 'key5',
       width: '18%',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             <div>{record.beginTimeFillEstimate.slice(0, -3)}</div>
             <div>~</div>
             <div>{record.endTimeFillEstimate.slice(0, -3)}</div>
@@ -184,31 +179,21 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          任务完成时间
-        </div>
-      ),
+      title: <div>任务完成时间</div>,
       dataIndex: 'endTimeFillActual',
       width: '11%',
+      align: 'center',
       render: (text: any) => {
-        return (
-          <div className="flex flex-col justify-center items-center">
-            {text}
-          </div>
-        );
+        return <div>{text}</div>;
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          通过数量
-        </div>
-      ),
+      title: <div>通过数量</div>,
       dataIndex: 'key7',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             {record.publishType === PublishTypeEnum.Org ? (
               <div
                 onClick={() => {
@@ -229,15 +214,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">
-          填报数量
-        </div>
-      ),
+      title: <div>填报数量</div>,
       dataIndex: 'key8',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div>
             {record.publishType === PublishTypeEnum.Org ? (
               <div
                 onClick={() => {
@@ -258,13 +240,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">操作</div>
-      ),
+      title: <div>操作</div>,
       width: '10%',
       hidden: tabType !== 'self',
       dataIndex: 'operation',
       fixed: 'right',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
           <Space className="flex justify-center items-center">
@@ -287,19 +268,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: (
-        <div className="flex flex-col justify-center items-center">操作</div>
-      ),
+      title: <div>操作</div>,
       width: '10%',
       hidden: tabType !== 'subordinate',
       dataIndex: 'operation',
       fixed: 'right',
+      align: 'center',
       render: (_: any, record: any) => {
-        return (
-          <div className="flex flex-col justify-center items-center">
-            {operateButton.detail(record.publishType)}
-          </div>
-        );
+        return <div>{operateButton.detail(record.publishType)}</div>;
       },
     },
   ];

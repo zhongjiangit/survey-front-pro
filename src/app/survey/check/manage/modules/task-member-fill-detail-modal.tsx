@@ -42,10 +42,9 @@ const columns: TableColumnsType<DataType> = [
     width: '20%',
   },
   {
-    title: (
-      <div className="flex flex-col justify-center items-center">操作</div>
-    ),
+    title: <div>操作</div>,
     dataIndex: 'operation',
+    align: 'center',
     render: (_: any, record: any) => {
       return (
         <Space className="flex justify-center items-center">
