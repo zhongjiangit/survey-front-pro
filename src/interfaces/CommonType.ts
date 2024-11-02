@@ -57,6 +57,13 @@ export type WidgetType =
 // todo 看需求ui有已删除状态，接口无
 export type TaskStatusType = 0 | 1 | 2;
 
+export enum EvaluateStatusTypeEnum {
+  NOConfig = 0,
+  NotStart = 1,
+  Processing = 2,
+  Finished = 3,
+}
+
 export enum TaskStatusTypeEnum {
   NotStart = 0,
   Processing = 1,
