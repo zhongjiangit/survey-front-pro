@@ -1,10 +1,11 @@
 'use client';
 
 import Circle from '@/components/display/circle';
-import { Table, TableProps } from 'antd';
-import _ from 'lodash';
+import { Button, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { checkDetailData } from '../testData';
+import ProfessorDetail from './modules/professor-detail';
+import { joinRowSpanData } from './utls/joinRowSpanData';
 
 interface CheckDetailProps {}
 interface DataType {
@@ -47,7 +48,10 @@ const CheckDetail = () => {
       render: (text, record) => (
         <>
           <div>{text}</div>
-          <a className="text-blue-500">{record.phone}</a>
+          <ProfessorDetail
+            buttonText={record.phone}
+            record={record}
+          ></ProfessorDetail>
         </>
       ),
       onCell: text => ({
@@ -103,41 +107,9 @@ const CheckDetail = () => {
     },
   ];
 
-  // 处理数据rowSpan函数
-  const joinRowSpanData = (
-    array: any[] | undefined,
-    keyStr: string
-  ): undefined | any[] => {
-    if (!array || array.length === 0) return;
-    let arr = _.cloneDeep(array);
-    // 1、startItem(默认rowSpan = 1)记录开始计数的对象
-    let startItem: any = arr[0];
-    if (startItem.rowSpan) {
-      startItem.rowSpan[keyStr] = 1;
-    } else {
-      startItem.rowSpan = { [keyStr]: 1 };
-    }
-    // 2、遍历数组，取下一项进行比较，当name相同则startItem的rowSpan+1, 否则设置新的startItem为下一项
-    arr.forEach((item: any, index) => {
-      let nextItem: any = arr[index + 1] || {};
-      if (item[keyStr] === nextItem[keyStr]) {
-        startItem.rowSpan[keyStr]++;
-      } else {
-        startItem = nextItem;
-        if (startItem.rowSpan) {
-          startItem.rowSpan[keyStr] = 1;
-        } else {
-          startItem.rowSpan = { [keyStr]: 1 };
-        }
-      }
-    });
-    return arr;
-  };
   useEffect(() => {
     setDataSource(
       joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
-        console.log(currentKey, 'currentKey');
-
         return joinRowSpanData(prev, currentKey);
       }, checkDetailData)
     );
@@ -150,6 +122,12 @@ const CheckDetail = () => {
 
   return (
     <div>
+      <div className="flex justify-end mb-2">
+        <Space>
+          <Button type="primary">一键通过本页待审核专家</Button>
+          <Button type="primary">一键通过所有待审核专家</Button>
+        </Space>
+      </div>
       <Table<DataType>
         columns={columns}
         dataSource={dataSource}
