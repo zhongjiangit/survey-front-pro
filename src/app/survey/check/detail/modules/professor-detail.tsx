@@ -1,0 +1,166 @@
+import { Button, Modal, Space, Table, TableProps } from 'antd';
+import { FunctionComponent, useState } from 'react';
+
+interface ProfessorDetailProps {
+  buttonText: string;
+  [key: string]: any;
+}
+
+const statusObj: any = {
+  processing: '待评审',
+  submit: '已提交',
+  passed: '已通过',
+  rejected: '已驳回',
+};
+
+const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
+  buttonText,
+  record,
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const buttons: any = {
+    pass: (
+      <a className="text-blue-500" type="primary">
+        通过
+      </a>
+    ),
+    reject: (
+      <a className="text-blue-500" type="primary">
+        驳回
+      </a>
+    ),
+    rejectInfo: (
+      <a className="text-blue-500" type="primary">
+        驳回履历
+      </a>
+    ),
+  };
+  const operationButtons: any = {
+    submit: [buttons.pass, buttons.reject],
+    passed: [buttons.reject],
+  };
+  const dataSources = [
+    {
+      name: '杨专家',
+      phone: '123456789',
+      org3: '第一小学',
+      target: '杨1',
+      targetPhone: '123456789',
+      paper: '试卷1',
+      rate: '90',
+      dimension: '第一个维度',
+      dimensionRate: '90',
+      status: 'submit',
+      professorComment: '好好好好',
+    },
+  ];
+  const columns: TableProps['columns'] = [
+    {
+      title: '专家信息',
+      dataIndex: 'name',
+      align: 'center',
+      render: (text, record) => (
+        <>
+          <div>{text}</div>
+          <a className="text-blue-500">{record.phone}</a>
+        </>
+      ),
+      onCell: text => ({
+        rowSpan: text.rowSpan?.name || 0,
+      }),
+    },
+    {
+      title: '评审对象',
+      dataIndex: 'target',
+      align: 'center',
+      render: (text, record) => (
+        <>
+          <div>{record.org3}</div>
+          <div>{text}</div>
+          <div>{record.targetPhone}</div>
+        </>
+      ),
+      onCell: text => ({
+        rowSpan: text.rowSpan?.name || 0,
+      }),
+    },
+    {
+      title: '评审试卷',
+      dataIndex: 'paper',
+      align: 'center',
+      onCell: text => ({
+        rowSpan: text.rowSpan?.org3 || 0,
+      }),
+      render: text => text && <a className="text-blue-500">{text}</a>,
+    },
+    {
+      title: '专家评分',
+      dataIndex: 'rate',
+      align: 'center',
+
+      onCell: text => ({
+        rowSpan: text.rowSpan?.name || 0,
+      }),
+    },
+    {
+      title: '评价维度',
+      align: 'center',
+      dataIndex: 'dimension',
+    },
+    {
+      title: '维度评分',
+      align: 'center',
+      dataIndex: 'dimensionRate',
+      render: text => text && <a>{`${text}%`}</a>,
+    },
+
+    {
+      title: '评审状态',
+      align: 'center',
+      dataIndex: 'status',
+      render: (text: string) => text && <a>{`${statusObj[text]}%`}</a>,
+    },
+    {
+      title: '专家点评',
+      align: 'center',
+      dataIndex: 'professorComment',
+    },
+    {
+      title: '操作',
+      align: 'center',
+      dataIndex: 'operation',
+      render: (text, record: any) => [
+        ...operationButtons[record.status],
+        buttons.rejectInfo && buttons.rejectInfo,
+      ],
+    },
+  ];
+  return (
+    <>
+      <a
+        onClick={() => {
+          setOpen(true);
+        }}
+        className="text-blue-500"
+      >
+        {buttonText}
+      </a>
+      <Modal
+        open={open}
+        onCancel={() => {
+          setOpen;
+        }}
+      >
+        <div className="flex justify-end mb-2">
+          <Space>
+            <Button type="primary">一键通过</Button>
+          </Space>
+        </div>
+        <Table columns={columns}></Table>
+      </Modal>
+    </>
+  );
+};
+
+export default ProfessorDetail;
