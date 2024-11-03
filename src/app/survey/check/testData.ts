@@ -79,6 +79,9 @@ export const checkDetailData: any[] = [
     org1Result: 91,
     org2Result: 92,
     org3Result: 93,
+    personResult: 90,
+    paper: 1,
+    result: 90,
   },
   {
     key: '2',
@@ -93,6 +96,9 @@ export const checkDetailData: any[] = [
     checkingPerson: 5,
     toSubmitPerson: 3,
     rejectedPerson: 2,
+    personResult: 90,
+    paper: 2,
+    result: 90,
   },
   {
     key: '3',

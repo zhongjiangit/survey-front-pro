@@ -72,7 +72,7 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
         title={`${record.org3}`}
         open={open}
         onCancel={() => {
-          setOpen;
+          setOpen(false);
         }}
         width={'70vw'}
       >

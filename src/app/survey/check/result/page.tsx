@@ -1,9 +1,10 @@
 'use client';
 
 import Circle from '@/components/display/circle';
-import { Button, Space, Table, TableProps } from 'antd';
+import { Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { checkDetailData } from '../testData';
+import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
 import { joinRowSpanData } from './utls/joinRowSpanData';
 
@@ -33,7 +34,10 @@ const CheckResult = () => {
       render: (text, record) => (
         <>
           <div>{text}</div>
-          <a className="text-blue-500">{record.org1Result}分</a>
+          <OrgResult
+            buttonText={`${record.org1Result}分`}
+            record={record}
+          ></OrgResult>
         </>
       ),
     },
@@ -52,7 +56,10 @@ const CheckResult = () => {
       render: (text, record) => (
         <>
           <div>{text}</div>
-          <a className="text-blue-500">{record.org2Result}分</a>
+          <OrgResult
+            buttonText={`${record.org2Result}分`}
+            record={record}
+          ></OrgResult>{' '}
         </>
       ),
     },
@@ -71,7 +78,10 @@ const CheckResult = () => {
       render: (text, record) => (
         <>
           <div>{text}</div>
-          <a className="text-blue-500">{record.org3Result}分</a>
+          <OrgResult
+            buttonText={`${record.org3Result}分`}
+            record={record}
+          ></OrgResult>{' '}
         </>
       ),
     },
@@ -149,12 +159,6 @@ const CheckResult = () => {
 
   return (
     <div>
-      <div className="flex justify-end mb-2">
-        <Space>
-          <Button type="primary">一键通过本页待审核专家</Button>
-          <Button type="primary">一键通过所有待审核专家</Button>
-        </Space>
-      </div>
       <Table<DataType> columns={columns} dataSource={dataSource} bordered />
     </div>
   );

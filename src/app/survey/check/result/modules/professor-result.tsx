@@ -107,7 +107,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
         title={`${record.org3}-${record.name}`}
         open={open}
         onCancel={() => {
-          setOpen;
+          setOpen(false);
         }}
         width={'70vw'}
       >
