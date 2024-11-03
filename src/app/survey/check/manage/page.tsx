@@ -1,8 +1,8 @@
 'use client';
 
 import { Tabs, TabsProps } from 'antd';
-import { collectDataSource } from '../testData';
-import CollectListItem from './modules/CollectListItem';
+import { checkDataSource } from '../testData';
+import CollectListItem from './modules/collect-list-item';
 import TaskAddNewModal from './modules/task-new-modal';
 
 const CollectManage = () => {
@@ -13,7 +13,7 @@ const CollectManage = () => {
       children: (
         <div className="relative">
           <TaskAddNewModal />
-          <CollectListItem tabType="self" itemData={collectDataSource} />
+          <CollectListItem tabType="self" itemData={checkDataSource} />
         </div>
       ),
     },
@@ -21,7 +21,7 @@ const CollectManage = () => {
       key: '2',
       label: '下级发布的任务',
       children: (
-        <CollectListItem tabType="subordinate" itemData={collectDataSource} />
+        <CollectListItem tabType="subordinate" itemData={checkDataSource} />
       ),
     },
   ];

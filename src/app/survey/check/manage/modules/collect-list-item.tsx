@@ -1,5 +1,6 @@
 import TemplateDetailModal from '@/components/common/template-detail-modal';
 import {
+  EvaluateStatusTypeEnum,
   PublishTypeEnum,
   PublishTypeObject,
   PublishTypeType,
@@ -15,6 +16,7 @@ import TaskFilledModal from './task-filled-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
+import EvaluateConfigModal from './evaluate-config-modal';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
@@ -88,8 +90,64 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     ),
   };
 
+  const operateButtonEvaluate = {
+    config: () => {
+      return <EvaluateConfigModal />;
+    },
+    edit: (type: string) => {
+      return <EvaluateConfigModal type={type} />;
+    },
+    allocate: () => {
+      return <a className=" text-blue-500">分配</a>;
+    },
+    detail: (type: PublishTypeType) => {
+      return (
+        <a
+          className=" text-blue-500"
+          key="detail"
+          onClick={() => {
+            if (type === PublishTypeEnum.Org) {
+              setFillOrgDetailModalOpen(true);
+            } else {
+              setFillMemberDetailModalOpen(true);
+            }
+          }}
+        >
+          评审详情
+        </a>
+      );
+    },
+    result: () => {
+      return (
+        <a className=" text-blue-500" key="result">
+          评审结果
+        </a>
+      );
+    },
+    message: (
+      <a className=" text-blue-500" key="message">
+        短信提醒
+      </a>
+    ),
+  };
+
   // 给columns添加ts类型
   const columns: any = [
+    {
+      title: (
+        <div className="flex flex-col justify-center items-center">
+          阶段名称
+        </div>
+      ),
+      dataIndex: 'stage',
+      render: (text: any, record: any) => {
+        return (
+          <div className="flex flex-col justify-center items-center">
+            {text}
+          </div>
+        );
+      },
+    },
     {
       title: (
         <div className="flex flex-col justify-center items-center">
@@ -98,9 +156,15 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         </div>
       ),
       dataIndex: 'orgAndUser',
+      onCell: (_: any, index: number) => {
+        if (index === 0) {
+          return { rowSpan: 2 };
+        }
+        return { rowSpan: 0 };
+      },
       render: (_: any, record: any) => {
         return (
-          <div className="flex flex-col justify-center items-center">
+          <div className="flex flex-col gap-3 justify-center items-center">
             <div>{record.orgName}</div>
             <div>{record.staffName}</div>
           </div>
@@ -114,6 +178,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         </div>
       ),
       dataIndex: 'publishType',
+      onCell: (_: any, index: number) => {
+        if (index === 0) {
+          return { rowSpan: 2 };
+        }
+        return { rowSpan: 0 };
+      },
       render: (_: any, record: any) => {
         return (
           <div className="flex flex-col justify-center items-center">
@@ -134,6 +204,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       ),
       width: '10%',
       dataIndex: 'maxFillCount',
+      onCell: (_: any, index: number) => {
+        if (index === 0) {
+          return { rowSpan: 2 };
+        }
+        return { rowSpan: 0 };
+      },
       render: (_: any, record: any) => {
         return (
           <div className="flex flex-col justify-center items-center">
@@ -206,24 +282,34 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         </div>
       ),
       dataIndex: 'key7',
-      render: (_: any, record: any) => {
+      render: (_: any, record: any, index: number) => {
+        if (index === 0) {
+          return (
+            <div className="flex flex-col justify-center items-center">
+              {record.publishType === PublishTypeEnum.Org ? (
+                <div
+                  onClick={() => {
+                    setPassedNumModalOpen(true);
+                  }}
+                >
+                  <a className="text-blue-500 block">{record.passPeople}人</a>
+                  <a className="text-blue-500 block">{record.passCount}份</a>
+                </div>
+              ) : (
+                <div>
+                  <div>{record.passPeople}人</div>
+                  <div>{record.passCount}份</div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
         return (
           <div className="flex flex-col justify-center items-center">
-            {record.publishType === PublishTypeEnum.Org ? (
-              <div
-                onClick={() => {
-                  setPassedNumModalOpen(true);
-                }}
-              >
-                <a className="text-blue-500 block">{record.passPeople}人</a>
-                <a className="text-blue-500 block">{record.passCount}份</a>
-              </div>
-            ) : (
-              <div>
-                <div>{record.passPeople}人</div>
-                <div>{record.passCount}份</div>
-              </div>
-            )}
+            <div>{record.passPeople}人</div>
+            <div>{record.passCount}份</div>
+            <div>{record.passPercent}</div>
           </div>
         );
       },
@@ -235,24 +321,33 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         </div>
       ),
       dataIndex: 'key8',
-      render: (_: any, record: any) => {
+      render: (_: any, record: any, index: number) => {
+        if (index === 0) {
+          return (
+            <div className="flex flex-col justify-center items-center">
+              {record.publishType === PublishTypeEnum.Org ? (
+                <div
+                  onClick={() => {
+                    setFilledNumModalOpen(true);
+                  }}
+                >
+                  <a className="text-blue-500 block">{record.fillPeople}人</a>
+                  <a className="text-blue-500 block">{record.fillCount}份</a>
+                </div>
+              ) : (
+                <div>
+                  <div>{record.fillPeople}人</div>
+                  <div>{record.fillCount}份</div>
+                </div>
+              )}
+            </div>
+          );
+        }
         return (
           <div className="flex flex-col justify-center items-center">
-            {record.publishType === PublishTypeEnum.Org ? (
-              <div
-                onClick={() => {
-                  setFilledNumModalOpen(true);
-                }}
-              >
-                <a className="text-blue-500 block">{record.fillPeople}人</a>
-                <a className="text-blue-500 block">{record.fillCount}份</a>
-              </div>
-            ) : (
-              <div>
-                <div>{record.fillPeople}人</div>
-                <div>{record.fillCount}份</div>
-              </div>
-            )}
+            <div>{record.passPeople}人</div>
+            <div>{record.passCount}份</div>
+            <div>{record.passPercent}</div>
           </div>
         );
       },
@@ -265,22 +360,45 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       hidden: tabType !== 'self',
       dataIndex: 'operation',
       fixed: 'right',
-      render: (_: any, record: any) => {
+      render: (_: any, record: any, index: number) => {
+        if (index === 0) {
+          return (
+            <Space className="flex justify-center items-center">
+              {record.taskStatus === TaskStatusTypeEnum.NotStart && [
+                operateButton.edit(record.publishType),
+              ]}
+              {record.taskStatus === TaskStatusTypeEnum.Processing && [
+                operateButton.detail(record.publishType),
+                operateButton.edit(record.publishType),
+                operateButton.message,
+                operateButton.finish,
+                operateButton.download,
+              ]}
+              {record.taskStatus === TaskStatusTypeEnum.Finished && [
+                operateButton.detail(record.publishType),
+                operateButton.download,
+              ]}
+            </Space>
+          );
+        }
         return (
           <Space className="flex justify-center items-center">
-            {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-              operateButton.edit(record.publishType),
+            {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
+              operateButtonEvaluate.config(),
             ]}
-            {record.taskStatus === TaskStatusTypeEnum.Processing && [
-              operateButton.detail(record.publishType),
-              operateButton.edit(record.publishType),
-              operateButton.message,
-              operateButton.finish,
-              operateButton.download,
+            {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
+              operateButtonEvaluate.edit(record.publishType),
+              operateButtonEvaluate.allocate(),
             ]}
-            {record.taskStatus === TaskStatusTypeEnum.Finished && [
-              operateButton.detail(record.publishType),
-              operateButton.download,
+            {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
+              operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.edit('edit'),
+              operateButtonEvaluate.allocate(),
+              operateButtonEvaluate.message,
+              operateButtonEvaluate.result(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.Finished && [
+              operateButtonEvaluate.detail(record.publishType),
             ]}
           </Space>
         );
@@ -312,7 +430,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               <div className="flex justify-between items-center">
                 <div className="font-bold text-lg pb-2 pl-4">
                   <span>NO.{index + 1}</span>
-                  {item?.title}
+                  {item[0]?.title}
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">
@@ -324,7 +442,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               <Table
                 pagination={false}
                 columns={columns}
-                dataSource={[item]}
+                dataSource={item}
               ></Table>
             </div>
           );

@@ -2,7 +2,7 @@
 
 import { Tabs, TabsProps } from 'antd';
 import { collectDataSource } from '../testData';
-import CollectListItem from './modules/CollectListItem';
+import CollectListItem from './modules/collect-list-item';
 import TaskAddNewModal from './modules/task-new-modal';
 
 const CollectManage = () => {
