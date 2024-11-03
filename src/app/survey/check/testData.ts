@@ -79,7 +79,6 @@ export const checkDetailData: any[] = [
     org1Result: 91,
     org2Result: 92,
     org3Result: 93,
-    personResult: 1,
   },
   {
     key: '2',
