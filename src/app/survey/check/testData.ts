@@ -19,6 +19,49 @@
 
 import { TreeDataNode } from 'antd';
 
+export const checkDetailProfessorData = [
+  {
+    name: '杨专家',
+    phone: '123456789',
+    org3: '第一小学',
+    target: '杨1',
+    targetPhone: '123456789',
+    paper: '试卷1',
+    rate: '90',
+    dimension: '第一个维度',
+    dimensionRate: '90',
+    status: 'passed',
+    professorComment: '好好好好',
+  },
+  {
+    name: '杨专家',
+    phone: '123456789',
+    org3: '第一小学',
+    target: '杨1',
+    targetPhone: '123456789',
+    paper: '试卷1',
+    rate: '90',
+    dimension: '第一个维度',
+    dimensionRate: '90',
+    status: 'submit',
+    professorComment: '好好好好',
+    rejectInfo: 'sjkdfjskd',
+  },
+  {
+    name: '杨专家',
+    phone: '123456789',
+    org3: '第一小学',
+    target: '杨1',
+    targetPhone: '123456789',
+    paper: '试卷1',
+    rate: '90',
+    dimension: '第一个维度',
+    dimensionRate: '90',
+    status: 'rejected',
+    professorComment: '好好好好',
+    rejectInfo: 'sjkdfjskd',
+  },
+];
 export const checkDetailData: any[] = [
   {
     key: '1',
@@ -33,6 +76,10 @@ export const checkDetailData: any[] = [
     checkingPerson: 5,
     toSubmitPerson: 3,
     rejectedPerson: 2,
+    org1Result: 91,
+    org2Result: 92,
+    org3Result: 93,
+    personResult: 1,
   },
   {
     key: '2',
@@ -61,6 +108,9 @@ export const checkDetailData: any[] = [
     checkingPerson: 5,
     toSubmitPerson: 3,
     rejectedPerson: 2,
+    org1Result: 91,
+    org2Result: 92,
+    org3Result: 93,
   },
   {
     key: '4',
@@ -71,6 +121,9 @@ export const checkDetailData: any[] = [
     phone: '123456789',
     detail: 2,
     finishRate: 20,
+    org1Result: 91,
+    org2Result: 92,
+    org3Result: 93,
   },
   {
     key: '5',
@@ -82,6 +135,9 @@ export const checkDetailData: any[] = [
     detail: 1,
     finishRate: 20,
     finishPerson: 10,
+    org1Result: 91,
+    org2Result: 92,
+    org3Result: 93,
   },
   {
     key: '6',
@@ -94,6 +150,9 @@ export const checkDetailData: any[] = [
     finishRate: 20,
     finishPerson: 10,
     checkingPerson: 5,
+    org1Result: 91,
+    org2Result: 92,
+    org3Result: 93,
   },
   {
     key: '7',
@@ -107,6 +166,9 @@ export const checkDetailData: any[] = [
     finishPerson: 10,
     checkingPerson: 5,
     toSubmitPerson: 3,
+    org1Result: 91,
+    org2Result: 92,
+    org3Result: 93,
   },
 ];
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
