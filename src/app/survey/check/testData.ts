@@ -380,7 +380,6 @@ export const treeData: TreeDataNode[][] = [
     {
       title: '省**单位（已选3人）',
       key: 's',
-      checkable: false,
       children: [
         {
           title: '杨118999999',
@@ -405,7 +404,6 @@ export const treeData: TreeDataNode[][] = [
     {
       title: '市**单位（已选2人）',
       key: 's',
-      checkable: false,
       children: [
         {
           title: '杨118999999',
@@ -430,7 +428,6 @@ export const treeData: TreeDataNode[][] = [
     {
       title: '校**单位（已选6人）',
       key: 's',
-      checkable: false,
       children: [
         {
           title: '杨118999999',

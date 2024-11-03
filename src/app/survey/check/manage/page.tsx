@@ -1,6 +1,6 @@
 'use client';
 
-import { Tabs, TabsProps } from 'antd';
+import { Pagination, Tabs, TabsProps } from 'antd';
 import { checkDataSource } from '../testData';
 import CollectListItem from './modules/collect-list-item';
 import TaskAddNewModal from './modules/task-new-modal';
@@ -14,6 +14,14 @@ const CollectManage = () => {
         <div className="relative">
           <TaskAddNewModal />
           <CollectListItem tabType="self" itemData={checkDataSource} />
+          <div className="flex py-4 justify-end">
+            <Pagination
+              total={15}
+              showSizeChanger
+              showQuickJumper
+              showTotal={total => `总共 ${total} 条`}
+            />
+          </div>
         </div>
       ),
     },

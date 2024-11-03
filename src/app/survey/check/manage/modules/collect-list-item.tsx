@@ -17,6 +17,7 @@ import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
 import EvaluateConfigModal from './evaluate-config-modal';
+import EvaluateAllocateModal from './evaluate-allocate-modal';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
@@ -98,7 +99,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       return <EvaluateConfigModal type={type} />;
     },
     allocate: () => {
-      return <a className=" text-blue-500">分配</a>;
+      return <EvaluateAllocateModal />;
     },
     detail: (type: PublishTypeType) => {
       return (
