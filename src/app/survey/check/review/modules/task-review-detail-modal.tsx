@@ -1,12 +1,11 @@
 'use client';
 
-import { G6, IndentedTree } from '@ant-design/graphs';
-import React, { useEffect, useState } from 'react';
-import { DownOutlined } from '@ant-design/icons';
-import { Tree, Modal, Table, Button, Divider, Input, InputNumber } from 'antd';
-import type { TreeDataNode, TreeProps } from 'antd';
-import { collectDataSource } from '../../testData';
-import { TaskStatusObject } from '@/interfaces/CommonType';
+import React, { useState } from 'react';
+import { Modal, Table, Button, Divider, Input, InputNumber, Space } from 'antd';
+import type { TreeDataNode } from 'antd';
+import { testDataSource } from '../../testData';
+import { ReviewStatusObject } from '@/interfaces/CommonType';
+import TemplateDetailModal from '@/components/common/template-detail-modal';
 
 const treeData: TreeDataNode[] = [
   {
@@ -39,9 +38,6 @@ interface TaskReviewDetailModalProps {}
 
 const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
   const [open, setOpen] = useState(false);
-  const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
-    console.log('selected', selectedKeys, info);
-  };
 
   const columns: any = [
     {
@@ -49,37 +45,43 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
       dataIndex: 'orgName',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.orgName}</div>;
+        return <div>{record.isShowInfo ? record.orgName : '-'}</div>;
       },
     },
     {
       title: <div>姓名</div>,
-      dataIndex: 'task',
+      dataIndex: 'name',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.name}</div>;
+        return <div>{record.isShowInfo ? record.name : '-'}</div>;
       },
     },
     {
       title: <div>试卷编号</div>,
       dataIndex: 'num',
       align: 'center',
+      render: (_: any, record: any) => {
+        return <div>{record.isShowInfo ? record.num : '-'}</div>;
+      },
     },
     {
       title: <div>试卷</div>,
       dataIndex: 'testPaper',
       align: 'center',
+      render: (_: any, record: any) => {
+        return <TemplateDetailModal showDom={'详情'} />;
+      },
     },
     {
       title: <div>状态</div>,
-      dataIndex: 'taskStatus',
+      dataIndex: 'reviewStatus',
       align: 'center',
       render: (_: any, record: any) => {
         return (
           <div>
             {
               // @ts-ignore
-              TaskStatusObject[record.taskStatus]
+              ReviewStatusObject[record.reviewStatus]
             }
           </div>
         );
@@ -92,42 +94,53 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
     },
     {
       title: <div>评价维度</div>,
-      dataIndex: 'key5',
+      dataIndex: 'dimension',
       width: '18%',
       align: 'center',
-      render: (_: any, record: any) => {
+      render: (text: any, record: any) => {
         return (
           <div>
-            <div>评价维度一</div>
-            <Divider className="my-4" />
-            <div>评价维度二</div>
+            {text.map((item: any, index: number) => {
+              return (
+                <div key={index}>
+                  <span>{item}</span>
+                  {index + 1 !== text.length && <Divider className="my-4" />}
+                </div>
+              );
+            })}
           </div>
         );
       },
     },
     {
       title: <div>维度评分</div>,
-      dataIndex: 'endTimeFillActual',
+      dataIndex: 'dimensionScore',
       width: '11%',
       align: 'center',
       render: (text: any) => {
         return (
           <div>
-            <InputNumber min={0} max={5} defaultValue={1} />
-            <Divider className="my-4" />
-            <InputNumber min={0} max={5} defaultValue={1} />
+            {text.map((item: any, index: number) => {
+              return (
+                <div key={index}>
+                  <InputNumber min={0} max={5} defaultValue={item} />
+                  {index + 1 !== text.length && <Divider className="my-4" />}
+                </div>
+              );
+            })}
           </div>
         );
       },
     },
     {
       title: <div>专家点评</div>,
-      dataIndex: 'key7',
+      dataIndex: 'comment',
       align: 'center',
-      render: (_: any, record: any) => {
+      render: (text: string) => {
         return (
           <Input.TextArea
             autoSize={{ minRows: 4, maxRows: 10 }}
+            defaultValue={text}
           ></Input.TextArea>
         );
       },
@@ -140,7 +153,31 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
       fixed: 'right',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>买买买</div>;
+        return (
+          <>
+            {record.reviewStatus === 0 && (
+              <Space>
+                <a className="text-blue-500">保存</a>
+                <a className="text-blue-500">提交</a>
+              </Space>
+            )}
+            {record.reviewStatus === 1 && (
+              <Space>
+                <a className="text-blue-500">保存</a>
+                <a className="text-blue-500">提交</a>
+              </Space>
+            )}
+            {record.reviewStatus === 2 && '-'}
+            {record.reviewStatus === 3 && '-'}
+            {record.reviewStatus === 4 && (
+              <Space>
+                <a className="text-blue-500">保存</a>
+                <a className="text-blue-500">提交</a>
+                <a className="text-blue-500">驳回履历</a>
+              </Space>
+            )}
+          </>
+        );
       },
     },
   ];
@@ -156,7 +193,7 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
         width={1400}
         onCancel={() => setOpen(false)}
         footer={
-          <div className="flex justify-end gap-5">
+          <div className="flex justify-end gap-5 px-20">
             <Button size="large" onClick={() => {}}>
               保存本页
             </Button>
@@ -166,7 +203,7 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
           </div>
         }
       >
-        <Table columns={columns} dataSource={collectDataSource} />
+        <Table columns={columns} dataSource={testDataSource} />
       </Modal>
     </>
   );

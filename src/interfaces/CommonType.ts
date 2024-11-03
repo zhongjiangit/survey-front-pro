@@ -77,6 +77,26 @@ export const TaskStatusObject = {
   [TaskStatusTypeEnum.Finished]: '完成',
 };
 
+// reviewStatus	int		评审状态 0：未填写 1：未提交 2：已提交 3：已通过 4：驳回 枚举
+export type ReviewStatusType = 0 | 1 | 2 | 3 | 4;
+
+export enum ReviewStatusTypeEnum {
+  NotFill = 0,
+  NotSubmit = 1,
+  Submitted = 2,
+  Passed = 3,
+  Reject = 4,
+}
+
+// 生成review类型对象1 2 3 4 5 对应的状态 未填写 未提交 已提交 已通过 驳回
+export const ReviewStatusObject = {
+  [ReviewStatusTypeEnum.NotFill]: '未填写',
+  [ReviewStatusTypeEnum.NotSubmit]: '未提交',
+  [ReviewStatusTypeEnum.Submitted]: '已提交',
+  [ReviewStatusTypeEnum.Passed]: '已通过',
+  [ReviewStatusTypeEnum.Reject]: '驳回',
+};
+
 // publishType 1：分配至单位 2：分配至人
 export type PublishTypeType = 1 | 2;
 export enum PublishTypeEnum {

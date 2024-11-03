@@ -150,6 +150,7 @@ const EvaluateAllocateModal: React.FC<
         分配
       </a>
       <Modal
+        style={{ top: '5%' }}
         open={open}
         title="专家评审分配"
         onCancel={() => setOpen(false)}
@@ -207,7 +208,7 @@ const EvaluateAllocateModal: React.FC<
                   <div className="bg-slate-300 p-3">
                     已分配专家详情/删除已分配
                   </div>
-                  <div className="h-96 w-full p-x overflow-auto">
+                  <div className="h-80 w-full p-x overflow-auto">
                     {
                       /* 循环生成10个tree组件 */
                       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(() => {
@@ -277,7 +278,7 @@ const EvaluateAllocateModal: React.FC<
 
                     // onChange={onChange}
                   />
-                  <div className="flex flex-col">
+                  <div className="flex flex-col max-h-[28rem] overflow-auto">
                     <Checkbox
                       indeterminate={indeterminate}
                       onChange={onCheckAllChange}

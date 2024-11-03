@@ -3,14 +3,15 @@ import renderFormItem from '@/lib/render-form-item';
 import { EditOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import { Button, Form, Modal } from 'antd';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import Api from '@/api';
 
 interface TemplateDetailModalProps {
+  showDom?: ReactNode;
   templateId?: number;
 }
 
-const TemplateDetailModal = ({}: TemplateDetailModalProps) => {
+const TemplateDetailModal = ({ showDom }: TemplateDetailModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
@@ -30,8 +31,9 @@ const TemplateDetailModal = ({}: TemplateDetailModalProps) => {
           setOpen(true);
         }}
       >
-        模板详情
+        {showDom || '模板详情'}
       </a>
+
       <Modal
         width={'70vw'}
         open={open}
