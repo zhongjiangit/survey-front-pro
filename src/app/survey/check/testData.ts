@@ -19,6 +19,56 @@
 
 import { TreeDataNode } from 'antd';
 
+export const orgResultData = [
+  {
+    orgRate: 80,
+    paper: 1,
+    itemRate: 80,
+    standard: '指标1',
+  },
+  {
+    orgRate: 80,
+    paper: 2,
+    itemRate: 80,
+    standard: '指标2',
+  },
+  {
+    orgRate: 80,
+    paper: 3,
+    itemRate: 80,
+    standard: '指标3',
+  },
+];
+export const professorResultData = [
+  {
+    professorRate: '99',
+    paper: 1,
+    rate: 100,
+    standard: '标准aaaa',
+    itemRate: 88,
+  },
+  {
+    professorRate: '99',
+    paper: 1,
+    rate: 100,
+    standard: '标准aaaa',
+    itemRate: 88,
+  },
+  {
+    professorRate: '99',
+    paper: 2,
+    rate: 100,
+    standard: '标准sssss',
+    itemRate: 88,
+  },
+  {
+    professorRate: '90',
+    paper: 1,
+    rate: 100,
+    standard: '标准ddddd',
+    itemRate: 88,
+  },
+];
 export const checkDetailProfessorData = [
   {
     name: '杨专家',

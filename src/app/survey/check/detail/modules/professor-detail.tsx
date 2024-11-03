@@ -154,19 +154,20 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         {buttonText}
       </a>
       <Modal
-        title="专家评审详情"
+        title={<div className="mx-5 mt-2">专家评审详情</div>}
         open={open}
         onCancel={() => {
-          setOpen;
+          setOpen(false);
         }}
         width={'70vw'}
+        footer={null}
       >
-        <div className="flex justify-end mb-2">
-          <Space>
+        <div className="m-5 mb-0">
+          <div className="flex justify-end mb-2 ">
             <Button type="primary">一键通过</Button>
-          </Space>
+          </div>
+          <Table columns={columns} dataSource={dataSource}></Table>
         </div>
-        <Table columns={columns} dataSource={dataSource}></Table>
       </Modal>
     </>
   );

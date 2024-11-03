@@ -1,11 +1,11 @@
 import { Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { checkDetailProfessorData } from '../../testData';
+import { orgResultData } from '../../testData';
 import { joinRowSpanData } from '../utls/joinRowSpanData';
 
 interface ProfessorDetailProps {
   buttonText: string;
-
+  modalTitle: string;
   [key: string]: any;
 }
 
@@ -13,6 +13,7 @@ const loginUserType: 'org' | 'professor' = 'org';
 const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
   buttonText,
   record,
+  modalTitle,
 }) => {
   const [open, setOpen] = useState(false);
   const [dataSource, setDataSource] = useState<any>();
@@ -24,7 +25,7 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
       dataIndex: 'orgRate',
       align: 'center',
       onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
+        rowSpan: text.rowSpan?.orgRate || 0,
       }),
       render: text => text && <a>{`${text}分`}</a>,
     },
@@ -47,17 +48,17 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
   ];
 
   useEffect(() => {
-    checkDetailProfessorData &&
+    orgResultData &&
       setDataSource(
         joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
           return joinRowSpanData(prev, currentKey);
-        }, checkDetailProfessorData)
+        }, orgResultData)
       );
 
     return () => {
       setDataSource(undefined);
     };
-  }, [checkDetailProfessorData]);
+  }, [orgResultData]);
   return (
     <>
       <a
@@ -69,14 +70,21 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
         {buttonText}
       </a>
       <Modal
-        title={`${record.org3}`}
+        title={<div className="mx-5 m-2">{modalTitle}</div>}
         open={open}
+        footer={null}
         onCancel={() => {
           setOpen(false);
         }}
         width={'70vw'}
       >
-        <Table columns={columns} dataSource={dataSource}></Table>
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          size="small"
+          bordered
+          style={{ margin: '20px' }}
+        ></Table>
       </Modal>
     </>
   );

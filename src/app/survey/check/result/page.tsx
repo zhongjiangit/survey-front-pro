@@ -37,6 +37,7 @@ const CheckResult = () => {
           <OrgResult
             buttonText={`${record.org1Result}分`}
             record={record}
+            modalTitle={text}
           ></OrgResult>
         </>
       ),
@@ -58,8 +59,9 @@ const CheckResult = () => {
           <div>{text}</div>
           <OrgResult
             buttonText={`${record.org2Result}分`}
+            modalTitle={text}
             record={record}
-          ></OrgResult>{' '}
+          ></OrgResult>
         </>
       ),
     },
@@ -81,7 +83,8 @@ const CheckResult = () => {
           <OrgResult
             buttonText={`${record.org3Result}分`}
             record={record}
-          ></OrgResult>{' '}
+            modalTitle={text}
+          ></OrgResult>
         </>
       ),
     },

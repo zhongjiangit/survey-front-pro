@@ -1,7 +1,7 @@
 import Circle from '@/components/display/circle';
 import { Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { checkDetailProfessorData } from '../../testData';
+import { professorResultData } from '../../testData';
 import { joinRowSpanData } from '../utls/joinRowSpanData';
 
 interface ProfessorDetailProps {
@@ -25,7 +25,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
       dataIndex: 'professorRate',
       align: 'center',
       onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
+        rowSpan: text.rowSpan?.professorRate || 0,
       }),
     },
     {
@@ -42,7 +42,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
           </div>
         ),
       onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
+        rowSpan: text.rowSpan?.paper || 0,
       }),
     },
     {
@@ -51,7 +51,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
       align: 'center',
       render: text => text && <a>{`${text}分`}</a>,
       onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
+        rowSpan: text.rowSpan?.rate || 0,
       }),
     },
     {
@@ -82,17 +82,16 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
   ];
 
   useEffect(() => {
-    checkDetailProfessorData &&
+    professorResultData &&
       setDataSource(
         joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
           return joinRowSpanData(prev, currentKey);
-        }, checkDetailProfessorData)
+        }, professorResultData)
       );
-
     return () => {
       setDataSource(undefined);
     };
-  }, [checkDetailProfessorData]);
+  }, [professorResultData]);
   return (
     <>
       <a
@@ -104,14 +103,25 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
         {buttonText}
       </a>
       <Modal
-        title={`${record.org3}-${record.name}`}
+        title={
+          <div className="mx-5 m-2">
+            {record.org1}-{record.org2}-{record.org3}-{record.name}
+          </div>
+        }
         open={open}
         onCancel={() => {
           setOpen(false);
         }}
         width={'70vw'}
+        footer={null}
       >
-        <Table columns={columns} dataSource={dataSource}></Table>
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          size="small"
+          bordered
+          style={{ margin: '20px' }}
+        ></Table>
       </Modal>
     </>
   );
