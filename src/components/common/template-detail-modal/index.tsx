@@ -7,11 +7,12 @@ import { ReactNode, useState } from 'react';
 import Api from '@/api';
 
 interface TemplateDetailModalProps {
+  title?: string;
   showDom?: ReactNode;
   templateId?: number;
 }
 
-const TemplateDetailModal = ({ showDom }: TemplateDetailModalProps) => {
+const TemplateDetailModal = ({ title, showDom }: TemplateDetailModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
@@ -35,9 +36,9 @@ const TemplateDetailModal = ({ showDom }: TemplateDetailModalProps) => {
       </a>
 
       <Modal
-        width={'70vw'}
+        width={1400}
         open={open}
-        title="模板详情"
+        title={title || '模板详情'}
         onCancel={() => {
           setOpen(false);
         }}

@@ -1,8 +1,9 @@
 import Circle from '@/components/display/circle';
 import { Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { professorResultData } from '../../testData';
-import { joinRowSpanData } from '../utls/joinRowSpanData';
+// import { professorResultData } from '../../testData';
+import { joinRowSpanData } from '../utils/joinRowSpanData';
+import { professorResultData } from '../../../testData';
 
 interface ProfessorDetailProps {
   buttonText: string;
@@ -112,7 +113,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
         onCancel={() => {
           setOpen(false);
         }}
-        width={'70vw'}
+        width={1400}
         footer={null}
       >
         <Table

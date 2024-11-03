@@ -173,7 +173,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         修改
       </a>
       <Modal
-        width={'70vw'}
+        width={1400}
         open={open}
         title="修改任务"
         okText="确定"

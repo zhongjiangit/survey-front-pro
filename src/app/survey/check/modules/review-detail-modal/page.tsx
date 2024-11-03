@@ -1,19 +1,24 @@
 'use client';
 
 import Circle from '@/components/display/circle';
-import { Button, Space, Table, TableProps } from 'antd';
+import { Button, Modal, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import { checkDetailData } from '../testData';
+// import { checkDetailData } from '../testData';
 import ProfessorDetail from './modules/professor-detail';
-import { joinRowSpanData } from './utls/joinRowSpanData';
+import { joinRowSpanData } from './utils/joinRowSpanData';
+import TemplateDetailModal from '@/components/common/template-detail-modal';
+import { checkDetailData } from '../../testData';
 
-interface CheckDetailProps {}
+interface ReviewDetailModalProps {}
 interface DataType {
   [key: string]: any;
 }
 const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
-const CheckDetail = () => {
+const ReviewDetailModal = () => {
   const [dataSource, setDataSource] = useState<any>();
+
+  const [open, setOpen] = useState(false);
+
   const columns: TableProps<DataType>['columns'] = [
     {
       title: '第一层级单位',
@@ -66,9 +71,10 @@ const CheckDetail = () => {
       dataIndex: 'detail',
       render: text => (
         <div className="flex justify-center">
-          <a>
-            <Circle value={text} />
-          </a>
+          <TemplateDetailModal
+            title="试卷详情"
+            showDom={<Circle value={text} />}
+          />
         </div>
       ),
     },
@@ -141,22 +147,40 @@ const CheckDetail = () => {
   }, [checkDetailData]);
 
   return (
-    <div>
-      <div className="flex justify-end mb-2">
-        <Space>
-          <Button type="primary">一键通过本页待审核专家</Button>
-          <Button type="primary">一键通过所有待审核专家</Button>
-        </Space>
-      </div>
-      <Table<DataType>
-        columns={columns}
-        dataSource={dataSource}
-        bordered
+    <>
+      <a
+        className="text-blue-500"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        评审详情
+      </a>
+      <Modal
+        title="专家详情"
+        open={open}
+        onCancel={() => {
+          setOpen(false);
+        }}
+        width={1400}
+        footer={null}
+      >
+        <div className="flex justify-end mb-2">
+          <Space>
+            <Button type="primary">一键通过本页待审核专家</Button>
+            <Button type="primary">一键通过所有待审核专家</Button>
+          </Space>
+        </div>
+        <Table<DataType>
+          columns={columns}
+          dataSource={dataSource}
+          bordered
 
-        // pagination={false}
-      />
-    </div>
+          // pagination={false}
+        />
+      </Modal>
+    </>
   );
 };
 
-export default CheckDetail;
+export default ReviewDetailModal;

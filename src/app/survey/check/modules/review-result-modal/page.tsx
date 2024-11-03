@@ -1,12 +1,14 @@
 'use client';
 
 import Circle from '@/components/display/circle';
-import { Table, TableProps } from 'antd';
+import { Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import { checkDetailData } from '../testData';
+// import { checkDetailData } from '../testData';
 import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
-import { joinRowSpanData } from './utls/joinRowSpanData';
+import { joinRowSpanData } from './utils/joinRowSpanData';
+import TemplateDetailModal from '@/components/common/template-detail-modal';
+import { checkDetailData } from '../../testData';
 
 interface CheckDetailProps {}
 interface DataType {
@@ -14,8 +16,9 @@ interface DataType {
 }
 const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
 
-const CheckResult = () => {
+const ReviewResultModal = () => {
   const [dataSource, setDataSource] = useState<any>();
+  const [open, setOpen] = useState(false);
   const columns: TableProps<DataType>['columns'] = [
     {
       title: (
@@ -134,9 +137,10 @@ const CheckResult = () => {
       render: text =>
         text && (
           <div className="flex justify-center">
-            <a>
-              <Circle value={text} />
-            </a>
+            <TemplateDetailModal
+              title="试卷详情"
+              showDom={<Circle value={text} />}
+            />
           </div>
         ),
     },
@@ -161,10 +165,28 @@ const CheckResult = () => {
   }, [checkDetailData]);
 
   return (
-    <div>
-      <Table<DataType> columns={columns} dataSource={dataSource} bordered />
-    </div>
+    <>
+      <a
+        className="text-blue-500"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        评审结果
+      </a>
+      <Modal
+        title="专家详情"
+        open={open}
+        onCancel={() => {
+          setOpen(false);
+        }}
+        width={1400}
+        footer={null}
+      >
+        <Table<DataType> columns={columns} dataSource={dataSource} bordered />
+      </Modal>
+    </>
   );
 };
 
-export default CheckResult;
+export default ReviewResultModal;

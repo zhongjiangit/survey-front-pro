@@ -1,7 +1,8 @@
 import { Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { orgResultData } from '../../testData';
-import { joinRowSpanData } from '../utls/joinRowSpanData';
+// import { orgResultData } from '../../testData';
+import { joinRowSpanData } from '../utils/joinRowSpanData';
+import { orgResultData } from '../../../testData';
 
 interface ProfessorDetailProps {
   buttonText: string;
@@ -76,7 +77,7 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
         onCancel={() => {
           setOpen(false);
         }}
-        width={'70vw'}
+        width={1400}
       >
         <Table
           columns={columns}

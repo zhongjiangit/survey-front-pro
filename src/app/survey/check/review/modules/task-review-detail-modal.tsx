@@ -6,6 +6,8 @@ import type { TreeDataNode } from 'antd';
 import { testDataSource } from '../../testData';
 import { ReviewStatusObject } from '@/interfaces/CommonType';
 import TemplateDetailModal from '@/components/common/template-detail-modal';
+import StandardDetailModal from '../../modules/standard-detail-modal';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 const treeData: TreeDataNode[] = [
   {
@@ -93,7 +95,14 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
       align: 'center',
     },
     {
-      title: <div>评价维度</div>,
+      title: (
+        <div className="flex gap-1 items-center justify-center">
+          <span>评价维度</span>
+          <StandardDetailModal
+            showDom={<ExclamationCircleOutlined className="cursor-pointer" />}
+          />
+        </div>
+      ),
       dataIndex: 'dimension',
       width: '18%',
       align: 'center',

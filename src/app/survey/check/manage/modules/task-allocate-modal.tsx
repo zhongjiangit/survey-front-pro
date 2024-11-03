@@ -168,7 +168,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
         分配任务
       </a>
       <Modal
-        width={'70vw'}
+        width={1400}
         open={open}
         title="分配任务"
         okText="确定"

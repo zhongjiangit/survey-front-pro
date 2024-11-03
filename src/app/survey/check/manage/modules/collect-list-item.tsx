@@ -18,6 +18,8 @@ import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
 import EvaluateConfigModal from './evaluate-config-modal';
 import EvaluateAllocateModal from './evaluate-allocate-modal';
+import ReviewDetailModal from '../../modules/review-detail-modal/page';
+import ReviewResultModal from '../../modules/review-result-modal/page';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
@@ -102,28 +104,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       return <EvaluateAllocateModal />;
     },
     detail: (type: PublishTypeType) => {
-      return (
-        <a
-          className=" text-blue-500"
-          key="detail"
-          onClick={() => {
-            if (type === PublishTypeEnum.Org) {
-              setFillOrgDetailModalOpen(true);
-            } else {
-              setFillMemberDetailModalOpen(true);
-            }
-          }}
-        >
-          评审详情
-        </a>
-      );
+      return <ReviewDetailModal />;
     },
     result: () => {
-      return (
-        <a className=" text-blue-500" key="result">
-          评审结果
-        </a>
-      );
+      return <ReviewResultModal />;
     },
     message: (
       <a className=" text-blue-500" key="message">

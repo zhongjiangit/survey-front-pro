@@ -18,16 +18,15 @@ const StandardDetailModal = ({ showDom }: Props) => {
 
   return (
     <>
-      {showDom || (
-        <a
-          className="text-blue-500"
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          <span>详情</span>
-        </a>
-      )}
+      <a
+        className="text-blue-500"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        {showDom || <span>详情</span>}
+      </a>
+
       <Modal
         title="标准详情"
         open={open}

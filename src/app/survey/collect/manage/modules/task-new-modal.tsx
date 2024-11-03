@@ -197,7 +197,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         发布新任务
       </Button>
       <Modal
-        width={'70vw'}
+        width={1400}
         open={open}
         title="新建任务"
         okText="确定"
