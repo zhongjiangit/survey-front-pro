@@ -11,6 +11,8 @@ import {
 // import { ColorScheme } from '../interfaces/ColorScheme';
 import { useRoles } from '@/hooks/useRoles';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import CookieApi from '@/api/cookie';
+import { isProd } from '@/api/config';
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
 enum ColorScheme {
@@ -37,6 +39,12 @@ export function Provider({ colorScheme, children }: Props) {
       setCurrentRole(activeRoles[0]);
     }
   }, [roles, setCurrentRole, setRoles]);
+
+  useEffect(() => {
+    if (!isProd) {
+      CookieApi.getCookie();
+    }
+  }, []);
 
   return (
     <ColorSchemeContext.Provider value={store}>

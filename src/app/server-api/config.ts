@@ -1,2 +1,2 @@
 export const baseUrl = 'http://8.137.101.138:19080';
-export const cookieValue = '80D4A561703F31894590CAFBD07B9CE5';
+export const cookieValue = 'A613298B960B22B15A552602759A95B7';

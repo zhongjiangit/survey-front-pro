@@ -1,7 +1,6 @@
 import { UserType } from '@/interfaces/SystemType';
 import { SurveyService } from '@/service';
 import { baseUrl } from '../config';
-import { message } from 'antd';
 
 interface LoginParamsType {
   loginType: number;

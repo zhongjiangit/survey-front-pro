@@ -5,6 +5,7 @@ import systemApi from './system';
 import tagApi from './tag';
 import templateApi from './template';
 import expertApi from './expert';
+import CookieApi from './cookie';
 
 const api = {
   ...login,
@@ -14,6 +15,7 @@ const api = {
   ...systemApi,
   ...tagApi,
   ...expertApi,
+  ...CookieApi,
 };
 
 export default api;
