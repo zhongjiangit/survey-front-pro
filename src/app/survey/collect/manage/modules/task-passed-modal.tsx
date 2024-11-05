@@ -1,7 +1,6 @@
 'use client';
 
-import { G6, IndentedTree } from '@ant-design/graphs';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Tree, Modal } from 'antd';
 import type { TreeDataNode, TreeProps } from 'antd';
