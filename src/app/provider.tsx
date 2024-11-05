@@ -8,10 +8,15 @@ import {
   ColorSchemeContext,
   createColorSchemeStore,
 } from '../contexts/useColorScheme';
-import { ColorScheme } from '../interfaces/ColorScheme';
+// import { ColorScheme } from '../interfaces/ColorScheme';
 import { useRoles } from '@/hooks/useRoles';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 const { darkAlgorithm, defaultAlgorithm } = theme;
+
+enum ColorScheme {
+  LIGHT = 'light',
+  DARK = 'dark',
+}
 
 interface Props {
   colorScheme: ColorScheme;

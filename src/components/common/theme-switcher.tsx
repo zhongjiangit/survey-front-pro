@@ -3,13 +3,17 @@
 import { Moon, Sun } from 'lucide-react';
 import { useEffect } from 'react';
 import useColorScheme from '../../contexts/useColorScheme';
-import { ColorScheme } from '../../interfaces/ColorScheme';
+// import { ColorScheme } from '../../interfaces/ColorScheme';
 import { useLongPress } from 'react-use';
 import { useTouch } from '../display/hybrid';
 import {
   DeveloperFlags,
   useGlobalSettingsStore,
 } from '@/contexts/useGlobalSettingsStore';
+enum ColorScheme {
+  LIGHT = 'light',
+  DARK = 'dark',
+}
 
 function ThemeSwitcher() {
   const { colorScheme, setColorScheme } = useColorScheme();
