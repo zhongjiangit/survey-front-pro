@@ -56,7 +56,7 @@ const CreateModal = ({
 
   const { run: updateOutline, loading: updateLoading } = useRequest(
     params => {
-      return Api.updateTemplateOutline(params);
+      return Api.updateTemplateTitle(params);
     },
     {
       manual: true,

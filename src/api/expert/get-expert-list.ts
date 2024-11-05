@@ -1,6 +1,7 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 interface ExpertListParamsType {
   currentSystemId?: number;
@@ -19,7 +20,7 @@ export interface ExpertListResponse {
 
 function getExpertList(params: ExpertListParamsType) {
   return SurveyService.post<CommonResponseType<ExpertListResponse[]>>(
-    '/api/expert/list',
+    `${baseUrl}/expert/list`,
     {
       ...params,
     }

@@ -1,5 +1,6 @@
 import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface TemplateListParamsType {
   currentSystemId: number;
@@ -22,9 +23,12 @@ interface TemplateLisResponse {
 }
 
 export function getTemplateOutlineList(params: TemplateListParamsType) {
-  return SurveyService.post<TemplateLisResponse>('/api/template/list-outline', {
-    ...params,
-  });
+  return SurveyService.post<TemplateLisResponse>(
+    `${baseUrl}/template/listOutline`,
+    {
+      ...params,
+    }
+  );
 }
 
 export default getTemplateOutlineList;

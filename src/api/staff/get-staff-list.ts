@@ -1,6 +1,7 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 interface StaffListParamsType {
   currentSystemId?: number;
@@ -20,7 +21,7 @@ export interface StaffListResponse {
 
 function getStaffList(params: StaffListParamsType) {
   return SurveyService.post<CommonResponseType<StaffListResponse[]>>(
-    '/api/staff/list',
+    `${baseUrl}/staff/list`,
     {
       ...params,
     }

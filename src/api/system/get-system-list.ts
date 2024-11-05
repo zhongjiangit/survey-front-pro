@@ -1,5 +1,6 @@
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export type TagType = {
   levelIndex: number;
@@ -25,7 +26,7 @@ export interface SystemListType {
  */
 function getSystemListAll(params: { currentSystemId?: number }) {
   return SurveyService.post<CommonResponseType<SystemListType[]>>(
-    '/api/system/list-all',
+    `${baseUrl}/system/listAll`,
     {
       ...params,
     }

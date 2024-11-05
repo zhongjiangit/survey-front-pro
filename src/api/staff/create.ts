@@ -1,6 +1,7 @@
 import { StaffType } from '@/interfaces/CommonType';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 type TagsType = {
   key: number;
@@ -27,7 +28,7 @@ interface StaffCreateResponse {
 
 function createStaff(params: StaffCreateParamsType) {
   return SurveyService.post<CommonResponseType<StaffCreateResponse>>(
-    '/api/staff/create',
+    `${baseUrl}/staff/create`,
     {
       ...params,
     }

@@ -1,5 +1,6 @@
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 type TagsType = {
   key: number;
@@ -25,7 +26,7 @@ interface ExpertCreateResponse {
 
 function createExpert(params: ExpertCreateParamsType) {
   return SurveyService.post<CommonResponseType<ExpertCreateResponse>>(
-    '/api/expert/create',
+    `${baseUrl}/expert/create`,
     {
       ...params,
     }

@@ -1,6 +1,7 @@
 import { TagTypeType } from '@/interfaces/CommonType';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 type TagsType = {
   key?: number;
@@ -25,7 +26,7 @@ interface TagCreateResponse {
  */
 function createTag(params: TagCreateParamsType) {
   return SurveyService.post<CommonResponseType<TagCreateResponse>>(
-    '/api/tag/save',
+    `${baseUrl}/tag/save`,
     {
       ...params,
     }

@@ -211,9 +211,10 @@ const EvaluateAllocateModal: React.FC<
                   <div className="h-80 w-full p-x overflow-auto">
                     {
                       /* 循环生成10个tree组件 */
-                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(() => {
+                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => {
                         return (
                           <Tree
+                            key={index}
                             checkable
                             treeData={treeData[0]}
                             // defaultExpandAll
@@ -238,9 +239,10 @@ const EvaluateAllocateModal: React.FC<
                   <div className="h-96 w-full p-x overflow-auto">
                     {
                       /* 循环生成10个tree组件 */
-                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(() => {
+                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => {
                         return (
                           <Tree
+                            key={index}
                             checkable
                             treeData={treeData[1]}
                             // defaultExpandAll

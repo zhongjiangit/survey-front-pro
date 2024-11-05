@@ -1,5 +1,6 @@
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface TagCreateParamsType {
   currentSystemId: number;
@@ -11,7 +12,7 @@ export interface TagCreateParamsType {
 }
 
 function setOrgDetail(params: TagCreateParamsType) {
-  return SurveyService.post<CommonResponseType>('/api/org/set', {
+  return SurveyService.post<CommonResponseType>(`${baseUrl}/org/set`, {
     ...params,
   });
 }

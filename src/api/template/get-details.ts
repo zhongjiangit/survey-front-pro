@@ -1,5 +1,6 @@
 import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 import { WidgetType } from '../../interfaces/CommonType';
 
 export interface TemplateDetailParamsType {
@@ -37,7 +38,7 @@ interface TemplateDetailResponse {
 
 export function getTemplateDetails(params: TemplateDetailParamsType) {
   return SurveyService.post<TemplateDetailResponse>(
-    '/api/template/get-details',
+    `${baseUrl}/template/getDetails`,
     {
       ...params,
     }

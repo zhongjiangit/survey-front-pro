@@ -1,5 +1,6 @@
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 interface TagCreateParamsType {
   currentSystemId: number;
@@ -17,7 +18,7 @@ interface TagCreateResponse {
 
 function saveOrgTree(params: TagCreateParamsType) {
   return SurveyService.post<CommonResponseType<TagCreateResponse>>(
-    '/api/org/save',
+    `${baseUrl}/org/save`,
     {
       ...params,
     }

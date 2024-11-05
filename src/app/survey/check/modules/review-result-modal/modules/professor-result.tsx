@@ -74,8 +74,8 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
       render: text =>
         text && (
           <div>
-            {text.map((item: any) => (
-              <p>{item}</p>
+            {text.map((item: any, index: number) => (
+              <p key={index}>{item}</p>
             ))}
           </div>
         ),

@@ -1,5 +1,6 @@
 import { TemplateType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface TemplateOutlineUpdateParamsType {
   currentSystemId: number;
@@ -10,10 +11,10 @@ export interface TemplateOutlineUpdateParamsType {
   memo?: string;
 }
 
-export function updateTemplateOutline(params: TemplateOutlineUpdateParamsType) {
-  return SurveyService.post('/api/template/update-title', {
+export function updateTemplateTitle(params: TemplateOutlineUpdateParamsType) {
+  return SurveyService.post(`${baseUrl}/template/updateTitle`, {
     ...params,
   });
 }
 
-export default updateTemplateOutline;
+export default updateTemplateTitle;

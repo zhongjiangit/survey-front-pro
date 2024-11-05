@@ -1,6 +1,7 @@
 import { ZeroOrOneType } from '@/interfaces/CommonType';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface DetailParamsType {
   currentSystemId?: number;
@@ -19,9 +20,12 @@ export interface DetailType {
 }
 
 function getOrgDetails(params: DetailParamsType) {
-  return SurveyService.post<CommonResponseType<DetailType>>('/api/org/get', {
-    ...params,
-  });
+  return SurveyService.post<CommonResponseType<DetailType>>(
+    `${baseUrl}/org/get`,
+    {
+      ...params,
+    }
+  );
 }
 
 export default getOrgDetails;

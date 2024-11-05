@@ -1,5 +1,6 @@
 import { WidgetType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface ListAllWidgetsParamsType {
   currentSystemId: number;
@@ -21,7 +22,7 @@ interface WidgetLisResponse {
 
 export function getAllWidgetsList(params: ListAllWidgetsParamsType) {
   return SurveyService.post<WidgetLisResponse>(
-    '/api/template/list-all-widgets',
+    `${baseUrl}/template/listAllWidgets`,
     {
       ...params,
     }

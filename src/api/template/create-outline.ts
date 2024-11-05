@@ -1,5 +1,6 @@
 import { TemplateType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface TemplateOutlineCreateParamsType {
   currentSystemId: number;
@@ -22,7 +23,7 @@ interface TemplateOutlineCreateResponse {
 
 export function createTemplateOutline(params: TemplateOutlineCreateParamsType) {
   return SurveyService.post<TemplateOutlineCreateResponse>(
-    '/api/template/create-outline',
+    `${baseUrl}/template/createOutline`,
     {
       ...params,
     }

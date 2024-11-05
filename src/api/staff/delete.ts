@@ -1,5 +1,6 @@
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 interface StaffDeleteParamsType {
   id: number;
@@ -14,7 +15,7 @@ interface StaffDeleteParamsType {
  */
 
 function deleteStaff(params: StaffDeleteParamsType) {
-  return SurveyService.post<CommonResponseType>('/api/staff/delete', {
+  return SurveyService.post<CommonResponseType>(`${baseUrl}/staff/delete`, {
     ...params,
   });
 }

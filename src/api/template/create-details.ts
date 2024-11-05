@@ -1,5 +1,6 @@
 import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 export interface CollectItemType {
   itemCaption: string;
@@ -23,7 +24,7 @@ export interface CollectParamsType {
 }
 
 export function createCollectDetails(params: CollectParamsType) {
-  return SurveyService.post('/api/template/create-details', {
+  return SurveyService.post(`${baseUrl}/template/createDetails`, {
     ...params,
   });
 }

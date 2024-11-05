@@ -1,6 +1,7 @@
 import { ZeroOrOneType } from '@/interfaces/CommonType';
 import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { baseUrl } from '../config';
 
 type SystemCreateParamsType = {
   systemName: string;
@@ -18,7 +19,7 @@ type SystemCreateParamsType = {
  * @returns
  */
 function createSystem(params: SystemCreateParamsType) {
-  return SurveyService.post<CommonResponseType>('/api/system/create', {
+  return SurveyService.post<CommonResponseType>(`${baseUrl}/system/create`, {
     ...params,
   });
 }
