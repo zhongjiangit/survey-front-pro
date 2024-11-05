@@ -1,28 +1,34 @@
 'use client';
 
 import business from '@/assets/images/business.svg';
+import {
+  DeveloperFlags,
+  useGlobalSettingsStore,
+} from '@/contexts/useGlobalSettingsStore';
+import { useDeveloperFlags } from '@/hooks/useDeveloperFlags';
+import { Button, Form, Input } from 'antd';
+import Cookies from 'js-cookie';
 import Image from 'next/image';
+import { useEffect } from 'react';
 import Header from '../components/common/header';
 import LoginForm from './modules/login-form';
-import { Button, Form, Input } from 'antd';
-import { useDeveloperFlags } from '@/hooks/useDeveloperFlags';
-import { useGlobalSettingsStore } from '@/contexts/useGlobalSettingsStore';
-import Cookies from 'js-cookie';
-import { useEffect } from 'react';
 export default function Page() {
   const useLocalCookies = useGlobalSettingsStore(state => state.localCookies);
   const developerFlags = useDeveloperFlags();
+  const setDeveloperFlags = useGlobalSettingsStore(
+    state => state.setDeveloperFlags
+  );
   const setLocalCookies = useGlobalSettingsStore(
     state => state.setLocalCookies
   );
   const onFinish = (values: any) => {
-    console.log('Success:', values);
     setLocalCookies(values.cookie);
+    setDeveloperFlags(DeveloperFlags.NONE);
   };
 
   useEffect(() => {
     if (useLocalCookies) {
-      // 设置浏览器 Cookie 7 天过期
+      // 设置浏览器 Cookie 1 天过期
       Cookies.set('JSESSIONID', useLocalCookies, { expires: 1 });
     }
   }, [useLocalCookies]);
