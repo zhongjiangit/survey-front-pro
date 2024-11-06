@@ -1,35 +1,18 @@
 'use client';
+import Api from '@/api';
+import { CollectItemType } from '@/api/template/get-details';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import {
-  CaretDownOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  UploadOutlined,
-} from '@ant-design/icons';
+import renderFormItem from '@/lib/render-form-item';
+import { cn } from '@/lib/utils';
+import { TemplateTypeEnum } from '@/types/CommonType';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { useLocalStorageState, useRequest } from 'ahooks';
 import type { TreeDataNode, UploadProps } from 'antd';
-import {
-  Button,
-  Checkbox,
-  Divider,
-  Empty,
-  Form,
-  Input,
-  message,
-  Radio,
-  Spin,
-  Tree,
-  Upload,
-} from 'antd';
+import { Button, Divider, Empty, Form, Input, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
-import { useLocalStorageState, useRequest } from 'ahooks';
-import Api from '@/api';
-import { TemplateTypeEnum } from '@/interfaces/CommonType';
-import { CollectItemType } from '@/api/template/get-details';
-import { cn } from '@/lib/utils';
 import ScoreTable from './score-table';
-import renderFormItem from '@/lib/render-form-item';
 
 const { TextArea } = Input;
 

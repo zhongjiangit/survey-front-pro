@@ -1,12 +1,12 @@
 'use client';
 
+import Api from '@/api';
+import { ZeroOrOneTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import type { FormProps } from 'antd';
 import { Button, Drawer, Form, Input, Select, Switch } from 'antd';
-import React, { useEffect } from 'react';
-import Api from '@/api';
 import { useSearchParams } from 'next/navigation';
-import { ZeroOrOneType, ZeroOrOneTypeEnum } from '@/interfaces/CommonType';
+import React, { useEffect } from 'react';
 import { NewCollectItemType } from './page';
 
 interface Props {

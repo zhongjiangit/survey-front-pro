@@ -1,10 +1,7 @@
 'use client';
 
 import TemplateDetailModal from '@/components/common/template-detail-modal';
-import {
-  ProcessStatusObject,
-  ProcessStatusTypeEnum,
-} from '@/interfaces/CommonType';
+import { ProcessStatusObject, ProcessStatusTypeEnum } from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import Link from 'next/link';
 import { toAllotTaskData } from '../testData';

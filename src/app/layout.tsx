@@ -1,15 +1,10 @@
 import '@/styles/global.css';
+import { ColorScheme } from '@/types/ColorScheme';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { inter } from '../components/display/fonts';
-// import { ColorScheme } from '../interfaces/ColorScheme';
 import { cn } from '../lib/utils';
 import { Provider } from './provider';
-
-enum ColorScheme {
-  LIGHT = 'light',
-  DARK = 'dark',
-}
 
 export const metadata: Metadata = {
   title: {

@@ -6,9 +6,13 @@ import {
   PublishTypeType,
   TaskStatusObject,
   TaskStatusTypeEnum,
-} from '@/interfaces/CommonType';
+} from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
+import ReviewDetailModal from '../../modules/review-detail-modal/page';
+import ReviewResultModal from '../../modules/review-result-modal/page';
+import EvaluateAllocateModal from './evaluate-allocate-modal';
+import EvaluateConfigModal from './evaluate-config-modal';
 import TaskDeleteModal from './task-delete-modal';
 import TaskDetailEditModal from './task-detail-edit-modal';
 import TaskEditModal from './task-edit-modal';
@@ -16,10 +20,6 @@ import TaskFilledModal from './task-filled-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
-import EvaluateConfigModal from './evaluate-config-modal';
-import EvaluateAllocateModal from './evaluate-allocate-modal';
-import ReviewDetailModal from '../../modules/review-detail-modal/page';
-import ReviewResultModal from '../../modules/review-result-modal/page';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';

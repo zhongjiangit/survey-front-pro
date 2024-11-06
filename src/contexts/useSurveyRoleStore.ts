@@ -1,4 +1,4 @@
-import { RoleType } from '@/interfaces/CommonType';
+import { RoleType } from '@/types/CommonType';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

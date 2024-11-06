@@ -1,5 +1,5 @@
-import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { TemplateType, ZeroOrOneType } from '@/types/CommonType';
 import { baseUrl } from '../config';
 
 export interface TemplateListParamsType {

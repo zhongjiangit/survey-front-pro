@@ -5,7 +5,9 @@ import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';
 
-import { TagTypeEnum } from '@/interfaces/CommonType';
+import Api from '@/api';
+import { TagCreateParamsType } from '@/api/org/set-detail';
+import { TagTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import {
   Button,
@@ -19,8 +21,6 @@ import {
 } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import Api from '@/api';
-import { TagCreateParamsType } from '@/api/org/set-detail';
 
 const layout = {
   labelCol: { span: 8 },

@@ -1,4 +1,4 @@
-import { UserType } from '@/interfaces/SystemType';
+import { UserType } from '@/types/SystemType';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

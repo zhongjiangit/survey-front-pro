@@ -3,7 +3,7 @@
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import { RoleType } from '@/interfaces/CommonType';
+import { RoleType } from '@/types/CommonType';
 import { useEffect, useState } from 'react';
 
 export function useRoles() {

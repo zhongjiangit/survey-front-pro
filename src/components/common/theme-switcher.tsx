@@ -1,18 +1,12 @@
 'use client';
 
+import { ColorScheme } from '@/types/ColorScheme';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect } from 'react';
 import useColorScheme from '../../contexts/useColorScheme';
-// import { ColorScheme } from '../../interfaces/ColorScheme';
-
-enum ColorScheme {
-  LIGHT = 'light',
-  DARK = 'dark',
-}
 
 function ThemeSwitcher() {
   const { colorScheme, setColorScheme } = useColorScheme();
-
 
   useEffect(() => {
     const isDark = colorScheme !== ColorScheme.LIGHT;
@@ -32,13 +26,8 @@ function ThemeSwitcher() {
     window.location.reload();
   };
 
-
-
   return (
-    <div
-      className="cursor-pointer"
-      onClick={onColorSchemeChange}
-    >
+    <div className="cursor-pointer" onClick={onColorSchemeChange}>
       {colorScheme === ColorScheme.LIGHT ? (
         <Sun className="mr-2 h-6 w-6" />
       ) : (

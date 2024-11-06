@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "node server.js -p 3000",
+    "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
   },

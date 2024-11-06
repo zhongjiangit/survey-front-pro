@@ -1,4 +1,4 @@
-import { ErrorLevel, ResRejectedType } from '@/interfaces/service';
+import { ErrorLevel, ResRejectedType } from '@/types/Service';
 import { message } from 'antd';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 

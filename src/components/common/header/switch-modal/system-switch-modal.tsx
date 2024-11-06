@@ -1,6 +1,6 @@
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { UserSystemType } from '@/interfaces/SystemType';
+import { UserSystemType } from '@/types/SystemType';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
 import { FunctionComponent } from 'react';

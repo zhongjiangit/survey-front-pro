@@ -1,10 +1,7 @@
+import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import {
-  StaffType,
-  StaffTypeEnum,
-  StaffTypeObject,
-} from '@/interfaces/CommonType';
+import { StaffType, StaffTypeEnum, StaffTypeObject } from '@/types/CommonType';
 import {
   EditableProTable,
   type ProColumnType,
@@ -12,7 +9,6 @@ import {
 import { useRequest } from 'ahooks';
 import { Popconfirm, Select, Tag, TreeSelect } from 'antd';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
-import Api from '@/api';
 
 interface TableFormDateType {
   id: number | string;

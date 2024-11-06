@@ -1,5 +1,5 @@
-import { UserType } from '@/interfaces/SystemType';
 import { SurveyService } from '@/service';
+import { UserType } from '@/types/SystemType';
 
 interface userInfoType {
   result: number;

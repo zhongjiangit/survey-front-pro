@@ -1,6 +1,6 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
-import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
 export interface ListParamsType {

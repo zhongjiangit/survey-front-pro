@@ -1,4 +1,4 @@
-import { OrgType } from '@/interfaces/SystemType';
+import { OrgType } from '@/types/SystemType';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

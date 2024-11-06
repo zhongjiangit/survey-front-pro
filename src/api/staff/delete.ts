@@ -1,5 +1,5 @@
-import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
 interface StaffDeleteParamsType {

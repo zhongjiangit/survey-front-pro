@@ -1,5 +1,10 @@
 'use client';
 
+import { isProd } from '@/api/config';
+import CookieApi from '@/api/cookie';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useRoles } from '@/hooks/useRoles';
+import { ColorScheme } from '@/types/ColorScheme';
 import { ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { ReactNode, useEffect, useRef } from 'react';
@@ -8,17 +13,7 @@ import {
   ColorSchemeContext,
   createColorSchemeStore,
 } from '../contexts/useColorScheme';
-// import { ColorScheme } from '../interfaces/ColorScheme';
-import { useRoles } from '@/hooks/useRoles';
-import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import CookieApi from '@/api/cookie';
-import { isProd } from '@/api/config';
 const { darkAlgorithm, defaultAlgorithm } = theme;
-
-enum ColorScheme {
-  LIGHT = 'light',
-  DARK = 'dark',
-}
 
 interface Props {
   colorScheme: ColorScheme;

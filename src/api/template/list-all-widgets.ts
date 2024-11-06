@@ -1,5 +1,5 @@
-import { WidgetType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { WidgetType } from '@/types/CommonType';
 import { baseUrl } from '../config';
 
 export interface ListAllWidgetsParamsType {

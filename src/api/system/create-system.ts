@@ -1,6 +1,6 @@
-import { ZeroOrOneType } from '@/interfaces/CommonType';
-import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { ZeroOrOneType } from '@/types/CommonType';
+import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
 type SystemCreateParamsType = {

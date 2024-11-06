@@ -1,7 +1,7 @@
 'use client';
 
 import TemplateDetailModal from '@/components/common/template-detail-modal';
-import { PublishTypeEnum } from '@/interfaces/CommonType';
+import { PublishTypeEnum } from '@/types/CommonType';
 import {
   Button,
   Checkbox,

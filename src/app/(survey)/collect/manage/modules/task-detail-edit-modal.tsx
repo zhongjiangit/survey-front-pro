@@ -1,6 +1,6 @@
 'use client';
 
-import { PublishTypeEnum } from '@/interfaces/CommonType';
+import { PublishTypeEnum } from '@/types/CommonType';
 import { Checkbox, DatePicker, Divider, Form, Modal, Select, Tree } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { treeData } from '../../testData';

@@ -1,5 +1,5 @@
-import { TemplateType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { TemplateType } from '@/types/CommonType';
 import { baseUrl } from '../config';
 
 export interface TemplateOutlineUpdateParamsType {

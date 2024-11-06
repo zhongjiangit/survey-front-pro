@@ -1,13 +1,13 @@
 'use client';
 
+import Api from '@/api';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { SystemType } from '@/types/SystemType';
+import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
 import { Table, Tag } from 'antd';
-import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 import { useMemo } from 'react';
-import { SystemType } from '@/interfaces/SystemType';
-import { useRequest } from 'ahooks';
-import Api from '@/api';
+import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 
 const columns: TableProps<SystemType>['columns'] = [
   {

@@ -1,17 +1,17 @@
 'use client';
+import Api from '@/api';
+import { StaffListResponse } from '@/api/staff/get-staff-list';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import MemberManage from '@/components/common/member-manage';
 import { lusitana } from '@/components/display/fonts';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { TagTypeEnum } from '@/interfaces/CommonType';
+import { TagTypeEnum } from '@/types/CommonType';
+import { SaveOutlined } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
 import { Button, Divider, Form, message, TreeSelect } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import OrgTree from './modules/org-tree';
-import { useRequest } from 'ahooks';
-import Api from '@/api';
-import { SaveOutlined } from '@ant-design/icons';
-import { StaffListResponse } from '@/api/staff/get-staff-list';
 
 function Page() {
   const [org, setOrg] = useState<React.Key>();

@@ -5,7 +5,7 @@ import {
   PublishTypeEnum,
   TaskStatusObject,
   TaskStatusTypeEnum,
-} from '@/interfaces/CommonType';
+} from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import TaskAllocateModal from '../manage/modules/task-allocate-modal';
 import { toAllotTaskData } from '../testData';

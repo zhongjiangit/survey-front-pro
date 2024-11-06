@@ -5,7 +5,7 @@ import {
   PublishTypeType,
   TaskStatusObject,
   TaskStatusTypeEnum,
-} from '@/interfaces/CommonType';
+} from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import TaskDeleteModal from './task-delete-modal';

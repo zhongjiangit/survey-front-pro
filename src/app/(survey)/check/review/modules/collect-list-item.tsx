@@ -2,11 +2,11 @@ import {
   PublishTypeType,
   TaskStatusObject,
   TaskStatusTypeEnum,
-} from '@/interfaces/CommonType';
+} from '@/types/CommonType';
 import { Table } from 'antd';
-import { FunctionComponent, useState } from 'react';
-import TaskReviewDetailModal from './task-review-detail-modal';
+import { FunctionComponent } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
+import TaskReviewDetailModal from './task-review-detail-modal';
 type ItemDataType = any[];
 interface CollectListItemProps {
   itemData: ItemDataType;

@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Modal, Table, Button, Divider, Input, InputNumber, Space } from 'antd';
-import type { TreeDataNode } from 'antd';
-import { testDataSource } from '../../testData';
-import { ReviewStatusObject } from '@/interfaces/CommonType';
 import TemplateDetailModal from '@/components/common/template-detail-modal';
-import StandardDetailModal from '../../modules/standard-detail-modal';
+import { ReviewStatusObject } from '@/types/CommonType';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import type { TreeDataNode } from 'antd';
+import { Button, Divider, Input, InputNumber, Modal, Space, Table } from 'antd';
+import { useState } from 'react';
+import StandardDetailModal from '../../modules/standard-detail-modal';
+import { testDataSource } from '../../testData';
 
 const treeData: TreeDataNode[] = [
   {

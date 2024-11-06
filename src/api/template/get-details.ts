@@ -1,7 +1,7 @@
-import { TemplateType, ZeroOrOneType } from '@/interfaces/CommonType';
 import { SurveyService } from '@/service';
+import { TemplateType, ZeroOrOneType } from '@/types/CommonType';
+import { WidgetType } from '../../types/CommonType';
 import { baseUrl } from '../config';
-import { WidgetType } from '../../interfaces/CommonType';
 
 export interface TemplateDetailParamsType {
   currentSystemId: number;

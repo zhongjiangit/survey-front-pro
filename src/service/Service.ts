@@ -1,14 +1,14 @@
-import axios from 'axios';
-import merge from 'lodash/merge';
-import type { AxiosInstance } from 'axios';
-import defaultResRejected from './Error';
 import {
   DataType,
   ReqFulfilledType,
   ResFulfilledType,
   ServiceConstructor,
   ServiceReqConfig,
-} from '@/interfaces/service';
+} from '@/types/Service';
+import type { AxiosInstance } from 'axios';
+import axios from 'axios';
+import merge from 'lodash/merge';
+import defaultResRejected from './Error';
 
 const baseURL = '';
 

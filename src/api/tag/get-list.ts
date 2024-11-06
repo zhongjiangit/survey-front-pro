@@ -1,7 +1,7 @@
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
-import { TagTypeType } from '@/interfaces/CommonType';
-import { CommonResponseType } from '@/interfaces/ResponseType';
 import { SurveyService } from '@/service';
+import { TagTypeType } from '@/types/CommonType';
+import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
 export interface TagListType {

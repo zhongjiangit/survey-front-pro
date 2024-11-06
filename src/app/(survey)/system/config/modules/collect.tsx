@@ -1,15 +1,15 @@
 'use client';
 
-import { TemplateTypeEnum, ZeroOrOneType } from '@/interfaces/CommonType';
+import Api from '@/api';
+import { SystemListType } from '@/api/system/get-system-list';
+import { TemplateItemType } from '@/api/template/list-outline';
+import { TemplateTypeEnum, ZeroOrOneType } from '@/types/CommonType';
+import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import CreateModal from './create-modal';
-import Api from '@/api';
-import { useLocalStorageState, useRequest } from 'ahooks';
-import { TemplateItemType } from '@/api/template/list-outline';
-import { SystemListType } from '@/api/system/get-system-list';
 
 interface CollectProps {
   system: SystemListType;
