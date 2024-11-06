@@ -17,69 +17,69 @@ import { useEffect, useState } from 'react';
 const items = [
   {
     label: '系统管理',
-    key: '/survey/system',
+    key: '/system',
     icon: <MonitorCog className="w-4 h-4" />,
   },
   {
     label: '成员管理',
-    key: '/survey/member',
+    key: '/member',
     icon: <UsersRound className="w-4 h-4" />,
   },
   {
     label: '专家配置',
-    key: '/survey/expert',
+    key: '/expert',
     icon: <BookUser className="w-4 h-4" />,
   },
   {
     label: '资料收集',
-    key: '/survey/collect',
+    key: '/collect',
     icon: <SquareLibrary className="w-4 h-4" />,
     children: [
       {
         label: '管理',
-        key: '/survey/collect/manage',
+        key: '/collect/manage',
       },
       {
         label: '分配',
-        key: '/survey/collect/allocate',
+        key: '/collect/allocate',
       },
       {
         label: '填报',
-        key: '/survey/collect/fill',
+        key: '/collect/fill',
       },
     ],
   },
   {
     label: '试题抽检',
-    key: '/survey/check',
+    key: '/check',
     icon: <BookOpenCheck className="w-4 h-4" />,
     children: [
       {
         label: '管理',
-        key: '/survey/check/manage',
+        key: '/check/manage',
       },
       {
         label: '分配',
-        key: '/survey/check/allocate',
+        key: '/check/allocate',
       },
       {
         label: '填报',
-        key: '/survey/check/fill',
+        key: '/check/fill',
       },
       {
         label: '评审',
-        key: '/survey/check/review',
+        key: '/check/review',
       },
     ],
   },
   {
     label: '个人中心',
-    key: '/survey/profile',
+    key: '/profile',
     icon: <UserRoundCog className="w-4 h-4" />,
   },
   {
     label: '充值/续费',
-    key: '/survey/recharge',
+    key: '/recharge',
     icon: <Cable className="w-4 h-4" />,
   },
 ];
@@ -114,7 +114,7 @@ export default function NavLinks() {
     <Menu
       selectedKeys={selectedKeys}
       onSelect={onSelect}
-      defaultOpenKeys={['/survey/collect', '/survey/check']}
+      defaultOpenKeys={['/collect', '/check']}
       style={{ width: 240 }}
       mode="inline"
       items={items}

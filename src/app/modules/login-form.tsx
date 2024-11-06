@@ -1,6 +1,10 @@
 'use client';
 
+import Api from '@/api';
 import logo from '@/assets/icons/logo.png';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import {
   CodepenOutlined,
   LockOutlined,
@@ -12,17 +16,13 @@ import {
   ProFormCaptcha,
   ProFormText,
 } from '@ant-design/pro-components';
-import Image from 'next/image';
-import { useState } from 'react';
-import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { useRequest } from 'ahooks';
 import { message, Tabs } from 'antd';
 import { FlaskConical } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
-import { useRequest } from 'ahooks';
-import Api from '@/api';
+import { useState } from 'react';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -49,7 +49,7 @@ export default function LoginForm() {
           setUser(response.data);
           setCurrentSystem(response.data.systems[0]);
           setCurrentOrg(response.data.systems[0].orgs[0]);
-          router.push('/survey/system');
+          router.push('/system');
         }
       },
     }

@@ -148,7 +148,7 @@ const NewCollectSet = () => {
     {
       manual: true,
       onSuccess: () => {
-        router.push(`/survey/system/config?id=${systemId}&tab=collect`);
+        router.push(`/system/config?id=${systemId}&tab=collect`);
         messageApi.open({
           type: 'success',
           content: '保存成功',
@@ -190,15 +190,15 @@ const NewCollectSet = () => {
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '系统管理', href: '/survey/system' },
+          { label: '系统管理', href: '/system' },
           {
             label: '配置系统',
-            href: `/survey/system/config?id=${systemId}&tab=collect`,
+            href: `/system/config?id=${systemId}&tab=collect`,
             active: true,
           },
           {
             label: '资料收集配置',
-            href: `/survey/system/config?id=${systemId}&tab=collect`,
+            href: `/system/config?id=${systemId}&tab=collect`,
             active: false,
           },
         ]}

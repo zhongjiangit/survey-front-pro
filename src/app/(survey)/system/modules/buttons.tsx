@@ -6,7 +6,7 @@ import Link from 'next/link';
 export function CreateSystem() {
   return (
     <Link
-      href="/survey/system/create"
+      href="/system/create"
       className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
     >
       <span className="hidden md:block">创建系统</span>{' '}
@@ -18,7 +18,7 @@ export function CreateSystem() {
 export function UpdateSystem({ id }: { id: string }) {
   return (
     <Link
-      href={`/survey/system/edit?id=${id}`}
+      href={`/system/edit?id=${id}`}
       className="rounded-md border p-1 h-7 w-7 hover:bg-gray-100"
     >
       <Tooltip title="系统基本信息修改">
@@ -48,7 +48,7 @@ export function DeleteSystem({ id }: { id: string }) {
 export function ConfigSystem({ id }: { id: string }) {
   return (
     <Link
-      href={`/survey/system/config?id=${id}`}
+      href={`/system/config?id=${id}`}
       className="rounded-md border p-1 h-7 w-7 hover:bg-gray-100"
     >
       <Tooltip title="系统配置">

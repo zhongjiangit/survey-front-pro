@@ -34,11 +34,7 @@ interface CollectListItemProps {
 const ToAllotTask = () => {
   const operateButton = {
     fill: (
-      <Link
-        className=" text-blue-500"
-        key="fill"
-        href="/survey/collect/fill/detail"
-      >
+      <Link className=" text-blue-500" key="fill" href="/collect/fill/detail">
         填报任务
       </Link>
     ),
@@ -54,8 +50,8 @@ const ToAllotTask = () => {
           <div>发布人</div>
         </div>
       ),
-      dataIndex: 'orgAndUser',
       align: 'center',
+      dataIndex: 'orgAndUser',
       render: (_: any, record: any) => {
         return (
           <div>

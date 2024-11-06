@@ -6,10 +6,10 @@ export default async function Page() {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: '系统', href: '/survey/system' },
+          { label: '系统', href: '/system' },
           {
             label: '创建系统',
-            href: '/survey/system/create',
+            href: '/system/create',
             active: true,
           },
         ]}

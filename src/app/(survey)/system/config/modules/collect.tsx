@@ -118,7 +118,7 @@ const Collect = ({ system }: CollectProps) => {
         render: (_: any, record: TemplateItemType) => (
           <Space size="middle">
             <Link
-              href={`/survey/system/config/collect?id=${selectedId}&tab=${selectedTab}&tempId=${record.templateId}`}
+              href={`/system/config/collect?id=${selectedId}&tab=${selectedTab}&tempId=${record.templateId}`}
             >
               详情
             </Link>

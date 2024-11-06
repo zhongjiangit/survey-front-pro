@@ -42,10 +42,10 @@ export default function Page() {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: '系统', href: '/survey/system' },
+          { label: '系统', href: '/system' },
           {
             label: '编辑系统',
-            href: `/survey/system/edit?id=${selectedId}`,
+            href: `/system/edit?id=${selectedId}`,
             active: true,
           },
         ]}

@@ -118,7 +118,7 @@ const Check = ({ system }: CheckProps) => {
         render: (_: any, record: TemplateItemType) => (
           <Space size="middle">
             <Link
-              href={`/survey/system/config/check?id=${selectedId}&tab=${selectedTab}&tempId=${record.templateId}`}
+              href={`/system/config/check?id=${selectedId}&tab=${selectedTab}&tempId=${record.templateId}`}
             >
               详情
             </Link>

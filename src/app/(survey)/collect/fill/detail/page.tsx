@@ -80,10 +80,10 @@ const Page = () => {
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '资料收集', href: '/survey/collect/fill' },
+          { label: '资料收集', href: '/collect/fill' },
           {
             label: '资料填报',
-            href: '/survey/collect/fill/detail',
+            href: '/collect/fill/detail',
             active: true,
           },
         ]}

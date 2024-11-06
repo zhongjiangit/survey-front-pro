@@ -58,7 +58,7 @@ const SystemForm = (props: Props) => {
     {
       manual: true,
       onSuccess: () => {
-        router.push('/survey/system');
+        router.push('/system');
         form.resetFields();
       },
     }
@@ -217,7 +217,7 @@ const SystemForm = (props: Props) => {
                 form.resetFields();
               }}
             >
-              <Link href="/survey/system">取消</Link>
+              <Link href="/system">取消</Link>
             </Button>
             <Button type="primary" htmlType="submit" loading={createLoading}>
               {`${initialValues.id ? '保存' : '创建'}系统`}

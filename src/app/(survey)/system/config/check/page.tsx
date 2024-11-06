@@ -159,7 +159,7 @@ const NewCheckSet = () => {
     {
       manual: true,
       onSuccess: () => {
-        router.push(`/survey/system/config?id=${systemId}&tab=check`);
+        router.push(`/system/config?id=${systemId}&tab=check`);
         messageApi.open({
           type: 'success',
           content: '保存成功',
@@ -199,15 +199,15 @@ const NewCheckSet = () => {
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '系统管理', href: '/survey/system' },
+          { label: '系统管理', href: '/system' },
           {
             label: '配置系统',
-            href: `/survey/system/config?id=${systemId}&tab=check`,
+            href: `/system/config?id=${systemId}&tab=check`,
             active: true,
           },
           {
             label: '资料收集配置',
-            href: `/survey/system/config?id=${systemId}&tab=check`,
+            href: `/system/config?id=${systemId}&tab=check`,
             active: false,
           },
         ]}
