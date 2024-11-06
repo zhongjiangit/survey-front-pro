@@ -4,11 +4,11 @@ import Circle from '@/components/display/circle';
 import { Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 // import { checkDetailData } from '../testData';
+import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { checkDetailData } from '../../testData';
 import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
 import { joinRowSpanData } from './utils/joinRowSpanData';
-import TemplateDetailModal from '@/components/common/template-detail-modal';
-import { checkDetailData } from '../../testData';
 
 interface CheckDetailProps {}
 interface DataType {

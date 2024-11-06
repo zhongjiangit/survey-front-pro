@@ -1,6 +1,6 @@
 'use client';
 
-import TemplateDetail from '@/components/common/template-detail';
+import TemplateDetail from '@/app/modules/template-detail';
 
 interface FillCollectProps {}
 

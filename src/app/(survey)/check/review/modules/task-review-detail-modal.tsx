@@ -1,6 +1,6 @@
 'use client';
 
-import TemplateDetailModal from '@/components/common/template-detail-modal';
+import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { ReviewStatusObject } from '@/types/CommonType';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import type { TreeDataNode } from 'antd';

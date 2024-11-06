@@ -1,8 +1,8 @@
 'use client';
 import Api from '@/api';
 import { StaffListResponse } from '@/api/staff/get-staff-list';
+import MemberManage from '@/app/modules/member-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
-import MemberManage from '@/components/common/member-manage';
 import { lusitana } from '@/components/display/fonts';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';

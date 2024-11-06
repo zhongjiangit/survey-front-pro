@@ -1,6 +1,6 @@
 'use client';
 
-import TemplateDetailModal from '@/components/common/template-detail-modal';
+import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import {
   PublishTypeEnum,
   TaskStatusObject,
