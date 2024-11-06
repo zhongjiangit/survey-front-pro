@@ -1,6 +1,6 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { Table, TableProps } from 'antd';
+
+import { Button, Table, TableProps } from 'antd';
 import React, { useMemo } from 'react';
 
 interface DataType {
@@ -68,7 +68,7 @@ const Recharge: React.FC = () => {
     <div className="flex flex-col gap-5 pt-3">
       <Table columns={columns} dataSource={data} />
       <div className="flex justify-center items-center">
-        <Button variant="outline" size="lg" className="text-lg">
+        <Button size="large" className="text-lg">
           充值/续费
         </Button>
       </div>

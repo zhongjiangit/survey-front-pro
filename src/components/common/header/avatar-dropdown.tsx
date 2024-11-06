@@ -1,21 +1,21 @@
 'use client';
-import { Button } from '@/components/ui/button';
+
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import {
   ApartmentOutlined,
   LogoutOutlined,
   TeamOutlined,
   UserSwitchOutlined,
 } from '@ant-design/icons';
-import { type MenuProps } from 'antd';
+import { Button, type MenuProps } from 'antd';
 import { CircleUserRound } from 'lucide-react';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback, useState } from 'react';
 import HeaderDropdown from './header-dropdown';
+import OrgSwitchModal from './switch-modal/org-switch-modal';
 import RoleSwitchModal from './switch-modal/role-switch-modal';
 import SystemSwitchModal from './switch-modal/system-switch-modal';
-import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import OrgSwitchModal from './switch-modal/org-switch-modal';
-import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -117,7 +117,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
         }}
         placement="bottomRight"
       >
-        <Button size="sm" variant="ghost" className="flex gap-1 items-center">
+        <Button type="text" className="flex gap-1 items-center">
           <CircleUserRound className="w-5 h-5" />
           {currentRole?.name}
         </Button>
