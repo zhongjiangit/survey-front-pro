@@ -2,7 +2,6 @@
 
 import type { TreeDataNode, TreeProps } from 'antd';
 import { Tree } from 'antd';
-import { useEffect, useState } from 'react';
 
 interface OrgTreeProps {
   selectedOrg: React.Key | undefined;

@@ -33,7 +33,7 @@ interface ListReviewTaskExpertParamsType {}
   reviewRate	int		评审阶段填报比例，0-100整数值
   reviewTaskStatus	int		任务状态 0：未开始 1：进行中 2：完成
 */
-interface ListReviewTaskExpertResponse {
+export interface ListReviewTaskExpertResponse {
   taskId: number;
   systemId: number;
   createOrgId: number;

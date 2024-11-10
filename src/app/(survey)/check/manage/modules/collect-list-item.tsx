@@ -1,3 +1,4 @@
+import { ListReviewTaskPublisherResponse } from '@/api/task/listReviewTaskPublisher';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import {
   EvaluateStatusTypeEnum,
@@ -23,7 +24,7 @@ import TaskPassedModal from './task-passed-modal';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
-  itemData: ItemDataType;
+  itemData: ItemDataType | undefined;
 }
 
 // taskId	int		任务id
@@ -122,7 +123,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       title: <div>阶段名称</div>,
       dataIndex: 'stage',
       align: 'center',
-      render: (text: any, record: any) => {
+      render: (text: any) => {
+        //  todo 接口无字段
         return <div>{text}</div>;
       },
     },
@@ -144,7 +146,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       render: (_: any, record: any) => {
         return (
           <div className="flex flex-col gap-3 justify-center items-center">
-            <div>{record.orgName}</div>
+            <div>{record.createOrgName}</div>
             <div>{record.staffName}</div>
           </div>
         );
@@ -191,7 +193,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div>
             <div>
-              <TemplateDetailModal />
+              <TemplateDetailModal
+                // todo 模板在修改接受参数
+                TemplateDetailModalProps={record.templateId}
+                TemplateType={1}
+              />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>
@@ -225,16 +231,16 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.beginTimeFillEstimate.slice(0, -3)}</div>
+            <div>{record?.beginTimeEstimate?.slice(0, -3)}</div>
             <div>~</div>
-            <div>{record.endTimeFillEstimate.slice(0, -3)}</div>
+            <div>{record?.endTimeEstimate?.slice(0, -3)}</div>
           </div>
         );
       },
     },
     {
       title: <div>任务完成时间</div>,
-      dataIndex: 'endTimeFillActual',
+      dataIndex: 'endTimeActual',
       width: '11%',
       align: 'center',
       render: (text: any) => {
@@ -243,7 +249,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     },
     {
       title: <div>通过数量</div>,
-      dataIndex: 'key7',
+      dataIndex: 'PassCount',
       align: 'center',
       render: (_: any, record: any, index: number) => {
         if (index === 0) {
@@ -272,7 +278,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           <div>
             <div>{record.passPeople}人</div>
             <div>{record.passCount}份</div>
-            <div>{record.passPercent}</div>
+            <div>{record.reviewPassRate}</div>
           </div>
         );
       },
@@ -291,13 +297,17 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                     setFilledNumModalOpen(true);
                   }}
                 >
-                  <a className="text-blue-500 block">{record.fillPeople}人</a>
-                  <a className="text-blue-500 block">{record.fillCount}份</a>
+                  <a className="text-blue-500 block">
+                    {record.showFillPeople}人
+                  </a>
+                  <a className="text-blue-500 block">
+                    {record.showFillCount}份
+                  </a>
                 </div>
               ) : (
                 <div>
-                  <div>{record.fillPeople}人</div>
-                  <div>{record.fillCount}份</div>
+                  <div>{record.showFillPeople}人</div>
+                  <div>{record.showFillCount}份</div>
                 </div>
               )}
             </div>
@@ -305,9 +315,9 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         }
         return (
           <div>
-            <div>{record.passPeople}人</div>
-            <div>{record.passCount}份</div>
-            <div>{record.passPercent}</div>
+            <div>{record.showFillPeople}人</div>
+            <div>{record.showFillCount}份</div>
+            <div>{record.reviewRate}</div>
           </div>
         );
       },
@@ -375,10 +385,40 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
   ];
+
+  const splitItemData = (obj: ListReviewTaskPublisherResponse) => {
+    const arr = [];
+    arr[0] = {
+      ...obj,
+      stage: '（一）试题征集',
+      taskStatus: obj.fillTaskStatus,
+      passPeople: obj.fillPassPeople,
+      paaCount: obj.fillPassCount,
+      beginTimeEstimate: obj.beginTimeFillEstimate,
+      endTimeEstimate: obj.endTimeFillEstimate,
+      endTimeActual: obj.endTimeFillActual,
+      showFillPeople: obj.fillPeople,
+      showFillCount: obj.fillCount,
+    };
+    arr[0] = {
+      ...obj,
+      stage: '（二）专家评审',
+      taskStatus: obj.reviewTaskStatus,
+      passPeople: obj.reviewPassPeople,
+      paaCount: obj.reviewPassCount,
+      beginTimeEstimate: obj.beginTimeReviewEstimate,
+      endTimeEstimate: obj.endTimeReviewEstimate,
+      endTimeActual: obj.endTimeReviewActual,
+      showFillPeople: obj.reviewPassCount,
+      showFillCount: obj.reviewPassCount,
+    };
+    return arr;
+  };
+
   return (
     <>
       <div className="flex flex-col gap-5">
-        {itemData.map((item, index) => {
+        {itemData?.map((item, index) => {
           return (
             <div key={index}>
               <div className="flex justify-between items-center">
@@ -396,7 +436,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               <Table
                 pagination={false}
                 columns={columns}
-                dataSource={item}
+                dataSource={splitItemData(item)}
               ></Table>
             </div>
           );
