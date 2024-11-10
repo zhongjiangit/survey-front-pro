@@ -172,7 +172,7 @@ export const checkDetailData: any[] = [
     org1: '四川省总办',
     org2: '成都总办',
     org3: '第二小学',
-    name: '杨3',
+    name: '杨5',
     phone: '123456789',
     detail: 2,
     finishRate: 20,
