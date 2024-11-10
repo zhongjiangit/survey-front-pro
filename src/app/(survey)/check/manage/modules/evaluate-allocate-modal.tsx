@@ -1,23 +1,20 @@
 'use client';
 
+import Circle from '@/components/display/circle';
+import { cn } from '@/lib/utils';
+import type { CheckboxProps, TableColumnsType, TableProps } from 'antd';
 import {
   Button,
   Checkbox,
   DatePicker,
-  Form,
-  Input,
   Modal,
   Select,
-  Switch,
   Table,
   Tree,
   TreeDataNode,
   TreeSelect,
 } from 'antd';
 import React, { useState } from 'react';
-import type { TableColumnsType, TableProps, CheckboxProps } from 'antd';
-import Circle from '@/components/display/circle';
-import { cn } from '@/lib/utils';
 
 const { RangePicker } = DatePicker;
 
@@ -124,6 +121,7 @@ const EvaluateAllocateModal: React.FC<
   EvaluateAllocateModalProps
 > = ({}: EvaluateAllocateModalProps) => {
   const [open, setOpen] = useState(false);
+  const [selectedModalOpen, setSelectedModalOpen] = useState(false);
   const [evaluateType, setEvaluateType] = useState('1');
   const [checkedList, setCheckedList] = useState<string[]>(defaultCheckedList);
 
@@ -236,27 +234,14 @@ const EvaluateAllocateModal: React.FC<
                   <div className="bg-slate-300 p-3">
                     已分配试题详情/删除已分配
                   </div>
-                  <div className="h-96 w-full p-x overflow-auto">
-                    {
-                      /* 循环生成10个tree组件 */
-                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => {
-                        return (
-                          <Tree
-                            key={index}
-                            checkable
-                            treeData={treeData[1]}
-                            // defaultExpandAll
-                            style={{
-                              flexShrink: 1,
-                              // marginRight: '10%',
-                            }}
-                          />
-                        );
-                      })
-                    }
-                  </div>
-                  <div className="flex p-2 justify-center">
-                    <Button>删除已选</Button>
+                  <div className="flex justify-center items-center h-40">
+                    <Button
+                      onClick={() => {
+                        setSelectedModalOpen(true);
+                      }}
+                    >
+                      查看详情
+                    </Button>
                   </div>
                 </div>
               )}
@@ -297,7 +282,7 @@ const EvaluateAllocateModal: React.FC<
                   </div>
                 </div>
 
-                <Test />
+                <TestTable />
               </div>
               <div className="flex justify-center p-2 gap-5">
                 <Button type="default">全选试题</Button>
@@ -309,6 +294,17 @@ const EvaluateAllocateModal: React.FC<
             </div>
           </div>
         </div>
+      </Modal>
+      <Modal
+        style={{ top: '5%' }}
+        open={selectedModalOpen}
+        title="专家评审分配"
+        onCancel={() => setSelectedModalOpen(false)}
+        width={1200}
+        footer={false}
+        destroyOnClose
+      >
+        <SelectedTestTable />
       </Modal>
     </>
   );
@@ -323,6 +319,101 @@ interface DataType {
   experts: number;
   name: string;
 }
+
+const selectedTestColumns: TableColumnsType<DataType> = [
+  {
+    title: '单位',
+    dataIndex: 'org',
+    filters: [
+      {
+        text: '单位1',
+        value: '1',
+      },
+      {
+        text: '单位2',
+        value: 'Category 1',
+        children: [
+          {
+            text: '单位3',
+            value: 'Yellow',
+          },
+          {
+            text: '单位4',
+            value: 'Pink',
+          },
+        ],
+      },
+    ],
+    filterMode: 'tree',
+    filterSearch: true,
+    onFilter: (value, record) => record.org.includes(value as string),
+    width: '15%',
+  },
+  {
+    title: '姓名',
+    dataIndex: 'name',
+    filters: [
+      {
+        text: '语文',
+        value: '1',
+      },
+      {
+        text: '数学',
+        value: 'Category 1',
+        children: [
+          {
+            text: '小学数学',
+            value: 'Yellow',
+          },
+          {
+            text: '初中数学',
+            value: 'Pink',
+          },
+        ],
+      },
+    ],
+    filterMode: 'tree',
+    filterSearch: true,
+    onFilter: (value, record) => record.name.includes(value as string),
+    width: '20%',
+  },
+  {
+    title: '试题编号',
+    dataIndex: 'num',
+    render: (text, record) => <Circle value={3} />,
+  },
+  {
+    title: '已分配专家',
+    dataIndex: 'num',
+    render: (text, record) => <span>5</span>,
+  },
+  {
+    title: (
+      <div className="flex gap-1">
+        <span>专家列表</span>
+      </div>
+    ),
+    width: '48%',
+    render: text => {
+      return (
+        <div className="flex gap-1">
+          <div className="flex flex-nowrap">
+            <Checkbox />
+            <span>杨专家12345678900</span>
+          </div>
+          <div className="flex flex-nowrap">
+            <Checkbox />
+            <span>杨专家12345678900</span>
+          </div>
+          <div className="flex flex-nowrap">
+            <Checkbox />
+            <span>杨专家12345678900</span>
+          </div>
+        </div>
+      );
+    },
+  },
+];
 
 const columns: TableColumnsType<DataType> = [
   {
@@ -498,11 +589,20 @@ const onChange: TableProps<DataType>['onChange'] = (
   console.log('params', pagination, filters, sorter, extra);
 };
 
-const Test: React.FC = () => (
+const TestTable: React.FC = () => (
   <Table<DataType>
     size="small"
     className="w-[48rem]"
     columns={columns}
+    dataSource={data}
+    onChange={onChange}
+  />
+);
+
+const SelectedTestTable: React.FC = () => (
+  <Table<DataType>
+    size="small"
+    columns={selectedTestColumns}
     dataSource={data}
     onChange={onChange}
   />

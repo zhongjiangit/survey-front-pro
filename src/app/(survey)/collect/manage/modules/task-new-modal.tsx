@@ -1,7 +1,7 @@
 'use client';
 
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
-import { PublishTypeEnum } from '@/types/CommonType';
+import { PublishTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import {
   Button,
   Checkbox,
@@ -17,7 +17,7 @@ import {
   Select,
   Tree,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { treeData } from '../../testData';
 
 interface TaskEditModalProps {}
@@ -49,14 +49,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
     }
   };
 
-  useEffect(() => {
-    const checkedList = form.getFieldValue('orgs');
-    setIndeterminate(
-      checkedList?.length > 0 && checkedList?.length < plainOptions.length
-    );
-    setCheckAll(plainOptions.length === form.getFieldValue('orgs')?.length);
-  }, [form, plainOptions.length]);
-
   const MemberSelect = (
     <div>
       <div className="flex justify-between items-center">
@@ -74,19 +66,13 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
             ]}
           />
         </div>
-        <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
+        <div className="mr-5 text-right">
+          <span className="text-blue-400">已选：4人</span>
+          <span>清空</span>
+        </div>
       </div>
 
       <Divider></Divider>
-      <div className="mb-3 pl-6">
-        <Checkbox
-          indeterminate={indeterminate}
-          onChange={onCheckAllChange}
-          checked={checkAll}
-        >
-          全选
-        </Checkbox>
-      </div>
 
       <div
         style={{
@@ -175,6 +161,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       </Checkbox>
       <Form.Item name="orgs" label="">
         <Checkbox.Group
+          onChange={checkedList => {
+            setIndeterminate(
+              !!checkedList.length && checkedList.length < plainOptions.length
+            );
+            setCheckAll(checkedList.length === plainOptions.length);
+          }}
           options={[
             { label: 'aaaaa单位', value: '1' },
             { label: 'bbbbb单位', value: '2' },
@@ -247,11 +239,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
                 label="任务起止时间"
                 rules={[{ required: true }]}
               >
-                <RangePicker
-                  format="YYYY-MM-DD HH:mm"
-                  showTime={{ format: 'HH:mm' }}
-                  style={{ width: '100%' }}
-                />
+                <RangePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -264,8 +252,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
                   options={[{ label: '关于2024基础建设费用收集', value: '1' }]}
                 ></Select>
                 <a className="text-blue-500">
-                  查看已选
-                  <TemplateDetailModal />
+                  <TemplateDetailModal
+                    templateId={form.getFieldValue('templateId')}
+                    TemplateType={TemplateTypeEnum.Collect}
+                  />
                 </a>
               </Form.Item>
             </Col>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Col, Form, Input, Modal, Row } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface TaskDeleteModalProps {}
 
@@ -37,11 +37,11 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
           });
         }}
       >
-        删除
+        取消
       </a>
       <Modal
         open={open}
-        title="删除资料收集"
+        title="取消资料收集"
         okText="确定"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}

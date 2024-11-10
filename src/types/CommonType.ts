@@ -11,6 +11,7 @@ export type RoleType = {
   isActive: boolean;
   label: string;
   name: string | boolean | undefined;
+  staffType?: StaffType;
 };
 
 export type StaffType = 1 | 2 | 3; // 是单位成员，则有单位成员类型 1: 单位管理员 2: 普通管理员 3: 普通成员

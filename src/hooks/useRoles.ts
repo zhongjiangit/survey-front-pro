@@ -3,7 +3,7 @@
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import { RoleType } from '@/types/CommonType';
+import { RoleType, StaffTypeEnum } from '@/types/CommonType';
 import { useEffect, useState } from 'react';
 
 export function useRoles() {
@@ -38,18 +38,21 @@ export function useRoles() {
           label: '单位管理员',
           isActive: currentOrg?.isStaff === 1 && currentOrg?.staffType === 1,
           name: currentOrg?.isStaff === 1 && currentOrg.staffName,
+          staffType: StaffTypeEnum.UnitAdmin,
         },
         {
           key: 'isManager',
           label: '一般管理员',
           isActive: currentOrg?.isStaff === 1 && currentOrg?.staffType === 2,
           name: currentOrg?.isStaff === 1 && currentOrg.staffName,
+          staffType: StaffTypeEnum.Admin,
         },
         {
           key: 'isMember',
           label: '普通成员',
           isActive: currentOrg?.isStaff === 1 && currentOrg?.staffType === 3,
           name: currentOrg?.isStaff === 1 && currentOrg.staffName,
+          staffType: StaffTypeEnum.Member,
         },
       ];
       setRoles(roles);

@@ -1,28 +1,43 @@
-import { CollectItemType } from '@/api/template/get-details';
-import renderFormItem from '@/lib/render-form-item';
-import { EditOutlined } from '@ant-design/icons';
-import { useRequest } from 'ahooks';
-import { Button, Form, Modal } from 'antd';
-import { ReactNode, useState } from 'react';
 import Api from '@/api';
+import { CollectItemType } from '@/api/template/get-details';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import renderFormItem from '@/lib/render-form-item';
+import { TemplateType } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
+import { Button, Empty, Form, Modal } from 'antd';
+import { ReactNode, useState } from 'react';
 
 interface TemplateDetailModalProps {
   title?: string;
   showDom?: ReactNode;
-  templateId?: number;
+  templateId: number;
+  TemplateType: TemplateType;
 }
 
-const TemplateDetailModal = ({ title, showDom }: TemplateDetailModalProps) => {
+const TemplateDetailModal = ({
+  title,
+  showDom,
+  templateId,
+  TemplateType,
+}: TemplateDetailModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
-  const { data } = useRequest(() => {
-    return Api.getTemplateDetails({
-      currentSystemId: 5,
-      templateId: 1,
-      templateType: 1,
-    });
-  });
+  const { data } = useRequest(
+    () => {
+      return Api.getTemplateDetails({
+        currentSystemId: currentSystem?.systemId!,
+        templateId: templateId,
+        templateType: TemplateType,
+      }).then(value => {
+        return value;
+      });
+    },
+    {
+      refreshDeps: [templateId, open],
+    }
+  );
 
   return (
     <>
@@ -52,7 +67,7 @@ const TemplateDetailModal = ({ title, showDom }: TemplateDetailModalProps) => {
           autoComplete="off"
           name="template_detail_modal"
         >
-          {data?.data?.items?.length &&
+          {!!data?.data?.items?.length ? (
             data?.data?.items.map((item: CollectItemType, index: number) => (
               <div className="flex" key={index}>
                 <Form.Item
@@ -73,7 +88,10 @@ const TemplateDetailModal = ({ title, showDom }: TemplateDetailModalProps) => {
                   })}
                 </Form.Item>
               </div>
-            ))}
+            ))
+          ) : (
+            <Empty />
+          )}
           <Form.Item className="flex justify-center">
             <Button disabled type="primary" htmlType="submit">
               提交

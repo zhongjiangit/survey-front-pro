@@ -1,7 +1,14 @@
 'use client';
 
+import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
-import { PublishTypeEnum } from '@/types/CommonType';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { PublishTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
+import {
+  CloseCircleOutlined,
+  ExclamationCircleFilled,
+} from '@ant-design/icons';
+import { useRequest } from 'ahooks';
 import {
   Button,
   Checkbox,
@@ -17,8 +24,11 @@ import {
   Select,
   Tree,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { treeData } from '../../testData';
+
+const { RangePicker } = DatePicker;
+const { confirm } = Modal;
 
 interface TaskEditModalProps {}
 
@@ -27,11 +37,22 @@ interface Values {
 }
 
 const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
+  const [modal, contextHolder] = Modal.useModal();
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [checkAll, setCheckAll] = useState(false);
+  const [templateId, setTemplateId] = useState<number>();
   const [indeterminate, setIndeterminate] = useState(false);
-  const { RangePicker } = DatePicker;
+  const [filterValue, setFilterValue] = useState<string[]>([]);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+
+  const { data: checkList, loading: checkListLoading } = useRequest(() => {
+    return Api.getTemplateOutlineList({
+      currentSystemId: currentSystem?.systemId!,
+      templateType: TemplateTypeEnum.Check,
+    });
+  });
+
   const onCreate = (values: Values) => {
     console.log('Received values of form: ', values);
     setOpen(false);
@@ -47,19 +68,33 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       form.setFieldValue('orgs', []);
       setCheckAll(false);
     }
+    setIndeterminate(false);
   };
 
-  useEffect(() => {
-    const checkedList = form.getFieldValue('orgs');
-    setIndeterminate(
-      checkedList?.length > 0 && checkedList?.length < plainOptions.length
-    );
-    setCheckAll(plainOptions.length === form.getFieldValue('orgs')?.length);
-  }, [form, plainOptions.length]);
+  const onFilterChange = (value: string[]) => {
+    console.log(value);
+    setFilterValue(value);
+  };
+
+  const showConfirm = () => {
+    // TODO 之前所选单位是不是为空，，不为空则需要确认。
+    modal.confirm({
+      title: '过滤条件确认',
+      icon: <ExclamationCircleFilled />,
+      content: <>改变过滤条件之后，之前的选择将会清空，确认改变过滤条件？</>,
+      onOk() {
+        console.log('OK');
+      },
+      onCancel() {
+        console.log('Cancel');
+        onFilterChange([]);
+      },
+    });
+  };
 
   const MemberSelect = (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pl-20">
         <div className="w-96 flex items-center">
           <span>人员过滤：</span>
           <Select
@@ -74,19 +109,16 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
             ]}
           />
         </div>
-        <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
+        <div className="mr-5 text-right flex gap-4 items-center">
+          <span className="text-blue-400">已选：4人</span>
+          <span className="cursor-pointer text-red-500 hover:text-red-600">
+            <CloseCircleOutlined />
+            清空
+          </span>
+        </div>
       </div>
 
       <Divider></Divider>
-      <div className="mb-3 pl-6">
-        <Checkbox
-          indeterminate={indeterminate}
-          onChange={onCheckAllChange}
-          checked={checkAll}
-        >
-          全选
-        </Checkbox>
-      </div>
 
       <div
         style={{
@@ -94,6 +126,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           justifyContent: 'space-between',
           margin: '0 40px 0 0',
         }}
+        className="px-20"
       >
         <Tree
           checkable
@@ -125,6 +158,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       </div>
     </div>
   );
+
   const OrgSelect = (
     <>
       <Form.Item
@@ -147,13 +181,15 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           ]}
         ></Checkbox.Group>
       </Form.Item>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pl-20">
         <div className="w-96 flex items-center">
           <span>单位过滤：</span>
           <Select
             mode="multiple"
             className="w-72 flex-1"
-            // onChange={handleChange}
+            value={filterValue}
+            onChange={onFilterChange}
+            onBlur={showConfirm}
             options={[
               { label: 'aaaaa', value: '1' },
               { label: 'bbbbb', value: '2' },
@@ -166,23 +202,31 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       </div>
 
       <Divider></Divider>
-      <Checkbox
-        indeterminate={indeterminate}
-        onChange={onCheckAllChange}
-        checked={checkAll}
-      >
-        全选
-      </Checkbox>
-      <Form.Item name="orgs" label="">
-        <Checkbox.Group
-          options={[
-            { label: 'aaaaa单位', value: '1' },
-            { label: 'bbbbb单位', value: '2' },
-            { label: 'ccccc单位', value: '3' },
-            { label: 'ddddd单位', value: '4' },
-          ]}
-        ></Checkbox.Group>
-      </Form.Item>
+      <div className="px-20">
+        <Checkbox
+          indeterminate={indeterminate}
+          onChange={onCheckAllChange}
+          checked={checkAll}
+        >
+          全选
+        </Checkbox>
+        <Form.Item name="orgs" label="">
+          <Checkbox.Group
+            onChange={checkedList => {
+              setIndeterminate(
+                !!checkedList.length && checkedList.length < plainOptions.length
+              );
+              setCheckAll(checkedList.length === plainOptions.length);
+            }}
+            options={[
+              { label: 'aaaaa单位', value: '1' },
+              { label: 'bbbbb单位', value: '2' },
+              { label: 'ccccc单位', value: '3' },
+              { label: 'ddddd单位', value: '4' },
+            ]}
+          ></Checkbox.Group>
+        </Form.Item>
+      </div>
     </>
   );
 
@@ -202,122 +246,137 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         title="新建任务"
         okText="确定"
         cancelText="取消"
+        destroyOnClose
         okButtonProps={{
           autoFocus: true,
           htmlType: 'submit',
           onClick: () => form.submit(),
         }}
         onCancel={() => setOpen(false)}
-      >
-        <Form
-          form={form}
-          name="form_new_task_modal"
-          onFinish={values => onCreate(values)}
-          labelCol={{ span: 9 }}
-          wrapperCol={{ span: 24 }}
-          style={{
-            maxHeight: '520px',
-            overflow: 'auto',
-            margin: '30px 0',
-          }}
-          initialValues={{ publishType: PublishTypeEnum.Org, maxFillCount: 1 }}
-        >
-          <Row
-            gutter={24}
+        modalRender={dom => (
+          <Form
+            form={form}
+            name="form_new_task_modal"
+            onFinish={values => onCreate(values)}
+            onError={v => {
+              console.log(v);
+            }}
+            labelCol={{ span: 9 }}
+            wrapperCol={{ span: 24 }}
             style={{
-              marginRight: '40px',
+              overflow: 'auto',
+              margin: '30px 0',
+            }}
+            initialValues={{
+              publishType: PublishTypeEnum.Org,
+              maxFillCount: 1,
             }}
           >
-            <Col span={12}>
-              <Form.Item
-                name="taskName"
-                label="任务名称"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input type="input" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="timeFillEstimate"
-                label="任务起止时间"
-                rules={[{ required: true }]}
-              >
-                <RangePicker
-                  format="YYYY-MM-DD HH:mm"
-                  showTime={{ format: 'HH:mm' }}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="templateId"
-                label="选择资料收集模板"
-                rules={[{ required: true }]}
-              >
-                <Select
-                  options={[{ label: '关于2024基础建设费用收集', value: '1' }]}
-                ></Select>
+            {dom}
+          </Form>
+        )}
+      >
+        <Row
+          gutter={24}
+          style={{
+            marginRight: '40px',
+          }}
+        >
+          <Col span={12}>
+            <Form.Item
+              name="taskName"
+              label="任务名称"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Input type="input" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="timeFillEstimate"
+              label="任务起止时间"
+              rules={[{ required: true }]}
+            >
+              <RangePicker style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="templateId"
+              label="选择资料收集模板"
+              rules={[{ required: true }]}
+            >
+              <Select
+                loading={checkListLoading}
+                onChange={e => {
+                  setTemplateId(e);
+                }}
+                options={checkList?.data.map(item => ({
+                  label: item.templateTitle,
+                  value: item.templateId,
+                }))}
+              ></Select>
+              {templateId && (
                 <a className="text-blue-500">
-                  查看已选
-                  <TemplateDetailModal />
+                  <TemplateDetailModal
+                    templateId={templateId}
+                    TemplateType={TemplateTypeEnum.Check}
+                  />
                 </a>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="maxFillCount" label="每位填报者可提交最多份数">
-                <InputNumber style={{ width: '100%' }} min={0}></InputNumber>
-                <span className="text-slate-500">
-                  *当不输入值时，为不限份数
-                </span>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="testDescription"
-                label="任务描述"
-                rules={[{ required: true }]}
-              >
-                <Input.TextArea cols={3} placeholder="请输入任务描述" />
-              </Form.Item>
-            </Col>
-            <Col span={12}></Col>
-            <Col span={12}>
-              <Form.Item name="publishType" label="任务分配方式">
-                <Radio.Group>
-                  <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
-                  <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
-                </Radio.Group>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item noStyle dependencies={['publishType']}>
-            {({ getFieldValue }) => {
-              return (
-                <div className="flex justify-center">
-                  <div
-                    style={{
-                      width: '90%',
-                    }}
-                  >
-                    <Divider orientation="left">分配详情</Divider>
-                    <div style={{ marginLeft: '20px' }}>
-                      {getFieldValue('publishType') === PublishTypeEnum.Org
-                        ? OrgSelect
-                        : MemberSelect}
-                    </div>
+              )}
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="maxFillCount" label="每位填报者可提交最多份数">
+              <InputNumber style={{ width: '100%' }} min={0}></InputNumber>
+              <span className="text-slate-500">*当不输入值时，为不限份数</span>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="testDescription"
+              label="任务描述"
+              rules={[{ required: true }]}
+            >
+              <Input.TextArea cols={3} placeholder="请输入任务描述" />
+            </Form.Item>
+          </Col>
+          <Col span={12}></Col>
+          <Col span={12}>
+            <Form.Item name="publishType" label="任务分配方式">
+              <Radio.Group>
+                <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
+                <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item noStyle dependencies={['publishType']}>
+          {({ getFieldValue }) => {
+            return (
+              <div className="flex justify-center">
+                <div
+                  style={{
+                    width: '90%',
+                  }}
+                >
+                  <Divider orientation="left">分配详情</Divider>
+                  <div style={{ marginLeft: '20px' }}>
+                    {getFieldValue('publishType') === PublishTypeEnum.Org
+                      ? OrgSelect
+                      : MemberSelect}
                   </div>
                 </div>
-              );
-            }}
-          </Form.Item>
-        </Form>
+              </div>
+            );
+          }}
+        </Form.Item>
       </Modal>
+      {contextHolder}
     </div>
   );
 };

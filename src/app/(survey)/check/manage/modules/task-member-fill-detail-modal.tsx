@@ -1,7 +1,7 @@
 'use client';
 
 import type { TableColumnsType, TableProps } from 'antd';
-import { Button, Modal, Popover, Space, Table } from 'antd';
+import { Modal, Popover, Space, Table } from 'antd';
 import React from 'react';
 
 type TableRowSelection<T extends object = object> =
@@ -87,7 +87,6 @@ const TaskMemberFillDetailModal = ({
       title={
         <div className="flex gap-5 items-center justify-between mb-3 pr-10">
           <h2 className="text-xl">任务详情</h2>
-          <Button type="primary">一键通过</Button>
         </div>
       }
       okText="确定"
