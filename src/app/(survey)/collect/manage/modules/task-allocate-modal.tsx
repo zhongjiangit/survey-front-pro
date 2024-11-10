@@ -206,11 +206,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
                     label="任务起止时间"
                     rules={[{ required: true }]}
                   >
-                    <RangePicker
-                      format="YYYY-MM-DD HH:mm"
-                      showTime={{ format: 'HH:mm' }}
-                      style={{ width: '100%' }}
-                    />
+                    <RangePicker style={{ width: '100%' }} />
                   </Form.Item>
                 </div>
                 <Divider orientation="left">分配详情</Divider>
