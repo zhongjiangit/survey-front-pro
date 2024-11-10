@@ -5,15 +5,25 @@ import { Button, Modal, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 // import { checkDetailData } from '../testData';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+
+import {
+  fullJoinRowSpanData,
+  joinRowSpanKeyParamsType,
+} from '@/lib/join-rowspan-data';
 import { checkDetailData } from '../../testData';
 import ProfessorDetail from './modules/professor-detail';
-import { joinRowSpanData } from './utils/joinRowSpanData';
 
 interface ReviewDetailModalProps {}
 interface DataType {
   [key: string]: any;
 }
-const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
+
+const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
+  { coKey: 'org1', compareKeys: ['org1'] },
+  { coKey: 'org2', compareKeys: ['org2'] },
+  { coKey: 'org3', compareKeys: ['org3'] },
+  { coKey: 'name', compareKeys: ['name', 'org3'] },
+];
 const ReviewDetailModal = () => {
   const [dataSource, setDataSource] = useState<any>();
 
@@ -136,8 +146,8 @@ const ReviewDetailModal = () => {
 
   useEffect(() => {
     setDataSource(
-      joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
-        return joinRowSpanData(prev, currentKey);
+      joinRowSpanKey.reduce((prev: any[] | undefined, keyParams) => {
+        return fullJoinRowSpanData(prev, keyParams);
       }, checkDetailData)
     );
 

@@ -5,10 +5,10 @@ import { Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 // import { checkDetailData } from '../testData';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { joinRowSpanData } from '@/lib/join-rowspan-data';
 import { checkDetailData } from '../../testData';
 import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
-import { joinRowSpanData } from './utils/joinRowSpanData';
 
 interface CheckDetailProps {}
 interface DataType {

@@ -2,7 +2,7 @@ import Circle from '@/components/display/circle';
 import { Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
 // import { professorResultData } from '../../testData';
-import { joinRowSpanData } from '../utils/joinRowSpanData';
+import { joinRowSpanData } from '@/lib/join-rowspan-data';
 import { professorResultData } from '../../../testData';
 
 interface ProfessorDetailProps {

@@ -1,6 +1,7 @@
 import { Button, Modal, Space, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { joinRowSpanData } from '../utils/joinRowSpanData';
+
+import { joinRowSpanData } from '@/lib/join-rowspan-data';
 import { checkDetailProfessorData } from '../../../testData';
 
 interface ProfessorDetailProps {
