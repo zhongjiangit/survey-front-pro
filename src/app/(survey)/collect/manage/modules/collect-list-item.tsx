@@ -5,6 +5,7 @@ import {
   PublishTypeType,
   TaskStatusObject,
   TaskStatusTypeEnum,
+  TemplateTypeEnum,
 } from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
@@ -137,7 +138,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div>
             <div>
-              <TemplateDetailModal />
+              <TemplateDetailModal
+                templateId={1}
+                TemplateType={TemplateTypeEnum.Collect}
+              />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>

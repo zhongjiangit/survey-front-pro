@@ -5,6 +5,7 @@ import {
   PublishTypeEnum,
   TaskStatusObject,
   TaskStatusTypeEnum,
+  TemplateTypeEnum,
 } from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import TaskAllocateModal from '../manage/modules/task-allocate-modal';
@@ -90,7 +91,10 @@ const ToAllotTask = () => {
         return (
           <div>
             <div>
-              <TemplateDetailModal />
+              <TemplateDetailModal
+                templateId={1}
+                TemplateType={TemplateTypeEnum.Check}
+              />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>

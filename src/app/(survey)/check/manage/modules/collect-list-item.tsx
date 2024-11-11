@@ -7,6 +7,7 @@ import {
   PublishTypeType,
   TaskStatusObject,
   TaskStatusTypeEnum,
+  TemplateTypeEnum,
 } from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
@@ -194,9 +195,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           <div>
             <div>
               <TemplateDetailModal
-                // todo 模板在修改接受参数
-                TemplateDetailModalProps={record.templateId}
-                TemplateType={1}
+                templateId={1}
+                TemplateType={TemplateTypeEnum.Check}
               />
             </div>
             {record.maxFillCount !== 0 ? (
