@@ -1,7 +1,7 @@
 'use client';
 
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
-import { ReviewStatusObject } from '@/types/CommonType';
+import { ReviewStatusObject, TemplateTypeEnum } from '@/types/CommonType';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import type { TreeDataNode } from 'antd';
 import { Button, Divider, Input, InputNumber, Modal, Space, Table } from 'antd';
@@ -71,7 +71,13 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
       dataIndex: 'testPaper',
       align: 'center',
       render: (_: any, record: any) => {
-        return <TemplateDetailModal showDom={'详情'} />;
+        return (
+          <TemplateDetailModal
+            showDom={'详情'}
+            templateId={1}
+            TemplateType={TemplateTypeEnum.Check}
+          />
+        );
       },
     },
     {

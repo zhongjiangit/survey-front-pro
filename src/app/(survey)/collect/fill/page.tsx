@@ -1,7 +1,11 @@
 'use client';
 
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
-import { ProcessStatusObject, ProcessStatusTypeEnum } from '@/types/CommonType';
+import {
+  ProcessStatusObject,
+  ProcessStatusTypeEnum,
+  TemplateTypeEnum,
+} from '@/types/CommonType';
 import { Space, Table } from 'antd';
 import Link from 'next/link';
 import { toAllotTaskData } from '../testData';
@@ -79,7 +83,10 @@ const ToAllotTask = () => {
         return (
           <div>
             <div>
-              <TemplateDetailModal />
+              <TemplateDetailModal
+                templateId={1}
+                TemplateType={TemplateTypeEnum.Collect}
+              />
             </div>
             {record.maxFillCount !== 0 ? (
               <div>{record.maxFillCount}份以内</div>

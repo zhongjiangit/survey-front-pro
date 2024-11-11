@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 // import { checkDetailData } from '../testData';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { joinRowSpanData } from '@/lib/join-rowspan-data';
+import { TemplateTypeEnum } from '@/types/CommonType';
 import { checkDetailData } from '../../testData';
 import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
@@ -138,6 +139,8 @@ const ReviewResultModal = () => {
         text && (
           <div className="flex justify-center">
             <TemplateDetailModal
+              templateId={1}
+              TemplateType={TemplateTypeEnum.Check}
               title="试卷详情"
               showDom={<Circle value={text} />}
             />

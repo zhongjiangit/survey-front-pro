@@ -10,6 +10,7 @@ import {
   fullJoinRowSpanData,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
+import { TemplateTypeEnum } from '@/types/CommonType';
 import { checkDetailData } from '../../testData';
 import ProfessorDetail from './modules/professor-detail';
 
@@ -82,6 +83,8 @@ const ReviewDetailModal = () => {
       render: text => (
         <div className="flex justify-center">
           <TemplateDetailModal
+            templateId={1}
+            TemplateType={TemplateTypeEnum.Check}
             title="试卷详情"
             showDom={<Circle value={text} />}
           />
