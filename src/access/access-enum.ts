@@ -1,13 +1,13 @@
 /**
  * 权限枚举
  */
-const Access_Enum = {
-  NOT_LOGIN: 'notLogin',
-  PLATFORM_ADMIN: 'platform',
-  SYSTEM_ADMIN: 'system',
-  ORG_ADMIN: 'org',
-  NORMAL_ADMIN: 'admin',
-  USER: 'user',
-  EXPERT: 'expert',
+const Role_Enum = {
+  NOT_LOGIN: 'isNotLogin',
+  PLATFORM_ADMIN: 'isPlatformManager',
+  SYSTEM_ADMIN: 'isSystemManager',
+  ORG_ADMIN: 'isOrgManager',
+  NORMAL_ADMIN: 'isManager',
+  MEMBER: 'isMember',
+  EXPERT: 'isExpert',
 };
-export default Access_Enum;
+export default Role_Enum;
