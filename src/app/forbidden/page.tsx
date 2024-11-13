@@ -6,10 +6,10 @@ import { Button, Result } from 'antd';
 import { useMemo } from 'react';
 
 /**
- * 未找到页面
+ * 无权限页面
  * @constructor
  */
-const NotFound = () => {
+const Forbidden = () => {
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
 
   const firstMenu = useMemo(() => {
@@ -26,11 +26,12 @@ const NotFound = () => {
     });
     return paths[0].children ? paths[0].children[0].key : paths[0].key;
   }, [currentRole?.key]);
+
   return (
     <Result
-      title="404"
-      status="404"
-      subTitle="抱歉，你访问的页面不存在"
+      title="403"
+      status="403"
+      subTitle="对不起，你无权访问该页面"
       extra={
         <Button type="primary" href={firstMenu}>
           返回首页
@@ -40,4 +41,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default Forbidden;

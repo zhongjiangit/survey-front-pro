@@ -2,7 +2,7 @@ import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 
 interface OrgSwitchModalProps {
   isOrgModalOpen: boolean;
@@ -14,16 +14,20 @@ const OrgSwitchModal: FunctionComponent<OrgSwitchModalProps> = ({
   setIsOrgModalOpen,
 }) => {
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [selectedOrg, setSelectedOrg] = useState(currentOrg?.orgId);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
 
+  useEffect(() => {
+    setSelectedOrg(currentOrg?.orgId);
+  }, [currentOrg]);
+
   const onChange = (e: RadioChangeEvent) => {
-    setCurrentOrg(
-      currentSystem?.orgs?.find(org => org.orgId === e.target.value)
-    );
+    setSelectedOrg(e.target.value);
   };
 
   const handleOk = () => {
+    setCurrentOrg(currentSystem?.orgs?.find(org => org.orgId === selectedOrg));
     setIsOrgModalOpen(false);
   };
 
@@ -52,7 +56,7 @@ const OrgSwitchModal: FunctionComponent<OrgSwitchModalProps> = ({
           padding: '24px 40px',
         }}
       >
-        <Radio.Group onChange={onChange} value={currentOrg?.orgId}>
+        <Radio.Group onChange={onChange} value={selectedOrg}>
           <Space direction="vertical">
             {currentSystem?.orgs?.map(org => (
               <Radio key={org.orgId} value={org.orgId}>

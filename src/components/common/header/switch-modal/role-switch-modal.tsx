@@ -1,8 +1,7 @@
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { useRoles } from '@/hooks/useRoles';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
-import { FunctionComponent, useMemo, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 
 interface RoleSwitchModalProps {
   isRoleModalOpen: boolean;
@@ -19,19 +18,26 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
   const roles = useSurveyCurrentRoleStore(state => state.roles);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
 
+  const [selectedRole, setSelectedRole] = useState(currentRole?.key);
+
+  useEffect(() => {
+    setSelectedRole(currentRole?.key);
+  }, [currentRole]);
+
   const activeRoles = useMemo(
     () => roles?.filter(role => role.isActive),
     [roles]
   );
 
   const onChange = (e: RadioChangeEvent) => {
-    const currentRole = roles?.find(role => role.key === e.target.value);
-    if (currentRole) {
-      setCurrentRole(currentRole);
-    }
+    setSelectedRole(e.target.value);
   };
 
   const handleOk = () => {
+    const currentRole = roles?.find(role => role.key === selectedRole);
+    if (currentRole) {
+      setCurrentRole(currentRole);
+    }
     setIsRoleModalOpen(false);
   };
 
@@ -60,18 +66,13 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
           padding: '24px 40px',
         }}
       >
-        <Radio.Group onChange={onChange} value={currentRole?.key}>
+        <Radio.Group onChange={onChange} value={selectedRole}>
           <Space direction="vertical">
             {activeRoles?.map((role, index) => (
               <Radio key={index} value={role.key}>
                 {role.label}
               </Radio>
             ))}
-            {/* <Radio value={1}>平台管理员</Radio>
-            <Radio value={2}>系统管理员（用户）</Radio>
-            <Radio value={3}>普通管理员</Radio>
-            <Radio value={4}>常规用户</Radio>
-            <Radio value={5}>专家</Radio> */}
           </Space>
         </Radio.Group>
       </div>

@@ -23,17 +23,18 @@ interface Props {
 export function Provider({ colorScheme, children }: Props) {
   const store = useRef(createColorSchemeStore({ colorScheme })).current;
   const setRoles = useSurveyCurrentRoleStore(state => state.setRoles);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const setCurrentRole = useSurveyCurrentRoleStore(
     state => state.setCurrentRole
   );
   const roles = useRoles();
   useEffect(() => {
-    if (roles.length > 0) {
+    if (roles.length > 0 && !currentRole) {
       const activeRoles = roles.filter(role => role.isActive);
       setRoles(roles);
       setCurrentRole(activeRoles[0]);
     }
-  }, [roles, setCurrentRole, setRoles]);
+  }, [currentRole, roles, setCurrentRole, setRoles]);
 
   useEffect(() => {
     if (!isProd) {
