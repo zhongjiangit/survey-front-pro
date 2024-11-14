@@ -3,7 +3,7 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { UserSystemType } from '@/types/SystemType';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 
 interface SystemSwitchModalProps {
   systems?: UserSystemType[];
@@ -22,15 +22,22 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
 
+  const [selectedSystem, setSelectedSystem] = useState(currentSystem?.systemId);
+
+  useEffect(() => {
+    setSelectedSystem(currentSystem?.systemId);
+  }, [currentSystem]);
+
   const onChange = (e: RadioChangeEvent) => {
-    const currentSystem = systems?.find(
-      system => system.systemId === e.target.value
-    );
-    setCurrentSystem(currentSystem);
-    setCurrentOrg(currentSystem?.orgs[0]);
+    setSelectedSystem(e.target.value);
   };
 
   const handleOk = () => {
+    const currentSystem = systems?.find(
+      system => system.systemId === selectedSystem
+    );
+    setCurrentSystem(currentSystem);
+    setCurrentOrg(currentSystem?.orgs[0]);
     setIsSystemModalOpen(false);
   };
 
@@ -59,7 +66,7 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
           padding: '24px 40px',
         }}
       >
-        <Radio.Group onChange={onChange} value={currentSystem?.systemId}>
+        <Radio.Group onChange={onChange} value={selectedSystem}>
           <Space direction="vertical">
             {systems?.map(system => (
               <Radio key={system.systemId} value={system.systemId}>
