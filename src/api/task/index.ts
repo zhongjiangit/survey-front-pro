@@ -1,5 +1,5 @@
 import createCollectionTask from './createCollectionTask';
-import createReviewTask from './createReviewTask';
+import createInspTask from './createInspTask';
 import deleteCollectionTask from './deleteCollectionTask';
 import deleteReviewTask from './deleteReviewTask';
 import editCollectionTask from './editCollectionTask';
@@ -10,6 +10,7 @@ import getReviewTaskReview from './getReviewTaskReview';
 import listAssignCollectionTask from './listAssignCollectionTask';
 import listFillCollectionTask from './listFillCollectionTask';
 import listMyCollectionTask from './listMyCollectionTask';
+import listMyInspTask from './listMyInspTask';
 import listReviewTaskExpert from './listReviewTaskExpert';
 import listReviewTaskPublisher from './listReviewTaskPublisher';
 import listSubCollectionTask from './listSubCollectionTask';
@@ -22,7 +23,7 @@ const taskApi = {
   deleteCollectionTask,
   getCollectionTask,
   updateCollectionTask,
-  createReviewTask,
+  createInspTask,
   deleteReviewTask,
   editReviewTask,
   editCollectionTask,
@@ -33,6 +34,7 @@ const taskApi = {
   listMyCollectionTask,
   listReviewTaskExpert,
   listReviewTaskPublisher,
+  listMyInspTask,
   listSubCollectionTask,
   updateReviewTaskFill,
   updateReviewTaskReview,

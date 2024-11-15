@@ -21,7 +21,7 @@ includeOrgs	[]json	○	publishType为2时，指定单位全体成员参与时必
   orgId	int		单位id
 */
 
-interface CreateReviewTaskParamsType {
+interface CreateInspTaskParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskName: string;
@@ -44,22 +44,22 @@ interface CreateReviewTaskParamsType {
   }[];
 }
 
-interface CreateReviewTaskResponse {
+interface CreateInspTaskResponse {
   id: number;
 }
 
 /**
- * createReviewTask
+ * createInspTask
  * @param params
  * @returns
  */
-function createReviewTask(params: CreateReviewTaskParamsType) {
-  return SurveyService.post<CommonResponseType<CreateReviewTaskResponse>>(
-    `${baseUrl}/task/createReviewTask`,
+function createInspTask(params: CreateInspTaskParamsType) {
+  return SurveyService.post<CommonResponseType<CreateInspTaskResponse>>(
+    `${baseUrl}/task/createInspTask`,
     {
       ...params,
     }
   );
 }
 
-export default createReviewTask;
+export default createInspTask;

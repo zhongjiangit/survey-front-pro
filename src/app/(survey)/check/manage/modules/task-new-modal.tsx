@@ -2,6 +2,7 @@
 
 import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { PublishTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import {
@@ -45,6 +46,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
   const [indeterminate, setIndeterminate] = useState(false);
   const [filterValue, setFilterValue] = useState<string[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
   const { data: checkList, loading: checkListLoading } = useRequest(() => {
     return Api.getTemplateOutlineList({
@@ -54,8 +56,13 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
   });
 
   const onCreate = (values: Values) => {
-    console.log('Received values of form: ', values);
-    setOpen(false);
+    const createDate = {
+      ...values,
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg?.orgId!,
+    };
+    console.log('Received values of form: ', createDate);
+    // setOpen(false);
   };
 
   const plainOptions = ['1', '2', '3', '4'];
@@ -338,9 +345,9 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           </Col>
           <Col span={12}>
             <Form.Item
-              name="testDescription"
+              name="taskDescription"
               label="任务描述"
-              rules={[{ required: true }]}
+              // rules={[{ required: true }]}
             >
               <Input.TextArea cols={3} placeholder="请输入任务描述" />
             </Form.Item>

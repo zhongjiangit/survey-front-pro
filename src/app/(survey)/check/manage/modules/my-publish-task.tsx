@@ -16,7 +16,7 @@ const MyPublishTask = () => {
 
   const { data: myPublishResponse } = useRequest(
     () => {
-      return api.listReviewTaskPublisher({
+      return api.listMyInspTask({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg!.orgId!,
         pageNumber,
