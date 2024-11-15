@@ -13,7 +13,7 @@ showExpertName	int		是否允许填报人查看评分专家姓名 0：不允许 
 showExpertComment	int		是否允许填报人查看评分专家意见 0：不允许  1：允许
 */
 
-interface UpdateReviewTaskReviewParamsType {
+interface UpdateInspTaskReviewParamsType {
   taskId: number;
   currentSystemId: number;
   currentOrgId: number;
@@ -24,20 +24,20 @@ interface UpdateReviewTaskReviewParamsType {
   showExpertComment: number;
 }
 
-interface UpdateReviewTaskReviewResponse {}
+interface UpdateInspTaskReviewResponse {}
 
 /**
- * updateReviewTaskReview
+ * updateInspTaskReview
  * @param params
  * @returns
  */
-function updateReviewTaskReview(params: UpdateReviewTaskReviewParamsType) {
-  return SurveyService.post<CommonResponseType<UpdateReviewTaskReviewResponse>>(
-    `${baseUrl}/task/updateReviewTaskReview`,
+function updateInspTaskReview(params: UpdateInspTaskReviewParamsType) {
+  return SurveyService.post<CommonResponseType<UpdateInspTaskReviewResponse>>(
+    `${baseUrl}/task/updateInspTaskReview`,
     {
       ...params,
     }
   );
 }
 
-export default updateReviewTaskReview;
+export default updateInspTaskReview;

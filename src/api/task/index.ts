@@ -3,20 +3,23 @@ import createInspTask from './createInspTask';
 import deleteCollectionTask from './deleteCollectionTask';
 import deleteReviewTask from './deleteReviewTask';
 import editCollectionTask from './editCollectionTask';
-import editReviewTask from './editReviewTask';
+import editInspTask from './editInspTask';
 import getCollectionTask from './getCollectionTask';
-import getReviewTaskFill from './getReviewTaskFill';
-import getReviewTaskReview from './getReviewTaskReview';
+import getInspTaskFill from './getInspTaskFill';
+import getInspTaskReview from './getInspTaskReview';
 import listAssignCollectionTask from './listAssignCollectionTask';
+import listAssignInspTask from './listAssignInspTask';
 import listFillCollectionTask from './listFillCollectionTask';
+import listFillInspTask from './listFillInspTask';
 import listMyCollectionTask from './listMyCollectionTask';
 import listMyInspTask from './listMyInspTask';
+import listReviewTaskPublisher from './listReviewAssignByExpert';
 import listReviewTaskExpert from './listReviewTaskExpert';
-import listReviewTaskPublisher from './listReviewTaskPublisher';
 import listSubCollectionTask from './listSubCollectionTask';
+import listSubInspTask from './listSubInspTask';
 import updateCollectionTask from './updateCollectionTask';
-import updateReviewTaskFill from './updateReviewTaskFill';
-import updateReviewTaskReview from './updateReviewTaskReview';
+import updateInspTaskFill from './updateInspTaskFill';
+import updateInspTaskReview from './updateInspTaskReview';
 
 const taskApi = {
   createCollectionTask,
@@ -25,10 +28,10 @@ const taskApi = {
   updateCollectionTask,
   createInspTask,
   deleteReviewTask,
-  editReviewTask,
+  editInspTask,
   editCollectionTask,
-  getReviewTaskReview,
-  getReviewTaskFill,
+  getInspTaskReview,
+  getInspTaskFill,
   listAssignCollectionTask,
   listFillCollectionTask,
   listMyCollectionTask,
@@ -36,8 +39,11 @@ const taskApi = {
   listReviewTaskPublisher,
   listMyInspTask,
   listSubCollectionTask,
-  updateReviewTaskFill,
-  updateReviewTaskReview,
+  updateInspTaskFill,
+  updateInspTaskReview,
+  listSubInspTask,
+  listAssignInspTask,
+  listFillInspTask,
 };
 
 export default taskApi;

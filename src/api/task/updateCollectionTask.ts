@@ -18,12 +18,12 @@ interface UpdateCollectionTaskParamsType {
   taskId: number;
   currentSystemId: number;
   currentOrgId: number;
-  beginTimeFillEstimate: string;
-  endTimeFillEstimate: string;
-  orgs: {
+  beginTimeFillEstimate?: string;
+  endTimeFillEstimate?: string;
+  orgs?: {
     orgId: number;
   }[];
-  staffs: {
+  staffs?: {
     staffId: number;
   }[];
 }

@@ -9,7 +9,7 @@ pageNumber	int		要取数据的页码数
 pageSize	int		每页展示的数据条数
 */
 
-interface ListAssignCollectionTaskParamsType {
+interface ListFillInspTaskParamsType {
   currentSystemId: number;
   currentOrgId: number;
   pageNumber: number;
@@ -17,58 +17,59 @@ interface ListAssignCollectionTaskParamsType {
 }
 
 /*
-		[]json		
+	[]json		
   taskId	int		任务id
   systemId	int		系统id
   createOrgId	int		发布单位id
   createOrgName	string		发布单位名称
-  staffId	int		发布成员id
-  staffName	string		发布成员名称
+  createStaffId	int		发布成员id
+  createStaffName	string		发布成员名称
   taskName	string		任务名称
   beginTimeFillEstimate	string		预计填报开始时间 yyyy-mm-dd hh:MM:ss
   endTimeFillEstimate	string		预计填报结束时间 yyyy-mm-dd hh:MM:ss
-  endTimeFillActual	string		实际填报结束时间 yyyy-mm-dd hh:MM:ss，未结束为空串
   templateId	int		模板id
   maxFillCount	int		最大可提交份数，0表示不限制
-  publishType	int		任务发布类型  1：按层级发布   2：指定人员发布
-  fillPassPeople	int		征集阶段通过人数
-  fillPassCount	int		征集阶段通过份数
-  fillPeople	int		征集阶段填报人数
-  fillCount	int		征集阶段填报份数
   fillTaskStatus	int		征集阶段任务状态 0：未开始 1：进行中 2：完成
+  processStatus	int		"评审状态 
+                      10：未填报
+                      20：未提交
+                      30：待提交专家-数据
+                      40：待审核专家-数据
+                      50：已提交
+                      60：已通过
+                      70：已驳回
+                      80：已通过专家-数据
+                      90：已驳回专家-数据
+                      100：数据丢弃"
 */
-interface ListAssignCollectionTaskResponse {
+interface ListFillInspTaskResponse {
   taskId: number;
   systemId: number;
   createOrgId: number;
   createOrgName: string;
-  staffId: number;
-  staffName: string;
+  createStaffId: number;
+  createStaffName: string;
   taskName: string;
   beginTimeFillEstimate: string;
   endTimeFillEstimate: string;
-  endTimeFillActual: string;
   templateId: number;
   maxFillCount: number;
-  publishType: number;
-  fillPassPeople: number;
-  fillPassCount: number;
-  fillPeople: number;
-  fillCount: number;
   fillTaskStatus: number;
+  processStatus: number;
 }
 
 /**
- * listAssignCollectionTask
+ * listFillInspTask
  * @param params
  * @returns
  */
-function listAssignCollectionTask(params: ListAssignCollectionTaskParamsType) {
-  return SurveyService.post<
-    CommonResponseType<ListAssignCollectionTaskResponse[]>
-  >(`${baseUrl}/task/listAssignCollectionTask`, {
-    ...params,
-  });
+function listFillInspTask(params: ListFillInspTaskParamsType) {
+  return SurveyService.post<CommonResponseType<ListFillInspTaskResponse[]>>(
+    `${baseUrl}/task/listFillInspTask`,
+    {
+      ...params,
+    }
+  );
 }
 
-export default listAssignCollectionTask;
+export default listFillInspTask;

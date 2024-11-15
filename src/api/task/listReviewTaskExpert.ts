@@ -17,8 +17,8 @@ interface ListReviewTaskExpertParamsType {}
   systemId	int		系统id
   createOrgId	int		发布单位id
   createOrgName	string		发布单位名称
-  staffId	int		发布成员id
-  staffName	string		发布成员名称
+  createStaffId	int		发布成员id
+  createStaffName	string		发布成员名称
   taskName	string		任务名称
   beginTimeReviewEstimate	string		预计评审开始时间 yyyy-mm-dd hh:MM:ss
   endTimeReviewEstimate	string		预计评审结束时间 yyyy-mm-dd hh:MM:ss
@@ -38,8 +38,8 @@ export interface ListReviewTaskExpertResponse {
   systemId: number;
   createOrgId: number;
   createOrgName: string;
-  staffId: number;
-  staffName: string;
+  createStaffId: number;
+  createStaffName: string;
   taskName: string;
   beginTimeReviewEstimate: string;
   endTimeReviewEstimate: string;

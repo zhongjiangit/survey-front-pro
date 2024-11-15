@@ -1,4 +1,4 @@
-import { ListReviewTaskPublisherResponse } from '@/api/task/listReviewTaskPublisher';
+import { ListReviewTaskPublisherResponse } from '@/api/task/listReviewAssignByExpert';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import {
   EvaluateStatusTypeEnum,

@@ -9,7 +9,7 @@ pageNumber	int		要取数据的页码数
 pageSize	int		每页展示的数据条数
 */
 
-interface ListReviewTaskPublisherParamsType {
+interface ListReviewAssignByExpertParamsType {
   currentSystemId: number;
   currentOrgId: number;
   pageNumber: number;
@@ -47,7 +47,7 @@ interface ListReviewTaskPublisherParamsType {
   reviewRate	int		评审阶段填报比例，0-100整数值
   reviewTaskStatus	int		评审阶段任务状态 0：未开始 1：进行中 2：完成
 */
-export interface ListReviewTaskPublisherResponse {
+export interface ListReviewAssignByExpertResponse {
   taskId: number;
   systemId: number;
   createOrgId: number;
@@ -79,16 +79,16 @@ export interface ListReviewTaskPublisherResponse {
 }
 
 /**
- * listReviewTaskPublisher
+ * listReviewAssignByExpert
  * @param params
  * @returns
  */
-function listReviewTaskPublisher(params: ListReviewTaskPublisherParamsType) {
+function listReviewAssignByExpert(params: ListReviewAssignByExpertParamsType) {
   return SurveyService.post<
-    CommonResponseType<ListReviewTaskPublisherResponse[]>
-  >(`${baseUrl}/task/listReviewTaskPublisher`, {
+    CommonResponseType<ListReviewAssignByExpertResponse[]>
+  >(`${baseUrl}/task/listReviewAssignByExpert`, {
     ...params,
   });
 }
 
-export default listReviewTaskPublisher;
+export default listReviewAssignByExpert;

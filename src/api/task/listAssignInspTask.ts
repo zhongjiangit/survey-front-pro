@@ -9,7 +9,7 @@ pageNumber	int		要取数据的页码数
 pageSize	int		每页展示的数据条数
 */
 
-interface ListMyInspTaskParamsType {
+interface ListAssignInspTaskParamsType {
   currentSystemId: number;
   currentOrgId: number;
   pageNumber: number;
@@ -17,7 +17,7 @@ interface ListMyInspTaskParamsType {
 }
 
 /*
-		[]json		
+	[]json		
   taskId	int		任务id
   systemId	int		系统id
   createOrgId	int		发布单位id
@@ -31,6 +31,7 @@ interface ListMyInspTaskParamsType {
   templateId	int		模板id
   maxFillCount	int		最大可提交份数，0表示不限制
   publishType	int		任务发布类型  1：按层级发布   2：指定人员发布
+  isLowest	int	○	是否最下级单位 0：非最下级单位 1：是最下级单位，任务发布类型位1时才传
   fillPassPeople	int		征集阶段通过人数
   fillPassCount	int		征集阶段通过份数
   fillPeople	int		征集阶段填报人数
@@ -47,7 +48,7 @@ interface ListMyInspTaskParamsType {
   reviewRate	int	○	评审阶段填报比例，0-100整数值，未设置评审不传
   reviewTaskStatus	int	○	评审阶段任务状态 0：未开始 1：进行中 2：完成，未设置评审不传
 */
-export interface ListMyInspTaskResponse {
+export interface ListAssignInspTaskResponse {
   taskId: number;
   systemId: number;
   createOrgId: number;
@@ -61,6 +62,7 @@ export interface ListMyInspTaskResponse {
   templateId: number;
   maxFillCount: number;
   publishType: number;
+  isLowest?: number;
   fillPassPeople: number;
   fillPassCount: number;
   fillPeople: number;
@@ -79,17 +81,17 @@ export interface ListMyInspTaskResponse {
 }
 
 /**
- * listMyInspTask
+ * listAssignInspTask
  * @param params
  * @returns
  */
-function listMyInspTask(params: ListMyInspTaskParamsType) {
-  return SurveyService.post<CommonResponseType<ListMyInspTaskResponse[]>>(
-    `${baseUrl}/task/listMyInspTask`,
+function listAssignInspTask(params: ListAssignInspTaskParamsType) {
+  return SurveyService.post<CommonResponseType<ListAssignInspTaskResponse[]>>(
+    `${baseUrl}/task/listAssignInspTask`,
     {
       ...params,
     }
   );
 }
 
-export default listMyInspTask;
+export default listAssignInspTask;

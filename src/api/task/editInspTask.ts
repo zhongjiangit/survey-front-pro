@@ -9,27 +9,27 @@ currentOrgId	int		登录用户当前操作的单位id
 taskName	string		任务名称
 */
 
-interface EditReviewTaskParamsType {
+interface EditInspTaskParamsType {
   taskId: number;
   currentSystemId: number;
   currentOrgId: number;
   taskName: string;
 }
 
-interface EditReviewTaskResponse {}
+interface EditInspTaskResponse {}
 
 /**
- * editReviewTask
+ * editInspTask
  * @param params
  * @returns
  */
-function editReviewTask(params: EditReviewTaskParamsType) {
-  return SurveyService.post<CommonResponseType<EditReviewTaskResponse>>(
-    `${baseUrl}/task/editReviewTask`,
+function editInspTask(params: EditInspTaskParamsType) {
+  return SurveyService.post<CommonResponseType<EditInspTaskResponse>>(
+    `${baseUrl}/task/editInspTask`,
     {
       ...params,
     }
   );
 }
 
-export default editReviewTask;
+export default editInspTask;

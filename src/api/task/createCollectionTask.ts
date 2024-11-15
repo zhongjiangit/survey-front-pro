@@ -1,5 +1,4 @@
 import { SurveyService } from '@/service';
-import { TagTypeType } from '@/types/CommonType';
 import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
@@ -31,16 +30,16 @@ interface CreateCollectionTaskParamsType {
   templateId: number;
   publishType: number;
   maxFillCount: number;
-  levels: {
+  levels?: {
     levelIndex: number;
   }[];
-  orgs: {
+  orgs?: {
     orgId: number;
   }[];
-  staffs: {
+  staffs?: {
     staffId: number;
   }[];
-  includeOrgs: {
+  includeOrgs?: {
     orgId: number;
   }[];
 }

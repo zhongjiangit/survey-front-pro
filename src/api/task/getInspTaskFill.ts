@@ -1,5 +1,4 @@
 import { SurveyService } from '@/service';
-import { TagTypeType } from '@/types/CommonType';
 import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
@@ -9,7 +8,7 @@ currentOrgId	int		登录用户当前操作的单位id
 taskId	int		任务id
 */
 
-interface GetReviewTaskFillParamsType {
+interface GetInspTaskFillParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskId: number;
@@ -31,7 +30,7 @@ orgs	[]json	○	publishType为1时必传，任务指定的直接下层级参与�
 staffs	[]json	○	publishType为2时必传
   staffId	int		成员id
 */
-interface GetReviewTaskFillResponse {
+interface GetInspTaskFillResponse {
   taskId: number;
   taskName: string;
   createOrgId: number;
@@ -40,29 +39,29 @@ interface GetReviewTaskFillResponse {
   templateId: number;
   publishType: number;
   maxFillCount: number;
-  levels: {
+  levels?: {
     levelIndex: number;
   }[];
-  orgs: {
+  orgs?: {
     orgId: number;
   }[];
-  staffs: {
+  staffs?: {
     staffId: number;
   }[];
 }
 
 /**
- * getReviewTaskFill
+ * getInspTaskFill
  * @param params
  * @returns
  */
-function getReviewTaskFill(params: GetReviewTaskFillParamsType) {
-  return SurveyService.post<CommonResponseType<GetReviewTaskFillResponse>>(
-    `${baseUrl}/task/getReviewTaskFill`,
+function getInspTaskFill(params: GetInspTaskFillParamsType) {
+  return SurveyService.post<CommonResponseType<GetInspTaskFillResponse>>(
+    `${baseUrl}/task/getInspTaskFill`,
     {
       ...params,
     }
   );
 }
 
-export default getReviewTaskFill;
+export default getInspTaskFill;

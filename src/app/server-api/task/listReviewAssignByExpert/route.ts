@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const cookieHeader = req.headers.get('cookie');
 
   try {
-    const res = await fetch(`${baseUrl}/task/getReviewTaskFill`, {
+    const res = await fetch(`${baseUrl}/task/listReviewAssignByExpert`, {
       headers: {
         'Content-Type': 'application/json',
         Cookie: cookieHeader || '',

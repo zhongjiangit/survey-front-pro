@@ -17,7 +17,7 @@ interface ListSubCollectionTaskParamsType {
 }
 
 /*
-	[]json		
+		[]json		
   taskId	int		任务id
   systemId	int		系统id
   createOrgId	int		发布单位id

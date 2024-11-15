@@ -30,16 +30,16 @@ interface CreateInspTaskParamsType {
   templateId: number;
   publishType: number;
   maxFillCount: number;
-  levels: {
+  levels?: {
     levelIndex: number;
   }[];
-  orgs: {
+  orgs?: {
     orgId: number;
   }[];
-  staffs: {
+  staffs?: {
     staffId: number;
   }[];
-  includeOrgs: {
+  includeOrgs?: {
     orgId: number;
   }[];
 }

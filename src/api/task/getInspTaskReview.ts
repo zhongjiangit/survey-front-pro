@@ -1,5 +1,4 @@
 import { SurveyService } from '@/service';
-import { TagTypeType } from '@/types/CommonType';
 import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
@@ -9,7 +8,7 @@ currentOrgId	int		登录用户当前操作的单位id
 taskId	int		任务id
 */
 
-interface GetReviewTaskReviewParamsType {
+interface GetInspTaskReviewParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskId: number;
@@ -24,7 +23,7 @@ showFiller	int		是否允许专家查看填报人信息  0：不允许  1：允�
 showExpertName	int		是否允许填报人查看评分专家姓名 0：不允许  1：允许
 showExpertComment	int		是否允许填报人查看评分专家意见 0：不允许  1：允许
 */
-interface GetReviewTaskReviewResponse {
+interface GetInspTaskReviewResponse {
   taskId: number;
   taskName: string;
   beginTimeReviewEstimate: string;
@@ -35,17 +34,17 @@ interface GetReviewTaskReviewResponse {
 }
 
 /**
- * getReviewTaskReview
+ * getInspTaskReview
  * @param params
  * @returns
  */
-function getReviewTaskReview(params: GetReviewTaskReviewParamsType) {
-  return SurveyService.post<CommonResponseType<GetReviewTaskReviewResponse>>(
-    `${baseUrl}/task/getReviewTaskReview`,
+function getInspTaskReview(params: GetInspTaskReviewParamsType) {
+  return SurveyService.post<CommonResponseType<GetInspTaskReviewResponse>>(
+    `${baseUrl}/task/getInspTaskReview`,
     {
       ...params,
     }
   );
 }
 
-export default getReviewTaskReview;
+export default getInspTaskReview;

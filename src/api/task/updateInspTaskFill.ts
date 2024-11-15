@@ -14,34 +14,34 @@ staffs	[]json	○	publishType为2，或publishType为1且为最下级单位时�
   staffId	int		成员id
 */
 
-interface UpdateReviewTaskFillParamsType {
+interface UpdateInspTaskFillParamsType {
   taskId: number;
   currentSystemId: number;
   currentOrgId: number;
-  beginTimeFillEstimate: string;
-  endTimeFillEstimate: string;
-  orgs: {
+  beginTimeFillEstimate?: string;
+  endTimeFillEstimate?: string;
+  orgs?: {
     orgId: number;
   }[];
-  staffs: {
+  staffs?: {
     staffId: number;
   }[];
 }
 
-interface UpdateReviewTaskFillResponse {}
+interface UpdateInspTaskFillResponse {}
 
 /**
- * updateReviewTaskFill
+ * updateInspTaskFill
  * @param params
  * @returns
  */
-function updateReviewTaskFill(params: UpdateReviewTaskFillParamsType) {
-  return SurveyService.post<CommonResponseType<UpdateReviewTaskFillResponse>>(
-    `${baseUrl}/task/updateReviewTaskFill`,
+function updateInspTaskFill(params: UpdateInspTaskFillParamsType) {
+  return SurveyService.post<CommonResponseType<UpdateInspTaskFillResponse>>(
+    `${baseUrl}/task/updateInspTaskFill`,
     {
       ...params,
     }
   );
 }
 
-export default updateReviewTaskFill;
+export default updateInspTaskFill;

@@ -9,7 +9,7 @@ pageNumber	int		要取数据的页码数
 pageSize	int		每页展示的数据条数
 */
 
-interface ListMyInspTaskParamsType {
+interface ListSubInspTaskParamsType {
   currentSystemId: number;
   currentOrgId: number;
   pageNumber: number;
@@ -17,7 +17,7 @@ interface ListMyInspTaskParamsType {
 }
 
 /*
-		[]json		
+			[]json		
   taskId	int		任务id
   systemId	int		系统id
   createOrgId	int		发布单位id
@@ -47,7 +47,7 @@ interface ListMyInspTaskParamsType {
   reviewRate	int	○	评审阶段填报比例，0-100整数值，未设置评审不传
   reviewTaskStatus	int	○	评审阶段任务状态 0：未开始 1：进行中 2：完成，未设置评审不传
 */
-export interface ListMyInspTaskResponse {
+export interface ListSubInspTaskResponse {
   taskId: number;
   systemId: number;
   createOrgId: number;
@@ -79,17 +79,17 @@ export interface ListMyInspTaskResponse {
 }
 
 /**
- * listMyInspTask
+ * listSubInspTask
  * @param params
  * @returns
  */
-function listMyInspTask(params: ListMyInspTaskParamsType) {
-  return SurveyService.post<CommonResponseType<ListMyInspTaskResponse[]>>(
-    `${baseUrl}/task/listMyInspTask`,
+function listSubInspTask(params: ListSubInspTaskParamsType) {
+  return SurveyService.post<CommonResponseType<ListSubInspTaskResponse[]>>(
+    `${baseUrl}/task/listSubInspTask`,
     {
       ...params,
     }
   );
 }
 
-export default listMyInspTask;
+export default listSubInspTask;
