@@ -25,6 +25,7 @@ type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
   itemData: ItemDataType | undefined;
+  refreshMyPublishTask: () => void;
 }
 
 // taskId	int		任务id
@@ -48,7 +49,7 @@ interface CollectListItemProps {
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
 
 const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
-  const { itemData, tabType } = props;
+  const { itemData, tabType, refreshMyPublishTask } = props;
 
   const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
   const [passedNumModalOpen, setPassedNumModalOpen] = useState(false);
@@ -535,7 +536,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">
-                    <TaskEditModal task={item} />
+                    <TaskEditModal
+                      task={item}
+                      refreshMyPublishTask={refreshMyPublishTask}
+                    />
                     <TaskDeleteModal />
                   </div>
                 )}
