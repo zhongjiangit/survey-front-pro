@@ -1,13 +1,18 @@
 'use client';
 
+import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
   ProcessStatusObject,
   ProcessStatusTypeEnum,
   TemplateTypeEnum,
 } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import Link from 'next/link';
+import { useState } from 'react';
 import { toAllotTaskData } from '../testData';
 interface ItemDataType {
   title: string;
@@ -33,6 +38,11 @@ interface CollectListItemProps {
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回 listFillCollectionTask接口未返回该字段，是找错接口了吗？ todo
 
 const ToAllotTask = () => {
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
   const operateButton = {
     fill: (
       <Link className=" text-blue-500" key="fill" href="/collect/fill/detail">
@@ -41,6 +51,28 @@ const ToAllotTask = () => {
     ),
     submit: <a className=" text-blue-500">提交</a>,
   };
+
+  const { data: fillInspTaskData } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.listFillInspTask({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        pageNumber,
+        pageSize,
+      });
+    },
+    {
+      refreshDeps: [
+        currentSystem?.systemId,
+        currentOrg?.orgId,
+        pageNumber,
+        pageSize,
+      ],
+    }
+  );
 
   // 给columns添加ts类型
   const columns: any = [

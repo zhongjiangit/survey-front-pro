@@ -37,6 +37,9 @@ const SubPublishTask = () => {
       <CollectListItem
         tabType="subordinate"
         itemData={subPublishResponse?.data}
+        refreshMyPublishTask={() => {
+          // Add your refresh logic here
+        }}
       />
       <div className="flex py-4 justify-end">
         <Pagination

@@ -1,13 +1,18 @@
 'use client';
 
+import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
   PublishTypeEnum,
   TaskStatusObject,
   TaskStatusTypeEnum,
   TemplateTypeEnum,
 } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
+import { useState } from 'react';
 import TaskAllocateModal from '../manage/modules/task-allocate-modal';
 import { toAllotTaskData } from '../testData';
 interface ItemDataType {
@@ -39,6 +44,11 @@ interface CollectListItemProps {
 //  todo 发现一个bug:页面刷新后不会根据当前路由定位到菜单栏，需要手动点击一下才会定位到
 
 const ToAllotTask = () => {
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
   const operateButton = {
     allot: (type: PublishTypeEnum) => <TaskAllocateModal type={type} />,
 
@@ -48,6 +58,27 @@ const ToAllotTask = () => {
       </a>
     ),
   };
+  const { data: assignInspTaskData } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.listAssignInspTask({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        pageNumber,
+        pageSize,
+      });
+    },
+    {
+      refreshDeps: [
+        currentSystem?.systemId,
+        currentOrg?.orgId,
+        pageNumber,
+        pageSize,
+      ],
+    }
+  );
 
   // 给columns添加ts类型
   const columns: any = [

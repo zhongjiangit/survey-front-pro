@@ -8,7 +8,7 @@ import tagApi from './tag';
 import taskApi from './task';
 import templateApi from './template';
 
-const api = {
+const Api = {
   ...login,
   ...templateApi,
   ...orgApi,
@@ -20,4 +20,4 @@ const api = {
   ...taskApi,
 };
 
-export default api;
+export default Api;

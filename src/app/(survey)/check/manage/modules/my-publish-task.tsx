@@ -1,4 +1,4 @@
-import api from '@/api';
+import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useRequest } from 'ahooks';
@@ -16,7 +16,7 @@ const MyPublishTask = () => {
 
   const { data: myPublishTackData, refresh: refreshMyPublishTask } = useRequest(
     () => {
-      return api.listMyInspTask({
+      return Api.listMyInspTask({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg!.orgId!,
         pageNumber,

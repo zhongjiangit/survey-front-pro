@@ -59,10 +59,13 @@ function Page() {
 
   const {} = useRequest(
     () => {
+      if (!currentSystem?.systemId) {
+        return Promise.reject('currentSystem is not exist');
+      }
       return Api.getTagList({
         // TODO
         // currentSystemId: 5,
-        currentSystemId: currentSystem?.systemId,
+        currentSystemId: currentSystem.systemId,
         tagType: TagTypeEnum.Member,
       });
     },

@@ -1,6 +1,6 @@
 'use client';
 
-import api from '@/api';
+import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { TaskStatusObject, TaskStatusTypeEnum } from '@/types/CommonType';
@@ -26,7 +26,7 @@ const CheckReview = () => {
   };
   const { data: reviewResponse } = useRequest(
     () => {
-      return api.listReviewTaskExpert({
+      return Api.listReviewTaskExpert({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg!.orgId!,
         pageNumber,
