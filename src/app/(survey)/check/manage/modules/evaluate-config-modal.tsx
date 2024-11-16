@@ -1,6 +1,6 @@
 'use client';
 
-import { DatePicker, Form, Input, Modal, Switch } from 'antd';
+import { DatePicker, Form, Modal, Switch } from 'antd';
 import React, { useState } from 'react';
 
 const { RangePicker } = DatePicker;
@@ -64,7 +64,10 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
             },
           ]}
         >
-          <RangePicker />
+          <RangePicker
+            format="YYYY-MM-DD HH:mm::ss"
+            showTime={{ format: 'HH:mm:ss' }}
+          />
         </Form.Item>
         <Form.Item name="a" label="专家能否查看填报人信息">
           <Switch />

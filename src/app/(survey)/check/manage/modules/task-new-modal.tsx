@@ -4,7 +4,11 @@ import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { PublishTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
+import {
+  PublishTypeEnum,
+  publishTypeType,
+  TemplateTypeEnum,
+} from '@/types/CommonType';
 import {
   CloseCircleOutlined,
   ExclamationCircleFilled,
@@ -34,7 +38,13 @@ const { confirm } = Modal;
 interface TaskEditModalProps {}
 
 interface Values {
-  taskName?: string;
+  taskName: string;
+  timeFillEstimate: any;
+  templateId: number;
+  publishType: publishTypeType;
+  maxFillCount: number;
+  levels?: string[];
+  orgs?: string[];
 }
 
 const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
@@ -48,19 +58,85 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
-  const { data: checkList, loading: checkListLoading } = useRequest(() => {
-    return Api.getTemplateOutlineList({
-      currentSystemId: currentSystem?.systemId!,
-      templateType: TemplateTypeEnum.Check,
-    });
-  });
+  const { data: checkList, loading: checkListLoading } = useRequest(
+    () => {
+      if (!currentSystem) {
+        return Promise.reject('No current system');
+      }
+      return Api.getTemplateOutlineList({
+        currentSystemId: currentSystem?.systemId!,
+        templateType: TemplateTypeEnum.Check,
+      });
+    },
+    {
+      refreshDeps: [currentSystem],
+    }
+  );
+
+  const { data: listVisibleLevels } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listVisibleLevels({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        // TODO orgId是什么？
+        orgId: currentOrg?.orgId!,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg],
+    }
+  );
+
+  const { data: listLevelAssignSub } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listLevelAssignSub({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        // TODO levelIndex需要动态获取
+        levelIndex: 2,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg],
+    }
+  );
+
+  const onValuesChange = (changedValues: any, allValues: any) => {
+    console.log(changedValues);
+
+    if (allValues.templateId) {
+      setTemplateId(allValues.templateId);
+    }
+  };
 
   const onCreate = (values: Values) => {
-    const createDate = {
+    const createDate: any = {
       ...values,
+      maxFillCount: values.maxFillCount || 0,
       currentSystemId: currentSystem?.systemId!,
       currentOrgId: currentOrg?.orgId!,
+      beginTimeFillEstimate: values.timeFillEstimate[0].format(
+        'YYYY-MM-DD HH:mm:ss'
+      ),
+      endTimeFillEstimate: values.timeFillEstimate[1].format(
+        'YYYY-MM-DD HH:mm:ss'
+      ),
     };
+    delete createDate.timeFillEstimate;
+    if (values.publishType === PublishTypeEnum.Org) {
+      createDate.levels = values.levels?.map((item: string) => ({
+        levelIndex: Number(item),
+      }));
+      createDate.orgs = values.orgs?.map((item: string) => ({
+        orgId: Number(item),
+      }));
+    }
     console.log('Received values of form: ', createDate);
     // setOpen(false);
   };
@@ -264,6 +340,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           <Form
             form={form}
             name="form_new_task_modal"
+            onValuesChange={onValuesChange}
             onFinish={values => onCreate(values)}
             onError={v => {
               console.log(v);
@@ -308,7 +385,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
               label="任务起止时间"
               rules={[{ required: true }]}
             >
-              <RangePicker style={{ width: '100%' }} />
+              <RangePicker
+                format="YYYY-MM-DD HH:mm:ss"
+                showTime={{ format: 'HH:mm:ss' }}
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -319,9 +400,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
             >
               <Select
                 loading={checkListLoading}
-                onChange={e => {
-                  setTemplateId(e);
-                }}
                 options={checkList?.data.map(item => ({
                   label: item.templateTitle,
                   value: item.templateId,

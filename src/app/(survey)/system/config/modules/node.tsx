@@ -1,6 +1,6 @@
 'use client';
 
-import { SystemListType } from '@/api/system/get-system-list';
+import { SystemListType } from '@/api/system/getSystemListAll';
 import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';

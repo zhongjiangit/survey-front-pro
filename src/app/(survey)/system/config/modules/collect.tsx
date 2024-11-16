@@ -1,7 +1,7 @@
 'use client';
 
 import Api from '@/api';
-import { SystemListType } from '@/api/system/get-system-list';
+import { SystemListType } from '@/api/system/getSystemListAll';
 import { TemplateItemType } from '@/api/template/list-outline';
 import { TemplateTypeEnum, ZeroOrOneType } from '@/types/CommonType';
 import { useLocalStorageState, useRequest } from 'ahooks';

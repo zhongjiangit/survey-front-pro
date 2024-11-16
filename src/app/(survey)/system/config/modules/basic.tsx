@@ -1,14 +1,14 @@
 'use client';
 
-import { SystemListType } from '@/api/system/get-system-list';
+import Api from '@/api';
+import { SystemListType } from '@/api/system/getSystemListAll';
 import CustomTree, {
   CustomTreeDataNode,
 } from '@/components/common/custom-tree';
 import { useRequest } from 'ahooks';
 import { Button, Col, Divider, Drawer, message, Row, Space, Tag } from 'antd';
 import { TagIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import Api from '@/api';
+import { useCallback, useState } from 'react';
 
 interface BasicProps {
   system: SystemListType;

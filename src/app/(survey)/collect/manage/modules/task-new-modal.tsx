@@ -239,7 +239,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
                 label="任务起止时间"
                 rules={[{ required: true }]}
               >
-                <RangePicker style={{ width: '100%' }} />
+                <RangePicker
+                  format="YYYY-MM-DD HH:mm::ss"
+                  showTime={{ format: 'HH:mm:ss' }}
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>

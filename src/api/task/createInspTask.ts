@@ -21,7 +21,7 @@ includeOrgs	[]json	○	publishType为2时，指定单位全体成员参与时必
   orgId	int		单位id
 */
 
-interface CreateInspTaskParamsType {
+export interface CreateInspTaskParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskName: string;

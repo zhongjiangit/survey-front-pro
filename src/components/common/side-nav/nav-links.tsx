@@ -203,7 +203,6 @@ export default function NavLinks() {
         return null;
       })
       .filter(Boolean)[0];
-    console.log('key', key);
 
     if (key && key !== selectedKeys[0]) {
       setSelectedKeys([key]);
