@@ -16,9 +16,12 @@ const MyPublishTask = () => {
 
   const { data: myPublishTackData, refresh: refreshMyPublishTask } = useRequest(
     () => {
+      if (!currentOrg?.orgId) {
+        return Promise.reject('未获取到组织机构');
+      }
       return Api.listMyInspTask({
         currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg!.orgId!,
+        currentOrgId: currentOrg.orgId,
         pageNumber,
         pageSize,
       });

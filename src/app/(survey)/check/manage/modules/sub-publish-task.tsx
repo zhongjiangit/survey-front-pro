@@ -1,7 +1,5 @@
-import api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { useRequest } from 'ahooks';
 import { Pagination } from 'antd';
 import { useState } from 'react';
 import CollectListItem from './collect-list-item';
@@ -12,31 +10,31 @@ const SubPublishTask = () => {
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-
-  const { data: subPublishResponse } = useRequest(
-    () => {
-      // todo 是否是这个接口
-      return api.listReviewTaskExpert({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg!.orgId!,
-        pageNumber,
-        pageSize,
-      });
-    },
-    {
-      refreshDeps: [
-        currentSystem?.systemId,
-        currentOrg?.orgId,
-        pageNumber,
-        pageSize,
-      ],
-    }
-  );
+  // todo 接口未完成
+  // const { data: subPublishResponse } = useRequest(
+  //   () => {
+  //     return api.listSubInspTask({
+  //       currentSystemId: currentSystem?.systemId!,
+  //       currentOrgId: currentOrg!.orgId!,
+  //       pageNumber,
+  //       pageSize,
+  //     });
+  //   },
+  //   {
+  //     refreshDeps: [
+  //       currentSystem?.systemId,
+  //       currentOrg?.orgId,
+  //       pageNumber,
+  //       pageSize,
+  //     ],
+  //   }
+  // );
   return (
     <div>
       <CollectListItem
         tabType="subordinate"
-        itemData={subPublishResponse?.data}
+        itemData={[]}
+        // itemData={subPublishResponse?.data}
         refreshMyPublishTask={() => {
           // Add your refresh logic here
         }}
