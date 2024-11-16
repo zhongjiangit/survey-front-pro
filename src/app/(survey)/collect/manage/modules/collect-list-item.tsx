@@ -292,7 +292,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               <div className="flex justify-between items-center">
                 <div className="font-bold text-lg pb-2 pl-4">
                   <span>NO.{index + 1}</span>
-                  {item?.title}
+                  {item?.taskName}
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">

@@ -1,6 +1,7 @@
 import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import {
+  EvaluateStatusTypeEnum,
   PublishTypeEnum,
   PublishTypeObject,
   PublishTypeType,
@@ -47,7 +48,7 @@ interface CollectListItemProps {
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
 
-const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
+const MyCollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const { itemData, tabType } = props;
 
   const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
@@ -115,34 +116,19 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         </a>
       );
     },
-    checkResult: (
-      <a className=" text-blue-500" key="checkResult">
-        评审结果
-      </a>
-    ),
     message: (
       <a className=" text-blue-500" key="message">
         短信提醒
       </a>
     ),
-    set: (
-      <a className=" text-blue-500" key="set">
-        设置
+    download: (
+      <a className=" text-blue-500" key="download">
+        下载
       </a>
     ),
     checkDetail: (
-      <a className=" text-blue-500" key="checkDetail">
+      <a className=" text-blue-500" key="download">
         评审详情
-      </a>
-    ),
-    allocate: (
-      <a className=" text-blue-500" key="allocate">
-        分配
-      </a>
-    ),
-    delete: (
-      <a className=" text-blue-500" key="delete">
-        删除
       </a>
     ),
   };
@@ -247,7 +233,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           <div>
             <div>
               <TemplateDetailModal
-                templateId={record.templateId}
+                templateId={1}
                 TemplateType={TemplateTypeEnum.Check}
               />
             </div>
@@ -393,7 +379,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: <div>操作</div>,
+      title: <div>操作1</div>,
       width: '10%',
       hidden: tabType !== 'self',
       dataIndex: 'operation',
@@ -401,7 +387,6 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       align: 'center',
       render: (_: any, record: any, index: number) => {
         if (index === 0) {
-          // 我发布的任务，（一）试题征集的按钮
           return (
             <Space className="flex justify-center items-center">
               {record.taskStatus === TaskStatusTypeEnum.NotStart && [
@@ -420,68 +405,33 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               ]}
             </Space>
           );
-        } else {
-          // 我发布的任务，（二）专家评审的按钮
-          if (record.taskStatus === TaskStatusTypeEnum.NotStart) {
-            return (
-              <Space>
-                [operateCheckButton.edit, operateCheckButton.allocate]
-              </Space>
-            );
-          } else if (record.taskStatus === TaskStatusTypeEnum.Processing) {
-            return (
-              <Space>
-                {[
-                  operateCheckButton.detail(record.publishType),
-                  operateCheckButton.edit(record.publishType),
-                  operateCheckButton.allocate,
-                  operateCheckButton.message,
-                  operateCheckButton.checkResult,
-                  operateCheckButton.delete,
-                ]}
-              </Space>
-            );
-          } else if (record.taskStatus === TaskStatusTypeEnum.Finished) {
-            return (
-              <Space>
-                {[
-                  operateCheckButton.detail(record.publishType),
-                  operateCheckButton.delete,
-                ]}
-              </Space>
-            );
-          } else {
-            return (
-              // todo怎么判断未设置
-              <Space>{[operateCheckButton.set]}</Space>
-            );
-          }
-          // <Space className="flex justify-center items-center">
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
-          //     operateButtonEvaluate.config(),
-          //   ]}
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
-          //     operateButtonEvaluate.edit(record.publishType),
-          //     operateButtonEvaluate.allocate(),
-          //   ]}
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
-          //     operateButtonEvaluate.detail(record.publishType),
-          //     operateButtonEvaluate.edit('edit'),
-          //     operateButtonEvaluate.allocate(),
-          //     operateButtonEvaluate.message,
-          //     operateButtonEvaluate.result(),
-          //   ]}
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.Finished && [
-          //     operateButtonEvaluate.detail(record.publishType),
-          //   ]}
-          // </Space>;
         }
+        return (
+          <Space className="flex justify-center items-center">
+            {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
+              operateButtonEvaluate.config(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
+              operateButtonEvaluate.edit(record.publishType),
+              operateButtonEvaluate.allocate(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
+              operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.edit('edit'),
+              operateButtonEvaluate.allocate(),
+              operateButtonEvaluate.message,
+              operateButtonEvaluate.result(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.Finished && [
+              operateButtonEvaluate.detail(record.publishType),
+            ]}
+          </Space>
+        );
       },
     },
     {
       title: <div>操作</div>,
       width: '10%',
-      // 下级发布的任务，按钮
       hidden: tabType !== 'subordinate',
       dataIndex: 'operation',
       fixed: 'right',
@@ -526,12 +476,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       {/* todo  */}
       <div className="flex flex-col gap-5">
         {itemData?.map((item, index) => {
+          console.log(item, 'item');
+
           return (
             <div key={index}>
               <div className="flex justify-between items-center">
                 <div className="font-bold text-lg pb-2 pl-4">
                   <span>NO.{index + 1}</span>
-                  {item?.taskName}
+                  {item[0]?.title}
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">
@@ -569,4 +521,4 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   );
 };
 
-export default CollectListItem;
+export default MyCollectListItem;

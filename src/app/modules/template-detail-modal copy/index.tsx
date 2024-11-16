@@ -61,7 +61,6 @@ const TemplateDetailModal = ({
       >
         <Form
           form={form}
-          disabled
           className="min-w-96 w-[40vw]"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
