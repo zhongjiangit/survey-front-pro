@@ -14,7 +14,7 @@ const MyPublishTask = () => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
-  const { data: myPublishResponse } = useRequest(
+  const { data: myPublishTackData, refresh: refreshMyPublishTask } = useRequest(
     () => {
       if (!currentOrg?.orgId) {
         return Promise.reject('未获取到组织机构');
@@ -37,8 +37,12 @@ const MyPublishTask = () => {
   );
   return (
     <div className="relative">
-      <TaskAddNewModal />
-      <CollectListItem tabType="self" itemData={myPublishResponse?.data} />
+      <TaskAddNewModal refreshMyPublishTask={refreshMyPublishTask} />
+      <CollectListItem
+        tabType="self"
+        itemData={myPublishTackData?.data}
+        refreshMyPublishTask={refreshMyPublishTask}
+      />
       <div className="flex py-4 justify-end">
         <Pagination
           total={total}

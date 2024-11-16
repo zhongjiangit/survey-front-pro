@@ -10,13 +10,17 @@ import React, { useEffect, useState } from 'react';
 
 interface TaskEditModalProps {
   task?: any;
+  refreshMyPublishTask?: () => void;
 }
 
 interface Values {
   taskName: string;
 }
 
-const TaskEditModal: React.FC<TaskEditModalProps> = ({ task }) => {
+const TaskEditModal: React.FC<TaskEditModalProps> = ({
+  task,
+  refreshMyPublishTask,
+}) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -39,8 +43,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task }) => {
     {
       manual: true,
       onSuccess: () => {
-        setOpen(false);
         form.resetFields();
+        refreshMyPublishTask?.();
+        setOpen(false);
       },
     }
   );

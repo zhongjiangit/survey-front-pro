@@ -41,7 +41,9 @@ import { treeData } from '../../testData';
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
 
-interface TaskEditModalProps {}
+interface TaskEditModalProps {
+  refreshMyPublishTask?: () => void;
+}
 
 interface Values {
   taskName: string;
@@ -53,7 +55,9 @@ interface Values {
   orgs?: string[];
 }
 
-const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
+const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
+  refreshMyPublishTask,
+}) => {
   const [modal, contextHolder] = Modal.useModal();
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
@@ -77,6 +81,9 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
     },
     {
       refreshDeps: [currentSystem],
+      onSuccess: () => {
+        refreshMyPublishTask?.();
+      },
     }
   );
 
@@ -373,7 +380,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         destroyOnClose
         okButtonProps={{
           autoFocus: true,
-          htmlType: 'submit',
           onClick: () => form.submit(),
         }}
         onCancel={() => {
