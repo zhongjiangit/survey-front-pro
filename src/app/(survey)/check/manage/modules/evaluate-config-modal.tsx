@@ -9,7 +9,7 @@ const { RangePicker } = DatePicker;
 
 interface EvaluateConfigModalProps {
   type?: string;
-  record: any;
+  taskId: number;
 }
 
 interface Values {
@@ -21,7 +21,7 @@ interface Values {
 
 const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   type = 'config',
-  record,
+  taskId,
 }: EvaluateConfigModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
@@ -39,7 +39,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
       showFiller: showFiller ? 1 : 0,
       showExpertName: showExpertName ? 1 : 0,
       showExpertComment: showExpertComment ? 1 : 0,
-      taskId: record.taskId,
+      taskId: taskId,
       currentSystemId: currentSystem.systemId,
       currentOrgId: currentOrg.orgId,
       beginTimeReviewEstimate: values.dateRange[0].format(

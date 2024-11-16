@@ -5,7 +5,7 @@ import renderFormItem from '@/lib/render-form-item';
 import { TemplateType } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Empty, Form, Modal } from 'antd';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface TemplateDetailModalProps {
   title?: string;
@@ -24,7 +24,7 @@ const TemplateDetailModal = ({
   const [form] = Form.useForm();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
-  const { data } = useRequest(
+  const { data, run: getTemplateDetail } = useRequest(
     () => {
       return Api.getTemplateDetails({
         currentSystemId: currentSystem?.systemId!,
@@ -35,9 +35,15 @@ const TemplateDetailModal = ({
       });
     },
     {
-      refreshDeps: [templateId, open],
+      manual: true,
     }
   );
+
+  useEffect(() => {
+    if (open) {
+      getTemplateDetail();
+    }
+  }, [open]);
 
   return (
     <>

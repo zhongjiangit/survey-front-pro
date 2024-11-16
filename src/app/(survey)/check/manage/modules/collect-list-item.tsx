@@ -97,12 +97,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
 
   const operateButtonEvaluate = {
     // 设置
-    config: record => {
-      return <EvaluateConfigModal record={record} />;
+    config: (record: any) => {
+      return <EvaluateConfigModal taskId={record.taskId} />;
     },
     // 修改
-    edit: (type: string) => {
-      return <EvaluateConfigModal type={type} />;
+    edit: (record: any) => {
+      return (
+        <EvaluateConfigModal type={record.publishType} taskId={record.taskId} />
+      );
     },
     // 分配
     allocate: () => {
@@ -369,11 +371,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           return (
             <Space className="flex justify-center items-center">
               {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-                operateButton.edit(record.publishType),
+                operateButton.edit(record),
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Processing && [
                 operateButton.detail(record.publishType),
-                operateButton.edit(record.publishType),
+                operateButton.edit(record),
                 operateButton.message,
                 operateButton.finish,
                 operateButton.download,
@@ -389,12 +391,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           <Space className="flex justify-center items-center">
             {!record.evaluateStatus && [operateButtonEvaluate.config(record)]}
             {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
-              operateButtonEvaluate.edit(record.publishType),
+              operateButtonEvaluate.edit(record),
               operateButtonEvaluate.allocate(),
             ]}
             {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
               operateButtonEvaluate.detail(record.publishType),
-              operateButtonEvaluate.edit('edit'),
+              // operateButtonEvaluate.edit('edit'),
               operateButtonEvaluate.allocate(),
               operateButtonEvaluate.message,
               operateButtonEvaluate.result(),

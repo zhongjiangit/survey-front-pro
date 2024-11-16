@@ -134,11 +134,13 @@ const MyCollectListItem: FunctionComponent<CollectListItemProps> = props => {
   };
 
   const operateButtonEvaluate = {
-    config: () => {
-      return <EvaluateConfigModal />;
+    config: (record: any) => {
+      return <EvaluateConfigModal taskId={record.taskId} />;
     },
-    edit: (type: string) => {
-      return <EvaluateConfigModal type={type} />;
+    edit: (record: any) => {
+      return (
+        <EvaluateConfigModal type={record.publishType} taskId={record.taskId} />
+      );
     },
     allocate: () => {
       return <EvaluateAllocateModal />;
@@ -390,11 +392,11 @@ const MyCollectListItem: FunctionComponent<CollectListItemProps> = props => {
           return (
             <Space className="flex justify-center items-center">
               {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-                operateCollectButton.edit(record.publishType),
+                operateCollectButton.edit(record),
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Processing && [
                 operateCollectButton.detail(record.publishType),
-                operateCollectButton.edit(record.publishType),
+                operateCollectButton.edit(record),
                 operateCollectButton.message,
                 operateCollectButton.finish,
                 operateCollectButton.download,
@@ -408,16 +410,16 @@ const MyCollectListItem: FunctionComponent<CollectListItemProps> = props => {
         }
         return (
           <Space className="flex justify-center items-center">
-            {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
-              operateButtonEvaluate.config(),
-            ]}
+            {/* {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
+              operateButtonEvaluate.config(record),
+            ]} */}
             {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
-              operateButtonEvaluate.edit(record.publishType),
+              operateButtonEvaluate.edit(record),
               operateButtonEvaluate.allocate(),
             ]}
             {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
               operateButtonEvaluate.detail(record.publishType),
-              operateButtonEvaluate.edit('edit'),
+              // operateButtonEvaluate.edit('edit'),
               operateButtonEvaluate.allocate(),
               operateButtonEvaluate.message,
               operateButtonEvaluate.result(),
