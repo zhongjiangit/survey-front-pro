@@ -1,6 +1,7 @@
 import createStaff from './create';
 import deleteStaff from './delete';
-import getStaffList from './get-staff-list';
+import getStaffList from './getStaffList';
+import getStaffListByTags from './listByTags';
 import updateStaff from './update';
 
 const staffApi = {
@@ -8,6 +9,7 @@ const staffApi = {
   deleteStaff,
   updateStaff,
   getStaffList,
+  getStaffListByTags,
 };
 
 export default staffApi;

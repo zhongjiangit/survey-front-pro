@@ -1,7 +1,26 @@
 'use client';
 
+import Api from '@/api';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { formatTreeData } from '@/lib/format-tree-data';
 import { PublishTypeEnum } from '@/types/CommonType';
-import { Checkbox, DatePicker, Divider, Form, Modal, Select, Tree } from 'antd';
+import {
+  ExclamationCircleFilled,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
+import { useRequest } from 'ahooks';
+import {
+  Checkbox,
+  DatePicker,
+  Divider,
+  Form,
+  Modal,
+  Select,
+  Tooltip,
+  Tree,
+  TreeSelect,
+} from 'antd';
 import React, { useMemo, useState } from 'react';
 import { treeData } from '../../testData';
 const { RangePicker } = DatePicker;
@@ -14,20 +33,61 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   type,
 }: TaskDetailEditModalProps) => {
   const [open, setOpen] = useState(false);
+  const [modal, contextHolder] = Modal.useModal();
+  const [filterValue, setFilterValue] = useState<string[]>([]);
   const [form] = Form.useForm();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [checkAll, setCheckAll] = useState(false);
+  const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
+  const [indeterminate, setIndeterminate] = useState(false);
 
   const onCreate = (values: any) => {
     console.log('Received values of form: ', values);
     setOpen(false);
   };
 
-  const plainOptions = [1, 2, 3, 4];
+  const { data: listVisibleLevels } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listVisibleLevels({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        // TODO orgId是什么？
+        orgId: currentOrg?.orgId!,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg],
+    }
+  );
 
-  const indeterminate = useMemo(() => {
-    const checkedList = form.getFieldValue('orgs');
-    return checkedList?.length > 0 && checkedList?.length < plainOptions.length;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.getFieldValue('orgs'), plainOptions.length]);
+  const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
+    (index: number) => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listLevelAssignSub({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        // TODO orgId 是1时查不出来数据
+        levelIndex: index || 1,
+        tags: filterValue.map(item => ({
+          key: Number(item),
+        })),
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg, filterValue],
+    }
+  );
+
+  const plainOptions = useMemo(
+    () => listLevelAssignSub?.data.map(item => item.orgId) || [],
+    [listLevelAssignSub]
+  );
 
   const onCheckAllChange = (e: any) => {
     console.log(e);
@@ -35,10 +95,41 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     form.setFieldValue('orgs', e.target.checked ? plainOptions : []);
   };
 
-  const checkAll = useMemo(() => {
-    return plainOptions.length === form.getFieldValue('orgs')?.length;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.getFieldValue('orgs')]);
+  const onFilterChange = (value: string[]) => {
+    console.log(value);
+    setFilterValue(value);
+  };
+
+  const { data: tagList } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getTagList({
+        currentSystemId: currentSystem?.systemId!,
+        tagType: type,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg],
+    }
+  );
+
+  const showConfirm = () => {
+    // TODO 之前所选单位是不是为空，，不为空则需要确认。
+    modal.confirm({
+      title: '过滤条件确认',
+      icon: <ExclamationCircleFilled />,
+      content: <>改变过滤条件之后，之前的选择将会清空，确认改变过滤条件？</>,
+      onOk() {
+        console.log('OK');
+      },
+      onCancel() {
+        console.log('Cancel');
+        onFilterChange([]);
+      },
+    });
+  };
 
   const MemberSelect = (
     <div>
@@ -113,7 +204,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         name="levels"
         label="任务分配路径（任务下放经由层级）"
         dependencies={['publishType']}
-        labelCol={{ span: 7 }}
+        labelCol={{ span: 5 }}
+        tooltip="分配第一个所选层级的参与单位"
         rules={[
           ({ getFieldValue }) => ({
             required: getFieldValue('publishType') === PublishTypeEnum.Org,
@@ -121,44 +213,68 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         ]}
       >
         <Checkbox.Group
-          options={[
-            { label: '市', value: '1' },
-            { label: '区', value: '2' },
-            { label: '校', value: '3' },
-          ]}
+          onChange={value => {
+            getListLevelAssignSub(value[0]);
+          }}
+          options={listVisibleLevels?.data.map(item => ({
+            label: item.levelName,
+            value: item.levelIndex,
+          }))}
         ></Checkbox.Group>
       </Form.Item>
-      <span> 分配第一个所选层级的参与单位：</span>
-      <Select
-        mode="multiple"
-        style={{ width: '50%' }}
-        // onChange={handleChange}
-        options={[
-          { label: 'aaaaa', value: '1' },
-          { label: 'bbbbb', value: '2' },
-          { label: 'ccccc', value: '3' },
-          { label: 'ddddd', value: '4' },
-        ]}
-      />
-      <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
+      <div className="flex items-center mx-16">
+        <div className="flex flex-nowrap items-center gap-1 w-24">
+          {' '}
+          单位过滤{' '}
+          <Tooltip placement="top" title={'分配第一个所选层级的参与单位：'}>
+            <QuestionCircleOutlined className="cursor-pointer" />
+          </Tooltip>{' '}
+          <span>：</span>
+        </div>
+        <TreeSelect
+          style={{ width: '40%' }}
+          value={filterValue}
+          onChange={onFilterChange}
+          onBlur={showConfirm}
+          treeData={formatTreeData([tagList?.data.tags])}
+        />
+      </div>
+
+      <div className="mr-5 text-blue-400 text-right">
+        已选：{orgSelectedNum}单位
+      </div>
       <Divider></Divider>
-      <Checkbox
-        indeterminate={indeterminate}
-        onChange={onCheckAllChange}
-        checked={checkAll}
-      >
-        全选
-      </Checkbox>
-      <Form.Item name="orgs" label="">
-        <Checkbox.Group
-          options={[
-            { label: 'aaaaa单位', value: '1' },
-            { label: 'bbbbb单位', value: '2' },
-            { label: 'ccccc单位', value: '3' },
-            { label: 'ddddd单位', value: '4' },
-          ]}
-        ></Checkbox.Group>
-      </Form.Item>
+      <div className="px-16">
+        {!!listLevelAssignSub?.data.length && (
+          <Checkbox
+            indeterminate={indeterminate}
+            onChange={onCheckAllChange}
+            checked={checkAll}
+          >
+            全选
+          </Checkbox>
+        )}
+        <Form.Item
+          name="orgs"
+          label=""
+          rules={[{ required: true, message: '请选择单位' }]}
+        >
+          <Checkbox.Group
+            onChange={checkedList => {
+              setOrgSelectedNum(checkedList.length);
+              setIndeterminate(
+                !!checkedList.length &&
+                  checkedList.length < (plainOptions?.length || 0)
+              );
+              setCheckAll(checkedList.length === plainOptions.length);
+            }}
+            options={listLevelAssignSub?.data.map(item => ({
+              label: item.orgName,
+              value: item.orgId,
+            }))}
+          ></Checkbox.Group>
+        </Form.Item>
+      </div>
     </>
   );
 
@@ -175,7 +291,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       <Modal
         width={1400}
         open={open}
-        title="修改任务"
+        title="修改抽检任务"
         okText="确定"
         cancelText="取消"
         okButtonProps={{
@@ -214,7 +330,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                     <RangePicker
                       format="YYYY-MM-DD HH:mm:ss"
                       showTime={{ format: 'HH:mm:ss' }}
-                      style={{ width: '90%' }}
+                      style={{ width: '40%' }}
                     />
                   </Form.Item>
                 </div>
@@ -227,6 +343,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           </Form.Item>
         </Form>
       </Modal>
+      {contextHolder}
     </>
   );
 };

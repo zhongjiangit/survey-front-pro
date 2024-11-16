@@ -112,12 +112,55 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       return Api.listLevelAssignSub({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg?.orgId!,
+        // TODO orgId 是1时查不出来数据
         levelIndex: index || 1,
+        tags: filterValue.map(item => ({
+          key: Number(item),
+        })),
       });
     },
     {
       manual: true,
-      refreshDeps: [currentSystem, currentOrg],
+    }
+  );
+  // TODO 可能不是用这个接口
+  const { data: listAllAssignSub, run: getListAllAssignSub } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listAllAssignSub({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        tags: filterValue.map(item => ({
+          key: Number(item),
+        })),
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+
+  const { data: staffListByTags, run: getStaffListByTags } = useRequest(
+    (orgId: number) => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getStaffListByTags({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        orgId: orgId,
+        tags: filterValue.map(item => ({
+          key: Number(item),
+        })),
+      });
+    },
+    {
+      manual: true,
+      onSuccess: (data, params) => {
+        console.log('getStaffListByTags', data, params);
+      },
     }
   );
 
@@ -133,7 +176,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     },
     {
       manual: true,
-      refreshDeps: [currentSystem, currentOrg],
     }
   );
 
@@ -159,6 +201,8 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       getTagList(TagTypeEnum.Member);
     } else if (changedValues?.levels) {
       getListLevelAssignSub(changedValues?.levels[0]);
+    } else if (changedValues?.publishType === publishTypeEnum.Staff) {
+      getListAllAssignSub();
     }
   };
 
@@ -487,7 +531,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           <Col span={12}></Col>
           <Col span={12}>
             <Form.Item name="publishType" label="任务分配方式">
-              <Radio.Group>
+              <Radio.Group
+                onChange={() => {
+                  onFilterChange([]);
+                }}
+              >
                 <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
                 <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
               </Radio.Group>

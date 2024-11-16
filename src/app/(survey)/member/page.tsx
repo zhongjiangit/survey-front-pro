@@ -1,6 +1,6 @@
 'use client';
 import Api from '@/api';
-import { StaffListResponse } from '@/api/staff/get-staff-list';
+import { StaffListResponse } from '@/api/staff/getStaffList';
 import MemberManage from '@/app/modules/member-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { lusitana } from '@/components/display/fonts';

@@ -58,8 +58,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [filleMemberDetailModalOpen, setFillMemberDetailModalOpen] =
     useState(false);
   const operateButton = {
-    edit: (type: PublishTypeType) => {
-      return <TaskDetailEditModal type={type} />;
+    edit: (record: any) => {
+      return <TaskDetailEditModal type={record.publishType} />;
     },
     detail: (type: PublishTypeType) => {
       return (

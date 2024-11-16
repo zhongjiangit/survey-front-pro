@@ -14,7 +14,7 @@ export interface ListLevelAssignSubParamsType {
   currentOrgId: number;
   levelIndex: number;
   tags?: {
-    tagId: number;
+    key: number;
   }[];
 }
 
