@@ -37,6 +37,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task }) => {
       });
     },
     {
+      manual: true,
       onSuccess: () => {
         setOpen(false);
         form.resetFields();

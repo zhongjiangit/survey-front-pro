@@ -105,11 +105,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       return Api.listLevelAssignSub({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg?.orgId!,
-        // TODO levelIndex需要动态获取
         levelIndex: index || 1,
       });
     },
     {
+      manual: true,
       refreshDeps: [currentSystem, currentOrg],
     }
   );
@@ -125,6 +125,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       });
     },
     {
+      manual: true,
       refreshDeps: [currentSystem, currentOrg],
     }
   );
@@ -136,6 +137,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       });
     },
     {
+      manual: true,
       onSuccess: () => {
         setOpen(false);
         form.resetFields();
