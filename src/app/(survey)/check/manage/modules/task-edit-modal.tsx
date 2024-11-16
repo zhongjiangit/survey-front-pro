@@ -9,7 +9,7 @@ import { Form, Input, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 interface TaskEditModalProps {
-  task: any;
+  task?: any;
 }
 
 interface Values {
@@ -22,12 +22,12 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({ task }) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
-  console.log('task', task);
-
   useEffect(() => {
-    form.setFieldsValue({
-      taskName: task.taskName,
-    });
+    if (task.taskName) {
+      form.setFieldsValue({
+        taskName: task.taskName,
+      });
+    }
   }, [task]);
 
   const { run: editInspTask, loading: submitLoading } = useRequest(
