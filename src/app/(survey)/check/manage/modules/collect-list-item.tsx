@@ -1,6 +1,7 @@
 import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import {
+  EvaluateStatusTypeEnum,
   PublishTypeEnum,
   PublishTypeObject,
   PublishTypeType,
@@ -55,8 +56,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [filleOrgDetailModalOpen, setFillOrgDetailModalOpen] = useState(false);
   const [filleMemberDetailModalOpen, setFillMemberDetailModalOpen] =
     useState(false);
-
-  const operateCollectButton = {
+  const operateButton = {
     edit: (type: PublishTypeType) => {
       return <TaskDetailEditModal type={type} />;
     },
@@ -94,72 +94,24 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     ),
   };
 
-  const operateCheckButton = {
-    edit: (type: PublishTypeType) => {
-      return <TaskDetailEditModal type={type} />;
-    },
-    detail: (type: PublishTypeType) => {
-      return (
-        <a
-          className=" text-blue-500"
-          key="detail"
-          onClick={() => {
-            if (type === PublishTypeEnum.Org) {
-              setFillOrgDetailModalOpen(true);
-            } else {
-              setFillMemberDetailModalOpen(true);
-            }
-          }}
-        >
-          评审详情
-        </a>
-      );
-    },
-    checkResult: (
-      <a className=" text-blue-500" key="checkResult">
-        评审结果
-      </a>
-    ),
-    message: (
-      <a className=" text-blue-500" key="message">
-        短信提醒
-      </a>
-    ),
-    set: (
-      <a className=" text-blue-500" key="set">
-        设置
-      </a>
-    ),
-    checkDetail: (
-      <a className=" text-blue-500" key="checkDetail">
-        评审详情
-      </a>
-    ),
-    allocate: (
-      <a className=" text-blue-500" key="allocate">
-        分配
-      </a>
-    ),
-    delete: (
-      <a className=" text-blue-500" key="delete">
-        删除
-      </a>
-    ),
-  };
-
   const operateButtonEvaluate = {
+    // 设置
     config: () => {
       return <EvaluateConfigModal />;
     },
+    // 修改
     edit: (type: string) => {
       return <EvaluateConfigModal type={type} />;
     },
+    // 分配
     allocate: () => {
       return <EvaluateAllocateModal />;
     },
+    // 评审详情
     detail: (type: PublishTypeType) => {
       return <ReviewDetailModal />;
     },
+    // 评审结果
     result: () => {
       return <ReviewResultModal />;
     },
@@ -298,7 +250,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       width: '11%',
       align: 'center',
       render: (text: any) => {
-        return <div>{text}</div>;
+        return text ? text : '-';
       },
     },
     {
@@ -306,43 +258,49 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'PassCount',
       align: 'center',
       render: (_: any, record: any, index: number) => {
-        if (index === 0) {
+        if (record.passPeople || record.passCount || record.reviewPassRate) {
+          if (index === 0) {
+            return (
+              <div>
+                {record.publishType === PublishTypeEnum.Org ? (
+                  <div
+                    onClick={() => {
+                      setPassedNumModalOpen(true);
+                    }}
+                  >
+                    {record.passPeople ? (
+                      <a className="text-blue-500 block">
+                        {record.passPeople}人
+                      </a>
+                    ) : null}
+                    {record.passCount ? (
+                      <a className="text-blue-500 block">
+                        {record.passCount}份
+                      </a>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => {
+                      setPassedNumModalOpen(true);
+                    }}
+                  >
+                    {record.passPeople ? <a>{record.passPeople}人</a> : null}
+                    {record.passCount ? <a>{record.passCount}份</a> : null}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           return (
             <div>
-              {record.publishType === PublishTypeEnum.Org ? (
-                <div
-                  onClick={() => {
-                    setPassedNumModalOpen(true);
-                  }}
-                >
-                  {record.passPeople ? (
-                    <a className="text-blue-500 block">{record.passPeople}人</a>
-                  ) : null}
-                  {record.passCount ? (
-                    <a className="text-blue-500 block">{record.passCount}份</a>
-                  ) : null}
-                </div>
-              ) : (
-                <div
-                  onClick={() => {
-                    setPassedNumModalOpen(true);
-                  }}
-                >
-                  {record.passPeople ? <a>{record.passPeople}人</a> : null}
-                  {record.passCount ? <a>{record.passCount}份</a> : null}
-                </div>
-              )}
+              {record.passPeople ? <a>{record.passPeople}人</a> : null}{' '}
+              {record.passCount ? <a>{record.passCount}份</a> : null}
+              <div>{record.reviewPassRate}</div>
             </div>
           );
         }
-
-        return (
-          <div>
-            {record.passPeople ? <a>{record.passPeople}人</a> : null}{' '}
-            {record.passCount ? <a>{record.passCount}份</a> : null}
-            <div>{record.reviewPassRate}</div>
-          </div>
-        );
       },
     },
     {
@@ -350,46 +308,52 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'key8',
       align: 'center',
       render: (_: any, record: any, index: number) => {
-        if (index === 0) {
+        if (
+          record.showFillPeople ||
+          record.showFillCount ||
+          record.reviewRate
+        ) {
+          if (index === 0) {
+            return (
+              <div>
+                {record.publishType === PublishTypeEnum.Org ? (
+                  <div
+                    onClick={() => {
+                      setFilledNumModalOpen(true);
+                    }}
+                  >
+                    {record.showFillPeople ? (
+                      <a className="text-blue-500 block">
+                        {record.showFillPeople}人
+                      </a>
+                    ) : null}
+                    {record.showFillCount ? (
+                      <a className="text-blue-500 block">
+                        {record.showFillCount}份
+                      </a>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div>
+                    {record.showFillPeople ? (
+                      <a>{record.showFillPeople}人</a>
+                    ) : null}
+                    {record.showFillCount ? (
+                      <a>{record.showFillCount}份</a>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            );
+          }
           return (
             <div>
-              {record.publishType === PublishTypeEnum.Org ? (
-                <div
-                  onClick={() => {
-                    setFilledNumModalOpen(true);
-                  }}
-                >
-                  {record.showFillPeople ? (
-                    <a className="text-blue-500 block">
-                      {record.showFillPeople}人
-                    </a>
-                  ) : null}
-                  {record.showFillCount ? (
-                    <a className="text-blue-500 block">
-                      {record.showFillCount}份
-                    </a>
-                  ) : null}
-                </div>
-              ) : (
-                <div>
-                  {record.showFillPeople ? (
-                    <a>{record.showFillPeople}人</a>
-                  ) : null}
-                  {record.showFillCount ? (
-                    <a>{record.showFillCount}份</a>
-                  ) : null}
-                </div>
-              )}
+              {record.showFillPeople ? <a>{record.showFillPeople}人</a> : null}
+              {record.showFillCount ? <a>{record.showFillCount}份</a> : null}
+              <div>{record.reviewRate}</div>
             </div>
           );
         }
-        return (
-          <div>
-            {record.showFillPeople ? <a>{record.showFillPeople}人</a> : null}
-            {record.showFillCount ? <a>{record.showFillCount}份</a> : null}
-            <div>{record.reviewRate}</div>
-          </div>
-        );
       },
     },
     {
@@ -401,93 +365,57 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       align: 'center',
       render: (_: any, record: any, index: number) => {
         if (index === 0) {
-          // 我发布的任务，（一）试题征集的按钮
           return (
             <Space className="flex justify-center items-center">
               {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-                operateCollectButton.edit(record.publishType),
+                operateButton.edit(record.publishType),
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Processing && [
-                operateCollectButton.detail(record.publishType),
-                operateCollectButton.edit(record.publishType),
-                operateCollectButton.message,
-                operateCollectButton.finish,
-                operateCollectButton.download,
+                operateButton.detail(record.publishType),
+                operateButton.edit(record.publishType),
+                operateButton.message,
+                operateButton.finish,
+                operateButton.download,
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Finished && [
-                operateCollectButton.detail(record.publishType),
-                operateCollectButton.download,
+                operateButton.detail(record.publishType),
+                operateButton.download,
               ]}
             </Space>
           );
-        } else {
-          // 我发布的任务，（二）专家评审的按钮
-          if (record.taskStatus === TaskStatusTypeEnum.NotStart) {
-            return (
-              <Space>
-                [operateCheckButton.edit, operateCheckButton.allocate]
-              </Space>
-            );
-          } else if (record.taskStatus === TaskStatusTypeEnum.Processing) {
-            return (
-              <Space>
-                {[
-                  operateCheckButton.detail(record.publishType),
-                  operateCheckButton.edit(record.publishType),
-                  operateCheckButton.allocate,
-                  operateCheckButton.message,
-                  operateCheckButton.checkResult,
-                  operateCheckButton.delete,
-                ]}
-              </Space>
-            );
-          } else if (record.taskStatus === TaskStatusTypeEnum.Finished) {
-            return (
-              <Space>
-                {[
-                  operateCheckButton.detail(record.publishType),
-                  operateCheckButton.delete,
-                ]}
-              </Space>
-            );
-          } else {
-            return (
-              // todo怎么判断未设置
-              <Space>{[operateCheckButton.set]}</Space>
-            );
-          }
-          // <Space className="flex justify-center items-center">
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
-          //     operateButtonEvaluate.config(),
-          //   ]}
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
-          //     operateButtonEvaluate.edit(record.publishType),
-          //     operateButtonEvaluate.allocate(),
-          //   ]}
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
-          //     operateButtonEvaluate.detail(record.publishType),
-          //     operateButtonEvaluate.edit('edit'),
-          //     operateButtonEvaluate.allocate(),
-          //     operateButtonEvaluate.message,
-          //     operateButtonEvaluate.result(),
-          //   ]}
-          //   {record.evaluateStatus === EvaluateStatusTypeEnum.Finished && [
-          //     operateButtonEvaluate.detail(record.publishType),
-          //   ]}
-          // </Space>;
         }
+        return (
+          <Space className="flex justify-center items-center">
+            {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
+              operateButtonEvaluate.config(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
+              operateButtonEvaluate.edit(record.publishType),
+              operateButtonEvaluate.allocate(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
+              operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.edit('edit'),
+              operateButtonEvaluate.allocate(),
+              operateButtonEvaluate.message,
+              operateButtonEvaluate.result(),
+            ]}
+            {record.evaluateStatus === EvaluateStatusTypeEnum.Finished && [
+              operateButtonEvaluate.detail(record.publishType),
+            ]}
+          </Space>
+        );
       },
     },
     {
       title: <div>操作</div>,
       width: '10%',
-      // 下级发布的任务，按钮
       hidden: tabType !== 'subordinate',
       dataIndex: 'operation',
       fixed: 'right',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{operateCollectButton.detail(record.publishType)}</div>;
+        return <div>{operateButton.detail(record.publishType)}</div>;
       },
     },
   ];

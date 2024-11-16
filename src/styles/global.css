@@ -81,3 +81,8 @@ input[type='number']::-webkit-outer-spin-button {
     @apply bg-background text-foreground;
   }
 }
+
+.ant-table-cell:empty:after,
+.ant-table-cell span:empty:after {
+  content: '-';
+}
