@@ -1,12 +1,17 @@
 'use client';
 
 import Api from '@/api';
+import { CreateInspTaskParamsType } from '@/api/task/createInspTask';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { formatTreeData } from '@/lib/format-tree-data';
 import {
+  publishTypeEnum,
   PublishTypeEnum,
   publishTypeType,
+  TagTypeEnum,
+  TagTypeType,
   TemplateTypeEnum,
 } from '@/types/CommonType';
 import {
@@ -28,8 +33,9 @@ import {
   Row,
   Select,
   Tree,
+  TreeSelect,
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { treeData } from '../../testData';
 
 const { RangePicker } = DatePicker;
@@ -53,6 +59,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
   const [form] = Form.useForm();
   const [checkAll, setCheckAll] = useState(false);
   const [templateId, setTemplateId] = useState<number>();
+  const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
   const [indeterminate, setIndeterminate] = useState(false);
   const [filterValue, setFilterValue] = useState<string[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -90,8 +97,8 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
     }
   );
 
-  const { data: listLevelAssignSub } = useRequest(
-    () => {
+  const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
+    (index: number) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
@@ -99,7 +106,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg?.orgId!,
         // TODO levelIndex需要动态获取
-        levelIndex: 2,
+        levelIndex: index || 1,
       });
     },
     {
@@ -107,11 +114,42 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
     }
   );
 
-  const onValuesChange = (changedValues: any, allValues: any) => {
-    console.log(changedValues);
+  const { data: tagList, run: getTagList } = useRequest(
+    (type?: TagTypeType) => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getTagList({
+        currentSystemId: currentSystem?.systemId!,
+        tagType: type || 1,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg],
+    }
+  );
 
-    if (allValues.templateId) {
-      setTemplateId(allValues.templateId);
+  const { run: createInspTask, loading: submitLoading } = useRequest(
+    (values: CreateInspTaskParamsType) => {
+      return Api.createInspTask({
+        ...values,
+      });
+    },
+    {
+      onSuccess: () => {
+        setOpen(false);
+        form.resetFields();
+      },
+    }
+  );
+
+  const onValuesChange = (changedValues: any, allValues: any) => {
+    if (changedValues?.publishType === publishTypeEnum.Level) {
+      getTagList(TagTypeEnum.Org);
+    } else if (changedValues?.publishType === publishTypeEnum.Staff) {
+      getTagList(TagTypeEnum.Member);
+    } else if (changedValues?.levels) {
+      getListLevelAssignSub(changedValues?.levels[0]);
     }
   };
 
@@ -137,18 +175,22 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         orgId: Number(item),
       }));
     }
-    console.log('Received values of form: ', createDate);
-    // setOpen(false);
+    createInspTask(createDate);
   };
 
-  const plainOptions = ['1', '2', '3', '4'];
+  const plainOptions = useMemo(
+    () => listLevelAssignSub?.data.map(item => item.orgId) || [],
+    [listLevelAssignSub]
+  );
 
   const onCheckAllChange = (e: any) => {
     if (e.target.checked) {
       form.setFieldValue('orgs', plainOptions);
+      setOrgSelectedNum(plainOptions.length);
       setCheckAll(true);
     } else {
       form.setFieldValue('orgs', []);
+      setOrgSelectedNum(0);
       setCheckAll(false);
     }
     setIndeterminate(false);
@@ -180,16 +222,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
       <div className="flex justify-between items-center pl-20">
         <div className="w-96 flex items-center">
           <span>人员过滤：</span>
-          <Select
-            mode="multiple"
+          <TreeSelect
             className="w-72 flex-1"
-            // onChange={handleChange}
-            options={[
-              { label: 'aaaaa', value: '1' },
-              { label: 'bbbbb', value: '2' },
-              { label: 'ccccc', value: '3' },
-              { label: 'ddddd', value: '4' },
-            ]}
+            value={filterValue}
+            onChange={onFilterChange}
+            onBlur={showConfirm}
+            treeData={formatTreeData([tagList?.data.tags])}
           />
         </div>
         <div className="mr-5 text-right flex gap-4 items-center">
@@ -257,56 +295,57 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
         ]}
       >
         <Checkbox.Group
-          options={[
-            { label: '市', value: '1' },
-            { label: '区', value: '2' },
-            { label: '校', value: '3' },
-          ]}
+          options={listVisibleLevels?.data.map(item => ({
+            label: item.levelName,
+            value: item.levelIndex,
+          }))}
         ></Checkbox.Group>
       </Form.Item>
       <div className="flex justify-between items-center pl-20">
         <div className="w-96 flex items-center">
           <span>单位过滤：</span>
-          <Select
-            mode="multiple"
+          <TreeSelect
             className="w-72 flex-1"
             value={filterValue}
             onChange={onFilterChange}
             onBlur={showConfirm}
-            options={[
-              { label: 'aaaaa', value: '1' },
-              { label: 'bbbbb', value: '2' },
-              { label: 'ccccc', value: '3' },
-              { label: 'ddddd', value: '4' },
-            ]}
+            treeData={formatTreeData([tagList?.data.tags])}
           />
         </div>
-        <div className="mr-5 text-blue-400 text-right">已选：4单位</div>
+        <div className="mr-5 text-blue-400 text-right">
+          已选：{orgSelectedNum}单位
+        </div>
       </div>
 
       <Divider></Divider>
       <div className="px-20">
-        <Checkbox
-          indeterminate={indeterminate}
-          onChange={onCheckAllChange}
-          checked={checkAll}
+        {!!listLevelAssignSub?.data.length && (
+          <Checkbox
+            indeterminate={indeterminate}
+            onChange={onCheckAllChange}
+            checked={checkAll}
+          >
+            全选
+          </Checkbox>
+        )}
+        <Form.Item
+          name="orgs"
+          label=""
+          rules={[{ required: true, message: '请选择单位' }]}
         >
-          全选
-        </Checkbox>
-        <Form.Item name="orgs" label="">
           <Checkbox.Group
             onChange={checkedList => {
+              setOrgSelectedNum(checkedList.length);
               setIndeterminate(
-                !!checkedList.length && checkedList.length < plainOptions.length
+                !!checkedList.length &&
+                  checkedList.length < (plainOptions?.length || 0)
               );
               setCheckAll(checkedList.length === plainOptions.length);
             }}
-            options={[
-              { label: 'aaaaa单位', value: '1' },
-              { label: 'bbbbb单位', value: '2' },
-              { label: 'ccccc单位', value: '3' },
-              { label: 'ddddd单位', value: '4' },
-            ]}
+            options={listLevelAssignSub?.data.map(item => ({
+              label: item.orgName,
+              value: item.orgId,
+            }))}
           ></Checkbox.Group>
         </Form.Item>
       </div>
@@ -335,16 +374,20 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
           htmlType: 'submit',
           onClick: () => form.submit(),
         }}
-        onCancel={() => setOpen(false)}
+        onCancel={() => {
+          form.resetFields();
+          setOpen(false);
+        }}
+        confirmLoading={submitLoading}
         modalRender={dom => (
           <Form
             form={form}
             name="form_new_task_modal"
-            onValuesChange={onValuesChange}
             onFinish={values => onCreate(values)}
             onError={v => {
               console.log(v);
             }}
+            onValuesChange={onValuesChange}
             labelCol={{ span: 9 }}
             wrapperCol={{ span: 24 }}
             style={{
@@ -400,20 +443,23 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
             >
               <Select
                 loading={checkListLoading}
+                onChange={e => {
+                  setTemplateId(e);
+                }}
                 options={checkList?.data.map(item => ({
                   label: item.templateTitle,
                   value: item.templateId,
                 }))}
               ></Select>
-              {templateId && (
-                <a className="text-blue-500">
-                  <TemplateDetailModal
-                    templateId={templateId}
-                    TemplateType={TemplateTypeEnum.Check}
-                  />
-                </a>
-              )}
             </Form.Item>
+            {templateId && (
+              <a className="text-blue-500 absolute top-9 left-56">
+                <TemplateDetailModal
+                  templateId={templateId}
+                  TemplateType={TemplateTypeEnum.Check}
+                />
+              </a>
+            )}
           </Col>
           <Col span={12}>
             <Form.Item name="maxFillCount" label="每位填报者可提交最多份数">

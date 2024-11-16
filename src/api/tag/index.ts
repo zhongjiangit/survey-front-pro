@@ -1,5 +1,5 @@
 import createTag from './create';
-import getTagList from './get-list';
+import getTagList from './getTagList';
 
 const tagApi = {
   createTag,
