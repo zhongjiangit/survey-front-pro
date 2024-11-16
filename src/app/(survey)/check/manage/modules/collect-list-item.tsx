@@ -535,7 +535,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">
-                    <TaskEditModal />
+                    <TaskEditModal task={item} />
                     <TaskDeleteModal />
                   </div>
                 )}

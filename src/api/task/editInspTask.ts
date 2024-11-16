@@ -9,7 +9,7 @@ currentOrgId	int		登录用户当前操作的单位id
 taskName	string		任务名称
 */
 
-interface EditInspTaskParamsType {
+export interface EditInspTaskParamsType {
   taskId: number;
   currentSystemId: number;
   currentOrgId: number;
