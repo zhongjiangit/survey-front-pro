@@ -22,6 +22,7 @@ interface UpdateInspTaskReviewParamsType {
   showFiller: number;
   showExpertName: number;
   showExpertComment: number;
+  [key: string]: any;
 }
 
 interface UpdateInspTaskReviewResponse {}

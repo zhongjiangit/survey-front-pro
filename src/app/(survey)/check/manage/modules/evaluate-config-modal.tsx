@@ -1,29 +1,54 @@
 'use client';
 
+import Api from '@/api';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DatePicker, Form, Modal, Switch } from 'antd';
 import React, { useState } from 'react';
-
 const { RangePicker } = DatePicker;
 
 interface EvaluateConfigModalProps {
   type?: string;
+  record: any;
 }
 
 interface Values {
-  taskName?: string;
+  showFiller: boolean;
+  showExpertName: boolean;
+  showExpertComment: boolean;
+  dateRange: [any, any];
 }
 
 const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   type = 'config',
+  record,
 }: EvaluateConfigModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState<Values>();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
   const onCreate = (values: Values) => {
     console.log('Received values of form: ', values);
-    setFormValues(values);
-    setOpen(false);
+
+    const { showFiller, showExpertName, showExpertComment } = values;
+    if (!currentSystem?.systemId || !currentOrg?.orgId) {
+      return Promise.reject('未获取到组织机构');
+    }
+    Api.updateInspTaskReview({
+      showFiller: showFiller ? 1 : 0,
+      showExpertName: showExpertName ? 1 : 0,
+      showExpertComment: showExpertComment ? 1 : 0,
+      taskId: record.taskId,
+      currentSystemId: currentSystem.systemId,
+      currentOrgId: currentOrg.orgId,
+      beginTimeReviewEstimate: values.dateRange[0].format(
+        'YYYY-MM-DD HH:mm:ss'
+      ),
+      endTimeReviewEstimate: values.dateRange[1].format('YYYY-MM-DD HH:mm:ss'),
+    }).then(() => {
+      setOpen(false);
+    });
   };
 
   return (
@@ -65,17 +90,17 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
           ]}
         >
           <RangePicker
-            format="YYYY-MM-DD HH:mm::ss"
+            format="YYYY-MM-DD HH:mm:ss"
             showTime={{ format: 'HH:mm:ss' }}
           />
         </Form.Item>
-        <Form.Item name="a" label="专家能否查看填报人信息">
+        <Form.Item name="showFiller" label="专家能否查看填报人信息">
           <Switch />
         </Form.Item>
-        <Form.Item name="b" label="填报人能否查看专家姓名">
+        <Form.Item name="showExpertName" label="填报人能否查看专家姓名">
           <Switch />
         </Form.Item>
-        <Form.Item name="c" label="填报人能否查看专家评审意见">
+        <Form.Item name="showExpertComment" label="填报人能否查看专家评审意见">
           <Switch />
         </Form.Item>
       </Modal>

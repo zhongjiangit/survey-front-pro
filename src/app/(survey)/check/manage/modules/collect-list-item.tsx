@@ -97,8 +97,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
 
   const operateButtonEvaluate = {
     // 设置
-    config: () => {
-      return <EvaluateConfigModal />;
+    config: record => {
+      return <EvaluateConfigModal record={record} />;
     },
     // 修改
     edit: (type: string) => {
@@ -387,9 +387,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         }
         return (
           <Space className="flex justify-center items-center">
-            {record.evaluateStatus === EvaluateStatusTypeEnum.NOConfig && [
-              operateButtonEvaluate.config(),
-            ]}
+            {!record.evaluateStatus && [operateButtonEvaluate.config(record)]}
             {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
               operateButtonEvaluate.edit(record.publishType),
               operateButtonEvaluate.allocate(),

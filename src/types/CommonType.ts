@@ -85,15 +85,15 @@ export const TaskStatusObject = {
 // ----------------- 通用类型 评估状态类型 -----------------
 
 export enum EvaluateStatusTypeEnum {
-  NOConfig = 0,
-  NotStart = 1,
-  Processing = 2,
-  Finished = 3,
+  // NOConfig = 0,
+  NotStart = 0,
+  Processing = 1,
+  Finished = 2,
 }
 
 // 生成evaluate类型对象
 export const EvaluateStatusObject = {
-  [EvaluateStatusTypeEnum.NOConfig]: '未配置',
+  // [EvaluateStatusTypeEnum.NOConfig]: '未配置',
   [EvaluateStatusTypeEnum.NotStart]: '未开始',
   [EvaluateStatusTypeEnum.Processing]: '进行中',
   [EvaluateStatusTypeEnum.Finished]: '完成',
