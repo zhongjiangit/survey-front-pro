@@ -9,7 +9,6 @@ import { Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import StandardDetailModal from '../modules/standard-detail-modal';
-import { collectDataSource } from '../testData';
 import TaskReviewDetailModal from './modules/task-review-detail-modal';
 
 const CheckReview = () => {
@@ -20,11 +19,11 @@ const CheckReview = () => {
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
   const operateButton = {
-    detail: () => {
-      return <TaskReviewDetailModal key="detail" />;
+    detail: (record: any) => {
+      return <TaskReviewDetailModal key="detail" task={record} />;
     },
   };
-  const { data: reviewResponse } = useRequest(
+  const { data: listReviewTaskExpertData } = useRequest(
     () => {
       return Api.listReviewTaskExpert({
         currentSystemId: currentSystem?.systemId!,
@@ -58,7 +57,7 @@ const CheckReview = () => {
         return (
           <div>
             <div>{record.createOrgName}</div>
-            <div>{record.staffName}</div>
+            <div>{record.createStaffName}</div>
           </div>
         );
       },
@@ -75,6 +74,7 @@ const CheckReview = () => {
       title: <div>评价标准及准则</div>,
       dataIndex: 'standard',
       align: 'center',
+      // TODO
       render: (_: any, record: any) => {
         return <StandardDetailModal />;
       },
@@ -102,9 +102,9 @@ const CheckReview = () => {
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.beginTimeReviewEstimate?.slice?.(0, 10)}</div>
+            <div>{record.beginTimeReviewEstimate?.slice?.(0, -3)}</div>
             <div>~</div>
-            <div>{record.endTimeReviewEstimate?.slice?.(0, 10)}</div>
+            <div>{record.endTimeReviewEstimate?.slice?.(0, -3)}</div>
           </div>
         );
       },
@@ -172,7 +172,7 @@ const CheckReview = () => {
         return (
           <div>
             {record.reviewTaskStatus === TaskStatusTypeEnum.Processing
-              ? operateButton.detail()
+              ? operateButton.detail(record)
               : '-'}
           </div>
         );
@@ -181,7 +181,10 @@ const CheckReview = () => {
   ];
   return (
     <div className="flex flex-col gap-5">
-      <Table columns={columns} dataSource={collectDataSource} />
+      <Table
+        columns={columns}
+        dataSource={listReviewTaskExpertData?.data || []}
+      />
     </div>
   );
 };

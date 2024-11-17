@@ -16,6 +16,7 @@ expertComment	string		专家点评
 interface SaveReviewDetailsParamsType {
   currentSystemId: number;
   currentOrgId: number;
+  taskId: number;
   singleFillId: number;
   dimensionScores: {
     dimensionId: number;

@@ -1,80 +1,131 @@
 'use client';
 
+import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
-import { ReviewStatusObject, TemplateTypeEnum } from '@/types/CommonType';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { ProcessStatusObject, TemplateTypeEnum } from '@/types/CommonType';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import type { TreeDataNode } from 'antd';
+import { useRequest } from 'ahooks';
 import { Button, Divider, Input, InputNumber, Modal, Space, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
-import { testDataSource } from '../../testData';
 
-const treeData: TreeDataNode[] = [
-  {
-    title: '四川省教育机构',
-    key: '0-0',
-    children: [
-      {
-        title: '乐山市',
-        key: '0-0-0',
-        children: [
-          {
-            title: '乐山第一小学（1人， 一份）',
-            key: '0-0-0-0',
-          },
-        ],
-      },
-      {
-        title: '绵阳市',
-        key: '0-0-1',
-      },
-      {
-        title: '成都市',
-        key: '0-0-2',
-      },
-    ],
-  },
-];
+interface TaskReviewDetailModalProps {
+  task: any;
+}
 
-interface TaskReviewDetailModalProps {}
+const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
   const [open, setOpen] = useState(false);
+
+  const { data: listReviewDetailsExpertData, run: getListReviewDetailsExpert } =
+    useRequest(
+      () => {
+        return Api.listReviewDetailsExpert({
+          currentSystemId: currentSystem?.systemId!,
+          currentOrgId: currentOrg!.orgId!,
+          taskId: task.taskId,
+          pageNumber,
+          pageSize,
+        });
+      },
+      {
+        manual: true,
+        onSuccess: data => {
+          console.log('listReviewDetailsExpertData', data);
+        },
+      }
+    );
+
+  const { run: saveReviewDetails } = useRequest(
+    values => {
+      return Api.saveReviewDetails({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        taskId: task.taskId,
+        ...values,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: data => {
+        console.log('listReviewDetailsExpertData', data);
+      },
+    }
+  );
+
+  const { run: expertSubmit } = useRequest(
+    values => {
+      return Api.expertSubmit({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        taskId: task.taskId,
+        ...values,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: data => {
+        console.log('listReviewDetailsExpertData', data);
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (open) {
+      getListReviewDetailsExpert();
+    }
+  }, [open]);
+
+  const saveReview = (record: any) => {
+    saveReviewDetails({});
+    console.log(record);
+  };
+
+  const submitReview = (record: any) => {
+    expertSubmit({ singleFillId: record.singleFillId });
+    console.log('submit', record);
+  };
 
   const columns: any = [
     {
       title: '单位',
-      dataIndex: 'orgName',
+      dataIndex: 'fillerOrgName',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.isShowInfo ? record.orgName : '-'}</div>;
+        return <div>{record.isShowInfo ? record.fillerOrgName : '-'}</div>;
       },
     },
     {
       title: <div>姓名</div>,
-      dataIndex: 'name',
+      dataIndex: 'fillerStaffName',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.isShowInfo ? record.name : '-'}</div>;
+        return <div>{record.isShowInfo ? record.fillerStaffName : '-'}</div>;
       },
     },
     {
       title: <div>试卷编号</div>,
-      dataIndex: 'num',
+      dataIndex: 'fillIndex',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.isShowInfo ? record.num : '-'}</div>;
+        return <div>{record.isShowInfo ? record.fillIndex : '-'}</div>;
       },
     },
     {
       title: <div>试卷</div>,
-      dataIndex: 'testPaper',
+      dataIndex: 'templateId',
       align: 'center',
       render: (_: any, record: any) => {
         return (
           <TemplateDetailModal
             showDom={'详情'}
-            templateId={1}
+            templateId={record.templateId || 1}
             TemplateType={TemplateTypeEnum.Check}
           />
         );
@@ -82,14 +133,14 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
     },
     {
       title: <div>状态</div>,
-      dataIndex: 'reviewStatus',
+      dataIndex: 'processStatus',
       align: 'center',
       render: (_: any, record: any) => {
         return (
           <div>
             {
               // @ts-ignore
-              ReviewStatusObject[record.reviewStatus]
+              ProcessStatusObject[record.processStatus]
             }
           </div>
         );
@@ -97,7 +148,7 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
     },
     {
       title: <div>评分（满分：50）</div>,
-      dataIndex: 'score',
+      dataIndex: 'totalScore',
       align: 'center',
     },
     {
@@ -112,14 +163,16 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
       dataIndex: 'dimension',
       width: '18%',
       align: 'center',
-      render: (text: any, record: any) => {
+      render: (_: any, record: any) => {
         return (
           <div>
-            {text.map((item: any, index: number) => {
+            {record?.dimensionScores?.map((item: any, index: number) => {
               return (
-                <div key={index}>
-                  <span>{item}</span>
-                  {index + 1 !== text.length && <Divider className="my-4" />}
+                <div key={item.dimensionId}>
+                  <span>{item.dimensionName}</span>
+                  {index + 1 !== record?.dimensionScores?.length && (
+                    <Divider className="my-4" />
+                  )}
                 </div>
               );
             })}
@@ -129,16 +182,20 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
     },
     {
       title: <div>维度评分</div>,
-      dataIndex: 'dimensionScore',
+      dataIndex: 'dimensionScores',
       width: '11%',
       align: 'center',
       render: (text: any) => {
         return (
           <div>
-            {text.map((item: any, index: number) => {
+            {text?.map((item: any, index: number) => {
               return (
                 <div key={index}>
-                  <InputNumber min={0} max={5} defaultValue={item} />
+                  <InputNumber
+                    min={0}
+                    max={5}
+                    defaultValue={item.reviewScore}
+                  />
                   {index + 1 !== text.length && <Divider className="my-4" />}
                 </div>
               );
@@ -149,7 +206,7 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
     },
     {
       title: <div>专家点评</div>,
-      dataIndex: 'comment',
+      dataIndex: 'expertComment',
       align: 'center',
       render: (text: string) => {
         return (
@@ -172,23 +229,67 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
           <>
             {record.reviewStatus === 0 && (
               <Space>
-                <a className="text-blue-500">保存</a>
-                <a className="text-blue-500">提交</a>
+                <a
+                  className="text-blue-500"
+                  onClick={() => {
+                    saveReview(record);
+                  }}
+                >
+                  保存
+                </a>
+                <a
+                  className="text-blue-500"
+                  onClick={() => {
+                    submitReview(record);
+                  }}
+                >
+                  提交
+                </a>
               </Space>
             )}
             {record.reviewStatus === 1 && (
               <Space>
-                <a className="text-blue-500">保存</a>
-                <a className="text-blue-500">提交</a>
+                <a
+                  className="text-blue-500"
+                  onClick={() => {
+                    saveReview(record);
+                  }}
+                >
+                  保存
+                </a>
+                <a
+                  className="text-blue-500"
+                  onClick={() => {
+                    submitReview(record);
+                  }}
+                >
+                  提交
+                </a>
               </Space>
             )}
             {record.reviewStatus === 2 && '-'}
             {record.reviewStatus === 3 && '-'}
             {record.reviewStatus === 4 && (
               <Space>
-                <a className="text-blue-500">保存</a>
-                <a className="text-blue-500">提交</a>
-                <a className="text-blue-500">驳回履历</a>
+                <a
+                  className="text-blue-500"
+                  onClick={() => {
+                    saveReview(record);
+                  }}
+                >
+                  保存
+                </a>
+                <a
+                  className="text-blue-500"
+                  onClick={() => {
+                    submitReview(record);
+                  }}
+                >
+                  提交
+                </a>
+                <a className="text-blue-500" onClick={() => {}}>
+                  驳回履历
+                </a>
               </Space>
             )}
           </>
@@ -218,7 +319,11 @@ const TaskReviewDetailModal = ({}: TaskReviewDetailModalProps) => {
           </div>
         }
       >
-        <Table columns={columns} dataSource={testDataSource} />
+        <Table
+          columns={columns}
+          dataSource={listReviewDetailsExpertData?.data || []}
+          // dataSource={testDataSource}
+        />
       </Modal>
     </>
   );
