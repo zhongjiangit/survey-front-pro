@@ -175,7 +175,6 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
         cancelText="取消"
         okButtonProps={{
           autoFocus: true,
-          htmlType: 'submit',
           onClick: () => form.submit(),
         }}
         onCancel={() => setOpen(false)}

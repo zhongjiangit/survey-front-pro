@@ -21,16 +21,19 @@ import {
   Tree,
   TreeSelect,
 } from 'antd';
-import React, { useMemo, useState } from 'react';
+import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
 import { treeData } from '../../testData';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
-  type: PublishTypeEnum;
+  record: any;
+  refreshMyPublishTask: () => void;
 }
 
 const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
-  type,
+  record,
+  refreshMyPublishTask,
 }: TaskDetailEditModalProps) => {
   const [open, setOpen] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
@@ -42,30 +45,24 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
   const [indeterminate, setIndeterminate] = useState(false);
 
-  const onCreate = (values: any) => {
-    console.log('Received values of form: ', values);
-    setOpen(false);
-  };
-
-  const { data: listVisibleLevels } = useRequest(
-    () => {
-      if (!currentSystem || !currentOrg) {
-        return Promise.reject('No current system');
-      }
-      return Api.listVisibleLevels({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
-        // TODO orgId是什么？
-        orgId: currentOrg?.orgId!,
+  const { run: updateInspTaskFill } = useRequest(
+    values => {
+      return Api.updateInspTaskFill({
+        ...values,
       });
     },
     {
-      refreshDeps: [currentSystem, currentOrg],
+      manual: true,
+      onSuccess: () => {
+        form.resetFields();
+        setOpen(false);
+        refreshMyPublishTask();
+      },
     }
   );
 
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
-    (index: number) => {
+    (index?: number) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
@@ -80,9 +77,102 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       });
     },
     {
-      refreshDeps: [currentSystem, currentOrg, filterValue],
+      manual: true,
     }
   );
+
+  const { run: getInspTaskFill } = useRequest(
+    taskId => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getInspTaskFill({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        taskId: taskId,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: data => {
+        console.log('inspTaskFillData', data.data);
+        const initValues = {
+          levels: data.data.levels?.map(level => level.levelIndex),
+          orgs: data.data.orgs?.map(org => org.orgId),
+          timeFillEstimate: [
+            dayjs(data.data.beginTimeFillEstimate, 'YYYY-MM-DD HH:mm:ss'),
+            dayjs(data.data.endTimeFillEstimate, 'YYYY-MM-DD HH:mm:ss'),
+          ],
+        };
+        getListLevelAssignSub(initValues?.levels?.[0] ?? 1);
+        form.setFieldsValue(initValues);
+      },
+    }
+  );
+
+  const { data: listVisibleLevels, run: getListVisibleLevels } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listVisibleLevels({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        // TODO orgId是什么？
+        orgId: currentOrg?.orgId!,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+
+  const { data: tagList, run: getTagList } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getTagList({
+        currentSystemId: currentSystem?.systemId!,
+        tagType: record.publishType,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+
+  useEffect(() => {
+    if (open) {
+      getInspTaskFill(record.taskId);
+      getListVisibleLevels();
+      getTagList();
+    }
+  }, [open]);
+
+  const onCreate = (values: any) => {
+    const createDate: any = {
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg?.orgId!,
+      taskId: record.taskId,
+      beginTimeFillEstimate: values.timeFillEstimate[0].format(
+        'YYYY-MM-DD HH:mm:ss'
+      ),
+      endTimeFillEstimate: values.timeFillEstimate[1].format(
+        'YYYY-MM-DD HH:mm:ss'
+      ),
+    };
+    delete createDate.timeFillEstimate;
+    if (record.publishType === PublishTypeEnum.Org) {
+      createDate.levels = values.levels?.map((item: string) => ({
+        levelIndex: Number(item),
+      }));
+      createDate.orgs = values.orgs?.map((item: string) => ({
+        orgId: Number(item),
+      }));
+    }
+    updateInspTaskFill(createDate);
+  };
 
   const plainOptions = useMemo(
     () => listLevelAssignSub?.data.map(item => item.orgId) || [],
@@ -99,21 +189,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     console.log(value);
     setFilterValue(value);
   };
-
-  const { data: tagList } = useRequest(
-    () => {
-      if (!currentSystem || !currentOrg) {
-        return Promise.reject('No current system');
-      }
-      return Api.getTagList({
-        currentSystemId: currentSystem?.systemId!,
-        tagType: type,
-      });
-    },
-    {
-      refreshDeps: [currentSystem, currentOrg],
-    }
-  );
 
   const showConfirm = () => {
     // TODO 之前所选单位是不是为空，，不为空则需要确认。
@@ -296,10 +371,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         cancelText="取消"
         okButtonProps={{
           autoFocus: true,
-          htmlType: 'submit',
           onClick: () => form.submit(),
         }}
-        onCancel={() => setOpen(false)}
+        onCancel={() => {
+          setOpen(false);
+          form.resetFields();
+        }}
       >
         <Form
           form={form}
@@ -336,7 +413,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                 </div>
                 <Divider orientation="left">分配详情</Divider>
                 <div style={{ marginLeft: '20px' }}>
-                  {type === PublishTypeEnum.Org ? OrgSelect : MemberSelect}
+                  {record.publishType === PublishTypeEnum.Org
+                    ? OrgSelect
+                    : MemberSelect}
                 </div>
               </div>
             </div>
