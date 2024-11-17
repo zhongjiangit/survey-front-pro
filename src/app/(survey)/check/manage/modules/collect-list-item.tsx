@@ -62,7 +62,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       return (
         <TaskDetailEditModal
           record={record}
-          refreshMyPublishTask={refreshMyPublishTask}
+          refreshList={refreshMyPublishTask}
         />
       );
     },

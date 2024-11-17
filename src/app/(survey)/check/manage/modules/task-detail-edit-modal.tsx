@@ -27,13 +27,15 @@ import { treeData } from '../../testData';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
+  linkName?: string;
   record: any;
-  refreshMyPublishTask: () => void;
+  refreshList: () => void;
 }
 
 const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
+  linkName,
   record,
-  refreshMyPublishTask,
+  refreshList,
 }: TaskDetailEditModalProps) => {
   const [open, setOpen] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
@@ -56,7 +58,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       onSuccess: () => {
         form.resetFields();
         setOpen(false);
-        refreshMyPublishTask();
+        refreshList();
+        setCheckAll(false);
       },
     }
   );
@@ -95,7 +98,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     {
       manual: true,
       onSuccess: data => {
-        console.log('inspTaskFillData', data.data);
         const initValues = {
           levels: data.data.levels?.map(level => level.levelIndex),
           orgs: data.data.orgs?.map(org => org.orgId),
@@ -180,9 +182,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 
   const onCheckAllChange = (e: any) => {
-    console.log(e);
-
     form.setFieldValue('orgs', e.target.checked ? plainOptions : []);
+    setCheckAll(e.target.checked);
   };
 
   const onFilterChange = (value: string[]) => {
@@ -361,7 +362,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           setOpen(true);
         }}
       >
-        修改
+        {linkName || '修改'}
       </a>
       <Modal
         width={1400}
@@ -375,6 +376,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         }}
         onCancel={() => {
           setOpen(false);
+          setCheckAll(false);
           form.resetFields();
         }}
       >
