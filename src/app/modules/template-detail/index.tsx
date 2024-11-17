@@ -1,22 +1,96 @@
-import { CollectItemType } from '@/api/template/get-details';
-import renderFormItem from '@/lib/render-form-item';
-import { useRequest } from 'ahooks';
-import { Button, Form } from 'antd';
+'use client';
+
 import Api from '@/api';
+import { CollectItemType } from '@/api/template/get-details';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import renderFormItem from '@/lib/render-form-item';
+import { TemplateType, TemplateTypeEnum } from '@/types/CommonType';
+import { useLocalStorageState, useRequest } from 'ahooks';
+import { Button, Form } from 'antd';
 
 interface TemplateDetailProps {
   templateId?: number;
+  singleFillId?: number;
+  templateType?: TemplateType;
 }
 
-const TemplateDetail = ({}: TemplateDetailProps) => {
+const TemplateDetail = ({
+  templateId,
+  templateType,
+  singleFillId,
+}: TemplateDetailProps) => {
   const [form] = Form.useForm();
+  const [currentFillTask] = useLocalStorageState<any>('current-fill-task', {
+    defaultValue: {},
+  });
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const { data } = useRequest(() => {
+    if (!currentSystem?.systemId) {
+      return Promise.reject('currentSystem is not exist');
+    }
     return Api.getTemplateDetails({
-      currentSystemId: 5,
-      templateId: 1,
-      templateType: 1,
+      currentSystemId: currentSystem.systemId,
+      templateId: templateId ?? 1,
+      templateType: templateType ?? TemplateTypeEnum.Collect,
     });
   });
+
+  const { data: singleFillDetailsData } = useRequest(
+    values => {
+      if (
+        !currentSystem?.systemId ||
+        !currentOrg?.orgId ||
+        !singleFillId ||
+        !currentFillTask
+      ) {
+        return Promise.reject('参数补全');
+      }
+      return Api.getSingleFillDetails({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        singleFillId: singleFillId,
+        taskId: currentFillTask.taskId,
+      });
+    },
+    {
+      refreshDeps: [
+        currentSystem?.systemId,
+        currentOrg?.orgId,
+        currentFillTask?.taskId,
+        singleFillId,
+      ],
+      onSuccess: data => {
+        console.log('getSingleFillDetails', data);
+      },
+    }
+  );
+
+  const { run: saveSingleFillDetails } = useRequest(
+    values => {
+      return Api.saveSingleFillDetails({
+        ...values,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+
+  const saveSingleFill = () => {
+    const formValues = form.getFieldsValue();
+    console.log('formValues', formValues);
+
+    const fillData = {
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg?.orgId,
+      singleFillId: singleFillId,
+      // TODO 保存单次填报详情
+      items: [],
+    };
+    saveSingleFillDetails(fillData);
+  };
 
   return (
     <Form
@@ -50,8 +124,8 @@ const TemplateDetail = ({}: TemplateDetailProps) => {
           </div>
         ))}
       <Form.Item className="flex justify-center">
-        <Button type="primary" htmlType="submit">
-          提交
+        <Button type="primary" htmlType="submit" onClick={saveSingleFill}>
+          保存
         </Button>
       </Form.Item>
     </Form>

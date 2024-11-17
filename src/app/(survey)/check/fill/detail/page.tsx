@@ -1,58 +1,134 @@
 'use client';
 
+import Api from '@/api';
 import Breadcrumbs from '@/components/common/breadcrumbs';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { useLocalStorageState, useRequest } from 'ahooks';
 import { Tabs } from 'antd';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import FillCollect from '../modules/fill-collect';
 import RejectTimeline from '../modules/reject-timeline';
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const initialItems = [
-  {
-    label: '驳回履历',
-    children: <RejectTimeline />,
-    key: '0',
-    closable: false,
-  },
-  { label: 'NO 1', children: <FillCollect />, key: '1', closable: false },
-  { label: 'NO 2', children: <FillCollect />, key: '2' },
-  {
-    label: 'NO 3',
-    children: <FillCollect />,
-    key: '3',
-  },
-];
-
 const Page = () => {
+  const initialItems: any = useMemo(
+    () => [
+      {
+        label: '驳回履历',
+        children: <RejectTimeline />,
+        key: '0',
+        closable: false,
+      },
+    ],
+    []
+  );
   const [activeKey, setActiveKey] = useState(initialItems[0].key);
   const [items, setItems] = useState(initialItems);
-  const newTabIndex = useRef(3);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const newTabIndex = useRef(0);
+  const [currentFillTask] = useLocalStorageState<any>('current-fill-task', {
+    defaultValue: {},
+  });
+
+  console.log('currentFillTask', currentFillTask);
+
+  const {} = useRequest(
+    () => {
+      if (
+        !currentSystem?.systemId ||
+        !currentOrg?.orgId ||
+        !currentFillTask?.taskId
+      ) {
+        return Promise.reject(
+          'currentSystem or currentOrg or currentFillTask is not exist'
+        );
+      }
+      return Api.listSingleFill({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        taskId: currentFillTask?.taskId,
+      });
+    },
+    {
+      refreshDeps: [
+        currentSystem?.systemId,
+        currentOrg?.orgId,
+        currentFillTask?.taskId,
+      ],
+      onSuccess: data => {
+        console.log('listSingleFillData', data);
+        const newPanes = [...items];
+        data.data.forEach((item: any) => {
+          const index = newTabIndex.current++;
+          newPanes.push({
+            label: `NO ${index}`,
+            children: <FillCollect singleFillId={item.singleFillId} />,
+            key: `newTab${index}`,
+          });
+        });
+        setItems(newPanes);
+      },
+    }
+  );
+  const { run: createSingleFill, loading: createSingleFillLoading } =
+    useRequest(
+      () => {
+        if (
+          !currentSystem?.systemId ||
+          !currentOrg?.orgId ||
+          !currentFillTask?.taskId
+        ) {
+          return Promise.reject(
+            'currentSystem or currentOrg or currentFillTask is not exist'
+          );
+        }
+        return Api.createSingleFill({
+          currentSystemId: currentSystem?.systemId!,
+          currentOrgId: currentOrg!.orgId!,
+          taskId: currentFillTask?.taskId,
+        });
+      },
+      {
+        onSuccess: data => {
+          console.log('createSingleFill', data);
+          const newActiveKey = `newTab${newTabIndex.current++}`;
+          const newPanes = [...items];
+          newPanes.push({
+            label: `NO ${newTabIndex.current}`,
+            children: <FillCollect singleFillId={data.data.singleFillId} />,
+            key: newActiveKey,
+          });
+          setItems(newPanes);
+          setActiveKey(newActiveKey);
+        },
+      }
+    );
 
   const onChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
   };
 
   const add = () => {
-    const newActiveKey = `newTab${newTabIndex.current++}`;
-    const newPanes = [...items];
-    newPanes.push({
-      label: `NO ${newTabIndex.current}`,
-      children: <FillCollect />,
-      key: newActiveKey,
-    });
-    setItems(newPanes);
-    setActiveKey(newActiveKey);
+    if (items.length >= currentFillTask?.maxFillCount) {
+      console.log('超过最大填报数');
+
+      return;
+    }
+    createSingleFill();
   };
 
   const remove = (targetKey: TargetKey) => {
     let newActiveKey = activeKey;
     let lastIndex = -1;
-    items.forEach((item, i) => {
+    items.forEach((item: any, i: number) => {
       if (item.key === targetKey) {
         lastIndex = i - 1;
       }
     });
-    const newPanes = items.filter(item => item.key !== targetKey);
+    const newPanes = items.filter((item: any) => item.key !== targetKey);
     if (newPanes.length && newActiveKey === targetKey) {
       if (lastIndex >= 0) {
         newActiveKey = newPanes[lastIndex].key;
@@ -80,10 +156,10 @@ const Page = () => {
       <Breadcrumbs
         className="mb-2"
         breadcrumbs={[
-          { label: '资料收集', href: '/collect/fill' },
+          { label: '资料收集', href: '/check/fill' },
           {
             label: '资料填报',
-            href: '/collect/fill/detail',
+            href: `/check/fill/detail?taskId=${currentFillTask?.taskId}`,
             active: true,
           },
         ]}
@@ -95,6 +171,10 @@ const Page = () => {
           onChange={onChange}
           activeKey={activeKey}
           onEdit={onEdit}
+          addIcon={
+            createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
+          }
+          hideAdd={items.length >= currentFillTask?.maxFillCount}
           items={items}
         />
       </div>

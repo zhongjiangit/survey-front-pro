@@ -9,7 +9,7 @@ import {
   ProcessStatusTypeEnum,
   TemplateTypeEnum,
 } from '@/types/CommonType';
-import { useRequest } from 'ahooks';
+import { useLocalStorageState, useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -42,14 +42,50 @@ const ToAllotTask = () => {
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [currentFillTask, setCurrentFillTask] = useLocalStorageState<any>(
+    'current-fill-task',
+    {
+      defaultValue: {},
+    }
+  );
+
+  const { run: submitFill } = useRequest(
+    (taskId: number) => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.fillerSubmit({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        taskId: taskId,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
 
   const operateButton = {
-    fill: (
-      <Link className=" text-blue-500" key="fill" href="/collect/fill/detail">
+    fill: (record: any) => (
+      <Link
+        className=" text-blue-500"
+        key="fill"
+        onClick={() => setCurrentFillTask(record)}
+        href={`/check/fill/detail?taskId=${record.taskId}`}
+      >
         填报任务
       </Link>
     ),
-    submit: <a className=" text-blue-500">提交</a>,
+    submit: (record: any) => (
+      <a
+        onClick={() => {
+          submitFill(record.taskId);
+        }}
+        className=" text-blue-500"
+      >
+        提交
+      </a>
+    ),
   };
 
   const { data: fillInspTaskData } = useRequest(
@@ -88,8 +124,8 @@ const ToAllotTask = () => {
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.orgName}</div>
-            <div>{record.staffName}</div>
+            <div>{record.createOrgName}</div>
+            <div>{record.createStaffName}</div>
           </div>
         );
       },
@@ -98,8 +134,8 @@ const ToAllotTask = () => {
       title: <div>任务名称</div>,
       dataIndex: 'taskName',
       align: 'center',
-      render: (_: any, record: any) => {
-        return <div>{record.taskName}</div>;
+      render: (text: string) => {
+        return <div>{text}</div>;
       },
     },
     {
@@ -116,7 +152,7 @@ const ToAllotTask = () => {
           <div>
             <div>
               <TemplateDetailModal
-                templateId={1}
+                templateId={record.templateId}
                 TemplateType={TemplateTypeEnum.Check}
               />
             </div>
@@ -146,14 +182,14 @@ const ToAllotTask = () => {
     },
     {
       title: <div>提交状态</div>,
-      dataIndex: 'processStatus',
+      dataIndex: 'fillTaskStatus',
       align: 'center',
       render: (_: any, record: any) => {
         return (
           <div>
             {
               // @ts-ignore
-              ProcessStatusObject[record.processStatus]
+              ProcessStatusObject[record.fillTaskStatus]
             }
           </div>
         );
@@ -167,13 +203,13 @@ const ToAllotTask = () => {
       render: (_: any, record: any) => {
         return (
           <Space className="fle justify-center items-center">
-            {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
-              operateButton.fill,
-              operateButton.submit,
+            {record.fillTaskStatus === ProcessStatusTypeEnum.NotSubmit && [
+              operateButton.fill(record),
+              operateButton.submit(record),
             ]}
-            {record.processStatus === ProcessStatusTypeEnum.Reject && [
-              operateButton.fill,
-              operateButton.submit,
+            {record.fillTaskStatus === ProcessStatusTypeEnum.Reject && [
+              operateButton.fill(record),
+              operateButton.submit(record),
             ]}
           </Space>
         );
@@ -182,7 +218,11 @@ const ToAllotTask = () => {
   ];
   return (
     <>
-      <Table columns={columns} dataSource={toAllotTaskData}></Table>
+      <Table
+        columns={columns}
+        // dataSource={fillInspTaskData?.data || []}
+        dataSource={toAllotTaskData}
+      ></Table>
     </>
   );
 };

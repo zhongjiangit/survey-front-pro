@@ -226,7 +226,7 @@ export const checkDetailData: any[] = [
     org3Result: 93,
   },
 ];
-// processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
+// fillTaskStatus	int		填报任务状态 10：未开始 20：进行中 30：已完成 40：已提交 50：已驳回 60：已撤回 70：已过期
 export const toAllotTaskData = [
   {
     taskName: '小学教学计划资料收集1',
@@ -242,7 +242,9 @@ export const toAllotTaskData = [
     fillPeople: 8,
     fillCount: 30,
     publishType: 2,
-    processStatus: 0,
+    templateId: 1,
+    fillTaskStatus: 20,
+    taskId: 1,
   },
   {
     taskName: '小学教学计划资料收集2',
@@ -258,7 +260,7 @@ export const toAllotTaskData = [
     fillPeople: 8,
     fillCount: 30,
     publishType: 2,
-    processStatus: 1,
+    fillTaskStatus: 70,
   },
   {
     taskName: '小学教学计划资料收集3',
@@ -274,7 +276,7 @@ export const toAllotTaskData = [
     fillPeople: 8,
     fillCount: 30,
     publishType: 1,
-    processStatus: 2,
+    fillTaskStatus: 60,
   },
 ];
 
