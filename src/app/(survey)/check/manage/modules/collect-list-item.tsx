@@ -389,7 +389,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 operateButton.download,
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Finished && [
-                operateButton.detail(record.publishType),
+                operateButton.detail(record),
                 operateButton.download,
               ]}
             </Space>
