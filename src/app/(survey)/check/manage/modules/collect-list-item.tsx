@@ -57,18 +57,21 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [filleOrgDetailModalOpen, setFillOrgDetailModalOpen] = useState(false);
   const [filleMemberDetailModalOpen, setFillMemberDetailModalOpen] =
     useState(false);
+  const [viewTaskId, setViewTaskId] = useState<number>();
+
   const operateButton = {
     edit: (type: PublishTypeType) => {
       return <TaskDetailEditModal type={type} />;
     },
-    detail: (type: PublishTypeType) => {
+    detail: (record: any) => {
       return (
         <a
           className=" text-blue-500"
           key="detail"
           onClick={() => {
-            if (type === PublishTypeEnum.Org) {
+            if (record.publishType === PublishTypeEnum.Org) {
               setFillOrgDetailModalOpen(true);
+              setViewTaskId(record.taskId);
             } else {
               setFillMemberDetailModalOpen(true);
             }
@@ -374,7 +377,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 operateButton.edit(record),
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Processing && [
-                operateButton.detail(record.publishType),
+                operateButton.detail(record),
                 operateButton.edit(record),
                 operateButton.message,
                 operateButton.finish,
@@ -490,6 +493,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         setOpen={setPassedNumModalOpen}
       />
       <TaskOrgFillDetailModal
+        taskId={viewTaskId}
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
       />

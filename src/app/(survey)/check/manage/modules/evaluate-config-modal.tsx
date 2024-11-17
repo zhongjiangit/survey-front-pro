@@ -57,8 +57,10 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         {type === 'config' ? '设置' : '修改'}
       </a>
       <Modal
+        destroyOnClose
+        afterClose={() => form.resetFields()}
         open={open}
-        title="专家评审设置"
+        title="专家评审设置1"
         okText="提交"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}

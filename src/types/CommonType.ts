@@ -201,3 +201,26 @@ export const publishTypeObject = {
   [publishTypeEnum.Level]: '按层级发布',
   [publishTypeEnum.Staff]: '指定人员发布',
 };
+
+// 任务处理状态， 10：待分配 20：未提交 50:已提交 60:已通过 70:已驳回 100：数据丢弃
+// getFillProcessDetails	获取任务填报处理详情的状态
+export type TaskProcessStatusType = 10 | 20 | 50 | 60 | 70 | 100;
+
+export enum TaskProcessStatusEnum {
+  WaitAssign = 10,
+  NotSubmit = 20,
+  Submitted = 50,
+  Passed = 60,
+  Reject = 70,
+  DataDiscard = 100,
+}
+
+// 生成taskProcess类型对象
+export const TaskProcessStatusObject = {
+  [TaskProcessStatusEnum.WaitAssign]: '待分配',
+  [TaskProcessStatusEnum.NotSubmit]: '未提交',
+  [TaskProcessStatusEnum.Submitted]: '已提交(需审核)',
+  [TaskProcessStatusEnum.Passed]: '已通过',
+  [TaskProcessStatusEnum.Reject]: '已驳回',
+  [TaskProcessStatusEnum.DataDiscard]: '数据丢弃',
+};
