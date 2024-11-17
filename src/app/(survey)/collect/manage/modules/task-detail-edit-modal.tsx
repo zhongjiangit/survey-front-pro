@@ -180,7 +180,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         cancelText="取消"
         okButtonProps={{
           autoFocus: true,
-          htmlType: 'submit',
           onClick: () => form.submit(),
         }}
         onCancel={() => setOpen(false)}

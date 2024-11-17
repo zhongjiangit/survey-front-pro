@@ -60,8 +60,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [viewTaskId, setViewTaskId] = useState<number>();
 
   const operateButton = {
-    edit: (type: PublishTypeType) => {
-      return <TaskDetailEditModal type={type} />;
+    edit: (record: any) => {
+      return (
+        <TaskDetailEditModal
+          record={record}
+          refreshList={refreshMyPublishTask}
+        />
+      );
     },
     detail: (record: any) => {
       return (

@@ -13,8 +13,7 @@ import {
 import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import { useState } from 'react';
-import TaskAllocateModal from '../manage/modules/task-allocate-modal';
-import { toAllotTaskData } from '../testData';
+import TaskDetailEditModal from '../manage/modules/task-detail-edit-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -49,8 +48,39 @@ const ToAllotTask = () => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
+  const { data: listAssignInspTaskData, refresh: refreshListAssignInspTask } =
+    useRequest(
+      () => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('currentSystem or currentOrg is not exist');
+        }
+        return Api.listAssignInspTask({
+          currentSystemId: currentSystem?.systemId!,
+          currentOrgId: currentOrg!.orgId!,
+          pageNumber,
+          pageSize,
+        });
+      },
+      {
+        refreshDeps: [
+          currentSystem?.systemId,
+          currentOrg?.orgId,
+          pageNumber,
+          pageSize,
+        ],
+      }
+    );
+
+  console.log('listAssignInspTaskData', listAssignInspTaskData);
+
   const operateButton = {
-    allot: (type: PublishTypeEnum) => <TaskAllocateModal type={type} />,
+    allot: (record: any) => (
+      <TaskDetailEditModal
+        record={record}
+        refreshList={refreshListAssignInspTask}
+        linkName={'分配任务'}
+      />
+    ),
 
     detail: (
       <a className=" text-blue-500" key="detail">
@@ -58,27 +88,6 @@ const ToAllotTask = () => {
       </a>
     ),
   };
-  const { data: assignInspTaskData } = useRequest(
-    () => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId) {
-        return Promise.reject('currentSystem or currentOrg is not exist');
-      }
-      return Api.listAssignInspTask({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg!.orgId!,
-        pageNumber,
-        pageSize,
-      });
-    },
-    {
-      refreshDeps: [
-        currentSystem?.systemId,
-        currentOrg?.orgId,
-        pageNumber,
-        pageSize,
-      ],
-    }
-  );
 
   // 给columns添加ts类型
   const columns: any = [
@@ -94,8 +103,8 @@ const ToAllotTask = () => {
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.orgName}</div>
-            <div>{record.staffName}</div>
+            <div>{record.createOrgName}</div>
+            <div>{record.createStaffName}</div>
           </div>
         );
       },
@@ -123,7 +132,7 @@ const ToAllotTask = () => {
           <div>
             <div>
               <TemplateDetailModal
-                templateId={1}
+                templateId={record.templateId}
                 TemplateType={TemplateTypeEnum.Check}
               />
             </div>
@@ -138,14 +147,14 @@ const ToAllotTask = () => {
     },
     {
       title: <div>状态</div>,
-      dataIndex: 'taskStatus',
+      dataIndex: 'fillTaskStatus',
       align: 'center',
       render: (_: any, record: any) => {
         return (
           <div>
             {
               // @ts-ignore
-              TaskStatusObject[record.taskStatus]
+              TaskStatusObject[record.fillTaskStatus]
             }
           </div>
         );
@@ -175,13 +184,13 @@ const ToAllotTask = () => {
           <div>
             {record.publishType === PublishTypeEnum.Org ? (
               <div>
-                <a className="text-blue-500 block">{record.passPeople}人</a>
-                <a className="text-blue-500 block">{record.passCount}份</a>
+                <a className="text-blue-500 block">{record.fillPassPeople}人</a>
+                <a className="text-blue-500 block">{record.fillPassCount}份</a>
               </div>
             ) : (
               <div>
-                <div>{record.passPeople}人</div>
-                <div>{record.passCount}份</div>
+                <div>{record.fillPassPeople}人</div>
+                <div>{record.fillPassCount}份</div>
               </div>
             )}
           </div>
@@ -218,14 +227,14 @@ const ToAllotTask = () => {
       render: (_: any, record: any) => {
         return (
           <Space className="fle justify-center items-center">
-            {record.taskStatus === TaskStatusTypeEnum.NotStart && [
-              operateButton.allot(record.publishType),
+            {record.fillTaskStatus === TaskStatusTypeEnum.NotStart && [
+              operateButton.allot(record),
             ]}
-            {record.taskStatus === TaskStatusTypeEnum.Processing && [
+            {record.fillTaskStatus === TaskStatusTypeEnum.Processing && [
               operateButton.detail,
-              operateButton.allot(record.publishType),
+              operateButton.allot(record),
             ]}
-            {record.taskStatus === TaskStatusTypeEnum.Finished && [
+            {record.fillTaskStatus === TaskStatusTypeEnum.Finished && [
               operateButton.detail,
             ]}
           </Space>
@@ -235,7 +244,10 @@ const ToAllotTask = () => {
   ];
   return (
     <>
-      <Table columns={columns} dataSource={toAllotTaskData}></Table>
+      <Table
+        columns={columns}
+        dataSource={listAssignInspTaskData?.data || []}
+      ></Table>
     </>
   );
 };

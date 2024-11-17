@@ -9,6 +9,7 @@ import { Form, Input, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 interface TaskEditModalProps {
+  linkName?: string;
   task?: any;
   refreshMyPublishTask?: () => void;
 }
@@ -18,6 +19,7 @@ interface Values {
 }
 
 const TaskEditModal: React.FC<TaskEditModalProps> = ({
+  linkName,
   task,
   refreshMyPublishTask,
 }) => {
@@ -62,8 +64,8 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
 
   return (
     <>
-      <a className="underline text-blue-500" onClick={() => setOpen(true)}>
-        编辑
+      <a className="text-blue-500" onClick={() => setOpen(true)}>
+        {linkName || '编辑'}
       </a>
       <Modal
         open={open}

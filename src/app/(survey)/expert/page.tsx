@@ -1,7 +1,7 @@
 'use client';
 
 import Api from '@/api';
-import { StaffListResponse } from '@/api/staff/get-staff-list';
+import { StaffListResponse } from '@/api/staff/getStaffList';
 import ExpertManage from '@/app/modules/expert-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { lusitana } from '@/components/display/fonts';

@@ -12,7 +12,7 @@ export interface ListAllAssignSubParamsType {
   currentSystemId: number;
   currentOrgId: number;
   tags?: {
-    tagId: number;
+    key: number;
   }[];
 }
 
