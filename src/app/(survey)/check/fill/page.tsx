@@ -220,8 +220,8 @@ const ToAllotTask = () => {
     <>
       <Table
         columns={columns}
-        // dataSource={fillInspTaskData?.data || []}
-        dataSource={toAllotTaskData}
+        dataSource={fillInspTaskData?.data || []}
+        // dataSource={toAllotTaskData}
       ></Table>
     </>
   );
