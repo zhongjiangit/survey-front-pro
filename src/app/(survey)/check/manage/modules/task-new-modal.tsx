@@ -36,7 +36,6 @@ import {
   TreeSelect,
 } from 'antd';
 import React, { useMemo, useState } from 'react';
-import { treeData } from '../../testData';
 
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
@@ -66,6 +65,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
   const [indeterminate, setIndeterminate] = useState(false);
   const [filterValue, setFilterValue] = useState<string[]>([]);
+  const [levelOrgs, setLevelOrgs] = useState<any[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
@@ -123,9 +123,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       manual: true,
     }
   );
-  // TODO 可能不是用这个接口
+
   const { data: listAllAssignSub, run: getListAllAssignSub } = useRequest(
     () => {
+      console.log('getListAllAssignSub');
+
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
@@ -139,10 +141,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     },
     {
       manual: true,
+      onSuccess: data => {
+        const levelOrgs = data.data.map(level =>
+          level.orgs.map(org => ({
+            title: `${org.orgName} (共${org.staffCount}人)`,
+            key: org.orgId,
+          }))
+        );
+        setLevelOrgs(levelOrgs);
+      },
     }
   );
 
-  const { data: staffListByTags, run: getStaffListByTags } = useRequest(
+  const { run: getStaffListByTags } = useRequest(
     (orgId: number) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
@@ -160,6 +171,22 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       manual: true,
       onSuccess: (data, params) => {
         console.log('getStaffListByTags', data, params);
+        // 将data.data以children为属性的levelOrgs对应的id为param[0]中
+        const newLevelOrgs = levelOrgs.map((level: any) =>
+          level.map((org: any) => {
+            console.log('org', org, params[0], org.key == params[0]);
+
+            if (org.key == params[0]) {
+              console.log('params', org);
+              org.children = data.data.map(item => ({
+                key: item.id,
+                title: `${item.staffName}(${item.cellphone})`,
+              }));
+            }
+            return org;
+          })
+        );
+        setLevelOrgs(newLevelOrgs);
       },
     }
   );
@@ -195,14 +222,14 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   const onValuesChange = (changedValues: any, allValues: any) => {
+    console.log('changedValues', changedValues);
     if (changedValues?.publishType === publishTypeEnum.Level) {
       getTagList(TagTypeEnum.Org);
     } else if (changedValues?.publishType === publishTypeEnum.Staff) {
+      getListAllAssignSub();
       getTagList(TagTypeEnum.Member);
     } else if (changedValues?.levels) {
       getListLevelAssignSub(changedValues?.levels[0]);
-    } else if (changedValues?.publishType === publishTypeEnum.Staff) {
-      getListAllAssignSub();
     }
   };
 
@@ -270,6 +297,8 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     });
   };
 
+  console.log('levelOrgs', levelOrgs);
+
   const MemberSelect = (
     <div>
       <div className="flex justify-between items-center pl-20">
@@ -286,8 +315,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         <div className="mr-5 text-right flex gap-4 items-center">
           <span className="text-blue-400">已选：4人</span>
           <span className="cursor-pointer text-red-500 hover:text-red-600">
-            <CloseCircleOutlined />
-            清空
+            <CloseCircleOutlined /> 清空
           </span>
         </div>
       </div>
@@ -302,33 +330,24 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         }}
         className="px-20"
       >
-        <Tree
-          checkable
-          treeData={treeData[0]}
-          defaultExpandAll
-          style={{
-            flexShrink: 1,
-            // marginRight: '10%',
-          }}
-        />
-        <Tree
-          checkable
-          treeData={treeData[1]}
-          defaultExpandAll
-          style={{
-            flexShrink: 1,
-            // marginRight: '10%',
-          }}
-        />
-        <Tree
-          checkable
-          treeData={treeData[2]}
-          defaultExpandAll
-          style={{
-            flexShrink: 1,
-            // marginRight: '10%',
-          }}
-        />
+        <div className="flex gap-20">
+          {levelOrgs?.map((level: any, index: number) => (
+            <Tree
+              key={index}
+              checkable
+              treeData={level}
+              defaultExpandAll
+              onSelect={(selectedKey, e) => {
+                if (e.selected) {
+                  getStaffListByTags(Number(selectedKey[0]));
+                }
+              }}
+              style={{
+                flexShrink: 1,
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

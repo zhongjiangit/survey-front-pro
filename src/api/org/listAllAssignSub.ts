@@ -17,13 +17,23 @@ export interface ListAllAssignSubParamsType {
 }
 
 /**
-  	[]json		单位数组
-  orgId	int		单位id
-  orgName	string		单位名称
+  		[]json		层级数组
+  levelIndex	int		下级单位所在层级序号
+  levelName	string		层级名称
+  orgs	[]json		单位数组
+    orgId	int		单位id
+    orgName	string		单位名称
+    staffCount  int		单位人数
+
  */
 export interface ListAllAssignSubResponse {
-  orgId: number;
-  orgName: string;
+  levelIndex: number;
+  levelName: string;
+  orgs: {
+    orgId: number;
+    orgName: string;
+    staffCount: number;
+  }[];
 }
 
 /**

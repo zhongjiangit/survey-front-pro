@@ -13,7 +13,6 @@ import { useLocalStorageState, useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import Link from 'next/link';
 import { useState } from 'react';
-import { toAllotTaskData } from '../testData';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -182,14 +181,14 @@ const ToAllotTask = () => {
     },
     {
       title: <div>提交状态</div>,
-      dataIndex: 'fillTaskStatus',
+      dataIndex: 'processStatus',
       align: 'center',
       render: (_: any, record: any) => {
         return (
           <div>
             {
               // @ts-ignore
-              ProcessStatusObject[record.fillTaskStatus]
+              ProcessStatusObject[record.processStatus]
             }
           </div>
         );

@@ -89,8 +89,8 @@ const TaskOrgFillDetailModal = ({
       return Api.getFillProcessDetails({
         currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg.orgId,
-        pageNumber: 10,
-        pageSize: 1,
+        pageNumber: 1,
+        pageSize: 10,
         taskId,
       });
     },

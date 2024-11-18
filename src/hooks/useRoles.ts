@@ -64,5 +64,8 @@ export function useRoles() {
     currentSystem?.isSystemManager,
     user,
   ]);
+
+  console.log('roles', roles);
+
   return roles;
 }
