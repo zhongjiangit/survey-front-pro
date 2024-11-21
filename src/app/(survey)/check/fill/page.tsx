@@ -202,11 +202,11 @@ const ToAllotTask = () => {
       render: (_: any, record: any) => {
         return (
           <Space className="fle justify-center items-center">
-            {record.fillTaskStatus === ProcessStatusTypeEnum.NotSubmit && [
+            {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
               operateButton.fill(record),
               operateButton.submit(record),
             ]}
-            {record.fillTaskStatus === ProcessStatusTypeEnum.Reject && [
+            {record.processStatus === ProcessStatusTypeEnum.Reject && [
               operateButton.fill(record),
               operateButton.submit(record),
             ]}
