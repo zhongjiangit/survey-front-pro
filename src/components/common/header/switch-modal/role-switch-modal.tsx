@@ -53,6 +53,7 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
       title="角色切换"
       open={isRoleModalOpen}
       onOk={handleOk}
+      destroyOnClose
       onCancel={handleCancel}
       okText="确认"
       footer={

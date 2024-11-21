@@ -43,6 +43,7 @@ const OrgSwitchModal: FunctionComponent<OrgSwitchModalProps> = ({
       open={isOrgModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      destroyOnClose
       okText="确认"
       footer={
         <div>
