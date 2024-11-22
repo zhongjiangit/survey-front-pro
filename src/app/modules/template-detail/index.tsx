@@ -4,7 +4,7 @@ import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import renderFormItem from '@/lib/render-form-item';
+import RenderFormItem from '@/lib/render-form-item';
 import { TemplateType, TemplateTypeEnum } from '@/types/CommonType';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form } from 'antd';
@@ -116,10 +116,10 @@ const TemplateDetail = ({
                 },
               ]}
             >
-              {renderFormItem({
-                type: item.widgetType || 'input',
-                option: item.widgetDetails,
-              })}
+              <RenderFormItem
+                type={item.widgetType || 'input'}
+                option={item.widgetDetails}
+              />
             </Form.Item>
           </div>
         ))}

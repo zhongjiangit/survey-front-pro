@@ -77,7 +77,5 @@ export function useRoles() {
     user,
   ]);
 
-  console.log('roles', roles);
-
   return roles;
 }

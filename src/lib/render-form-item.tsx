@@ -9,6 +9,8 @@ interface RenderFormItemProps {
 
 const RenderFormItem = (props: RenderFormItemProps) => {
   const { type, option } = props;
+  console.log('option', option);
+
   const renderFormItem = (key: string, option: any) => {
     switch (key) {
       case 'input':
@@ -42,7 +44,7 @@ const RenderFormItem = (props: RenderFormItemProps) => {
     }
   };
 
-  return <>{renderFormItem(type, option)}</>;
+  return <div>{renderFormItem(type, option)}</div>;
 };
 
 export default RenderFormItem;

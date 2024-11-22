@@ -1,7 +1,7 @@
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import renderFormItem from '@/lib/render-form-item';
+import RenderFormItem from '@/lib/render-form-item';
 import { TemplateType } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Empty, Form, Modal } from 'antd';
@@ -82,10 +82,10 @@ const TemplateDetailModal = ({
                     },
                   ]}
                 >
-                  {renderFormItem({
-                    type: item.widgetType || 'input',
-                    option: item.widgetDetails,
-                  })}
+                  <RenderFormItem
+                    type={item.widgetType || 'input'}
+                    option={item.widgetDetails}
+                  />
                 </Form.Item>
               </div>
             ))

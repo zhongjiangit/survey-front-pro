@@ -3,6 +3,7 @@
 import {
   DeleteOutlined,
   DownOutlined,
+  EditOutlined,
   PlusCircleOutlined,
   SaveOutlined,
 } from '@ant-design/icons';
@@ -18,6 +19,7 @@ export interface CustomTreeDataNode extends TreeDataNode {
 }
 
 interface CustomTreeProps {
+  maxDepth?: number;
   setParam?: boolean;
   dataSource: CustomTreeDataNode[];
   setDataSource?: (data: CustomTreeDataNode[]) => void;
@@ -27,6 +29,7 @@ interface CustomTreeProps {
 
 function CustomTree(props: CustomTreeProps) {
   const {
+    maxDepth = 100,
     dataSource,
     setParam = false,
     setDataSource,
@@ -154,6 +157,7 @@ function CustomTree(props: CustomTreeProps) {
         <Input
           type="input"
           size="small"
+          autoFocus
           placeholder="请输入节点名称"
           onChange={e => {
             setNodeTitle(e.target.value);
@@ -187,6 +191,39 @@ function CustomTree(props: CustomTreeProps) {
     const newTreeData = addNode(treeData, String(selectedKeys[0]), node);
     setTreeData(newTreeData);
   };
+
+  /**
+   * 编辑节点
+   */
+  const onEdit = useCallback(() => {
+    // 递归遍历树节点，如果树节点中已经有input类型节点，则不允许编辑
+    if (checkNode(treeData)) {
+      return;
+    }
+    // 递归遍历树节点，找到指定节点并更新节点名称
+    const editNode = (treeData: CustomTreeDataNode[], key: string) => {
+      return treeData.map(node => {
+        if (node.key == key) {
+          node.title = (
+            <Input
+              type="input"
+              size="small"
+              autoFocus
+              placeholder="请输入新节点名称"
+              onChange={e => {
+                setNodeTitle(e.target.value);
+              }}
+            />
+          );
+          node.type = 'input';
+        } else if (node.children) {
+          editNode(node.children, key);
+        }
+        return node;
+      });
+    };
+    setTreeData(editNode(treeData, String(selectedKeys[0])));
+  }, [checkNode, nodeTitle, selectedKeys, treeData]);
 
   /**
    * 保存节点
@@ -249,7 +286,9 @@ function CustomTree(props: CustomTreeProps) {
    * @param selectedKeysValue
    */
   const onSelect: TreeProps['onSelect'] = selectedKeysValue => {
-    setSelectedKeysData(selectedKeysValue);
+    if (selectedKeysValue.length > 0) {
+      setSelectedKeysData(selectedKeysValue);
+    }
   };
 
   /**
@@ -352,6 +391,26 @@ function CustomTree(props: CustomTreeProps) {
     setTreeSourceData(data);
   };
 
+  // 找到当前nodeData是treeData下第几层级的数据,同级节点的深度是一样的
+  const findDepth = (
+    treeData: CustomTreeDataNode[],
+    key: React.Key,
+    currentDepth: number = 1
+  ): number => {
+    for (const node of treeData) {
+      if (node.key === key) {
+        return currentDepth;
+      }
+      if (node.children) {
+        const depth = findDepth(node.children, key, currentDepth + 1);
+        if (depth !== -1) {
+          return depth;
+        }
+      }
+    }
+    return -1; // 如果未找到节点，返回 -1
+  };
+
   return (
     <>
       {contextHolder}
@@ -363,6 +422,7 @@ function CustomTree(props: CustomTreeProps) {
               type="input"
               size="small"
               placeholder="请输入根节点名称"
+              autoFocus
               onChange={e => {
                 setNodeTitle(e.target.value);
               }}
@@ -391,45 +451,61 @@ function CustomTree(props: CustomTreeProps) {
         draggable
         onDragEnter={onDragEnter}
         onDrop={onDrop}
-        titleRender={nodeData => (
-          <div className="group flex items-center justify-center gap-1">
-            {typeof nodeData.title === 'function'
-              ? nodeData.title(nodeData)
-              : nodeData.title}
-            {nodeData.key == selectedKeys[0] && (
-              <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                {nodeData.type === 'input' ? (
-                  <Tooltip title="保存节点">
-                    <SaveOutlined
-                      className="hover:text-blue-400"
-                      onClick={() =>
-                        saveNode(nodeData.key as string, nodeTitle)
-                      }
-                    />
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="新增下级节点">
-                    <PlusCircleOutlined
-                      className="hover:text-blue-400"
-                      onClick={() => onCreate()}
-                    />
-                  </Tooltip>
-                )}
-                <Popconfirm
-                  title="删除节点"
-                  description="该节点及子级节点将被删除且不可恢复，确认删除？"
-                  onConfirm={confirm}
-                  okText="确定"
-                  cancelText="取消"
-                >
-                  <div onClick={e => e.stopPropagation()}>
-                    <DeleteOutlined className="hover:text-red-500" />
-                  </div>
-                </Popconfirm>
-              </div>
-            )}
-          </div>
-        )}
+        titleRender={nodeData => {
+          const depth = findDepth(treeData, nodeData.key as string);
+          return (
+            <div className="group flex items-center justify-center gap-1">
+              {typeof nodeData.title === 'function'
+                ? nodeData.title(nodeData)
+                : nodeData.title}
+              {nodeData.key == selectedKeys[0] && (
+                <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                  {nodeData.type === 'input' ? (
+                    <Tooltip title="保存节点">
+                      <SaveOutlined
+                        className="hover:text-blue-400"
+                        onClick={() =>
+                          saveNode(nodeData.key as string, nodeTitle)
+                        }
+                      />
+                    </Tooltip>
+                  ) : (
+                    <>
+                      {maxDepth > depth && (
+                        <Tooltip title="新增下级节点">
+                          <PlusCircleOutlined
+                            className="hover:text-blue-400"
+                            onClick={() => onCreate()}
+                          />
+                        </Tooltip>
+                      )}
+                      <Tooltip title="编辑节点">
+                        <EditOutlined
+                          className="hover:text-blue-400"
+                          onClick={() => {
+                            setNodeTitle(nodeData.title as string);
+                            onEdit();
+                          }}
+                        />
+                      </Tooltip>
+                    </>
+                  )}
+                  <Popconfirm
+                    title="删除节点"
+                    description="该节点及子级节点将被删除且不可恢复，确认删除？"
+                    onConfirm={confirm}
+                    okText="确定"
+                    cancelText="取消"
+                  >
+                    <div onClick={e => e.stopPropagation()}>
+                      <DeleteOutlined className="hover:text-red-500" />
+                    </div>
+                  </Popconfirm>
+                </div>
+              )}
+            </div>
+          );
+        }}
       />
     </>
   );

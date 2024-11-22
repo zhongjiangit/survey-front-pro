@@ -21,7 +21,7 @@ export default function Breadcrumbs({
       <ol className={clsx(lusitana.className, 'flex text-xl md:text-2xl')}>
         {breadcrumbs.map((breadcrumb, index) => (
           <li
-            key={breadcrumb.href}
+            key={index}
             aria-current={breadcrumb.active}
             className={clsx(
               breadcrumb.active

@@ -1,11 +1,11 @@
 'use client';
 
+import Api from '@/api';
+import { TemplateOutlineCreateParamsType } from '@/api/template/create-outline';
 import { useRequest } from 'ahooks';
 import { Button, Form, Input, Modal, Radio, Space } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import Api from '@/api';
-import { TemplateOutlineCreateParamsType } from '@/api/template/create-outline';
 
 interface Values {
   currentSystemId?: number;
@@ -131,7 +131,7 @@ const CreateModal = ({
             },
           ]}
         >
-          <Radio.Group disabled={!!initValues}>
+          <Radio.Group>
             <Radio value={1}>启用</Radio>
             <Radio value={0}>停用</Radio>
           </Radio.Group>
@@ -146,7 +146,7 @@ const CreateModal = ({
             },
           ]}
         >
-          <Input.TextArea disabled={!!initValues} />
+          <Input.TextArea />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 17, span: 7 }}>
           <Space>

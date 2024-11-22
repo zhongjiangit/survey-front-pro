@@ -2,19 +2,17 @@
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import renderFormItem from '@/lib/render-form-item';
+import RenderFormItem from '@/lib/render-form-item';
 import { cn } from '@/lib/utils';
 import { TemplateTypeEnum } from '@/types/CommonType';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useLocalStorageState, useRequest } from 'ahooks';
-import type { TreeDataNode, UploadProps } from 'antd';
-import { Button, Divider, Empty, Form, Input, message, Spin } from 'antd';
+import type { UploadProps } from 'antd';
+import { Button, Divider, Empty, Form, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
 import ScoreTable from './score-table';
-
-const { TextArea } = Input;
 
 export type NewCollectItemType = CollectItemType & { id: number };
 
@@ -35,41 +33,6 @@ const props: UploadProps = {
     }
   },
 };
-
-const treeData: TreeDataNode[] = [
-  {
-    title: 'parent 1',
-    key: '0-0',
-    children: [
-      {
-        title: 'parent 1-0',
-        key: '0-0-0',
-        disabled: true,
-        children: [
-          {
-            title: 'leaf',
-            key: '0-0-0-0',
-            disableCheckbox: true,
-          },
-          {
-            title: 'leaf',
-            key: '0-0-0-1',
-          },
-        ],
-      },
-      {
-        title: 'parent 1-1',
-        key: '0-0-1',
-        children: [
-          {
-            title: <span style={{ color: '#1677ff' }}>sss</span>,
-            key: '0-0-1-0',
-          },
-        ],
-      },
-    ],
-  },
-];
 
 const NewCheckSet = () => {
   const searchParams = useSearchParams();
@@ -229,10 +192,10 @@ const NewCheckSet = () => {
                         },
                       ]}
                     >
-                      {renderFormItem({
-                        type: item.widgetType || 'input',
-                        option: item.widgetDetails,
-                      })}
+                      <RenderFormItem
+                        type={item.widgetType || 'input'}
+                        option={item.widgetDetails}
+                      />
                     </Form.Item>
                     <div
                       className={cn(

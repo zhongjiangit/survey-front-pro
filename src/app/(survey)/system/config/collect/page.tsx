@@ -2,7 +2,7 @@
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import renderFormItem from '@/lib/render-form-item';
+import RenderFormItem from '@/lib/render-form-item';
 import { cn } from '@/lib/utils';
 import { TemplateTypeEnum } from '@/types/CommonType';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
@@ -220,10 +220,10 @@ const NewCollectSet = () => {
                       },
                     ]}
                   >
-                    {renderFormItem({
-                      type: item.widgetType || 'input',
-                      option: item.widgetDetails,
-                    })}
+                    <RenderFormItem
+                      type={item.widgetType || 'input'}
+                      option={item.widgetDetails}
+                    />
                   </Form.Item>
                   <div
                     className={cn(

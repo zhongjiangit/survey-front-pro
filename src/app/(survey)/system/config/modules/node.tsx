@@ -16,9 +16,11 @@ import {
   Form,
   Input,
   message,
+  Spin,
   Switch,
   TreeSelect,
 } from 'antd';
+import { isNaN } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -97,7 +99,7 @@ const Node = (props: NodeProps) => {
     }
   );
 
-  const {} = useRequest(
+  const { loading: getOrgListLoading } = useRequest(
     () => {
       return Api.getOrgList({
         currentSystemId: system.id,
@@ -115,6 +117,9 @@ const Node = (props: NodeProps) => {
 
   const {} = useRequest(
     () => {
+      if (!system.id || isNaN(Number(nodeSelected))) {
+        return Promise.reject('参数不全');
+      }
       return Api.getOrgDetails({
         currentSystemId: system.id,
         orgId: Number(nodeSelected),
@@ -198,12 +203,19 @@ const Node = (props: NodeProps) => {
     <div className="flex h-auto gap-3 min-h-[78vh]">
       {contextHolder}
       <div className="shadow-md h-[78vh] p-2 w-auto min-w-48 max-w-72 overflow-auto">
-        <CustomTree
-          dataSource={orgTags ? orgTags : []}
-          setParam
-          setDataSource={setTags}
-          onHandleCreate={onCreate}
-        />
+        {getOrgListLoading ? (
+          <div className="flex justify-center items-center h-20">
+            <Spin />
+          </div>
+        ) : (
+          <CustomTree
+            dataSource={orgTags ? orgTags : []}
+            setParam
+            setDataSource={setTags}
+            onHandleCreate={onCreate}
+            maxDepth={system.levelCount}
+          />
+        )}
       </div>
       <div className="flex-1 shadow-md h-[78vh] p-2 overflow-auto">
         <div>

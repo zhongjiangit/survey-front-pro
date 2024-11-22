@@ -75,7 +75,7 @@ const NewCollectItem: React.FC<Props> = ({
         open={open}
       >
         <Form
-          name="item123"
+          name="item-collect"
           form={form}
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}

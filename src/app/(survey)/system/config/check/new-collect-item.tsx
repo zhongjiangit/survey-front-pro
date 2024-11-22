@@ -30,7 +30,7 @@ const NewCollectItem: React.FC<Props> = ({
     if (initValues) {
       form.setFieldsValue({ ...initValues });
     } else {
-      form.setFieldsValue({ isRequired: true });
+      form.setFieldsValue({ isRequired: false });
     }
   }, [form, initValues]);
 
@@ -75,7 +75,7 @@ const NewCollectItem: React.FC<Props> = ({
         open={open}
       >
         <Form
-          name="item123"
+          name="item-check"
           form={form}
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
@@ -115,7 +115,7 @@ const NewCollectItem: React.FC<Props> = ({
           <Form.Item
             label="提醒事项"
             name="itemMemo"
-            rules={[{ required: false, message: '请输入提醒事项!' }]}
+            rules={[{ required: true, message: '请输入提醒事项!' }]}
           >
             <Input type="input" placeholder="输入提醒事项" />
           </Form.Item>

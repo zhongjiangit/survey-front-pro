@@ -4,13 +4,7 @@ import {
   type ProColumnType,
 } from '@ant-design/pro-components';
 import { InputNumber, Popconfirm } from 'antd';
-import {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 interface TableFormDateType {
   id: number;
@@ -116,7 +110,7 @@ const ScoreTable: FunctionComponent<MemberManageProps> = ({
         },
       },
     ],
-    [canEdit]
+    [canEdit, onDelete]
   );
 
   return (
