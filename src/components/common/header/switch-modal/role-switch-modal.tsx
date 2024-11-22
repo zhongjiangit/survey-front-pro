@@ -1,4 +1,5 @@
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useRoles } from '@/hooks/useRoles';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
@@ -15,14 +16,15 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
   const setCurrentRole = useSurveyCurrentRoleStore(
     state => state.setCurrentRole
   );
-  const roles = useSurveyCurrentRoleStore(state => state.roles);
-  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+  const roles = useRoles();
+  const currentRole = roles?.find(role => role.isActive);
 
   const [selectedRole, setSelectedRole] = useState(currentRole?.key);
 
   useEffect(() => {
+    const currentRole = roles?.find(role => role.isActive);
     setSelectedRole(currentRole?.key);
-  }, [currentRole]);
+  }, [roles]);
 
   const activeRoles = useMemo(
     () => roles?.filter(role => role.isActive),
@@ -51,6 +53,7 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
       title="角色切换"
       open={isRoleModalOpen}
       onOk={handleOk}
+      destroyOnClose
       onCancel={handleCancel}
       okText="确认"
       footer={

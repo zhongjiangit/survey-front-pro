@@ -14,6 +14,7 @@ export type RoleType = {
   label: string;
   name: string | boolean | undefined;
   staffType?: StaffType;
+  id: number | boolean | undefined;
 };
 
 // ----------------- 通用类型 成员类型 -----------------

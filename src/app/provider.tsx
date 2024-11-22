@@ -29,12 +29,12 @@ export function Provider({ colorScheme, children }: Props) {
   );
   const roles = useRoles();
   useEffect(() => {
-    if (roles.length > 0 && !currentRole) {
+    if (roles.length > 0) {
       const activeRoles = roles.filter(role => role.isActive);
       setRoles(roles);
       setCurrentRole(activeRoles[0]);
     }
-  }, [currentRole, roles, setCurrentRole, setRoles]);
+  }, [roles, setCurrentRole, setRoles]);
 
   useEffect(() => {
     if (!isProd) {

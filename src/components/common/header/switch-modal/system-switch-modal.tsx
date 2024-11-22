@@ -52,6 +52,7 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
       open={isSystemModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      destroyOnClose
       okText="确认"
       footer={
         <div>

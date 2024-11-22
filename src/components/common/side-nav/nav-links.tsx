@@ -4,6 +4,7 @@ import Role_Enum from '@/access/access-enum';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
+import { cloneDeep } from 'lodash';
 import {
   BookOpenCheck,
   BookUser,
@@ -174,21 +175,21 @@ export default function NavLinks() {
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const menus = useMemo(
-    () =>
-      originMenus.filter(item => {
-        if (item.access.includes(currentRole?.key as string)) {
-          if (item.children) {
-            item.children = item.children.filter(child =>
-              child.access.includes(currentRole?.key as string)
-            );
-          }
-          return true;
+  const menus = useMemo(() => {
+    const cloneMenus = cloneDeep(originMenus);
+    return cloneMenus.filter(item => {
+      if (item.access.includes(currentRole?.key as string)) {
+        if (item.children) {
+          const children = item.children.filter(child => {
+            return child.access.includes(currentRole?.key as string);
+          });
+          item.children = children;
         }
-        return false;
-      }),
-    [currentRole?.key]
-  );
+        return true;
+      }
+      return false;
+    });
+  }, [currentRole]);
 
   useEffect(() => {
     // 根据当前路径设置选中的菜单项，items是含有children的数组，所以需要遍历,返回匹配的key
