@@ -2,6 +2,7 @@
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
 import Breadcrumbs from '@/components/common/breadcrumbs';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import RenderFormItem from '@/lib/render-form-item';
 import { cn } from '@/lib/utils';
 import { TemplateTypeEnum } from '@/types/CommonType';
@@ -12,7 +13,6 @@ import { Button, Divider, Empty, Form, Input, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
-import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 
 const { TextArea } = Input;
 
@@ -238,6 +238,7 @@ const NewCollectSet = () => {
                           widget => widget.id === item.widgetId
                         )?.widgetDetails
                       }
+                      item={item}
                     />
                   </Form.Item>
                   <div

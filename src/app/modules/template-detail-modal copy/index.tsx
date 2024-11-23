@@ -98,6 +98,7 @@ const TemplateDetailModal = ({
                         widget => widget.id === item.widgetId
                       )?.widgetDetails
                     }
+                    item={item}
                   />
                 </Form.Item>
               </div>
