@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { Button, type MenuProps } from 'antd';
 import { CircleUserRound } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback, useState } from 'react';
 import HeaderDropdown from './header-dropdown';
@@ -28,42 +29,24 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
 }) => {
   const user = useSurveyUserStore(state => state.user);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
-
+  const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const [isSystemModalOpen, setIsSystemModalOpen] = useState(false);
   /**
    * 退出登录，并且将当前的 url 保存
    */
-  const loginOut = async () => {
-    // await outLogin();
-    // const { search, pathname } = window.location;
-    // const urlParams = new URL(window.location.href).searchParams;
-    // /** 此方法会跳转到 redirect 参数所在的位置 */
-    // const redirect = urlParams.get('redirect');
-    // // Note: There may be security issues, please note
-    // if (window.location.pathname !== '/user/login' && !redirect) {
-    //   history.replace({
-    //     pathname: '/user/login',
-    //     search: stringify({
-    //       redirect: pathname + search,
-    //     }),
-    //   });
-    // }
-    async () => {
-      // 'use server';
-      // await signOut();
-    };
+  const loginOut = () => {
+    // 清空local storage
+    localStorage.clear();
+    // 跳转到登录页
+    router.push('/');
   };
 
   const onMenuClick = useCallback((event: MenuInfo) => {
     const { key } = event;
     if (key === 'logout') {
-      // flushSync(() => {
-      //   setInitialState(s => ({ ...s, currentUser: undefined }));
-      // });
-      // ('use server');
-      // loginOut();
+      loginOut();
       return;
     }
     if (key === 'role') {

@@ -2,9 +2,12 @@
 
 import Api from '@/api';
 import logo from '@/assets/icons/logo.png';
+import { originMenus } from '@/components/common/side-nav/nav-links';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { getActiveRoles } from '@/lib/get-active-roles';
+import { RoleType } from '@/types/CommonType';
 import {
   CodepenOutlined,
   LockOutlined,
@@ -22,7 +25,7 @@ import { FlaskConical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -32,6 +35,21 @@ export default function LoginForm() {
     state => state.setCurrentSystem
   );
   const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
+
+  const getFirstMenu = useCallback((currentRole: RoleType) => {
+    const paths = originMenus.filter(item => {
+      if (item.access.includes(currentRole?.key as string)) {
+        if (item.children) {
+          item.children = item.children.filter(child =>
+            child.access.includes(currentRole?.key as string)
+          );
+        }
+        return true;
+      }
+      return false;
+    });
+    return paths[0]?.children ? paths[0]?.children[0]?.key : paths[0]?.key;
+  }, []);
 
   const { run, loading } = useRequest(
     params => {
@@ -49,7 +67,19 @@ export default function LoginForm() {
           setUser(response.data);
           setCurrentSystem(response.data.systems[0]);
           setCurrentOrg(response.data.systems[0].orgs[0]);
-          router.push('/system');
+          // router.push('/system');
+          const roles = getActiveRoles(
+            response.data,
+            response.data.systems[0].orgs[0],
+            response.data.systems[0]
+          );
+          const activeRoles = roles.filter(role => role.isActive);
+          const firstMenu = getFirstMenu(activeRoles[0]);
+          if (firstMenu) {
+            console.log('firstMenu', firstMenu);
+
+            router.push(firstMenu);
+          }
         }
       },
     }

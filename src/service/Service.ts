@@ -27,6 +27,8 @@ const defaultReqFulfilled: ReqFulfilledType = config => {
 const defaultResFulfilled: ResFulfilledType = response => {
   console.log('------ service response -------', response);
   if (response.data.result === 101) {
+    // 清空localhost缓存
+    localStorage.clear();
     // 未登录, 跳转登录页
     window.location.href = '/';
   }
