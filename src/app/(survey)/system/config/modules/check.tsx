@@ -3,7 +3,11 @@
 import Api from '@/api';
 import { SystemListType } from '@/api/system/getSystemListAll';
 import { TemplateItemType } from '@/api/template/list-outline';
-import { TemplateTypeEnum, ZeroOrOneType } from '@/types/CommonType';
+import {
+  TemplateTypeEnum,
+  ZeroOrOneType,
+  ZeroOrOneTypeEnum,
+} from '@/types/CommonType';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import Link from 'next/link';
@@ -107,8 +111,8 @@ const Check = ({ system }: CheckProps) => {
         key: 'isValid',
         dataIndex: 'isValid',
         render: (value: ZeroOrOneType) => (
-          <Tag color={value === 1 ? 'green' : 'geekblue'}>
-            {value === 1 ? '启用' : '停用'}
+          <Tag color={value === ZeroOrOneTypeEnum.One ? 'green' : 'geekblue'}>
+            {value === ZeroOrOneTypeEnum.One ? '启用' : '停用'}
           </Tag>
         ),
       },

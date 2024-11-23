@@ -150,7 +150,6 @@ function CustomTree(props: CustomTreeProps) {
       <Input
         type="input"
         size="small"
-        autoFocus
         // value={nodeTitle}
         placeholder="请输入节点名称"
         onChange={e => {
@@ -158,7 +157,7 @@ function CustomTree(props: CustomTreeProps) {
         }}
       />
     );
-  }, [nodeTitle]);
+  }, []);
 
   /**
    * 创建节点

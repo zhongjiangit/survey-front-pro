@@ -46,7 +46,7 @@ const Node = (props: NodeProps) => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { data: tagList } = useRequest(() => {
+  const { data: tagList, run: getTagList } = useRequest(() => {
     return Api.getTagList({
       currentSystemId: system.id,
       tagType: TagTypeEnum.Org,
@@ -54,6 +54,8 @@ const Node = (props: NodeProps) => {
   });
 
   useEffect(() => {
+    console.log('tagList', tagList);
+
     if (tagList?.data?.tags) {
       const tags = tagList.data.tags;
       // 递归遍历增加value字段，用于TreeSelect，value为key
@@ -90,12 +92,18 @@ const Node = (props: NodeProps) => {
     }
   );
 
-  const { run: setOrgDetail } = useRequest(
+  const { run: setOrgDetail, loading: setOrgDetailLoading } = useRequest(
     params => {
       return Api.setOrgDetail(params);
     },
     {
       manual: true,
+      onSuccess() {
+        messageApi.open({
+          type: 'success',
+          content: '配置保存成功',
+        });
+      },
     }
   );
 
@@ -118,6 +126,7 @@ const Node = (props: NodeProps) => {
   const {} = useRequest(
     () => {
       if (!system.id || isNaN(Number(nodeSelected))) {
+        form.resetFields();
         return Promise.reject('参数不全');
       }
       return Api.getOrgDetails({
@@ -129,6 +138,8 @@ const Node = (props: NodeProps) => {
       refreshDeps: [system.id, nodeSelected],
       onSuccess(response) {
         if (response?.data) {
+          // 重新获取标签列表
+          getTagList();
           const values = response?.data;
           form.setFieldsValue({
             managerName: values.managerName,
@@ -265,7 +276,11 @@ const Node = (props: NodeProps) => {
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>
-                <Button type="primary" htmlType="submit">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={setOrgDetailLoading}
+                >
                   保存单位配置
                 </Button>
               </Form.Item>
