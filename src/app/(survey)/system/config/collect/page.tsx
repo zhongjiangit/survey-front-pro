@@ -219,28 +219,15 @@ const NewCollectSet = () => {
             {items.length > 0 &&
               items.map((item: NewCollectItemType, index: number) => (
                 <div className="flex" key={index}>
-                  <Form.Item
-                    className="flex-1"
-                    key={index}
-                    label={item.itemCaption}
-                    name={item.widgetId}
-                    rules={[
-                      {
-                        required: item.isRequired === 1,
-                        message: 'Please input your username!',
-                      },
-                    ]}
-                  >
-                    <RenderFormItem
-                      type={item.widgetType || 'input'}
-                      option={
-                        widgetList.data.find(
-                          widget => widget.id === item.widgetId
-                        )?.widgetDetails
-                      }
-                      item={item}
-                    />
-                  </Form.Item>
+                  <RenderFormItem
+                    type={item.widgetType || 'input'}
+                    option={
+                      widgetList.data.find(
+                        widget => widget.id === item.widgetId
+                      )?.widgetDetails
+                    }
+                    item={item}
+                  />
                   <div
                     className={cn(
                       'flex items-start justify-end gap-2 w-10 pt-2',

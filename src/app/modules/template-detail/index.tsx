@@ -127,17 +127,6 @@ const TemplateDetail = ({
         formDetailData?.data?.items.map(
           (item: CollectItemType, index: number) => (
             <div className="flex" key={index}>
-              {/* <Form.Item
-                className="flex-1"
-                label={item.itemCaption}
-                name={item.widgetId}
-                rules={[
-                  {
-                    required: item.isRequired === ZeroOrOneTypeEnum.One,
-                    message: `${item.itemCaption}为必填项`,
-                  },
-                ]}
-              > */}
               <RenderFormItem
                 item={item}
                 type={item.widgetType || 'input'}
@@ -146,7 +135,6 @@ const TemplateDetail = ({
                     ?.widgetDetails
                 }
               />
-              {/* </Form.Item> */}
             </div>
           )
         )}
