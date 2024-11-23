@@ -205,11 +205,23 @@ export const publishTypeObject = {
 
 // 任务处理状态， 10：待分配 20：未提交 50:已提交 60:已通过 70:已驳回 100：数据丢弃
 // getFillProcessDetails	获取任务填报处理详情的状态
-export type TaskProcessStatusType = 10 | 20 | 50 | 60 | 70 | 100;
+/*
+"填报状态 
+20：未提交
+30：未提交至本人
+40：需本人审核
+50：已提交
+60：已通过
+70：已驳回
+100：数据丢弃"
+ */
+export type TaskProcessStatusType = 10 | 20 | 30 | 40 | 50 | 60 | 70 | 100;
 
 export enum TaskProcessStatusEnum {
   WaitAssign = 10,
   NotSubmit = 20,
+  NotSubmitToSelf = 30,
+  NeedSelfAudit = 40,
   Submitted = 50,
   Passed = 60,
   Reject = 70,
@@ -220,7 +232,9 @@ export enum TaskProcessStatusEnum {
 export const TaskProcessStatusObject = {
   [TaskProcessStatusEnum.WaitAssign]: '待分配',
   [TaskProcessStatusEnum.NotSubmit]: '未提交',
-  [TaskProcessStatusEnum.Submitted]: '已提交(需审核)',
+  [TaskProcessStatusEnum.NotSubmitToSelf]: '未提交至本人',
+  [TaskProcessStatusEnum.NeedSelfAudit]: '需本人审核',
+  [TaskProcessStatusEnum.Submitted]: '已提交',
   [TaskProcessStatusEnum.Passed]: '已通过',
   [TaskProcessStatusEnum.Reject]: '已驳回',
   [TaskProcessStatusEnum.DataDiscard]: '数据丢弃',

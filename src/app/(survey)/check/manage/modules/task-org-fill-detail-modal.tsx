@@ -4,9 +4,11 @@ import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useFillProcessDetailColumns } from '@/hooks/useFillProcessDetailColumns';
+import { TaskProcessStatusEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
-import { Modal, Table } from 'antd';
+import { message, Modal, Space, Table } from 'antd';
+import { ColumnType } from 'antd/es/table';
 import React from 'react';
 
 type TableRowSelection<T extends object = object> =
@@ -20,32 +22,6 @@ interface DataType {
   status: string;
   children?: DataType[];
 }
-
-// const data: DataType[] = [
-//   {
-//     key: 1,
-//     city: '第一个市',
-//     school: '',
-//     member: '',
-//     status: '',
-//     children: [
-//       {
-//         key: 11,
-//         city: '',
-//         school: '第一个校',
-//         status: '已提交(需审核)',
-//         member: '成（139xxxx）资料提交： 1份',
-//       },
-//       {
-//         key: 12,
-//         city: '',
-//         school: '第二个校',
-//         status: '已通过',
-//         member: '成（139xxxx）资料提交： 1份',
-//       },
-//     ],
-//   },
-// ];
 
 // rowSelection objects indicates the need for row selection
 const rowSelection: TableRowSelection<DataType> = {
@@ -68,18 +44,20 @@ interface TaskFillDetailModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   taskId: number | undefined;
+  refreshList: () => void;
 }
 
 const TaskOrgFillDetailModal = ({
   open,
   setOpen,
   taskId,
+  refreshList,
 }: TaskFillDetailModalProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const { columns, setColumns } = useFillProcessDetailColumns(undefined);
+  const { columns, setColumns } = useFillProcessDetailColumns([]);
 
-  const { data, run: getFillDetails } = useRequest(
+  const { data, run, refresh } = useRequest(
     () => {
       if (!currentOrg?.orgId || !currentSystem?.systemId) {
         return Promise.reject('未获取到组织机构');
@@ -102,14 +80,51 @@ const TaskOrgFillDetailModal = ({
       },
     }
   );
-  console.log(columns, 'columns');
 
+  const operationColumn: ColumnType = {
+    title: '操作',
+    dataIndex: 'operation',
+    width: 200,
+    align: 'center',
+    render: (_: any, record: any) => {
+      return (
+        <Space className="flex justify-center items-center">
+          {record.processStatus && <a className=" text-blue-500">资料详情</a>}
+          {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
+            <a
+              className=" text-blue-500"
+              onClick={() => {
+                if (taskId === undefined) {
+                  return;
+                }
+                Api.approveFill({
+                  currentSystemId: currentSystem!.systemId,
+                  currentOrgId: currentOrg!.orgId,
+                  taskId: taskId,
+                  staffId: record.staffId,
+                }).then(() => {
+                  message.info('通过成功');
+                  refresh();
+                  refreshList();
+                });
+              }}
+            >
+              通过
+            </a>
+          )}
+          {record.processStatus === TaskProcessStatusEnum.Submitted && (
+            <a className=" text-blue-500">驳回</a>
+          )}
+        </Space>
+      );
+    },
+  };
   return (
     <Modal
       open={open}
       title={
         <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-          <h2 className="text-xl">任务详情1</h2>
+          <h2 className="text-xl">任务详情</h2>
           {/* <Button type="primary">一键通过</Button> */}
         </div>
       }
@@ -122,8 +137,11 @@ const TaskOrgFillDetailModal = ({
       }}
       maskClosable={false}
       footer={false}
+      afterClose={() => {
+        setColumns([]);
+      }}
     >
-      <Table columns={columns} dataSource={data?.data} />
+      <Table columns={[...columns, operationColumn]} dataSource={data?.data} />
     </Modal>
   );
 };

@@ -39,6 +39,7 @@ export interface GetFillProcessDetailsResponse {
   staffName: string;
   fillCount: number;
   processStatus: number;
+  rejectedOnce: number;
 }
 
 /**

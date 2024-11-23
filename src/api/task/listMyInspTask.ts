@@ -36,6 +36,7 @@ interface ListMyInspTaskParamsType {
   fillPeople	int		征集阶段填报人数
   fillCount	int		征集阶段填报份数
   fillTaskStatus	int		征集阶段任务状态 0：未开始 1：进行中 2：完成
+  isReviewSet	int		是否已经设置过评审 0：未设置  1：已设置
   beginTimeReviewEstimate	string	○	预计评审开始时间 yyyy-mm-dd hh:MM:ss，未设置评审不传
   endTimeReviewEstimate	string	○	预计评审结束时间 yyyy-mm-dd hh:MM:ss，未设置评审不传
   endTimeReviewActual	string	○	实际评审结束时间 yyyy-mm-dd hh:MM:ss，未结束为空串
@@ -66,6 +67,7 @@ export interface ListMyInspTaskResponse {
   fillPeople: number;
   fillCount: number;
   fillTaskStatus: number;
+  isReviewSet: number;
   beginTimeReviewEstimate?: string;
   endTimeReviewEstimate?: string;
   endTimeReviewActual?: string;

@@ -292,6 +292,7 @@ const ToAllotTask = () => {
         taskId={viewTaskId}
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
+        refreshList={refreshListAssignInspTask}
       />
     </>
   );

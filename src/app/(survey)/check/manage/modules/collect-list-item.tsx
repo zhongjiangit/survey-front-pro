@@ -1,5 +1,8 @@
+import Api from '@/api';
 import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
   EvaluateStatusTypeEnum,
   ModalTypeEnum,
@@ -10,6 +13,7 @@ import {
   TaskStatusTypeEnum,
   TemplateTypeEnum,
 } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import ReviewDetailModal from '../../modules/review-detail-modal/page';
@@ -59,6 +63,27 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [filleMemberDetailModalOpen, setFillMemberDetailModalOpen] =
     useState(false);
   const [viewTaskId, setViewTaskId] = useState<number>();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  const { run: setInspFillComplete } = useRequest(
+    (taskId: number) => {
+      if (!currentOrg?.orgId || !currentSystem?.systemId) {
+        return Promise.reject('未获取到系统或组织机构');
+      }
+      return Api.setInspFillComplete({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg.orgId,
+        taskId: taskId,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        refreshMyPublishTask();
+      },
+    }
+  );
 
   const operateButton = {
     edit: (record: any) => {
@@ -93,8 +118,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         短信提醒
       </a>
     ),
-    finish: (
-      <a className=" text-blue-500" key="finish">
+    finish: (record: any) => (
+      <a
+        className=" text-blue-500"
+        key="finish"
+        onClick={() => {
+          setInspFillComplete(record.taskId);
+        }}
+      >
         完成
       </a>
     ),
@@ -259,7 +290,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     },
     {
       title: <div>任务完成时间</div>,
-      dataIndex: 'endTimeActual',
+      dataIndex: 'endTimeFillActual',
       width: '11%',
       align: 'center',
       render: (text: any) => {
@@ -387,7 +418,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 operateButton.detail(record),
                 operateButton.edit(record),
                 operateButton.message,
-                operateButton.finish,
+                operateButton.finish(record),
                 operateButton.download,
               ]}
               {record.taskStatus === TaskStatusTypeEnum.Finished && [
@@ -399,19 +430,19 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         }
         return (
           <Space className="flex justify-center items-center">
-            {!record.evaluateStatus && [operateButtonEvaluate.config(record)]}
-            {record.evaluateStatus === EvaluateStatusTypeEnum.NotStart && [
+            {!record.reviewTaskStatus && [operateButtonEvaluate.config(record)]}
+            {record.reviewTaskStatus === EvaluateStatusTypeEnum.NotStart && [
               operateButtonEvaluate.edit(record),
               operateButtonEvaluate.allocate(),
             ]}
-            {record.evaluateStatus === EvaluateStatusTypeEnum.Processing && [
+            {record.reviewTaskStatus === EvaluateStatusTypeEnum.Processing && [
               operateButtonEvaluate.detail(record.publishType),
               // operateButtonEvaluate.edit('edit'),
               operateButtonEvaluate.allocate(),
               operateButtonEvaluate.message,
               operateButtonEvaluate.result(),
             ]}
-            {record.evaluateStatus === EvaluateStatusTypeEnum.Finished && [
+            {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
               operateButtonEvaluate.detail(record.publishType),
             ]}
           </Space>
@@ -503,6 +534,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         taskId={viewTaskId}
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
+        refreshList={refreshMyPublishTask}
       />
       <TaskMemberFillDetailModal
         open={filleMemberDetailModalOpen}
