@@ -1,5 +1,6 @@
 'use client';
 
+import Api from '@/api';
 import { useRequest } from 'ahooks';
 import type { FormItemProps } from 'antd';
 import {
@@ -15,7 +16,6 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
-import Api from '@/api';
 
 const MyFormItemContext = React.createContext<(string | number)[]>([]);
 
@@ -64,6 +64,19 @@ const SystemForm = (props: Props) => {
     }
   );
 
+  const { run: updateSystem, loading: updateLoading } = useRequest(
+    params => {
+      return Api.updateSystem(params);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        router.push('/system');
+        form.resetFields();
+      },
+    }
+  );
+
   const onFinish = (values: any) => {
     // 日期格式化
     values.validDate = values.validDate.format('YYYY-MM-DD');
@@ -77,7 +90,7 @@ const SystemForm = (props: Props) => {
       values.id = initialValues.id;
       const editedValues = { ...initialValues, ...values };
       console.log('editedValues', editedValues);
-      // TODO 更新系统数据
+      updateSystem(editedValues);
     } else {
       createSystem(values);
     }
@@ -178,7 +191,10 @@ const SystemForm = (props: Props) => {
                       label={`第${levelNames[index]}级名称`}
                       rules={[{ required: true }]}
                     >
-                      <Input type="input" />
+                      <Input
+                        type="input"
+                        disabled={initialValues?.id !== undefined}
+                      />
                     </MyFormItem>
                   )
                 )}
@@ -219,7 +235,11 @@ const SystemForm = (props: Props) => {
             >
               <Link href="/system">取消</Link>
             </Button>
-            <Button type="primary" htmlType="submit" loading={createLoading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={createLoading || updateLoading}
+            >
               {`${initialValues.id ? '保存' : '创建'}系统`}
             </Button>
           </Space>

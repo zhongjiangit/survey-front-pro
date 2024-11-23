@@ -28,12 +28,18 @@ export function UpdateSystem({ id }: { id: string }) {
   );
 }
 
-export function DeleteSystem({ id }: { id: string }) {
+export function DeleteSystem({
+  id,
+  deleteSystem,
+}: {
+  id: string;
+  deleteSystem: (params: { id: string }) => void;
+}) {
   return (
     <Popconfirm
       title="删除系统"
       description="删除后将不可恢复，您确定要删除此系统吗？"
-      // onConfirm={confirm}
+      onConfirm={() => deleteSystem({ id })}
     >
       <Button
         danger

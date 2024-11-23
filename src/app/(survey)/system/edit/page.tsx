@@ -1,13 +1,13 @@
 'use client';
 
+import Api from '@/api';
 import Breadcrumbs from '@/components/common/breadcrumbs';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { useRequest } from 'ahooks';
+import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 import SystemForm from '../modules/system-form';
 import NotFound from './not-found';
-import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import { useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Api from '@/api';
-import { useRequest } from 'ahooks';
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -15,7 +15,7 @@ export default function Page() {
   const user = useSurveyUserStore(state => state.user);
 
   // 使用ahooks的useRequest
-  const { data: systemList } = useRequest(() => {
+  const { data: systemList, loading: getSystemListLoading } = useRequest(() => {
     return Api.getSystemListAll({
       currentSystemId: user?.systems[0].systemId,
     });
@@ -32,11 +32,9 @@ export default function Page() {
     return [];
   }, [systemList?.data, selectedId]);
 
-  if (dataSources.length === 0) {
+  if (dataSources.length === 0 && !getSystemListLoading) {
     return <NotFound />;
   }
-
-  console.log('dataSources', dataSources);
 
   return (
     <main>
