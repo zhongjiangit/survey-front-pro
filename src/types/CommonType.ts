@@ -225,3 +225,17 @@ export const TaskProcessStatusObject = {
   [TaskProcessStatusEnum.Reject]: '已驳回',
   [TaskProcessStatusEnum.DataDiscard]: '数据丢弃',
 };
+
+// ----------------- 通用类型 弹窗类型枚举 -----------------
+// 弹窗类型 new：新增 edit：编辑 view：查看 delete：删除 copy：复制 allot：分配
+export type ModalType = '新增' | '编辑' | '查看' | '删除' | '复制' | '分配';
+
+// 枚举
+export enum ModalTypeEnum {
+  New = '新增',
+  Edit = '编辑',
+  View = '查看',
+  Delete = '删除',
+  Copy = '复制',
+  Allot = '分配',
+}

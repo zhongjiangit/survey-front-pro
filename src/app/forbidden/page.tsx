@@ -24,7 +24,7 @@ const Forbidden = () => {
       }
       return false;
     });
-    return paths[0].children ? paths[0].children[0].key : paths[0].key;
+    return paths[0]?.children ? paths[0]?.children[0]?.key : paths[0]?.key;
   }, [currentRole?.key]);
 
   return (

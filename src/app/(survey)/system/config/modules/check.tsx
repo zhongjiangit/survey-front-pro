@@ -103,8 +103,8 @@ const Check = ({ system }: CheckProps) => {
 
       {
         title: '创建时间',
-        dataIndex: 'time',
-        key: 'time',
+        dataIndex: 'createTime',
+        key: 'createTime',
       },
       {
         title: '启用状态',

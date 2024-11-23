@@ -33,8 +33,9 @@ const Page = () => {
     defaultValue: {},
   });
 
-  console.log('currentFillTask', currentFillTask);
-
+  /**
+   * 获取填表列表
+   */
   const {} = useRequest(
     () => {
       if (
@@ -64,7 +65,7 @@ const Page = () => {
         data.data.forEach((item: any) => {
           const index = newTabIndex.current++;
           newPanes.push({
-            label: `NO ${index}`,
+            label: `NO ${item.fillIndex}`,
             children: <FillCollect singleFillId={item.singleFillId} />,
             key: `newTab${index}`,
           });
@@ -73,6 +74,10 @@ const Page = () => {
       },
     }
   );
+
+  /**
+   * 创建填报文件
+   */
   const { run: createSingleFill, loading: createSingleFillLoading } =
     useRequest(
       () => {
@@ -112,9 +117,8 @@ const Page = () => {
   };
 
   const add = () => {
-    if (items.length >= currentFillTask?.maxFillCount) {
+    if (items.length > currentFillTask?.maxFillCount) {
       console.log('超过最大填报数');
-
       return;
     }
     createSingleFill();
@@ -174,7 +178,7 @@ const Page = () => {
           addIcon={
             createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
           }
-          hideAdd={items.length >= currentFillTask?.maxFillCount}
+          hideAdd={items.length > currentFillTask?.maxFillCount}
           items={items}
         />
       </div>

@@ -18,8 +18,9 @@ const FillCollect = ({ singleFillId }: FillCollectProps) => {
     defaultValue: {},
   });
 
-  console.log('singleFillId', singleFillId);
-
+  /**
+   * 获取填表内容详情
+   */
   const {} = useRequest(
     () => {
       if (

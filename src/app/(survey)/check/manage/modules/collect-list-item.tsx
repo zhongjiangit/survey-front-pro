@@ -2,6 +2,7 @@ import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import {
   EvaluateStatusTypeEnum,
+  ModalTypeEnum,
   PublishTypeEnum,
   PublishTypeObject,
   PublishTypeType,
@@ -65,6 +66,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         <TaskDetailEditModal
           record={record}
           refreshList={refreshMyPublishTask}
+          type={ModalTypeEnum.Edit}
         />
       );
     },

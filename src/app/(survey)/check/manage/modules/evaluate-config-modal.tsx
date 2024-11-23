@@ -42,10 +42,8 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
       taskId: taskId,
       currentSystemId: currentSystem.systemId,
       currentOrgId: currentOrg.orgId,
-      beginTimeReviewEstimate: values.dateRange[0].format(
-        'YYYY-MM-DD HH:mm:ss'
-      ),
-      endTimeReviewEstimate: values.dateRange[1].format('YYYY-MM-DD HH:mm:ss'),
+      beginTimeReviewEstimate: values.dateRange[0].format('YYYY-MM-DD HH:mm'),
+      endTimeReviewEstimate: values.dateRange[1].format('YYYY-MM-DD HH:mm'),
     }).then(() => {
       setOpen(false);
     });
@@ -92,7 +90,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
           ]}
         >
           <RangePicker
-            format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD HH:mm"
             showTime={{ format: 'HH:mm:ss' }}
           />
         </Form.Item>

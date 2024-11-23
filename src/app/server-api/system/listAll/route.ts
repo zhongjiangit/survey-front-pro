@@ -14,8 +14,11 @@ export async function POST(req: Request) {
       method: 'POST',
       body: JSON.stringify(params),
     });
+    console.log('res', res);
 
     return res;
-  } catch (error) {}
+  } catch (error) {
+    console.log('error', error);
+  }
   return NextResponse.json({ code: 'error', msg: 'Error', data: null });
 }

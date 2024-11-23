@@ -81,9 +81,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     },
     {
       refreshDeps: [currentSystem],
-      onSuccess: () => {
-        refreshMyPublishTask?.();
-      },
     }
   );
 
@@ -217,6 +214,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       onSuccess: () => {
         setOpen(false);
         form.resetFields();
+        refreshMyPublishTask?.();
       },
     }
   );
@@ -239,12 +237,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       maxFillCount: values.maxFillCount || 0,
       currentSystemId: currentSystem?.systemId!,
       currentOrgId: currentOrg?.orgId!,
-      beginTimeFillEstimate: values.timeFillEstimate[0].format(
-        'YYYY-MM-DD HH:mm:ss'
-      ),
-      endTimeFillEstimate: values.timeFillEstimate[1].format(
-        'YYYY-MM-DD HH:mm:ss'
-      ),
+      beginTimeFillEstimate:
+        values.timeFillEstimate[0].format('YYYY-MM-DD HH:mm'),
+      endTimeFillEstimate:
+        values.timeFillEstimate[1].format('YYYY-MM-DD HH:mm'),
     };
     delete createDate.timeFillEstimate;
     if (values.publishType === PublishTypeEnum.Org) {
@@ -500,7 +496,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
               rules={[{ required: true }]}
             >
               <RangePicker
-                format="YYYY-MM-DD HH:mm:ss"
+                format="YYYY-MM-DD HH:mm"
                 showTime={{ format: 'HH:mm:ss' }}
                 style={{ width: '100%' }}
               />

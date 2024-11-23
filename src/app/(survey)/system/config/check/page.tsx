@@ -2,6 +2,7 @@
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
 import Breadcrumbs from '@/components/common/breadcrumbs';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import RenderFormItem from '@/lib/render-form-item';
 import { cn } from '@/lib/utils';
 import { TemplateTypeEnum } from '@/types/CommonType';
@@ -44,6 +45,7 @@ const NewCheckSet = () => {
   const [dimensions, setDimensions] = useState<any>([]);
   const [currentItem, setCurrentItem] = useState<NewCollectItemType>();
   const [messageApi, contextHolder] = message.useMessage();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const router = useRouter();
   const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
     'copied-template-detail',
@@ -113,6 +115,15 @@ const NewCheckSet = () => {
       },
     }
   );
+
+  const { data: widgetList = { data: [] } } = useRequest(() => {
+    if (!currentSystem) {
+      return Promise.reject('currentSystem is not exist');
+    }
+    return Api.getAllWidgetsList({
+      currentSystemId: Number(currentSystem?.systemId),
+    });
+  });
 
   const createItem = () => {
     setOpen(true);
@@ -194,7 +205,11 @@ const NewCheckSet = () => {
                     >
                       <RenderFormItem
                         type={item.widgetType || 'input'}
-                        option={item.widgetDetails}
+                        option={
+                          widgetList.data.find(
+                            widget => widget.id === item.widgetId
+                          )?.widgetDetails
+                        }
                       />
                     </Form.Item>
                     <div

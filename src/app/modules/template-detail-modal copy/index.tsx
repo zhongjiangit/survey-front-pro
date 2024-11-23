@@ -39,6 +39,15 @@ const TemplateDetailModal = ({
     }
   );
 
+  const { data: widgetList = { data: [] } } = useRequest(() => {
+    if (!currentSystem) {
+      return Promise.reject('currentSystem is not exist');
+    }
+    return Api.getAllWidgetsList({
+      currentSystemId: Number(currentSystem?.systemId),
+    });
+  });
+
   return (
     <>
       <a
@@ -84,7 +93,11 @@ const TemplateDetailModal = ({
                 >
                   <RenderFormItem
                     type={item.widgetType || 'input'}
-                    option={item.widgetDetails}
+                    option={
+                      widgetList.data.find(
+                        widget => widget.id === item.widgetId
+                      )?.widgetDetails
+                    }
                   />
                 </Form.Item>
               </div>

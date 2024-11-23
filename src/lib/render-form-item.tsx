@@ -1,20 +1,35 @@
+import { ZeroOrOneTypeEnum } from '@/types/CommonType';
 import { CaretDownOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Input, Radio, Tree, Upload } from 'antd';
+import { Button, Checkbox, Form, Input, Radio, Tree, Upload } from 'antd';
 const { TextArea } = Input;
 
 interface RenderFormItemProps {
   type: string;
   option: any;
+  item: any;
 }
 
 const RenderFormItem = (props: RenderFormItemProps) => {
-  const { type, option } = props;
-  console.log('option', option);
+  const { type, option, item } = props;
 
   const renderFormItem = (key: string, option: any) => {
     switch (key) {
       case 'input':
-        return <Input type="input" />;
+        return (
+          // <Form.Item
+          //   className="flex-1"
+          //   label={item.itemCaption}
+          //   name={item.widgetId}
+          //   rules={[
+          //     {
+          //       required: item.isRequired === ZeroOrOneTypeEnum.One,
+          //       message: `${item.itemCaption}为必填项`,
+          //     },
+          //   ]}
+          // >
+          <Input type="input" />
+          // </Form.Item>
+        );
       case 'textarea':
         return <TextArea rows={3} />;
       case 'radio':
@@ -43,8 +58,21 @@ const RenderFormItem = (props: RenderFormItemProps) => {
         break;
     }
   };
-
-  return <div>{renderFormItem(type, option)}</div>;
+  return (
+    <Form.Item
+      className="flex-1"
+      label={item.itemCaption}
+      name={item.templateItemId}
+      rules={[
+        {
+          required: item.isRequired === ZeroOrOneTypeEnum.One,
+          message: `${item.itemCaption}为必填项`,
+        },
+      ]}
+    >
+      {renderFormItem(type, option)}
+    </Form.Item>
+  );
 };
 
 export default RenderFormItem;

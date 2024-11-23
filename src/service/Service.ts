@@ -25,6 +25,11 @@ const defaultReqFulfilled: ReqFulfilledType = config => {
 
 // 响应体处理
 const defaultResFulfilled: ResFulfilledType = response => {
+  console.log('------ service response -------', response);
+  if (response.data.result === 101) {
+    // 未登录, 跳转登录页
+    window.location.href = '/';
+  }
   return response.data;
 };
 

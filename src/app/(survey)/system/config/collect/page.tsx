@@ -12,6 +12,7 @@ import { Button, Divider, Empty, Form, Input, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import NewCollectItem from './new-collect-item';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 
 const { TextArea } = Input;
 
@@ -79,6 +80,7 @@ const NewCollectSet = () => {
   const [items, setItems] = useState<any>([]);
   const [currentItem, setCurrentItem] = useState<NewCollectItemType>();
   const [messageApi, contextHolder] = message.useMessage();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const router = useRouter();
   const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
     'copied-template-detail',
@@ -139,6 +141,15 @@ const NewCollectSet = () => {
       },
     }
   );
+
+  const { data: widgetList = { data: [] } } = useRequest(() => {
+    if (!currentSystem) {
+      return Promise.reject('currentSystem is not exist');
+    }
+    return Api.getAllWidgetsList({
+      currentSystemId: Number(currentSystem?.systemId),
+    });
+  });
 
   const createItem = () => {
     setOpen(true);
@@ -222,7 +233,11 @@ const NewCollectSet = () => {
                   >
                     <RenderFormItem
                       type={item.widgetType || 'input'}
-                      option={item.widgetDetails}
+                      option={
+                        widgetList.data.find(
+                          widget => widget.id === item.widgetId
+                        )?.widgetDetails
+                      }
                     />
                   </Form.Item>
                   <div

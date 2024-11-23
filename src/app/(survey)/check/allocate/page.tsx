@@ -5,6 +5,7 @@ import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
+  ModalTypeEnum,
   PublishTypeEnum,
   TaskStatusObject,
   TaskStatusTypeEnum,
@@ -79,6 +80,7 @@ const ToAllotTask = () => {
         record={record}
         refreshList={refreshListAssignInspTask}
         linkName={'分配任务'}
+        type={ModalTypeEnum.Allot}
       />
     ),
 

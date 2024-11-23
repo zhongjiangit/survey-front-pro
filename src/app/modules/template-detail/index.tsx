@@ -6,6 +6,7 @@ import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import RenderFormItem from '@/lib/render-form-item';
 import { TemplateType, TemplateTypeEnum } from '@/types/CommonType';
+import { AnyObject } from '@/typings/type';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form } from 'antd';
 
@@ -26,7 +27,7 @@ const TemplateDetail = ({
   });
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const { data } = useRequest(() => {
+  const { data: formDetailData } = useRequest(() => {
     if (!currentSystem?.systemId) {
       return Promise.reject('currentSystem is not exist');
     }
@@ -63,6 +64,12 @@ const TemplateDetail = ({
       ],
       onSuccess: data => {
         console.log('getSingleFillDetails', data);
+        form.setFieldsValue(
+          data?.data?.reduce((acc: AnyObject, cur: any) => {
+            acc[cur.templateItemId] = cur.fillContent;
+            return acc;
+          }, {})
+        );
       },
     }
   );
@@ -81,16 +88,30 @@ const TemplateDetail = ({
   const saveSingleFill = () => {
     const formValues = form.getFieldsValue();
     console.log('formValues', formValues);
-
+    const formattedValues = Object.entries(formValues).map(([key, value]) => ({
+      templateItemId: Number(key),
+      fillContent: value,
+    }));
     const fillData = {
       currentSystemId: currentSystem?.systemId!,
       currentOrgId: currentOrg?.orgId,
       singleFillId: singleFillId,
-      // TODO 保存单次填报详情
-      items: [],
+      items: formattedValues,
     };
+
     saveSingleFillDetails(fillData);
   };
+
+  const { data: widgetList = { data: [] } } = useRequest(() => {
+    if (!currentSystem) {
+      return Promise.reject('currentSystem is not exist');
+    }
+    return Api.getAllWidgetsList({
+      currentSystemId: Number(currentSystem?.systemId),
+    });
+  });
+
+  console.log();
 
   return (
     <Form
@@ -101,28 +122,33 @@ const TemplateDetail = ({
       autoComplete="off"
       name="template_detail"
     >
-      {data?.data?.items?.length &&
-        data?.data?.items.map((item: CollectItemType, index: number) => (
-          <div className="flex" key={index}>
-            <Form.Item
-              className="flex-1"
-              key={index}
-              label={item.itemCaption}
-              name={item.widgetId}
-              rules={[
-                {
-                  required: item.isRequired === 1,
-                  message: 'Please input your username!',
-                },
-              ]}
-            >
+      {formDetailData?.data?.items?.length &&
+        formDetailData?.data?.items.map(
+          (item: CollectItemType, index: number) => (
+            <div className="flex" key={index}>
+              {/* <Form.Item
+                className="flex-1"
+                label={item.itemCaption}
+                name={item.widgetId}
+                rules={[
+                  {
+                    required: item.isRequired === ZeroOrOneTypeEnum.One,
+                    message: `${item.itemCaption}为必填项`,
+                  },
+                ]}
+              > */}
               <RenderFormItem
+                item={item}
                 type={item.widgetType || 'input'}
-                option={item.widgetDetails}
+                option={
+                  widgetList.data.find(widget => widget.id === item.widgetId)
+                    ?.widgetDetails
+                }
               />
-            </Form.Item>
-          </div>
-        ))}
+              {/* </Form.Item> */}
+            </div>
+          )
+        )}
       <Form.Item className="flex justify-center">
         <Button type="primary" htmlType="submit" onClick={saveSingleFill}>
           保存

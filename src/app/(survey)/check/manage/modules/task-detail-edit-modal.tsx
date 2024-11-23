@@ -4,7 +4,11 @@ import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { formatTreeData } from '@/lib/format-tree-data';
-import { PublishTypeEnum } from '@/types/CommonType';
+import {
+  ModalType,
+  PublishTypeEnum,
+  ZeroOrOneTypeEnum,
+} from '@/types/CommonType';
 import {
   ExclamationCircleFilled,
   QuestionCircleOutlined,
@@ -29,12 +33,14 @@ const { RangePicker } = DatePicker;
 interface TaskDetailEditModalProps {
   linkName?: string;
   record: any;
+  type: ModalType;
   refreshList: () => void;
 }
 
 const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   linkName,
   record,
+  type,
   refreshList,
 }: TaskDetailEditModalProps) => {
   const [open, setOpen] = useState(false);
@@ -45,6 +51,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [checkAll, setCheckAll] = useState(false);
   const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
+  const [staffSelectedNum, setStaffSelectedNum] = useState<number>(0);
   const [indeterminate, setIndeterminate] = useState(false);
 
   const { run: updateInspTaskFill } = useRequest(
@@ -64,6 +71,44 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     }
   );
 
+  const { data: orgMemberList, run: getStaffListByTags } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getStaffListByTags({
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        orgId: currentOrg.orgId,
+        tags: filterValue.map(item => ({
+          key: Number(item),
+        })),
+      });
+    },
+    {
+      manual: true,
+      onSuccess: (data, params) => {
+        console.log('getStaffListByTags', data, params);
+        // // 将data.data以children为属性的levelOrgs对应的id为param[0]中
+        // const newLevelOrgs = levelOrgs.map((level: any) =>
+        //   level.map((org: any) => {
+        //     console.log('org', org, params[0], org.key == params[0]);
+
+        //     if (org.key == params[0]) {
+        //       console.log('params', org);
+        //       org.children = data.data.map(item => ({
+        //         key: item.id,
+        //         title: `${item.staffName}(${item.cellphone})`,
+        //       }));
+        //     }
+        //     return org;
+        //   })
+        // );
+        // setLevelOrgs(newLevelOrgs);
+      },
+    }
+  );
+
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
     (index?: number) => {
       if (!currentSystem || !currentOrg) {
@@ -72,7 +117,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       return Api.listLevelAssignSub({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg?.orgId!,
-        // TODO orgId 是1时查不出来数据
         levelIndex: index || 1,
         tags: filterValue.map(item => ({
           key: Number(item),
@@ -102,8 +146,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           levels: data.data.levels?.map(level => level.levelIndex),
           orgs: data.data.orgs?.map(org => org.orgId),
           timeFillEstimate: [
-            dayjs(data.data.beginTimeFillEstimate, 'YYYY-MM-DD HH:mm:ss'),
-            dayjs(data.data.endTimeFillEstimate, 'YYYY-MM-DD HH:mm:ss'),
+            dayjs(data.data.beginTimeFillEstimate, 'YYYY-MM-DD HH:mm'),
+            dayjs(data.data.endTimeFillEstimate, 'YYYY-MM-DD HH:mm'),
           ],
         };
         getListLevelAssignSub(initValues?.levels?.[0] ?? 1);
@@ -150,27 +194,38 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       getListVisibleLevels();
       getTagList();
     }
-  }, [open]);
+    if (record.isLowest === ZeroOrOneTypeEnum.One) {
+      getStaffListByTags();
+    }
+  }, [getInspTaskFill, getListVisibleLevels, getTagList, open, record]);
 
   const onCreate = (values: any) => {
     const createDate: any = {
       currentSystemId: currentSystem?.systemId!,
       currentOrgId: currentOrg?.orgId!,
       taskId: record.taskId,
-      beginTimeFillEstimate: values.timeFillEstimate[0].format(
-        'YYYY-MM-DD HH:mm:ss'
-      ),
-      endTimeFillEstimate: values.timeFillEstimate[1].format(
-        'YYYY-MM-DD HH:mm:ss'
-      ),
+      beginTimeFillEstimate:
+        values.timeFillEstimate[0].format('YYYY-MM-DD HH:mm'),
+      endTimeFillEstimate:
+        values.timeFillEstimate[1].format('YYYY-MM-DD HH:mm'),
     };
     delete createDate.timeFillEstimate;
-    if (record.publishType === PublishTypeEnum.Org) {
+    if (
+      record.publishType === PublishTypeEnum.Org &&
+      record.isLowest === ZeroOrOneTypeEnum.Zero
+    ) {
       createDate.levels = values.levels?.map((item: string) => ({
         levelIndex: Number(item),
       }));
       createDate.orgs = values.orgs?.map((item: string) => ({
         orgId: Number(item),
+      }));
+    } else if (
+      record.publishType === PublishTypeEnum.Org &&
+      record.isLowest === ZeroOrOneTypeEnum.One
+    ) {
+      createDate.staffs = values.staffs?.map((item: string) => ({
+        staffId: Number(item),
       }));
     }
     updateInspTaskFill(createDate);
@@ -274,6 +329,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       </div>
     </div>
   );
+
   const OrgSelect = (
     <>
       <Form.Item
@@ -354,6 +410,59 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     </>
   );
 
+  const LastOrgSelect = (
+    <>
+      <div className="flex items-center mx-16">
+        <div className="flex flex-nowrap items-center gap-1 w-24">
+          {' '}
+          人员过滤 <span>：</span>
+        </div>
+        <TreeSelect
+          style={{ width: '40%' }}
+          value={filterValue}
+          onChange={onFilterChange}
+          onBlur={showConfirm}
+          treeData={formatTreeData([tagList?.data.tags])}
+        />
+      </div>
+      <div className="mr-5 text-blue-400 text-right">
+        已选：{orgSelectedNum}人
+      </div>
+      <Divider></Divider>
+      <div className="px-16">
+        {!!listLevelAssignSub?.data.length && (
+          <Checkbox
+            indeterminate={indeterminate}
+            onChange={onCheckAllChange}
+            checked={checkAll}
+          >
+            全选
+          </Checkbox>
+        )}
+        <Form.Item
+          name="staffs"
+          label=""
+          rules={[{ required: true, message: '请选择人员' }]}
+        >
+          <Checkbox.Group
+            onChange={checkedList => {
+              setStaffSelectedNum(checkedList.length);
+              setIndeterminate(
+                !!checkedList.length &&
+                  checkedList.length < (orgMemberList?.data?.length || 0)
+              );
+              setCheckAll(checkedList.length === orgMemberList?.data.length);
+            }}
+            options={orgMemberList?.data.map(item => ({
+              label: item.staffName + ' ' + item.cellphone,
+              value: item.id,
+            }))}
+          ></Checkbox.Group>
+        </Form.Item>
+      </div>
+    </>
+  );
+
   return (
     <>
       <a
@@ -367,7 +476,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       <Modal
         width={1400}
         open={open}
-        title="修改抽检任务"
+        title={`${type}抽检任务`}
         okText="确定"
         cancelText="取消"
         okButtonProps={{
@@ -407,7 +516,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                     rules={[{ required: true }]}
                   >
                     <RangePicker
-                      format="YYYY-MM-DD HH:mm:ss"
+                      format="YYYY-MM-DD HH:mm"
                       showTime={{ format: 'HH:mm:ss' }}
                       style={{ width: '40%' }}
                     />
@@ -416,7 +525,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                 <Divider orientation="left">分配详情</Divider>
                 <div style={{ marginLeft: '20px' }}>
                   {record.publishType === PublishTypeEnum.Org
-                    ? OrgSelect
+                    ? record.isLowest === ZeroOrOneTypeEnum.Zero
+                      ? OrgSelect
+                      : LastOrgSelect
                     : MemberSelect}
                 </div>
               </div>

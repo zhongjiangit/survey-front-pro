@@ -206,7 +206,7 @@ const TaskAllocateModal: React.FC<TaskAllocateModalProps> = ({
                     rules={[{ required: true }]}
                   >
                     <RangePicker
-                      format="YYYY-MM-DD HH:mm:ss"
+                      format="YYYY-MM-DD HH:mm"
                       showTime={{ format: 'HH:mm:ss' }}
                       style={{ width: '100%' }}
                     />
