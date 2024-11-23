@@ -30,7 +30,7 @@ fillCount	int		提交份数
 processStatus	int		任务处理状态， 10：待分配 20：未提交 50:已提交 60:已通过 70:已驳回 100：数据丢弃
 */
 export interface GetFillProcessDetailsResponse {
-  levels: { [key: string]: { levelName: string } }[];
+  levels: { [key: string]: { levelName: string } };
   org: {
     orgId: number;
     orgName: string;

@@ -102,12 +102,14 @@ const TaskOrgFillDetailModal = ({
       },
     }
   );
+  console.log(columns, 'columns');
+
   return (
     <Modal
       open={open}
       title={
         <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-          <h2 className="text-xl">任务详情</h2>
+          <h2 className="text-xl">任务详情1</h2>
           {/* <Button type="primary">一键通过</Button> */}
         </div>
       }

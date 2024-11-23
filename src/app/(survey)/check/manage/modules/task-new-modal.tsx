@@ -363,7 +363,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         ]}
       >
         <Checkbox.Group
-          options={listVisibleLevels?.data.map(item => ({
+          options={listVisibleLevels?.data?.map(item => ({
             label: item.levelName,
             value: item.levelIndex,
           }))}
@@ -513,7 +513,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
                 onChange={e => {
                   setTemplateId(e);
                 }}
-                options={checkList?.data.map(item => ({
+                options={checkList?.data?.map(item => ({
                   label: item.templateTitle,
                   value: item.templateId,
                 }))}

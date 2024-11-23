@@ -53,23 +53,35 @@ export function useFillProcessDetailColumns(
     GetFillProcessDetailsResponse[] | undefined | []
   >(originData);
   const [finalColumns, setFinalColumns] = useState(baseColumns);
+  console.log(data?.length, 'data.length ');
 
   if (!data || data.length === 0) {
     return { columns: finalColumns, setColumns: setData };
   }
-  for (let index = 0; index < data[0].levels.length; index++) {
-    const levelName = data[0].levels[index][`level${index + 1}`].levelName;
-    setFinalColumns(prev => {
-      return [
-        {
-          title: levelName,
-          dataIndex: `org${index + 1}`,
-          //   width: '20%',
-        },
-        ...prev,
-      ];
-    });
-  }
+
+  const tempColumn = Object.keys(data[0].levels).map((key, index) => {
+    const levelName = data[0].levels?.[key].levelName;
+    return {
+      title: levelName,
+      dataIndex: `org${index + 1}`,
+      //   width: '20%',
+    };
+  });
+
+  setFinalColumns([...tempColumn, ...finalColumns]);
+  // for (let index = 0; index < Object.keys(data[0].levels).length; index++) {
+  //   const levelName = data[0].levels?.[`level${index + 1}`].levelName;
+  //   setFinalColumns(prev => {
+  //     return [
+  //       {
+  //         title: levelName,
+  //         dataIndex: `org${index + 1}`,
+  //         //   width: '20%',
+  //       },
+  //       ...prev,
+  //     ];
+  //   });
+  // }
 
   const operationColumn = {
     title: '操作',

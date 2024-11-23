@@ -38,8 +38,8 @@ const TemplateDetail = ({
     });
   });
 
-  const { data: singleFillDetailsData } = useRequest(
-    values => {
+  const {} = useRequest(
+    () => {
       if (
         !currentSystem?.systemId ||
         !currentOrg?.orgId ||
@@ -96,6 +96,7 @@ const TemplateDetail = ({
       currentSystemId: currentSystem?.systemId!,
       currentOrgId: currentOrg?.orgId,
       singleFillId: singleFillId,
+      taskId: currentFillTask.taskId,
       items: formattedValues,
     };
 

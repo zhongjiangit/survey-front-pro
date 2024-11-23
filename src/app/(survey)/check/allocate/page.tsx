@@ -15,6 +15,7 @@ import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import { useState } from 'react';
 import TaskDetailEditModal from '../manage/modules/task-detail-edit-modal';
+import TaskOrgFillDetailModal from '../manage/modules/task-org-fill-detail-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -46,6 +47,8 @@ interface CollectListItemProps {
 const ToAllotTask = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [filleOrgDetailModalOpen, setFillOrgDetailModalOpen] = useState(false);
+  const [viewTaskId, setViewTaskId] = useState<number>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
@@ -72,6 +75,30 @@ const ToAllotTask = () => {
       }
     );
 
+  // const { data: fillProcessDetailsData, run: getFillProcessDetails } =
+  //   useRequest(
+  //     (taskId: number) => {
+  //       if (!currentSystem?.systemId || !currentOrg?.orgId) {
+  //         return Promise.reject('currentSystem or currentOrg is not exist');
+  //       }
+  //       return Api.getFillProcessDetails({
+  //         currentSystemId: currentSystem?.systemId!,
+  //         currentOrgId: currentOrg!.orgId!,
+  //         taskId: taskId,
+  //         pageNumber,
+  //         pageSize,
+  //       });
+  //     },
+  //     {
+  //       refreshDeps: [
+  //         currentSystem?.systemId,
+  //         currentOrg?.orgId,
+  //         pageNumber,
+  //         pageSize,
+  //       ],
+  //     }
+  //   );
+
   console.log('listAssignInspTaskData', listAssignInspTaskData);
 
   const operateButton = {
@@ -84,8 +111,19 @@ const ToAllotTask = () => {
       />
     ),
 
-    detail: (
-      <a className=" text-blue-500" key="detail">
+    detail: (record: any) => (
+      <a
+        className=" text-blue-500"
+        key="detail"
+        onClick={() => {
+          if (record.publishType === PublishTypeEnum.Org) {
+            setViewTaskId(record.taskId);
+            setFillOrgDetailModalOpen(true);
+          } else {
+            // setFillMemberDetailModalOpen(true);
+          }
+        }}
+      >
         详情
       </a>
     ),
@@ -233,11 +271,11 @@ const ToAllotTask = () => {
               operateButton.allot(record),
             ]}
             {record.fillTaskStatus === TaskStatusTypeEnum.Processing && [
-              operateButton.detail,
+              operateButton.detail(record),
               operateButton.allot(record),
             ]}
             {record.fillTaskStatus === TaskStatusTypeEnum.Finished && [
-              operateButton.detail,
+              operateButton.detail(record),
             ]}
           </Space>
         );
@@ -250,6 +288,11 @@ const ToAllotTask = () => {
         columns={columns}
         dataSource={listAssignInspTaskData?.data || []}
       ></Table>
+      <TaskOrgFillDetailModal
+        taskId={viewTaskId}
+        open={filleOrgDetailModalOpen}
+        setOpen={setFillOrgDetailModalOpen}
+      />
     </>
   );
 };
