@@ -11,7 +11,7 @@ import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
 import { Input, message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 
 export interface CustomTreeDataNode extends TreeDataNode {
@@ -123,21 +123,42 @@ function CustomTree(props: CustomTreeProps) {
    * @param treeData
    * @returns
    */
-  const checkNode = (treeData: CustomTreeDataNode[]): boolean => {
-    return treeData.some(node => {
-      if (node.type === 'input') {
-        messageApi.open({
-          type: 'error',
-          content: '请先保存编辑中节点',
-        });
-        return true;
-      }
-      if (node.children) {
-        return checkNode(node.children);
-      }
-      return false;
-    });
-  };
+  const checkNode = useCallback(
+    (treeData: CustomTreeDataNode[]): boolean => {
+      return treeData.some(node => {
+        if (node.type === 'input') {
+          messageApi.open({
+            type: 'error',
+            content: '请先保存编辑中节点',
+          });
+          return true;
+        }
+        if (node.children) {
+          return checkNode(node.children);
+        }
+        return false;
+      });
+    },
+    [messageApi]
+  );
+
+  /**
+   * renderInput
+   */
+  const renderInput = useMemo(() => {
+    return (
+      <Input
+        type="input"
+        size="small"
+        autoFocus
+        // value={nodeTitle}
+        placeholder="请输入节点名称"
+        onChange={e => {
+          setNodeTitle(e.target.value);
+        }}
+      />
+    );
+  }, [nodeTitle]);
 
   /**
    * 创建节点
@@ -153,17 +174,7 @@ function CustomTree(props: CustomTreeProps) {
       key: uuidv4(),
       type: 'input',
       isLeaf: false,
-      title: (
-        <Input
-          type="input"
-          size="small"
-          autoFocus
-          placeholder="请输入节点名称"
-          onChange={e => {
-            setNodeTitle(e.target.value);
-          }}
-        />
-      ),
+      title: renderInput,
     };
     // 递归遍历树节点，找到指定节点并添加子节点
     const addNode = (
@@ -204,17 +215,7 @@ function CustomTree(props: CustomTreeProps) {
     const editNode = (treeData: CustomTreeDataNode[], key: string) => {
       return treeData.map(node => {
         if (node.key == key) {
-          node.title = (
-            <Input
-              type="input"
-              size="small"
-              autoFocus
-              placeholder="请输入新节点名称"
-              onChange={e => {
-                setNodeTitle(e.target.value);
-              }}
-            />
-          );
+          node.title = renderInput;
           node.type = 'input';
         } else if (node.children) {
           editNode(node.children, key);
@@ -223,7 +224,7 @@ function CustomTree(props: CustomTreeProps) {
       });
     };
     setTreeData(editNode(treeData, String(selectedKeys[0])));
-  }, [checkNode, nodeTitle, selectedKeys, treeData]);
+  }, [checkNode, renderInput, selectedKeys, treeData]);
 
   /**
    * 保存节点
@@ -418,15 +419,7 @@ function CustomTree(props: CustomTreeProps) {
       <div className="flex justify-start items-start">
         {treeData.length === 0 && (
           <div className="flex gap-3 items-center">
-            <Input
-              type="input"
-              size="small"
-              placeholder="请输入根节点名称"
-              autoFocus
-              onChange={e => {
-                setNodeTitle(e.target.value);
-              }}
-            />
+            {renderInput}
             <Tooltip title="保存节点">
               <SaveOutlined
                 className="hover:text-blue-400"
