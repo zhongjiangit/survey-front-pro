@@ -1,13 +1,27 @@
 'use client';
 
 import Api from '@/api';
+import { ListReviewDetailsExpertResponse } from '@/api/task/listReviewDetailsExpert';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { ProcessStatusObject, TemplateTypeEnum } from '@/types/CommonType';
+import {
+  ProcessStatusObject,
+  ProcessStatusTypeEnum,
+  TemplateTypeEnum,
+} from '@/types/CommonType';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { Button, Divider, Input, InputNumber, Modal, Space, Table } from 'antd';
+import {
+  Button,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Space,
+  Table,
+} from 'antd';
 import { useEffect, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
 
@@ -20,30 +34,38 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
   const [open, setOpen] = useState(false);
+  const [form] = Form.useForm();
+  const [formValues, setFormValues] = useState<any>([]);
 
-  const { data: listReviewDetailsExpertData, run: getListReviewDetailsExpert } =
-    useRequest(
-      () => {
-        return Api.listReviewDetailsExpert({
-          currentSystemId: currentSystem?.systemId!,
-          currentOrgId: currentOrg!.orgId!,
-          taskId: task.taskId,
-          pageNumber,
-          pageSize,
-        });
+  const {
+    data: listReviewDetailsExpertData,
+    run: getListReviewDetailsExpert,
+    loading: getListReviewDetailsExpertLoading,
+    refresh: refreshListReviewDetailsExpert,
+  } = useRequest(
+    () => {
+      return Api.listReviewDetailsExpert({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        taskId: task.taskId,
+        pageNumber,
+        pageSize,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: data => {
+        console.log('listReviewDetailsExpertData', data);
       },
-      {
-        manual: true,
-        onSuccess: data => {
-          console.log('listReviewDetailsExpertData', data);
-        },
-      }
-    );
+    }
+  );
 
   const { run: saveReviewDetails } = useRequest(
     values => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('未获取到当前系统或组织 ID');
+      }
       return Api.saveReviewDetails({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg!.orgId!,
@@ -53,8 +75,8 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     },
     {
       manual: true,
-      onSuccess: data => {
-        console.log('listReviewDetailsExpertData', data);
+      onSuccess: () => {
+        refreshListReviewDetailsExpert();
       },
     }
   );
@@ -70,8 +92,8 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     },
     {
       manual: true,
-      onSuccess: data => {
-        console.log('listReviewDetailsExpertData', data);
+      onSuccess: () => {
+        refreshListReviewDetailsExpert();
       },
     }
   );
@@ -80,11 +102,16 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     if (open) {
       getListReviewDetailsExpert();
     }
-  }, [open]);
+  }, [getListReviewDetailsExpert, open]);
 
   const saveReview = (record: any) => {
-    saveReviewDetails({});
-    console.log(record);
+    console.log('--------- form.getFieldsValue ---------');
+    console.log(form.getFieldsValue());
+
+    const values = formValues.find(
+      (item: any) => item.singleFillId === record.singleFillId
+    );
+    saveReviewDetails(values);
   };
 
   const submitReview = (record: any) => {
@@ -92,13 +119,71 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     console.log('submit', record);
   };
 
+  const changeFormValue = (
+    singleFillId: number,
+    value: any,
+    dimensionId?: number
+  ) => {
+    console.log('===============', singleFillId, value, dimensionId);
+
+    const oldItem = formValues.find(
+      (item: any) => item.singleFillId === singleFillId
+    );
+
+    if (oldItem) {
+      if (dimensionId) {
+        let isExist = false;
+        if (oldItem.dimensionScores === undefined) {
+          oldItem.dimensionScores = [];
+        }
+        oldItem.dimensionScores = oldItem.dimensionScores.map((item: any) => {
+          if (item.dimensionId === dimensionId) {
+            isExist = true;
+            return {
+              ...item,
+              reviewScore: value,
+            };
+          }
+          return item;
+        });
+        if (!isExist) {
+          oldItem.dimensionScores.push({
+            dimensionId,
+            reviewScore: value,
+          });
+        }
+      } else {
+        oldItem.expertComment = value;
+      }
+    } else {
+      const item: any = { singleFillId: singleFillId, dimensionScores: [] };
+      if (dimensionId) {
+        item.dimensionScores = [
+          {
+            dimensionId,
+            reviewScore: value,
+          },
+        ];
+      } else {
+        item.expertComment = value;
+      }
+      formValues.push(item);
+    }
+
+    console.log('formValues', formValues);
+
+    setFormValues(formValues);
+  };
+
+  // console.log('formValues', formValues);
+
   const columns: any = [
     {
       title: '单位',
       dataIndex: 'fillerOrgName',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.isShowInfo ? record.fillerOrgName : '-'}</div>;
+        return <div>{record.showFiller ? record.fillerOrgName : '-'}</div>;
       },
     },
     {
@@ -106,7 +191,7 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
       dataIndex: 'fillerStaffName',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.isShowInfo ? record.fillerStaffName : '-'}</div>;
+        return <div>{record.showFiller ? record.fillerStaffName : '-'}</div>;
       },
     },
     {
@@ -114,7 +199,7 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
       dataIndex: 'fillIndex',
       align: 'center',
       render: (_: any, record: any) => {
-        return <div>{record.isShowInfo ? record.fillIndex : '-'}</div>;
+        return <div>{record.showFiller ? record.fillIndex : '-'}</div>;
       },
     },
     {
@@ -185,18 +270,34 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
       dataIndex: 'dimensionScores',
       width: '11%',
       align: 'center',
-      render: (text: any) => {
+      render: (
+        text: any,
+        record: ListReviewDetailsExpertResponse,
+        index: number
+      ) => {
         return (
           <div>
-            {text?.map((item: any, index: number) => {
+            {text?.map((item: any, i: number) => {
               return (
-                <div key={index}>
-                  <InputNumber
-                    min={0}
-                    max={5}
-                    defaultValue={item.reviewScore}
-                  />
-                  {index + 1 !== text.length && <Divider className="my-4" />}
+                <div key={i}>
+                  <Form.Item
+                    name={`${item.dimensionId}-${index}-${i}`}
+                    initialValue={item.reviewScore}
+                    required
+                  >
+                    <InputNumber
+                      min={0}
+                      max={100}
+                      onChange={e => {
+                        changeFormValue(
+                          record.singleFillId,
+                          e,
+                          item.dimensionId
+                        );
+                      }}
+                    />
+                  </Form.Item>
+                  {i + 1 !== text.length && <Divider className="my-4" />}
                 </div>
               );
             })}
@@ -208,12 +309,25 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
       title: <div>专家点评</div>,
       dataIndex: 'expertComment',
       align: 'center',
-      render: (text: string) => {
+      render: (
+        text: string,
+        record: ListReviewDetailsExpertResponse,
+        index: number
+      ) => {
         return (
-          <Input.TextArea
-            autoSize={{ minRows: 4, maxRows: 10 }}
-            defaultValue={text}
-          ></Input.TextArea>
+          <Form.Item
+            required
+            name={`expertComment-${index}`}
+            initialValue={text}
+          >
+            <Input.TextArea
+              autoSize={{ minRows: 4, maxRows: 10 }}
+              defaultValue={text}
+              onChange={e => {
+                changeFormValue(record.singleFillId, e.target.value);
+              }}
+            />
+          </Form.Item>
         );
       },
     },
@@ -227,7 +341,9 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
       render: (_: any, record: any) => {
         return (
           <>
-            {record.reviewStatus === 0 && (
+            {(record.processStatus === ProcessStatusTypeEnum.NotFill ||
+              record.processStatus === ProcessStatusTypeEnum.NotSubmit ||
+              record.processStatus === ProcessStatusTypeEnum.Reject) && (
               <Space>
                 <a
                   className="text-blue-500"
@@ -247,51 +363,16 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
                 </a>
               </Space>
             )}
-            {record.reviewStatus === 1 && (
-              <Space>
-                <a
-                  className="text-blue-500"
-                  onClick={() => {
-                    saveReview(record);
-                  }}
-                >
-                  保存
-                </a>
-                <a
-                  className="text-blue-500"
-                  onClick={() => {
-                    submitReview(record);
-                  }}
-                >
-                  提交
-                </a>
-              </Space>
-            )}
-            {record.reviewStatus === 2 && '-'}
-            {record.reviewStatus === 3 && '-'}
-            {record.reviewStatus === 4 && (
-              <Space>
-                <a
-                  className="text-blue-500"
-                  onClick={() => {
-                    saveReview(record);
-                  }}
-                >
-                  保存
-                </a>
-                <a
-                  className="text-blue-500"
-                  onClick={() => {
-                    submitReview(record);
-                  }}
-                >
-                  提交
-                </a>
-                <a className="text-blue-500" onClick={() => {}}>
-                  驳回履历
-                </a>
-              </Space>
-            )}
+            {(record.processStatus ===
+              ProcessStatusTypeEnum.WaitSubmitExpertData ||
+              record.processStatus ===
+                ProcessStatusTypeEnum.WaitAuditExpertData ||
+              record.processStatus === ProcessStatusTypeEnum.Submitted ||
+              record.processStatus === ProcessStatusTypeEnum.Passed ||
+              record.processStatus === ProcessStatusTypeEnum.PassedExpertData ||
+              record.processStatus === ProcessStatusTypeEnum.RejectExpertData ||
+              record.processStatus === ProcessStatusTypeEnum.DataDiscard) &&
+              '-'}
           </>
         );
       },
@@ -307,7 +388,12 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
         open={open}
         title="专家评审"
         width={1400}
-        onCancel={() => setOpen(false)}
+        onCancel={() => {
+          form.resetFields();
+          setFormValues([]);
+          setOpen(false);
+        }}
+        destroyOnClose
         footer={
           <div className="flex justify-end gap-5 px-20">
             <Button size="large" onClick={() => {}}>
@@ -319,11 +405,13 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
           </div>
         }
       >
-        <Table
-          columns={columns}
-          dataSource={listReviewDetailsExpertData?.data || []}
-          // dataSource={testDataSource}
-        />
+        <Form form={form} component={false}>
+          <Table
+            columns={columns}
+            dataSource={listReviewDetailsExpertData?.data || []}
+            loading={getListReviewDetailsExpertLoading}
+          />
+        </Form>
       </Modal>
     </>
   );

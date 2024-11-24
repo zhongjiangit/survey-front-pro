@@ -128,22 +128,21 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     }
   );
 
-  const { data: staffListByTags, run: getStaffListByTags } = useRequest(
+  const { data: expertListByTags, run: getExpertListByTags } = useRequest(
     () => {
       if (!currentSystem?.systemId || !currentOrg?.orgId) {
         return Promise.reject('currentSystem or currentOrg is not exist');
       }
-      return Api.getStaffListByTags({
+      return Api.getExpertListByTags({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,
-        orgId: currentOrg?.orgId,
         tags: [],
       });
     },
     {
       manual: true,
       onSuccess(response) {
-        console.log('getStaffListByTags', response);
+        console.log('getExpertListByTags', response);
       },
     }
   );
@@ -166,7 +165,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     {
       manual: true,
       onSuccess(response) {
-        console.log('getStaffListByTags', response);
+        console.log('getExpertListByTags', response);
       },
     }
   );
@@ -190,21 +189,21 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     {
       manual: true,
       onSuccess(response) {
-        console.log('getStaffListByTags', response);
+        console.log('getExpertListByTags', response);
       },
     }
   );
 
   const plainOptions = useMemo(() => {
     return (
-      staffListByTags?.data.map(item => {
+      expertListByTags?.data.map(item => {
         return {
-          label: item.staffName + '（' + item.cellphone + '）',
+          label: item.expertName + '（' + item.cellphone + '）',
           value: item.id.toString(),
         };
       }) || []
     );
-  }, [staffListByTags]);
+  }, [expertListByTags]);
 
   const expertCheckAll = useMemo(
     () => plainOptions.length === assignedExperts.length,
@@ -259,13 +258,13 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
       getListReviewAssignByExpert();
       getListReviewAssignByFill();
       getListFillsByTaskPage();
-      getStaffListByTags();
+      getExpertListByTags();
     }
   }, [
     getListFillsByTaskPage,
     getListReviewAssignByExpert,
     getListReviewAssignByFill,
-    getStaffListByTags,
+    getExpertListByTags,
     open,
   ]);
 
@@ -408,26 +407,26 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
                   <div className="text-center">
                     <div className="bg-slate-200">专家总数</div>
                     <div className="bg-slate-100">
-                      {staffListByTags?.data.length}
+                      {expertListByTags?.data.length || 0}
                     </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">已分配专家</div>
                     <div className="bg-slate-100">
-                      {listReviewAssignByExpert?.data.length}
+                      {listReviewAssignByExpert?.data.length || 0}
                     </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">未分配专家</div>
                     <div className="bg-slate-100">
-                      {(staffListByTags?.data.length || 0) -
+                      {(expertListByTags?.data.length || 0) -
                         (listReviewAssignByExpert?.data.length || 0)}
                     </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">试题总数</div>
                     <div className="bg-slate-100">
-                      {listFillsByTaskPage?.data.length}
+                      {listFillsByTaskPage?.data.length || 0}
                     </div>
                   </div>
                   <div className="text-center">
@@ -454,7 +453,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
                           treeData={[
                             {
                               title: (
-                                <div className="flex justify-between p-2">
+                                <div className="flex justify-start items-center gap-1">
                                   <span>{item.expertName}</span>
                                   <span>({item.cellphone})</span>
                                   <span>
@@ -466,7 +465,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
                               children: item?.assignedFills?.map(fill => {
                                 return {
                                   title: (
-                                    <div className="flex justify-between gap-1 p-2">
+                                    <div className="flex justify-start items-center gap-1">
                                       <span>{fill.orgName}</span>
                                       <span>{fill.staffName}</span>
                                       <span>{fill.fillIndex}</span>

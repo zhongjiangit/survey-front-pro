@@ -5,7 +5,7 @@ import RenderFormItem from '@/lib/render-form-item';
 import { TemplateType } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Empty, Form, Modal } from 'antd';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface TemplateDetailModalProps {
   title?: string;
@@ -39,14 +39,26 @@ const TemplateDetailModal = ({
     }
   );
 
-  const { data: widgetList = { data: [] } } = useRequest(() => {
-    if (!currentSystem) {
-      return Promise.reject('currentSystem is not exist');
+  const { data: widgetList = { data: [] }, run: getAllWidgetsList } =
+    useRequest(
+      () => {
+        if (!currentSystem) {
+          return Promise.reject('currentSystem is not exist');
+        }
+        return Api.getAllWidgetsList({
+          currentSystemId: Number(currentSystem?.systemId),
+        });
+      },
+      {
+        manual: true,
+      }
+    );
+
+  useEffect(() => {
+    if (open) {
+      getAllWidgetsList();
     }
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(currentSystem?.systemId),
-    });
-  });
+  }, [getAllWidgetsList, open]);
 
   return (
     <>

@@ -112,8 +112,6 @@ const TemplateDetail = ({
     });
   });
 
-  console.log();
-
   return (
     <Form
       form={form}

@@ -1,6 +1,7 @@
 import createExpert from './create';
 import deleteExpert from './delete';
-import getExpertList from './get-expert-list';
+import getExpertList from './getExpertList';
+import getExpertListByTags from './listByTags';
 import updateExpert from './update';
 
 const expertApi = {
@@ -8,6 +9,7 @@ const expertApi = {
   deleteExpert,
   updateExpert,
   getExpertList,
+  getExpertListByTags,
 };
 
 export default expertApi;

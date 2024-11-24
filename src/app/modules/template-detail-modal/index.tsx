@@ -39,20 +39,27 @@ const TemplateDetailModal = ({
     }
   );
 
-  const { data: widgetList = { data: [] } } = useRequest(() => {
-    if (!currentSystem) {
-      return Promise.reject('currentSystem is not exist');
-    }
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(currentSystem?.systemId),
-    });
-  });
+  const { data: widgetList = { data: [] }, run: getAllWidgetsList } =
+    useRequest(
+      () => {
+        if (!currentSystem) {
+          return Promise.reject('currentSystem is not exist');
+        }
+        return Api.getAllWidgetsList({
+          currentSystemId: Number(currentSystem?.systemId),
+        });
+      },
+      {
+        manual: true,
+      }
+    );
 
   useEffect(() => {
     if (open) {
       getTemplateDetail();
+      getAllWidgetsList();
     }
-  }, [open]);
+  }, [getAllWidgetsList, getTemplateDetail, open]);
 
   return (
     <>
