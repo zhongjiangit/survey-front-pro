@@ -1,7 +1,9 @@
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useRoles } from '@/hooks/useRoles';
+import { getFirstMenu } from '@/lib/get-first-menu';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
+import { useRouter } from 'next/navigation';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 
 interface RoleSwitchModalProps {
@@ -13,6 +15,7 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
   isRoleModalOpen,
   setIsRoleModalOpen,
 }) => {
+  const router = useRouter();
   const setCurrentRole = useSurveyCurrentRoleStore(
     state => state.setCurrentRole
   );
@@ -38,6 +41,10 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
   const handleOk = () => {
     const currentRole = roles?.find(role => role.key === selectedRole);
     if (currentRole) {
+      const firstMenu = getFirstMenu(currentRole);
+      if (firstMenu) {
+        router.push(firstMenu);
+      }
       setCurrentRole(currentRole);
     }
     setIsRoleModalOpen(false);

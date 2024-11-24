@@ -138,13 +138,7 @@ export const originMenus = [
       {
         label: '评审',
         key: '/check/review',
-        access: [
-          Role_Enum.PLATFORM_ADMIN,
-          Role_Enum.SYSTEM_ADMIN,
-          Role_Enum.ORG_ADMIN,
-          Role_Enum.NORMAL_ADMIN,
-          Role_Enum.EXPERT,
-        ],
+        access: [Role_Enum.PLATFORM_ADMIN, Role_Enum.EXPERT],
       },
     ],
   },
