@@ -1,7 +1,12 @@
 'use client';
 
+import Api from '@/api';
+import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
 import Circle from '@/components/display/circle';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { cn } from '@/lib/utils';
+import { useRequest } from 'ahooks';
 import type { CheckboxProps, TableColumnsType, TableProps } from 'antd';
 import {
   Button,
@@ -11,61 +16,19 @@ import {
   Select,
   Table,
   Tree,
-  TreeDataNode,
   TreeSelect,
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 const { RangePicker } = DatePicker;
 
-interface EvaluateAllocateModalProps {}
+interface EvaluateAllocateModalProps {
+  task: ListMyInspTaskResponse;
+}
 
 interface Values {
   taskName?: string;
 }
-
-export const treeData: TreeDataNode[][] = [
-  [
-    {
-      title: '杨专家118999999（已分配3套）',
-      key: 's',
-      children: [
-        {
-          title: '第一小学 陈老师 试卷1',
-          key: '1',
-        },
-        {
-          title: '第一小学 陈老师 试卷2',
-          key: '2',
-        },
-        {
-          title: '第一小学 陈老师 试卷3',
-          key: '3',
-        },
-      ],
-    },
-  ],
-  [
-    {
-      title: '第一小学 陈老师 试卷1（3位）',
-      key: 's',
-      children: [
-        {
-          title: '杨专家118999999',
-          key: '1',
-        },
-        {
-          title: '刘专家118999999',
-          key: '2',
-        },
-        {
-          title: '钟专家118999999',
-          key: '3',
-        },
-      ],
-    },
-  ],
-];
 
 const selectTreeData = [
   {
@@ -88,59 +51,322 @@ const selectTreeData = [
   },
 ];
 
-const plainOptions = [
-  '钟专家（12345678900）',
-  '杨专家（12345678900）',
-  '刘专家（12345678900）',
-  '陈专家（12345678900）',
-  '王专家（12345678900）',
-  '李专家（12345678900）',
-  '赵专家（12345678900）',
-  '吴专家（12345678900）',
-  '周专家（12345678900）',
-  '徐专家（12345678900）',
-  '孙专家（12345678900）',
-  '朱专家（12345678900）',
-  '马专家（12345678900）',
-  '胡专家（12345678900）',
-  '郭专家（12345678900）',
-  '林专家（12345678900）',
-  '何专家（12345678900）',
-  '高专家（12345678900）',
-  '梁专家（12345678900）',
-  '谢专家（12345678900）',
-  '宋专家（12345678900）',
-  '唐专家（12345678900）',
-  '许专家（12345678900）',
-  '邓专家（12345678900）',
-  '冯专家（12345678900）',
-];
-const defaultCheckedList = ['钟专家（12345678900）', '杨专家（12345678900）'];
-
-const EvaluateAllocateModal: React.FC<
-  EvaluateAllocateModalProps
-> = ({}: EvaluateAllocateModalProps) => {
+const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
+  task,
+}: EvaluateAllocateModalProps) => {
   const [open, setOpen] = useState(false);
   const [selectedModalOpen, setSelectedModalOpen] = useState(false);
-  const [evaluateType, setEvaluateType] = useState('1');
-  const [checkedList, setCheckedList] = useState<string[]>(defaultCheckedList);
+  const [evaluateType, setEvaluateType] = useState('questionsToExperts');
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [assignedFills, setAssignedFills] = useState<number[]>([]);
+  const [assignedExperts, setAssignedExperts] = useState<string[]>([]);
 
-  const checkAll = plainOptions.length === checkedList.length;
-  const indeterminate =
-    checkedList.length > 0 && checkedList.length < plainOptions.length;
+  const { run: getListReviewAssignByExpert, data: listReviewAssignByExpert } =
+    useRequest(
+      () => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('currentSystem or currentOrg is not exist');
+        }
+        return Api.listReviewAssignByExpert({
+          currentSystemId: currentSystem?.systemId,
+          currentOrgId: currentOrg?.orgId,
+          taskId: task.taskId,
+        });
+      },
+      {
+        manual: true,
+        onSuccess(response) {
+          console.log('listReviewAssignByExpert', response);
+        },
+      }
+    );
+
+  const { run: getListReviewAssignByFill } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.listReviewAssignByFill({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+      });
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        console.log('listReviewAssignByFill', response);
+      },
+    }
+  );
+
+  const {
+    data: listFillsByTaskPage,
+    run: getListFillsByTaskPage,
+    loading: getListFillsByTaskPageLoading,
+  } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.listFillsByTaskPage({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      });
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        console.log('listFillsByTaskPage', response);
+      },
+    }
+  );
+
+  const { data: staffListByTags, run: getStaffListByTags } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.getStaffListByTags({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        orgId: currentOrg?.orgId,
+        tags: [],
+      });
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        console.log('getStaffListByTags', response);
+      },
+    }
+  );
+
+  const { run: saveReviewAssignAdd } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.reviewAssignAdd({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+        assignedFills: assignedFills.map(fill => ({ singleFillId: fill })),
+        assignedExperts: assignedExperts.map(expert => ({
+          expertId: Number(expert),
+        })),
+      });
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        console.log('getStaffListByTags', response);
+      },
+    }
+  );
+
+  const { run: reviewAssignDelete } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.reviewAssignDelete({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+        // TODO: 为实现参数
+        assigns: assignedFills.map(fill => ({
+          singleFillId: fill,
+          expertId: 0,
+        })),
+      });
+    },
+    {
+      manual: true,
+      onSuccess(response) {
+        console.log('getStaffListByTags', response);
+      },
+    }
+  );
+
+  const plainOptions = useMemo(() => {
+    return (
+      staffListByTags?.data.map(item => {
+        return {
+          label: item.staffName + '（' + item.cellphone + '）',
+          value: item.id.toString(),
+        };
+      }) || []
+    );
+  }, [staffListByTags]);
+
+  const expertCheckAll = useMemo(
+    () => plainOptions.length === assignedExperts.length,
+    [assignedExperts.length, plainOptions.length]
+  );
+  const expertIndeterminate = useMemo(
+    () =>
+      assignedExperts.length > 0 &&
+      assignedExperts.length < plainOptions.length,
+    [assignedExperts.length, plainOptions.length]
+  );
+
+  // const testCheckAll = useMemo(
+  //   () => listFillsByTaskPage?.data?.length === assignedFills.length,
+  //   [assignedFills.length, listFillsByTaskPage?.data?.length]
+  // );
+  // const testIndeterminate = useMemo(
+  //   () =>
+  //     assignedFills.length > 0 &&
+  //     assignedFills.length < (listFillsByTaskPage?.data?.length ?? 0),
+  //   [assignedFills.length, listFillsByTaskPage?.data?.length]
+  // );
+  // const onTestCheckAllChange: CheckboxProps['onChange'] = useCallback(
+  //   (e: any) => {
+  //     setAssignedFills(
+  //       e.target.checked
+  //         ? listFillsByTaskPage?.data?.map(option => option.singleFillId) ?? []
+  //         : []
+  //     );
+  //   },
+  //   [listFillsByTaskPage]
+  // );
 
   const onChange = (list: string[]) => {
-    setCheckedList(list);
+    setAssignedExperts(list);
+    console.log(list);
   };
 
-  const onCheckAllChange: CheckboxProps['onChange'] = e => {
-    setCheckedList(e.target.checked ? plainOptions : []);
+  const onExpertCheckAllChange: CheckboxProps['onChange'] = e => {
+    setAssignedExperts(
+      e.target.checked ? plainOptions.map(option => option.value) : []
+    );
   };
 
   const onCreate = (values: Values) => {
     console.log('Received values of form: ', values);
     // setOpen(false);
   };
+
+  useEffect(() => {
+    if (open) {
+      getListReviewAssignByExpert();
+      getListReviewAssignByFill();
+      getListFillsByTaskPage();
+      getStaffListByTags();
+    }
+  }, [
+    getListFillsByTaskPage,
+    getListReviewAssignByExpert,
+    getListReviewAssignByFill,
+    getStaffListByTags,
+    open,
+  ]);
+
+  const columns: TableColumnsType<DataType> = useMemo(
+    () => [
+      {
+        title: '单位',
+        dataIndex: 'orgName',
+        filters: [
+          {
+            text: '单位1',
+            value: '1',
+          },
+          {
+            text: '单位2',
+            value: 'Category 1',
+            children: [
+              {
+                text: '单位3',
+                value: 'Yellow',
+              },
+              {
+                text: '单位4',
+                value: 'Pink',
+              },
+            ],
+          },
+        ],
+        filterMode: 'tree',
+        filterSearch: true,
+        onFilter: (value, record) => record.orgName.includes(value as string),
+        width: '20%',
+      },
+      {
+        title: '姓名',
+        dataIndex: 'staffName',
+        filters: [
+          {
+            text: '语文',
+            value: '1',
+          },
+          {
+            text: '数学',
+            value: 'Category 1',
+            children: [
+              {
+                text: '小学数学',
+                value: 'Yellow',
+              },
+              {
+                text: '初中数学',
+                value: 'Pink',
+              },
+            ],
+          },
+        ],
+        filterMode: 'tree',
+        filterSearch: true,
+        onFilter: (value, record) => record.staffName.includes(value as string),
+        width: '30%',
+      },
+      {
+        title: '试题编号',
+        dataIndex: 'fillIndex',
+        render: (text, record) => <Circle value={text} />,
+      },
+      {
+        title: '已分配专家',
+        dataIndex: 'expertCount',
+        render: (text, record) => <span>{text}</span>,
+      },
+      {
+        title: (
+          <div className="flex gap-1">
+            <span>选择</span>
+            {/* <Checkbox
+              indeterminate={testIndeterminate}
+              checked={testCheckAll}
+              onChange={onTestCheckAllChange}
+            /> */}
+          </div>
+        ),
+        render: (text, record) => (
+          <Checkbox
+            checked={assignedFills.includes(record.singleFillId)}
+            onChange={e => {
+              console.log(e.target.checked);
+              if (e.target.checked) {
+                setAssignedFills([...assignedFills, record.singleFillId]);
+              } else {
+                setAssignedFills(
+                  assignedFills.filter(item => item !== record.singleFillId)
+                );
+              }
+            }}
+          />
+        ),
+      },
+    ],
+    [assignedFills]
+  );
 
   return (
     <>
@@ -166,8 +392,12 @@ const EvaluateAllocateModal: React.FC<
                 setEvaluateType(value);
               }}
             >
-              <Select.Option value="1">给专家分配试题</Select.Option>
-              <Select.Option value="2">给试题分配专家</Select.Option>
+              <Select.Option value="questionsToExperts">
+                给专家分配试题
+              </Select.Option>
+              <Select.Option value="expertsToQuestions">
+                给试题分配专家
+              </Select.Option>
             </Select>
           </div>
           <div className="flex gap-5">
@@ -177,53 +407,84 @@ const EvaluateAllocateModal: React.FC<
                 <div className="grid grid-cols-3 p-3">
                   <div className="text-center">
                     <div className="bg-slate-200">专家总数</div>
-                    <div className="bg-slate-100">20</div>
+                    <div className="bg-slate-100">
+                      {staffListByTags?.data.length}
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">已分配专家</div>
-                    <div className="bg-slate-100">10</div>
+                    <div className="bg-slate-100">
+                      {listReviewAssignByExpert?.data.length}
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">未分配专家</div>
-                    <div className="bg-slate-100">10</div>
+                    <div className="bg-slate-100">
+                      {(staffListByTags?.data.length || 0) -
+                        (listReviewAssignByExpert?.data.length || 0)}
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">试题总数</div>
-                    <div className="bg-slate-100">10</div>
+                    <div className="bg-slate-100">
+                      {listFillsByTaskPage?.data.length}
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">已分配试题</div>
-                    <div className="bg-slate-100">5</div>
+                    <div className="bg-slate-100">0</div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">未分配试题</div>
-                    <div className="bg-slate-100">5</div>
+                    <div className="bg-slate-100">0</div>
                   </div>
                 </div>
               </div>
-              {evaluateType === '1' ? (
+              {evaluateType === 'questionsToExperts' ? (
                 <div className="flex flex-col gap-2 w-80 border">
                   <div className="bg-slate-300 p-3">
                     已分配专家详情/删除已分配
                   </div>
                   <div className="h-80 w-full p-x overflow-auto">
-                    {
-                      /* 循环生成10个tree组件 */
-                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => {
-                        return (
-                          <Tree
-                            key={index}
-                            checkable
-                            treeData={treeData[0]}
-                            // defaultExpandAll
-                            style={{
-                              flexShrink: 1,
-                              // marginRight: '10%',
-                            }}
-                          />
-                        );
-                      })
-                    }
+                    {listReviewAssignByExpert?.data?.map((item, index) => {
+                      return (
+                        <Tree
+                          key={index}
+                          checkable
+                          treeData={[
+                            {
+                              title: (
+                                <div className="flex justify-between p-2">
+                                  <span>{item.expertName}</span>
+                                  <span>({item.cellphone})</span>
+                                  <span>
+                                    已分配{item.assignedFills.length}套
+                                  </span>
+                                </div>
+                              ),
+                              key: item.expertId.toString(),
+                              children: item?.assignedFills?.map(fill => {
+                                return {
+                                  title: (
+                                    <div className="flex justify-between gap-1 p-2">
+                                      <span>{fill.orgName}</span>
+                                      <span>{fill.staffName}</span>
+                                      <span>{fill.fillIndex}</span>
+                                    </div>
+                                  ),
+                                  key: fill.singleFillId.toString(),
+                                };
+                              }),
+                            },
+                          ]}
+                          // defaultExpandAll
+                          style={{
+                            flexShrink: 1,
+                            // marginRight: '10%',
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                   <div className="flex p-2 justify-center">
                     <Button>删除已选</Button>
@@ -249,8 +510,8 @@ const EvaluateAllocateModal: React.FC<
             <div className="flex flex-col gap-5">
               <div
                 className={cn('w-auto text-center flex', {
-                  'flex-row': evaluateType === '1',
-                  'flex-row-reverse': evaluateType === '2',
+                  'flex-row': evaluateType === 'questionsToExperts',
+                  'flex-row-reverse': evaluateType === 'expertsToQuestions',
                 })}
               >
                 <div className="flex flex-col gap-5 px-5 max-h-[31rem] overflow-auto">
@@ -266,30 +527,41 @@ const EvaluateAllocateModal: React.FC<
                     // onChange={onChange}
                   />
                   <div className="flex flex-col max-h-[28rem] overflow-auto">
-                    <Checkbox
-                      indeterminate={indeterminate}
-                      onChange={onCheckAllChange}
-                      checked={checkAll}
-                    >
-                      全选
-                    </Checkbox>
+                    {plainOptions.length > 0 && (
+                      <Checkbox
+                        indeterminate={expertIndeterminate}
+                        onChange={onExpertCheckAllChange}
+                        checked={expertCheckAll}
+                      >
+                        全选
+                      </Checkbox>
+                    )}
                     <Checkbox.Group
                       options={plainOptions}
-                      value={checkedList}
+                      value={assignedExperts}
                       onChange={onChange}
                       className="grid grid-cols-1"
                     />
                   </div>
                 </div>
 
-                <TestTable />
+                <Table<DataType>
+                  size="small"
+                  className="w-[48rem]"
+                  columns={columns}
+                  dataSource={listFillsByTaskPage?.data || []}
+                  loading={getListFillsByTaskPageLoading}
+                  // onChange={onChange}
+                />
               </div>
               <div className="flex justify-center p-2 gap-5">
                 <Button type="default">全选试题</Button>
                 <Button color="danger" variant="outlined">
                   清空全部已选试题
                 </Button>
-                <Button type="primary">分配已选</Button>
+                <Button type="primary" onClick={saveReviewAssignAdd}>
+                  分配已选
+                </Button>
               </div>
             </div>
           </div>
@@ -298,7 +570,7 @@ const EvaluateAllocateModal: React.FC<
       <Modal
         style={{ top: '5%' }}
         open={selectedModalOpen}
-        title="专家评审分配"
+        title="试题分配详情"
         onCancel={() => setSelectedModalOpen(false)}
         width={1200}
         footer={false}
@@ -313,11 +585,13 @@ const EvaluateAllocateModal: React.FC<
 export default EvaluateAllocateModal;
 
 interface DataType {
-  key: React.Key;
-  org: string;
-  num: string;
-  experts: number;
-  name: string;
+  cellphone: string;
+  expertCount: number;
+  fillIndex: number;
+  orgName: string;
+  singleFillId: number;
+  staffId: number;
+  staffName: string;
 }
 
 const selectedTestColumns: TableColumnsType<DataType> = [
@@ -346,7 +620,7 @@ const selectedTestColumns: TableColumnsType<DataType> = [
     ],
     filterMode: 'tree',
     filterSearch: true,
-    onFilter: (value, record) => record.org.includes(value as string),
+    onFilter: (value, record) => record.orgName.includes(value as string),
     width: '15%',
   },
   {
@@ -374,7 +648,7 @@ const selectedTestColumns: TableColumnsType<DataType> = [
     ],
     filterMode: 'tree',
     filterSearch: true,
-    onFilter: (value, record) => record.name.includes(value as string),
+    onFilter: (value, record) => record.staffName.includes(value as string),
     width: '20%',
   },
   {
@@ -418,7 +692,7 @@ const selectedTestColumns: TableColumnsType<DataType> = [
 const columns: TableColumnsType<DataType> = [
   {
     title: '单位',
-    dataIndex: 'org',
+    dataIndex: 'orgName',
     filters: [
       {
         text: '单位1',
@@ -441,12 +715,12 @@ const columns: TableColumnsType<DataType> = [
     ],
     filterMode: 'tree',
     filterSearch: true,
-    onFilter: (value, record) => record.org.includes(value as string),
+    onFilter: (value, record) => record.orgName.includes(value as string),
     width: '20%',
   },
   {
     title: '姓名',
-    dataIndex: 'name',
+    dataIndex: 'staffName',
     filters: [
       {
         text: '语文',
@@ -469,114 +743,27 @@ const columns: TableColumnsType<DataType> = [
     ],
     filterMode: 'tree',
     filterSearch: true,
-    onFilter: (value, record) => record.name.includes(value as string),
+    onFilter: (value, record) => record.staffName.includes(value as string),
     width: '30%',
   },
   {
     title: '试题编号',
-    dataIndex: 'num',
-    render: (text, record) => <Circle value={3} />,
+    dataIndex: 'fillIndex',
+    render: (text, record) => <Circle value={text} />,
   },
   {
     title: '已分配专家',
-    dataIndex: 'num',
-    render: (text, record) => <span>5</span>,
+    dataIndex: 'expertCount',
+    render: (text, record) => <span>{text}</span>,
   },
   {
     title: (
       <div className="flex gap-1">
         <span>选择</span>
-        <Checkbox />
+        {/* <Checkbox onClick={checkAllTest} /> */}
       </div>
     ),
     render: () => <Checkbox />,
-  },
-];
-
-const data: DataType[] = [
-  {
-    key: '1',
-    org: '第一小学',
-    name: '陈老师（123445678900）',
-    num: '1',
-    experts: 3,
-  },
-  {
-    key: '2',
-    name: '陈老师（123445678900）',
-    org: '第二小学',
-    num: '2',
-    experts: 3,
-  },
-  {
-    key: '3',
-    name: '陈老师（123445678900）',
-    org: '第三小学',
-    num: '3',
-    experts: 3,
-  },
-  {
-    key: '4',
-    name: '陈老师（123445678900）',
-    org: '第四小学',
-    num: '4',
-    experts: 3,
-  },
-  {
-    key: '5',
-    name: '陈老师（123445678900）',
-    org: '第五小学',
-    num: '5',
-    experts: 3,
-  },
-  {
-    key: '6',
-    name: '陈老师（123445678900）',
-    org: '第六小学',
-    num: '6',
-    experts: 3,
-  },
-  {
-    key: '7',
-    name: '陈老师（123445678900）',
-    org: '第七小学',
-    num: '7',
-    experts: 3,
-  },
-  {
-    key: '8',
-    name: '陈老师（123445678900）',
-    org: '第八小学',
-    num: '8',
-    experts: 3,
-  },
-  {
-    key: '9',
-    name: '陈老师（123445678900）',
-    org: '第九小学',
-    num: '9',
-    experts: 3,
-  },
-  {
-    key: '10',
-    name: '陈老师（123445678900）',
-    org: '第十小学',
-    num: '10',
-    experts: 3,
-  },
-  {
-    key: '11',
-    name: '陈老师（123445678900）',
-    org: '第十一小学',
-    num: '11',
-    experts: 3,
-  },
-  {
-    key: '12',
-    name: '陈老师（123445678900）',
-    org: '第十二小学',
-    num: '12',
-    experts: 3,
   },
 ];
 
@@ -589,21 +776,11 @@ const onChange: TableProps<DataType>['onChange'] = (
   console.log('params', pagination, filters, sorter, extra);
 };
 
-const TestTable: React.FC = () => (
-  <Table<DataType>
-    size="small"
-    className="w-[48rem]"
-    columns={columns}
-    dataSource={data}
-    onChange={onChange}
-  />
-);
-
-const SelectedTestTable: React.FC = () => (
+const SelectedTestTable = () => (
   <Table<DataType>
     size="small"
     columns={selectedTestColumns}
-    dataSource={data}
+    dataSource={[]}
     onChange={onChange}
   />
 );

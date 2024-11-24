@@ -23,7 +23,7 @@ import listFillsByTaskPage from './listFillsByTaskPage';
 import listMyCollectionTask from './listMyCollectionTask';
 import listMyInspTask from './listMyInspTask';
 import listNeedReviewExpertDetails from './listNeedReviewExpertDetails';
-import listReviewTaskPublisher from './listReviewAssignByExpert';
+import listReviewAssignByExpert from './listReviewAssignByExpert';
 import listReviewAssignByFill from './listReviewAssignByFill';
 import listReviewDetailsExpert from './listReviewDetailsExpert';
 import listReviewDetailsManager from './listReviewDetailsManager';
@@ -57,7 +57,7 @@ const taskApi = {
   listFillCollectionTask,
   listMyCollectionTask,
   listReviewTaskExpert,
-  listReviewTaskPublisher,
+  listReviewAssignByExpert,
   listMyInspTask,
   listSubCollectionTask,
   updateInspTaskFill,

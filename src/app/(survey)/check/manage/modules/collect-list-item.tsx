@@ -86,7 +86,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   );
 
   const operateButton = {
-    edit: (record: any) => {
+    edit: (record: ListMyInspTaskResponse) => {
       return (
         <TaskDetailEditModal
           record={record}
@@ -95,7 +95,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         />
       );
     },
-    detail: (record: any) => {
+    detail: (record: ListMyInspTaskResponse) => {
       return (
         <a
           className=" text-blue-500"
@@ -138,18 +138,18 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
 
   const operateButtonEvaluate = {
     // 设置
-    config: (record: any) => {
+    config: (record: ListMyInspTaskResponse) => {
       return <EvaluateConfigModal taskId={record.taskId} />;
     },
     // 修改
-    edit: (record: any) => {
+    edit: (record: ListMyInspTaskResponse) => {
       return (
         <EvaluateConfigModal type={record.publishType} taskId={record.taskId} />
       );
     },
     // 分配
-    allocate: () => {
-      return <EvaluateAllocateModal />;
+    allocate: (record: ListMyInspTaskResponse) => {
+      return <EvaluateAllocateModal task={record} />;
     },
     // 评审详情
     detail: (type: PublishTypeType) => {
@@ -409,6 +409,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       align: 'center',
       render: (_: any, record: any, index: number) => {
         if (index === 0) {
+          // 试题征集
           return (
             <Space className="flex justify-center items-center">
               {record.taskStatus === TaskStatusTypeEnum.NotStart && [
@@ -428,17 +429,18 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             </Space>
           );
         }
+        // 专家评审
         return (
           <Space className="flex justify-center items-center">
             {!record.reviewTaskStatus && [operateButtonEvaluate.config(record)]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.NotStart && [
               operateButtonEvaluate.edit(record),
-              operateButtonEvaluate.allocate(),
+              operateButtonEvaluate.allocate(record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Processing && [
               operateButtonEvaluate.detail(record.publishType),
               // operateButtonEvaluate.edit('edit'),
-              operateButtonEvaluate.allocate(),
+              operateButtonEvaluate.allocate(record),
               operateButtonEvaluate.message,
               operateButtonEvaluate.result(),
             ]}

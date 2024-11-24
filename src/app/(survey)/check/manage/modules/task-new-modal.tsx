@@ -293,8 +293,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     });
   };
 
-  console.log('levelOrgs', levelOrgs);
-
   const MemberSelect = (
     <div>
       <div className="flex justify-between items-center pl-20">

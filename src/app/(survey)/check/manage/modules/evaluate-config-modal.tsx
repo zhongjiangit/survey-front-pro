@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 const { RangePicker } = DatePicker;
 
 interface EvaluateConfigModalProps {
-  type?: string;
+  type?: string | number;
   taskId: number;
 }
 
