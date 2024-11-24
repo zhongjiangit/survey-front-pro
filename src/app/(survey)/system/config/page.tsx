@@ -1,7 +1,9 @@
 'use client';
 
+import Api from '@/api';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useRequest } from 'ahooks';
 import { Spin, Tabs, TabsProps } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -9,8 +11,6 @@ import Basic from './modules/basic';
 import Check from './modules/check';
 import Collect from './modules/collect';
 import Node from './modules/node';
-import { useRequest } from 'ahooks';
-import Api from '@/api';
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -19,14 +19,21 @@ export default function Page() {
   const selectedTab = searchParams.get('tab');
   const selectedId = searchParams.get('id');
   const [activeKey, setActiveKey] = useState(selectedTab || 'basic');
-  const user = useSurveyUserStore(state => state.user);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
-  // 使用ahooks的useRequest
-  const { data: systemList, loading: isLoading } = useRequest(() => {
-    return Api.getSystemListAll({
-      currentSystemId: user?.systems[0].systemId,
-    });
-  });
+  const { data: systemList, loading: isLoading } = useRequest(
+    () => {
+      if (currentSystem?.systemId === undefined) {
+        return Promise.reject('currentSystem.systemId is undefined');
+      }
+      return Api.getSystemListAll({
+        currentSystemId: currentSystem?.systemId,
+      });
+    },
+    {
+      refreshDeps: [currentSystem?.systemId],
+    }
+  );
 
   const system = useMemo(() => {
     if ((systemList?.data ?? []).length > 0) {
@@ -41,6 +48,10 @@ export default function Page() {
     }
     return null;
   }, [systemList?.data, selectedId]);
+
+  console.log('systemList', systemList);
+  console.log('system', system);
+  console.log('selectedId', selectedId);
 
   /**
    * 设置url参数

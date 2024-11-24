@@ -153,14 +153,13 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         width: '15%',
         formItemProps: (form, { rowIndex }) => {
           return {
-            rules:
-              rowIndex > 1 ? [{ required: true, message: '姓名为必填项' }] : [],
+            rules: [{ required: true, message: '姓名为必填项' }],
           };
         },
-        // 第一行不允许编辑
-        editable: (text, record, index) => {
-          return index !== 0;
-        },
+        // // 第一行不允许编辑
+        // editable: (text, record, index) => {
+        //   return index !== 0;
+        // },
       },
       {
         title: '电话',
