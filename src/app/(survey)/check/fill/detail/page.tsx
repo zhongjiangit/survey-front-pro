@@ -97,6 +97,7 @@ const Page = () => {
         });
       },
       {
+        manual: true,
         onSuccess: data => {
           console.log('createSingleFill', data);
           const newActiveKey = `newTab${newTabIndex.current++}`;
