@@ -150,7 +150,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
             dayjs(data.data.endTimeFillEstimate, 'YYYY-MM-DD HH:mm'),
           ],
         };
-        getListLevelAssignSub(initValues?.levels?.[0] ?? 1);
+        getListLevelAssignSub(initValues?.levels?.[1] ?? 1);
         form.setFieldsValue(initValues);
       },
     }
@@ -197,7 +197,14 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     if (record.isLowest === ZeroOrOneTypeEnum.One) {
       getStaffListByTags();
     }
-  }, [getInspTaskFill, getListVisibleLevels, getTagList, open, record]);
+  }, [
+    getInspTaskFill,
+    getListVisibleLevels,
+    getStaffListByTags,
+    getTagList,
+    open,
+    record,
+  ]);
 
   const onCreate = (values: any) => {
     const createDate: any = {
@@ -348,10 +355,15 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           onChange={value => {
             getListLevelAssignSub(value[0]);
           }}
-          options={listVisibleLevels?.data.map(item => ({
-            label: item.levelName,
-            value: item.levelIndex,
-          }))}
+          //listVisibleLevels剔除数组中的第一个元素
+          options={
+            listVisibleLevels?.data
+              .filter((item, index) => index !== 0)
+              .map(item => ({
+                label: item.levelName,
+                value: item.levelIndex,
+              })) || []
+          }
         ></Checkbox.Group>
       </Form.Item>
       <div className="flex items-center mx-16">
