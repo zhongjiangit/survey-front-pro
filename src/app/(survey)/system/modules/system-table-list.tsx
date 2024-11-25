@@ -1,7 +1,7 @@
 'use client';
 
 import Api from '@/api';
-import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { SystemType } from '@/types/SystemType';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
@@ -10,17 +10,25 @@ import { useMemo } from 'react';
 import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 
 export default function SystemsTableList({ query }: { query: string }) {
-  const user = useSurveyUserStore(state => state.user);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
   const {
     data: systemList,
     loading: isLoading,
     run: getSystemListAll,
-  } = useRequest(() => {
-    return Api.getSystemListAll({
-      currentSystemId: user?.systems[0].systemId,
-    });
-  });
+  } = useRequest(
+    () => {
+      if (!currentSystem?.systemId) {
+        return Promise.reject('currentSystem is not exist');
+      }
+      return Api.getSystemListAll({
+        currentSystemId: currentSystem.systemId,
+      });
+    },
+    {
+      refreshDeps: [currentSystem?.systemId],
+    }
+  );
 
   const dataSources = useMemo(() => {
     if ((systemList?.data ?? []).length > 0) {

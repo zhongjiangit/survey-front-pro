@@ -2,6 +2,7 @@
 
 import Role_Enum from '@/access/access-enum';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { getFirstMenu } from '@/lib/get-first-menu';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { cloneDeep } from 'lodash';
@@ -15,7 +16,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const originMenus = [
   {
@@ -168,10 +169,27 @@ export default function NavLinks() {
   const pathname = usePathname();
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [menus, setMenus] = useState(originMenus);
 
-  const menus = useMemo(() => {
+  // const menus = useMemo(() => {
+  //   const cloneMenus = cloneDeep(originMenus);
+  //   return cloneMenus.filter(item => {
+  //     if (item.access.includes(currentRole?.key as string)) {
+  //       if (item.children) {
+  //         const children = item.children.filter(child => {
+  //           return child.access.includes(currentRole?.key as string);
+  //         });
+  //         item.children = children;
+  //       }
+  //       return true;
+  //     }
+  //     return false;
+  //   });
+  // }, [currentRole]);
+
+  useEffect(() => {
     const cloneMenus = cloneDeep(originMenus);
-    return cloneMenus.filter(item => {
+    const filteredMenus = cloneMenus.filter(item => {
       if (item.access.includes(currentRole?.key as string)) {
         if (item.children) {
           const children = item.children.filter(child => {
@@ -183,11 +201,10 @@ export default function NavLinks() {
       }
       return false;
     });
-  }, [currentRole]);
-
-  useEffect(() => {
+    setMenus(filteredMenus);
+    const firstMenu = getFirstMenu(currentRole);
     // 根据当前路径设置选中的菜单项，items是含有children的数组，所以需要遍历,返回匹配的key
-    const key = menus
+    const key = filteredMenus
       .map(item => {
         if (pathname.includes(item.key) && !item.children) {
           return item.key;
@@ -198,13 +215,16 @@ export default function NavLinks() {
         return null;
       })
       .filter(Boolean)[0];
-
     if (key && key !== selectedKeys[0]) {
       setSelectedKeys([key]);
-    } else if (menus.length && key === undefined) {
-      router.push('/forbidden');
+    } else if (
+      filteredMenus.length &&
+      key === undefined &&
+      firstMenu !== pathname
+    ) {
+      router.push(firstMenu);
     }
-  }, [menus, pathname, router, selectedKeys]);
+  }, [currentRole, pathname, router, selectedKeys]);
 
   const onSelect: MenuProps['onSelect'] = e => {
     setSelectedKeys(e.selectedKeys);

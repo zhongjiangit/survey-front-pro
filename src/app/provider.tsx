@@ -41,7 +41,7 @@ export function Provider({ colorScheme, children }: Props) {
         router.push(firstMenu);
       }
     }
-  }, [roles, setCurrentRole, setRoles]);
+  }, [roles, router, setCurrentRole, setRoles]);
 
   useEffect(() => {
     if (!isProd) {

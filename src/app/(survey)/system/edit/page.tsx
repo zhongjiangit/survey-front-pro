@@ -2,7 +2,7 @@
 
 import Api from '@/api';
 import Breadcrumbs from '@/components/common/breadcrumbs';
-import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useRequest } from 'ahooks';
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
@@ -12,14 +12,22 @@ import NotFound from './not-found';
 export default function Page() {
   const searchParams = useSearchParams();
   const selectedId = searchParams.get('id');
-  const user = useSurveyUserStore(state => state.user);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
   // 使用ahooks的useRequest
-  const { data: systemList, loading: getSystemListLoading } = useRequest(() => {
-    return Api.getSystemListAll({
-      currentSystemId: user?.systems[0].systemId,
-    });
-  });
+  const { data: systemList, loading: getSystemListLoading } = useRequest(
+    () => {
+      if (!currentSystem?.systemId) {
+        return Promise.reject('currentSystem is not exist');
+      }
+      return Api.getSystemListAll({
+        currentSystemId: currentSystem.systemId,
+      });
+    },
+    {
+      refreshDeps: [currentSystem?.systemId],
+    }
+  );
 
   const dataSources = useMemo(() => {
     if ((systemList?.data ?? []).length > 0) {
