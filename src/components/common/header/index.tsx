@@ -6,6 +6,7 @@ import {
   DeveloperFlags,
   useGlobalSettingsStore,
 } from '@/contexts/useGlobalSettingsStore';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLongPress } from 'react-use';
@@ -20,6 +21,7 @@ interface HeaderProps {
 export default function Header({ isThemeShow = false }: HeaderProps) {
   const isTouch = useTouch();
   const developerFlags = useGlobalSettingsStore(state => state.developerFlags);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const setDeveloperFlags = useGlobalSettingsStore(
     state => state.setDeveloperFlags
   );
@@ -59,7 +61,7 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
 
       <div className="flex items-center gap-2">
         {isThemeShow && <ThemeSwitcher />}
-        <AvatarDropdown />
+        {currentRole?.id && <AvatarDropdown />}
       </div>
     </div>
   );

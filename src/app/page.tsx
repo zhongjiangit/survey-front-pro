@@ -36,7 +36,7 @@ export default function Page() {
   return (
     <main className="flex min-h-screen flex-col p-6">
       <div className="flex h-16 md:h-20 shrink-0 items-end rounded-lg bg-sky-100 dark:bg-sky-900 p-4">
-        <Header isThemeShow />
+        <Header isThemeShow={false} />
       </div>
       <div className="relative mt-4 flex grow flex-col-reverse sm:flex-col gap-4 md:flex-row">
         {developerFlags ? (

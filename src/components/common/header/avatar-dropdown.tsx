@@ -18,17 +18,14 @@ import OrgSwitchModal from './switch-modal/org-switch-modal';
 import RoleSwitchModal from './switch-modal/role-switch-modal';
 import SystemSwitchModal from './switch-modal/system-switch-modal';
 
-export type GlobalHeaderRightProps = {
-  menu?: boolean;
-  children?: React.ReactNode;
-};
+export type GlobalHeaderRightProps = {};
 
-export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
-  menu,
-  children,
-}) => {
+export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
   const user = useSurveyUserStore(state => state.user);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+  const setCurrentRole = useSurveyCurrentRoleStore(
+    state => state.setCurrentRole
+  );
   const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
@@ -37,6 +34,13 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
    * 退出登录，并且将当前的 url 保存
    */
   const loginOut = () => {
+    setCurrentRole({
+      id: undefined,
+      isActive: false,
+      key: '',
+      label: '',
+      name: undefined,
+    });
     // 清空local storage
     localStorage.clear();
     // 跳转到登录页
