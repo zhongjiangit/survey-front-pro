@@ -253,13 +253,13 @@ const NewCollectSet = () => {
                 </div>
               ))}
 
-            {items.length > 0 && (
+            {/* {items.length > 0 && (
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                 <Button disabled htmlType="submit">
                   提交调查
                 </Button>
               </Form.Item>
-            )}
+            )} */}
           </Form>
         </div>
         {loading ? (

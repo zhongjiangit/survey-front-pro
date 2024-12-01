@@ -21,7 +21,7 @@ const NewCollectItem: React.FC<Props> = ({
 
   type FieldType = {
     label?: string;
-    required?: string;
+    isRequired?: string;
     standards?: string;
   };
 
@@ -49,7 +49,7 @@ const NewCollectItem: React.FC<Props> = ({
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
-          initialValues={{ required: true }}
+          initialValues={{ required: false }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
@@ -64,7 +64,7 @@ const NewCollectItem: React.FC<Props> = ({
           </Form.Item>
           <Form.Item<FieldType>
             label="是否必填"
-            name="required"
+            name="isRequired"
             rules={[{ required: true, message: '请选择是否必填!' }]}
           >
             <Switch />
@@ -72,9 +72,9 @@ const NewCollectItem: React.FC<Props> = ({
           <Form.Item<FieldType>
             label="评分准则"
             name="standards"
-            rules={[{ required: false, message: '请输入提醒事项!' }]}
+            rules={[{ required: false, message: '请输入评分准则!' }]}
           >
-            <Input type="input" placeholder="输入提醒事项" />
+            <Input type="input" placeholder="输入评分准则" />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

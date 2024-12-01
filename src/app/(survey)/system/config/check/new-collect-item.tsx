@@ -81,6 +81,7 @@ const NewCollectItem: React.FC<Props> = ({
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
           onFinish={onFinish}
+          initialValues={{ isRequired: false }}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
@@ -112,11 +113,7 @@ const NewCollectItem: React.FC<Props> = ({
               }))}
             />
           </Form.Item>
-          <Form.Item
-            label="提醒事项"
-            name="itemMemo"
-            rules={[{ required: true, message: '请输入提醒事项!' }]}
-          >
+          <Form.Item label="提醒事项" name="itemMemo">
             <Input type="input" placeholder="输入提醒事项" />
           </Form.Item>
 
