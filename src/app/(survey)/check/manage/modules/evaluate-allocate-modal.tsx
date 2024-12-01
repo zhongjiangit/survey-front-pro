@@ -78,9 +78,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
       },
       {
         manual: true,
-        onSuccess(response) {
-          console.log('listReviewAssignByExpert', response);
-        },
+        onSuccess(response) {},
       }
     );
 
@@ -97,9 +95,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     },
     {
       manual: true,
-      onSuccess(response) {
-        console.log('listReviewAssignByFill', response);
-      },
+      onSuccess(response) {},
     }
   );
 
@@ -122,9 +118,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     },
     {
       manual: true,
-      onSuccess(response) {
-        console.log('listFillsByTaskPage', response);
-      },
+      onSuccess(response) {},
     }
   );
 
@@ -141,9 +135,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     },
     {
       manual: true,
-      onSuccess(response) {
-        console.log('getExpertListByTags', response);
-      },
+      onSuccess(response) {},
     }
   );
 
@@ -164,9 +156,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     },
     {
       manual: true,
-      onSuccess(response) {
-        console.log('getExpertListByTags', response);
-      },
+      onSuccess(response) {},
     }
   );
 
@@ -188,9 +178,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     },
     {
       manual: true,
-      onSuccess(response) {
-        console.log('getExpertListByTags', response);
-      },
+      onSuccess(response) {},
     }
   );
 
@@ -239,7 +227,6 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
 
   const onChange = (list: string[]) => {
     setAssignedExperts(list);
-    console.log(list);
   };
 
   const onExpertCheckAllChange: CheckboxProps['onChange'] = e => {
@@ -351,7 +338,6 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
           <Checkbox
             checked={assignedFills.includes(record.singleFillId)}
             onChange={e => {
-              console.log(e.target.checked);
               if (e.target.checked) {
                 setAssignedFills([...assignedFills, record.singleFillId]);
               } else {
@@ -520,6 +506,8 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
                     dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                     treeData={selectTreeData}
                     placeholder="请选择专家标签进行过滤"
+                    treeCheckable={true}
+                    showCheckedStrategy={'SHOW_PARENT'}
                     treeDefaultExpandAll
                     multiple
 

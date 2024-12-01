@@ -1,6 +1,7 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import {
   ApartmentOutlined,
@@ -23,7 +24,13 @@ export type GlobalHeaderRightProps = {};
 export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
   const user = useSurveyUserStore(state => state.user);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
-
+  const setCurrentRole = useSurveyCurrentRoleStore(
+    state => state.setCurrentRole
+  );
+  const setCurrentSystem = useSurveySystemStore(
+    state => state.setCurrentSystem
+  );
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
@@ -31,36 +38,44 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
   /**
    * 退出登录，并且将当前的 url 保存
    */
-  const loginOut = useCallback(() => {
+  const loginOut = () => {
+    setCurrentSystem({
+      ...currentSystem,
+      systemName: '',
+    });
+    setCurrentRole({
+      id: undefined,
+      isActive: false,
+      key: '',
+      label: '',
+      name: undefined,
+    });
     // 清空local storage
     localStorage.clear();
     // 跳转到登录页
     router.push('/');
-  }, [router]);
+  };
 
-  const onMenuClick = useCallback(
-    (event: MenuInfo) => {
-      const { key } = event;
-      if (key === 'logout') {
-        loginOut();
-        return;
-      }
-      if (key === 'role') {
-        setIsRoleModalOpen(true);
-        return;
-      }
-      if (key === 'org') {
-        setIsOrgModalOpen(true);
-        return;
-      }
-      if (key === 'system') {
-        setIsSystemModalOpen(true);
-        return;
-      }
-      // history.push(`/account/${key}`);
-    },
-    [loginOut]
-  );
+  const onMenuClick = useCallback((event: MenuInfo) => {
+    const { key } = event;
+    if (key === 'logout') {
+      loginOut();
+      return;
+    }
+    if (key === 'role') {
+      setIsRoleModalOpen(true);
+      return;
+    }
+    if (key === 'org') {
+      setIsOrgModalOpen(true);
+      return;
+    }
+    if (key === 'system') {
+      setIsSystemModalOpen(true);
+      return;
+    }
+    // history.push(`/account/${key}`);
+  }, []);
 
   const items: MenuProps['items'] = [
     {

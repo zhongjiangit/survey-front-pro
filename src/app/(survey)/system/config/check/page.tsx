@@ -88,6 +88,20 @@ const NewCheckSet = () => {
 
   const { run: createDetails, loading: createLoading } = useRequest(
     (items, dimensions) => {
+      if (items && items?.length === 0) {
+        messageApi.open({
+          type: 'error',
+          content: '请添加题目',
+        });
+        return Promise.reject('请添加题目');
+      }
+      if (dimensions && dimensions?.length === 0) {
+        messageApi.open({
+          type: 'error',
+          content: '请添加评分维度',
+        });
+        return Promise.reject('请添加评分维度');
+      }
       // 删除items中的id
       items.forEach((item: any) => {
         delete item.id;

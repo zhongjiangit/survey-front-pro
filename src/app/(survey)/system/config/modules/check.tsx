@@ -65,7 +65,7 @@ const Check = ({ system }: CheckProps) => {
   const { run: createOutline, loading: submitLoading } = useRequest(
     params => {
       return Api.createTemplateOutline({
-        currentSystemId: params.currentSystemId,
+        currentSystemId: system.id,
         templateType: params.templateType,
         templateTitle: params.templateTitle,
         isValid: params.isValid, // or 0, depending on your logic
@@ -159,7 +159,7 @@ const Check = ({ system }: CheckProps) => {
     <main className="relative">
       <Button
         type="primary"
-        className="absolute -top-14 right-0"
+        style={{ position: 'absolute', right: 0, top: -56 }}
         onClick={() => {
           setCurrentTemplate(undefined);
           setOpen(true);

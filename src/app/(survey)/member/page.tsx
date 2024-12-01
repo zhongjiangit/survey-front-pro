@@ -211,6 +211,8 @@ function Page() {
                         multiple
                         treeDefaultExpandAll
                         treeData={memberTags}
+                        treeCheckable={true}
+                        showCheckedStrategy={'SHOW_PARENT'}
                       />
                     </Form.Item>
                     <Form.Item>

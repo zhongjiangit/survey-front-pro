@@ -10,8 +10,6 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
   const [form] = Form.useForm();
 
   const onClose = () => {
-    console.log(1214);
-
     form.setFieldsValue({
       cellphone: '139820881',
     });

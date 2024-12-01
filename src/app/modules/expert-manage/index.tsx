@@ -1,5 +1,6 @@
 'use client';
 
+import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useRequest } from 'ahooks';
@@ -23,7 +24,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import Api from '@/api';
 
 interface ExpertManageProps {
   canEdit: boolean;
@@ -332,6 +332,8 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
             multiple
             treeDefaultExpandAll
             treeData={[]}
+            treeCheckable={true}
+            showCheckedStrategy={'SHOW_PARENT'}
           />
         </Form.Item>
       </Modal>
