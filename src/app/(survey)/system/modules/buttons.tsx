@@ -1,5 +1,7 @@
-import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Button, Popconfirm, Tooltip } from 'antd';
+import { cn } from '@/lib/utils';
+import { DeleteOutlined } from '@ant-design/icons';
+import { PencilIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { Popconfirm, Tooltip } from 'antd';
 import { Bolt } from 'lucide-react';
 import Link from 'next/link';
 
@@ -41,12 +43,14 @@ export function DeleteSystem({
       description="删除后将不可恢复，您确定要删除此系统吗？"
       onConfirm={() => deleteSystem({ id })}
     >
-      <Button
-        danger
-        className="rounded-md border p-1 h-7 w-7 hover:bg-gray-100 hover:text-blue-300 duration-300"
+      <div
+        className={cn(
+          ' cursor-pointer rounded-md border p-1 h-7 w-7 hover:bg-gray-100 hover:text-blue-300 duration-300',
+          'flex items-center justify-center text-red-500 hover:text-red-700 duration-300 pl-1.5'
+        )}
       >
-        <TrashIcon className="w-4 h-4" />
-      </Button>
+        <DeleteOutlined className="w-4 h-4" />
+      </div>
     </Popconfirm>
   );
 }

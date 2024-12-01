@@ -54,6 +54,7 @@ export function Provider({ colorScheme, children }: Props) {
       <ConfigProvider
         locale={zhCN}
         theme={{
+          // hashed: false,
           algorithm:
             colorScheme === ColorScheme.DARK ? darkAlgorithm : defaultAlgorithm,
         }}

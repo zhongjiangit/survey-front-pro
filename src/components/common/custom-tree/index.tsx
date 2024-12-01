@@ -45,7 +45,10 @@ function CustomTree(props: CustomTreeProps) {
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
-  const [nodeTitle, setNodeTitle] = useState('');
+  const [currentNode, setCurrentNode] = useState<{
+    key: number | string;
+    title: string;
+  }>();
 
   /**
    * 初始化数据
@@ -143,6 +146,62 @@ function CustomTree(props: CustomTreeProps) {
   );
 
   /**
+   * 保存节点
+   * @param key
+   * @param title
+   * @returns
+   */
+  const saveNode = useCallback(
+    (key: string, title: string) => {
+      if (!title) {
+        messageApi.open({
+          type: 'error',
+          content: '请输入节点名称',
+        });
+        return;
+      }
+      if (treeData.length === 0) {
+        setTreeSourceData([{ key, title }]);
+        setSelectedKeysData([key]);
+        // messageApi.open({
+        //   type: 'success',
+        //   content: '节点保存成功',
+        // });
+        return;
+      }
+      // 递归遍历树节点，找到指定节点并更新节点名称
+      const saveNode = (
+        treeData: CustomTreeDataNode[],
+        key: string,
+        title: string
+      ) => {
+        return treeData.map(node => {
+          if (node.key == key) {
+            node.title = currentNode?.title;
+            node.type = 'text';
+          } else if (node.children) {
+            saveNode(node.children, key, title);
+          }
+          return node;
+        });
+      };
+      setTreeSourceData(saveNode(treeData, key, title));
+      setCurrentNode(undefined);
+      // messageApi.open({
+      //   type: 'success',
+      //   content: '节点保存成功',
+      // });
+    },
+    [
+      treeData,
+      setTreeSourceData,
+      messageApi,
+      setSelectedKeysData,
+      currentNode?.title,
+    ]
+  );
+
+  /**
    * renderInput
    */
   const renderInput = useMemo(() => {
@@ -150,14 +209,20 @@ function CustomTree(props: CustomTreeProps) {
       <Input
         type="input"
         size="small"
-        // value={nodeTitle}
+        // value={currentNode?.title}
         placeholder="请输入节点名称"
         onChange={e => {
-          setNodeTitle(e.target.value);
+          setCurrentNode({
+            key: currentNode?.key as string | number,
+            title: e.target.value,
+          });
         }}
+        // onBlur={e =>
+        //   saveNode(String(currentNode?.key) || uuidv4(), e.target.value)
+        // }
       />
     );
-  }, []);
+  }, [currentNode?.key, saveNode]);
 
   /**
    * 创建节点
@@ -224,53 +289,6 @@ function CustomTree(props: CustomTreeProps) {
     };
     setTreeData(editNode(treeData, String(selectedKeys[0])));
   }, [checkNode, renderInput, selectedKeys, treeData]);
-
-  /**
-   * 保存节点
-   * @param key
-   * @param title
-   * @returns
-   */
-  const saveNode = (key: string, title: string) => {
-    if (!title) {
-      messageApi.open({
-        type: 'error',
-        content: '请输入节点名称',
-      });
-      return;
-    }
-    if (treeData.length === 0) {
-      setTreeSourceData([{ key, title }]);
-      setSelectedKeysData([key]);
-      // messageApi.open({
-      //   type: 'success',
-      //   content: '节点保存成功',
-      // });
-      return;
-    }
-    // 递归遍历树节点，找到指定节点并更新节点名称
-    const saveNode = (
-      treeData: CustomTreeDataNode[],
-      key: string,
-      title: string
-    ) => {
-      return treeData.map(node => {
-        if (node.key == key) {
-          node.title = nodeTitle;
-          node.type = 'text';
-        } else if (node.children) {
-          saveNode(node.children, key, title);
-        }
-        return node;
-      });
-    };
-    setTreeSourceData(saveNode(treeData, key, title));
-    setNodeTitle('');
-    // messageApi.open({
-    //   type: 'success',
-    //   content: '节点保存成功',
-    // });
-  };
 
   /**
    * 打开/关闭节点
@@ -422,7 +440,7 @@ function CustomTree(props: CustomTreeProps) {
             <Tooltip title="保存节点">
               <SaveOutlined
                 className="hover:text-blue-400"
-                onClick={() => saveNode(uuidv4(), nodeTitle)}
+                onClick={() => saveNode(uuidv4(), currentNode?.title as string)}
               />
             </Tooltip>
           </div>
@@ -457,7 +475,10 @@ function CustomTree(props: CustomTreeProps) {
                       <SaveOutlined
                         className="hover:text-blue-400"
                         onClick={() =>
-                          saveNode(nodeData.key as string, nodeTitle)
+                          saveNode(
+                            nodeData.key as string,
+                            currentNode?.title as string
+                          )
                         }
                       />
                     </Tooltip>
@@ -475,7 +496,10 @@ function CustomTree(props: CustomTreeProps) {
                         <EditOutlined
                           className="hover:text-blue-400"
                           onClick={() => {
-                            setNodeTitle(nodeData.title as string);
+                            setCurrentNode({
+                              key: nodeData.key as string | number,
+                              title: nodeData.title as string,
+                            });
                             onEdit();
                           }}
                         />

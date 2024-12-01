@@ -49,10 +49,6 @@ export default function Page() {
     return null;
   }, [systemList?.data, selectedId]);
 
-  console.log('systemList', systemList);
-  console.log('system', system);
-  console.log('selectedId', selectedId);
-
   /**
    * 设置url参数
    */

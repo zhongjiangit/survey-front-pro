@@ -137,7 +137,7 @@ const SystemForm = (props: Props) => {
           label="系统名称"
           rules={[{ required: true }]}
         >
-          <Input type="input" placeholder="请输入系统名称" />
+          <Input placeholder="请输入系统名称" />
         </Form.Item>
         <Form.Item
           name="freeTimes"
@@ -147,7 +147,7 @@ const SystemForm = (props: Props) => {
           <InputNumber
             min={0}
             placeholder="请输入功能免费次数"
-            className="w-full"
+            style={{ width: '100%' }}
           />
         </Form.Item>
         <Form.Item
@@ -166,7 +166,7 @@ const SystemForm = (props: Props) => {
             min={0}
             max={4}
             placeholder="请输入系统最多允许层级"
-            className="w-full"
+            style={{ width: '100%' }}
             disabled={initialValues?.id !== undefined}
             onChange={e => {
               if (e) form.setFieldValue('levelNames', e);

@@ -7,7 +7,6 @@ import CustomTree, {
 } from '@/components/common/custom-tree';
 import { useRequest } from 'ahooks';
 import { Button, Col, Divider, Drawer, message, Row, Space, Tag } from 'antd';
-import { TagIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 interface BasicProps {
@@ -243,8 +242,8 @@ const Basic = (props: BasicProps) => {
                     人员标签：
                   </span>
                   <Tag
-                    className="flex items-center gap-1 cursor-pointer hover:scale-105"
-                    icon={<TagIcon className="h-3 w-3" />}
+                    className="flex items-center gap-1 cursor-pointer hover:scale-105 flex-nowrap"
+                    // icon={<TagIcon className="h-3 w-3" />}
                     color="#2db7f5"
                     onClick={() => {
                       getTagList(2);
@@ -265,7 +264,7 @@ const Basic = (props: BasicProps) => {
                   </span>
                   <Tag
                     className="flex items-center gap-1 cursor-pointer hover:scale-105"
-                    icon={<TagIcon className="h-3 w-3" />}
+                    // icon={<TagIcon className="h-3 w-3" />}
                     color="#87d068"
                     onClick={() => {
                       getTagList(3);
@@ -300,7 +299,7 @@ const Basic = (props: BasicProps) => {
               <div className="flex gap-2">
                 <Tag
                   className="flex items-center gap-1 cursor-pointer hover:scale-105"
-                  icon={<TagIcon className="h-3 w-3" />}
+                  // icon={<TagIcon className="h-3 w-3" />}
                   color="#3b5999"
                   onClick={() => {
                     getTagList(1);

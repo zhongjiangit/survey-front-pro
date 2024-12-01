@@ -110,7 +110,7 @@ export default function SystemsTableList({ query }: { query: string }) {
         ),
       },
     ],
-    []
+    [deleteSystem]
   );
 
   return (
