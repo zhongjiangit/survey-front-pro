@@ -8,11 +8,12 @@ import {
   SaveOutlined,
 } from '@ant-design/icons';
 import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
-import { Input, message, Popconfirm, Tree } from 'antd';
+import { message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
+import RenderInput from './RenderInput';
 
 export interface CustomTreeDataNode extends TreeDataNode {
   type?: string;
@@ -200,30 +201,6 @@ function CustomTree(props: CustomTreeProps) {
       currentNode?.title,
     ]
   );
-
-  /**
-   * renderInput
-   */
-  const renderInput = useMemo(() => {
-    return (
-      <Input
-        type="input"
-        size="small"
-        // value={currentNode?.title}
-        placeholder="请输入节点名称"
-        onChange={e => {
-          setCurrentNode({
-            key: currentNode?.key as string | number,
-            title: e.target.value,
-          });
-        }}
-        // onBlur={e =>
-        //   saveNode(String(currentNode?.key) || uuidv4(), e.target.value)
-        // }
-      />
-    );
-  }, [currentNode?.key, saveNode]);
-
   /**
    * 创建节点
    * @returns
@@ -238,8 +215,9 @@ function CustomTree(props: CustomTreeProps) {
       key: uuidv4(),
       type: 'input',
       isLeaf: false,
-      title: renderInput,
+      title: '',
     };
+    setCurrentNode({ key: node.key, title: '' });
     // 递归遍历树节点，找到指定节点并添加子节点
     const addNode = (
       treeData: CustomTreeDataNode[],
@@ -279,7 +257,6 @@ function CustomTree(props: CustomTreeProps) {
     const editNode = (treeData: CustomTreeDataNode[], key: string) => {
       return treeData.map(node => {
         if (node.key == key) {
-          node.title = renderInput;
           node.type = 'input';
         } else if (node.children) {
           editNode(node.children, key);
@@ -288,7 +265,7 @@ function CustomTree(props: CustomTreeProps) {
       });
     };
     setTreeData(editNode(treeData, String(selectedKeys[0])));
-  }, [checkNode, renderInput, selectedKeys, treeData]);
+  }, [checkNode, selectedKeys, treeData]);
 
   /**
    * 打开/关闭节点
@@ -406,6 +383,14 @@ function CustomTree(props: CustomTreeProps) {
         ar.splice(i! + 1, 0, dragObj!);
       }
     }
+    // 判断data顶级节点是否只有一个，如果只有一个则不允许拖动
+    if (data.length !== 1) {
+      messageApi.open({
+        type: 'error',
+        content: '不允许拖动到根节点',
+      });
+      return;
+    }
     setTreeSourceData(data);
   };
 
@@ -429,6 +414,10 @@ function CustomTree(props: CustomTreeProps) {
     return -1; // 如果未找到节点，返回 -1
   };
 
+  useEffect(() => {
+    setSelectedKeys([]);
+  }, []);
+
   return (
     <>
       {contextHolder}
@@ -436,7 +425,10 @@ function CustomTree(props: CustomTreeProps) {
       <div className="flex justify-start items-start">
         {treeData.length === 0 && (
           <div className="flex gap-3 items-center">
-            {renderInput}
+            <RenderInput
+              currentNode={currentNode}
+              setCurrentNode={setCurrentNode}
+            ></RenderInput>
             <Tooltip title="保存节点">
               <SaveOutlined
                 className="hover:text-blue-400"
@@ -463,12 +455,28 @@ function CustomTree(props: CustomTreeProps) {
         onDrop={onDrop}
         titleRender={nodeData => {
           const depth = findDepth(treeData, nodeData.key as string);
+          console.log(nodeData, 'nodeData', nodeData.key == currentNode?.key);
+
           return (
-            <div className="group flex items-center justify-center gap-1">
-              {typeof nodeData.title === 'function'
-                ? nodeData.title(nodeData)
-                : nodeData.title}
-              {nodeData.key == selectedKeys[0] && (
+            <div
+              className="group flex items-center justify-center gap-1"
+              onClick={() => {
+                console.log('click', nodeData.key, nodeData.title);
+
+                setCurrentNode({
+                  key: nodeData.key as string,
+                  title: nodeData.title as string,
+                });
+              }}
+            >
+              {nodeData.type === 'input' && (
+                <RenderInput
+                  currentNode={currentNode}
+                  setCurrentNode={setCurrentNode}
+                ></RenderInput>
+              )}
+              {nodeData.type !== 'input' && (nodeData.title as string)}
+              {nodeData.key == currentNode?.key && (
                 <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                   {nodeData.type === 'input' ? (
                     <Tooltip title="保存节点">
@@ -496,9 +504,15 @@ function CustomTree(props: CustomTreeProps) {
                         <EditOutlined
                           className="hover:text-blue-400"
                           onClick={() => {
+                            console.log(
+                              nodeData.key.toString(),
+                              nodeData.title?.toString(),
+                              'oneidt'
+                            );
+
                             setCurrentNode({
-                              key: nodeData.key as string | number,
-                              title: nodeData.title as string,
+                              key: nodeData.key?.toString() as string | number,
+                              title: nodeData.title?.toString() as string,
                             });
                             onEdit();
                           }}
