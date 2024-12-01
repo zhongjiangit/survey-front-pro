@@ -1,6 +1,7 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import {
   ApartmentOutlined,
@@ -26,6 +27,10 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
   const setCurrentRole = useSurveyCurrentRoleStore(
     state => state.setCurrentRole
   );
+  const setCurrentSystem = useSurveySystemStore(
+    state => state.setCurrentSystem
+  );
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
@@ -34,6 +39,10 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
    * 退出登录，并且将当前的 url 保存
    */
   const loginOut = () => {
+    setCurrentSystem({
+      ...currentSystem,
+      systemName: '',
+    });
     setCurrentRole({
       id: undefined,
       isActive: false,

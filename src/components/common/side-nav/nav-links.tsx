@@ -30,7 +30,6 @@ export const originMenus = [
     key: '/member',
     icon: <UsersRound className="w-4 h-4" />,
     access: [
-      Role_Enum.PLATFORM_ADMIN,
       Role_Enum.SYSTEM_ADMIN,
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,
@@ -41,7 +40,6 @@ export const originMenus = [
     key: '/expert',
     icon: <BookUser className="w-4 h-4" />,
     access: [
-      Role_Enum.PLATFORM_ADMIN,
       Role_Enum.SYSTEM_ADMIN,
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,
@@ -52,7 +50,6 @@ export const originMenus = [
     key: '/collect',
     icon: <SquareLibrary className="w-4 h-4" />,
     access: [
-      Role_Enum.PLATFORM_ADMIN,
       Role_Enum.SYSTEM_ADMIN,
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,
@@ -63,7 +60,6 @@ export const originMenus = [
         label: '管理',
         key: '/collect/manage',
         access: [
-          Role_Enum.PLATFORM_ADMIN,
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
@@ -73,7 +69,6 @@ export const originMenus = [
         label: '分配',
         key: '/collect/allocate',
         access: [
-          Role_Enum.PLATFORM_ADMIN,
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
@@ -83,7 +78,6 @@ export const originMenus = [
         label: '填报',
         key: '/collect/fill',
         access: [
-          Role_Enum.PLATFORM_ADMIN,
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
@@ -97,7 +91,6 @@ export const originMenus = [
     key: '/check',
     icon: <BookOpenCheck className="w-4 h-4" />,
     access: [
-      Role_Enum.PLATFORM_ADMIN,
       Role_Enum.SYSTEM_ADMIN,
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,
@@ -109,7 +102,6 @@ export const originMenus = [
         label: '管理',
         key: '/check/manage',
         access: [
-          Role_Enum.PLATFORM_ADMIN,
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
@@ -119,7 +111,6 @@ export const originMenus = [
         label: '分配',
         key: '/check/allocate',
         access: [
-          Role_Enum.PLATFORM_ADMIN,
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
@@ -129,7 +120,6 @@ export const originMenus = [
         label: '填报',
         key: '/check/fill',
         access: [
-          Role_Enum.PLATFORM_ADMIN,
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
@@ -139,7 +129,7 @@ export const originMenus = [
       {
         label: '评审',
         key: '/check/review',
-        access: [Role_Enum.PLATFORM_ADMIN, Role_Enum.EXPERT],
+        access: [Role_Enum.EXPERT],
       },
     ],
   },
@@ -160,7 +150,7 @@ export const originMenus = [
     label: '充值/续费',
     key: '/recharge',
     icon: <Cable className="w-4 h-4" />,
-    access: [Role_Enum.PLATFORM_ADMIN, Role_Enum.SYSTEM_ADMIN],
+    access: [Role_Enum.SYSTEM_ADMIN],
   },
 ];
 

@@ -210,6 +210,8 @@ const Node = (props: NodeProps) => {
     }
   };
 
+  console.log('nodeSelected', nodeSelected);
+
   return (
     <div className="flex h-auto gap-3 min-h-[78vh]">
       {contextHolder}
@@ -231,7 +233,7 @@ const Node = (props: NodeProps) => {
       <div className="flex-1 shadow-md h-[78vh] p-2 overflow-auto">
         <div>
           <Divider orientation="left">单位基本信息</Divider>
-          {nodeSelected ? (
+          {nodeSelected && !isNaN(Number(nodeSelected)) ? (
             <Form
               {...layout}
               form={form}
@@ -273,6 +275,8 @@ const Node = (props: NodeProps) => {
                   multiple
                   treeDefaultExpandAll
                   treeData={treeSelectData}
+                  treeCheckable={true}
+                  showCheckedStrategy={'SHOW_PARENT'}
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>

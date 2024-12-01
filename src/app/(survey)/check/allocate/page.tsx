@@ -99,8 +99,6 @@ const ToAllotTask = () => {
   //     }
   //   );
 
-  console.log('listAssignInspTaskData', listAssignInspTaskData);
-
   const operateButton = {
     allot: (record: any) => (
       <TaskDetailEditModal

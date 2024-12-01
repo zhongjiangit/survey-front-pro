@@ -225,6 +225,8 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               }}
               treeDefaultExpandAll
               treeData={memberTags}
+              treeCheckable={true}
+              showCheckedStrategy={'SHOW_PARENT'}
             />
           );
         },

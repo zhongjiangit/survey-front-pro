@@ -60,7 +60,6 @@ const Page = () => {
         currentFillTask?.taskId,
       ],
       onSuccess: data => {
-        console.log('listSingleFillData', data);
         const newPanes = [...items];
         data.data.forEach((item: any) => {
           const index = newTabIndex.current++;
@@ -99,7 +98,6 @@ const Page = () => {
       {
         manual: true,
         onSuccess: data => {
-          console.log('createSingleFill', data);
           const newActiveKey = `newTab${newTabIndex.current++}`;
           const newPanes = [...items];
           newPanes.push({

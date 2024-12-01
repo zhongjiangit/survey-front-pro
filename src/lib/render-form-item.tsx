@@ -1,6 +1,6 @@
 import { ZeroOrOneTypeEnum } from '@/types/CommonType';
-import { CaretDownOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Radio, Tree, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input, Radio, TreeSelect, Upload } from 'antd';
 const { TextArea } = Input;
 
 interface RenderFormItemProps {
@@ -11,6 +11,24 @@ interface RenderFormItemProps {
 
 const RenderFormItem = (props: RenderFormItemProps) => {
   const { type, option, item } = props;
+
+  const formatTreeData = (data: any) => {
+    return data.map((item: any) => {
+      if (item.children) {
+        return {
+          title: item.title,
+          value: item.key,
+          key: item.key,
+          children: formatTreeData(item.children),
+        };
+      }
+      return {
+        title: item.title,
+        value: item.key,
+        key: item.key,
+      };
+    });
+  };
 
   const renderFormItem = (key: string, option: any) => {
     switch (key) {
@@ -45,24 +63,39 @@ const RenderFormItem = (props: RenderFormItemProps) => {
 
       case 'tree':
         return (
-          <Tree
-            style={{ width: 400, paddingTop: 4 }}
-            switcherIcon={
-              <CaretDownOutlined className="absolute top-[7px] right-[7px]" />
-            }
-            checkable
-            treeData={[option]}
+          <TreeSelect
+            treeData={formatTreeData([option])}
+            treeCheckable={true}
+            showCheckedStrategy={'SHOW_PARENT'}
+            placeholder={'请选择'}
+            style={{
+              width: '100%',
+            }}
           />
         );
+      // return (
+      //   <Tree
+      //     style={{ width: 400, paddingTop: 4 }}
+      //     switcherIcon={
+      //       <CaretDownOutlined className="absolute top-[7px] right-[7px]" />
+      //     }
+      //     checkable
+      //     treeData={[option]}
+      //   />
+      // );
       default:
         break;
     }
   };
+
+  console.log('item', item);
+
   return (
     <Form.Item
       className="flex-1"
       label={item.itemCaption}
       name={item.templateItemId}
+      extra={<span className="text-red-500">{item?.itemMemo}</span>}
       rules={[
         {
           required: item.isRequired === ZeroOrOneTypeEnum.One,

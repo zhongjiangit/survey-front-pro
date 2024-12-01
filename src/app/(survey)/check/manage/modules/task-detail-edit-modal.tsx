@@ -381,6 +381,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           onChange={onFilterChange}
           onBlur={showConfirm}
           treeData={formatTreeData([tagList?.data.tags])}
+          treeCheckable={true}
+          showCheckedStrategy={'SHOW_PARENT'}
         />
       </div>
 
@@ -435,6 +437,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           onChange={onFilterChange}
           onBlur={showConfirm}
           treeData={formatTreeData([tagList?.data.tags])}
+          treeCheckable={true}
+          showCheckedStrategy={'SHOW_PARENT'}
         />
       </div>
       <div className="mr-5 text-blue-400 text-right">

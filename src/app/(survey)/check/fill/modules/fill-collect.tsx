@@ -47,9 +47,7 @@ const FillCollect = ({ singleFillId }: FillCollectProps) => {
         currentFillTask?.taskId,
         singleFillId,
       ],
-      onSuccess: data => {
-        console.log('data', data);
-      },
+      onSuccess: data => {},
     }
   );
 

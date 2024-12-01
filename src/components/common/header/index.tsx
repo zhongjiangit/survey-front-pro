@@ -7,6 +7,7 @@ import {
   useGlobalSettingsStore,
 } from '@/contexts/useGlobalSettingsStore';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLongPress } from 'react-use';
@@ -22,6 +23,7 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
   const isTouch = useTouch();
   const developerFlags = useGlobalSettingsStore(state => state.developerFlags);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const setDeveloperFlags = useGlobalSettingsStore(
     state => state.setDeveloperFlags
   );
@@ -55,7 +57,11 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
           className="hidden sm:block sm:text-md md:text-2xl hover:animate-pulse cursor-default"
           {...longPressEvent}
         >
-          四川鼎兴数智教育咨询有限公司
+          {currentSystem?.systemName
+            ? currentRole?.key === 'isPlatformManager'
+              ? '四川鼎兴数智教育咨询有限公司'
+              : currentSystem.systemName
+            : '试题抽检与征集'}
         </p>
       </div>
 
