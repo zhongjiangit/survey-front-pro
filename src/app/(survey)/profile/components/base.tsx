@@ -1,8 +1,13 @@
+'use client';
+
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { ProForm, ProFormText } from '@ant-design/pro-components';
 import { message } from 'antd';
 import React from 'react';
 
 const BaseView: React.FC = () => {
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+
   const handleFinish = async () => {
     message.success('更新基本信息成功');
   };
@@ -11,7 +16,7 @@ const BaseView: React.FC = () => {
       <div className="flex flex-col gap-4 min-w-56 max-w-96">
         <div>
           <span>现有名称：</span>
-          <span>张三</span>
+          <span>{currentRole?.name}</span>
         </div>
         <ProForm
           layout="horizontal"
