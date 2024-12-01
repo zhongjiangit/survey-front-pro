@@ -206,6 +206,8 @@ function CustomTree(props: CustomTreeProps) {
    * @returns
    */
   const onCreate = () => {
+    console.log(treeData, 'treeData');
+
     // 递归遍历树节点，如果树节点中已经有input类型节点，则不允许新增
     if (checkNode(treeData)) {
       return;
@@ -214,7 +216,6 @@ function CustomTree(props: CustomTreeProps) {
       // 生成 uuid 作为 key
       key: uuidv4(),
       type: 'input',
-      isLeaf: false,
       title: '',
     };
     setCurrentNode({ key: node.key, title: '' });
@@ -306,6 +307,7 @@ function CustomTree(props: CustomTreeProps) {
       });
     };
     setTreeSourceData(deleteNode(treeData, String(selectedKeys[0])));
+    setCurrentNode(undefined);
     // messageApi.open({
     //   type: 'success',
     //   content: '节点删除成功',
@@ -317,7 +319,6 @@ function CustomTree(props: CustomTreeProps) {
    * @param info
    */
   const onDragEnter: TreeProps['onDragEnter'] = info => {
-    console.log(info);
     // expandedKeys, set it when controlled is needed
     // setExpandedKeys(info.expandedKeys)
   };
@@ -327,7 +328,6 @@ function CustomTree(props: CustomTreeProps) {
    * @param info
    */
   const onDrop: TreeProps['onDrop'] = info => {
-    console.log(info);
     const dropKey = info.node.key;
     const dragKey = info.dragNode.key;
     const dropPos = info.node.pos.split('-');
@@ -338,20 +338,26 @@ function CustomTree(props: CustomTreeProps) {
       data: CustomTreeDataNode[],
       key: React.Key,
       callback: (
-        node: CustomTreeDataNode,
-        i: number,
-        data: CustomTreeDataNode[]
+        item: CustomTreeDataNode,
+        index: number,
+        arr: CustomTreeDataNode[]
       ) => void
-    ) => {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].key == key) {
-          return callback(data[i], i, data);
+    ): void => {
+      for (let index = 0; index < data.length; index++) {
+        const item = data[index];
+        if (item.key === key) {
+          return callback(item, index, data);
         }
-        if (data[i].children) {
-          loop(data[i].children!, key, callback);
+        if (item.children) {
+          const result = loop(item.children, key, callback);
+          if (result !== undefined) {
+            return result;
+          }
         }
       }
+      return;
     };
+
     const data = [...treeData];
 
     // Find dragObject
@@ -428,6 +434,9 @@ function CustomTree(props: CustomTreeProps) {
             <RenderInput
               currentNode={currentNode}
               setCurrentNode={setCurrentNode}
+              onSave={() => {
+                saveNode(uuidv4(), currentNode?.title as string);
+              }}
             ></RenderInput>
             <Tooltip title="保存节点">
               <SaveOutlined
@@ -455,14 +464,10 @@ function CustomTree(props: CustomTreeProps) {
         onDrop={onDrop}
         titleRender={nodeData => {
           const depth = findDepth(treeData, nodeData.key as string);
-          console.log(nodeData, 'nodeData', nodeData.key == currentNode?.key);
-
           return (
             <div
               className="group flex items-center justify-center gap-1"
               onClick={() => {
-                console.log('click', nodeData.key, nodeData.title);
-
                 setCurrentNode({
                   key: nodeData.key as string,
                   title: nodeData.title as string,
@@ -473,6 +478,12 @@ function CustomTree(props: CustomTreeProps) {
                 <RenderInput
                   currentNode={currentNode}
                   setCurrentNode={setCurrentNode}
+                  onSave={() => {
+                    saveNode(
+                      currentNode?.key as string,
+                      currentNode?.title as string
+                    );
+                  }}
                 ></RenderInput>
               )}
               {nodeData.type !== 'input' && (nodeData.title as string)}
@@ -504,12 +515,6 @@ function CustomTree(props: CustomTreeProps) {
                         <EditOutlined
                           className="hover:text-blue-400"
                           onClick={() => {
-                            console.log(
-                              nodeData.key.toString(),
-                              nodeData.title?.toString(),
-                              'oneidt'
-                            );
-
                             setCurrentNode({
                               key: nodeData.key?.toString() as string | number,
                               title: nodeData.title?.toString() as string,
