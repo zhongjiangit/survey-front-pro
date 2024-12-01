@@ -19,8 +19,8 @@ import React, { useEffect } from 'react';
 
 const MyFormItemContext = React.createContext<(string | number)[]>([]);
 
-// 各层级名称label枚举
-const levelNames = ['一', '二', '三', '四'];
+// 各层级名称label枚举,最多10级
+const levelNames = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
 
 interface MyFormItemGroupProps {
   prefix: string | number | (string | number)[];
@@ -164,7 +164,7 @@ const SystemForm = (props: Props) => {
         >
           <InputNumber
             min={0}
-            max={4}
+            max={10}
             placeholder="请输入系统最多允许层级"
             style={{ width: '100%' }}
             disabled={initialValues?.id !== undefined}
