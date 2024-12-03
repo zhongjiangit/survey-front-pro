@@ -19,24 +19,6 @@ interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
   itemData: ItemDataType;
 }
-// systemId	int		系统id
-// orgId	int		发布单位id
-// orgName	string		发布单位名称
-// staffId	int		发布成员id
-// staffName	string		发布成员名称
-// taskName	string		任务名称
-// beginDateFillEstimate	string		预计填报开始日期 yyyy-mm-dd
-// endDateFillEstimate	string		预计填报结束日期 yyyy-mm-dd
-// endDateFillActual	string	○	实际填报结束日期 yyyy-mm-dd，未结束不传
-// templateId	int		模板id
-// maxFillCount	int		最大可提交份数，0表示不限制
-// publishType	int		任务发布类型  1：按层级发布   2：指定人员发布
-// passPeople	int		通过人数
-// passCount	int		通过份数
-// FillPeople	int		填报人数
-// FillCount	int		填报份数
-// taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
-//  todo 发现一个bug:页面刷新后不会根据当前路由定位到菜单栏，需要手动点击一下才会定位到
 
 const ToAllotTask = () => {
   const operateButton = {

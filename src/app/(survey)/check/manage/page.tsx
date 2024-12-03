@@ -33,7 +33,7 @@ const CollectManage = () => {
         },
       ];
     }
-  }, []);
+  }, [currentRole]);
   return <Tabs defaultActiveKey="1" items={items} />;
 };
 

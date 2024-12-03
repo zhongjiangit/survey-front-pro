@@ -12,7 +12,7 @@ import type { UploadProps } from 'antd';
 import { Button, Divider, Empty, Form, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import NewCollectItem from './new-collect-item';
+import NewCollectItem from '../modules/new-collect-item';
 import ScoreTable from './score-table';
 
 export type NewCollectItemType = CollectItemType & { id: number };
@@ -35,7 +35,7 @@ const props: UploadProps = {
   },
 };
 
-const NewCheckSet = () => {
+export default function Page() {
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
   const tempId = searchParams.get('tempId');
@@ -300,6 +300,4 @@ const NewCheckSet = () => {
       </div>
     </main>
   );
-};
-
-export default NewCheckSet;
+}

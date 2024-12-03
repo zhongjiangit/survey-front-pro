@@ -12,7 +12,7 @@ import type { TreeDataNode, UploadProps } from 'antd';
 import { Button, Divider, Empty, Form, Input, message, Spin } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import NewCollectItem from './new-collect-item';
+import NewCollectItem from '../modules/new-collect-item';
 
 const { TextArea } = Input;
 
@@ -71,7 +71,7 @@ const treeData: TreeDataNode[] = [
   },
 ];
 
-const NewCollectSet = () => {
+export default function Page() {
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
   const tempId = searchParams.get('tempId');
@@ -295,6 +295,4 @@ const NewCollectSet = () => {
       </div>
     </main>
   );
-};
-
-export default NewCollectSet;
+}
