@@ -9,8 +9,6 @@ export enum DeveloperFlags {
 }
 
 type GlobalSettingsStore = {
-  localCookies: string;
-  setLocalCookies: (value: string) => void;
   /**
    * developer flags
    */
@@ -24,11 +22,6 @@ type GlobalSettingsStore = {
 export const useGlobalSettingsStore = create<GlobalSettingsStore>()(
   persist(
     (set, get) => ({
-      localCookies: '',
-      setLocalCookies: value =>
-        set({
-          localCookies: value,
-        }),
       developerFlags: DeveloperFlags.NONE,
       setDeveloperFlags: value =>
         set({
