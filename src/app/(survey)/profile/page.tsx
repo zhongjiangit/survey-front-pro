@@ -2,9 +2,9 @@
 import { Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useMedia } from 'react-use';
-import BaseView from './components/base';
-import Phone from './components/phone';
-import SecurityView from './components/security';
+import BaseView from './modules/base';
+import Phone from './modules/phone';
+import SecurityView from './modules/security';
 
 type SettingsStateKeys = 'base' | 'security' | 'notification';
 type SettingsState = {

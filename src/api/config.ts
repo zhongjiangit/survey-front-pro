@@ -1,7 +1,4 @@
 export const baseUrl =
-  process.env.NODE_ENV === 'production'
-    ? 'http://8.137.101.138:19080'
-    : '/api';
-    // : '/server-api';
+  process.env.NODE_ENV === 'production' ? 'http://8.137.101.138:19080' : '/api';
 
 export const isProd = process.env.NODE_ENV === 'production';

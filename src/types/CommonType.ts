@@ -1,3 +1,16 @@
+/**
+ * 权限枚举
+ */
+export const Role_Enum = {
+  NOT_LOGIN: 'isNotLogin',
+  PLATFORM_ADMIN: 'isPlatformManager',
+  SYSTEM_ADMIN: 'isSystemManager',
+  ORG_ADMIN: 'isOrgManager',
+  NORMAL_ADMIN: 'isManager',
+  MEMBER: 'isMember',
+  EXPERT: 'isExpert',
+};
+
 // ----------------- 通用类型 0 | 1 -----------------
 // 返回 0 ｜ 1 的类型， 0 代表否，1 代表是 或者 是否允许  0：不允许  1：允许
 export type ZeroOrOneType = 0 | 1;

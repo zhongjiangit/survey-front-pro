@@ -1,8 +1,8 @@
 'use client';
 
-import Role_Enum from '@/access/access-enum';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { getFirstMenu } from '@/lib/get-first-menu';
+import { Role_Enum } from '@/types/CommonType';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { cloneDeep } from 'lodash';
