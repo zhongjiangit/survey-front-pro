@@ -16,6 +16,7 @@ import { v1 as uuidv4 } from 'uuid';
 import RenderInput from './RenderInput';
 
 export interface CustomTreeDataNode extends TreeDataNode {
+  children?: CustomTreeDataNode[];
   type?: string;
 }
 
