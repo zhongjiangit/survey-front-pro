@@ -1,17 +1,20 @@
 'use client';
 
 import Api from '@/api';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { SystemType } from '@/types/SystemType';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
 import { Table, Tag } from 'antd';
 import { useMemo } from 'react';
-import { ZeroOrOneTypeEnum } from '../../../../types/CommonType';
+import { Role_Enum, ZeroOrOneTypeEnum } from '../../../../types/CommonType';
 import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 
 export default function SystemsTableList({ query }: { query: string }) {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+  const isPlatformAdmin = currentRole?.key === Role_Enum.PLATFORM_ADMIN;
 
   const {
     data: systemList,
@@ -126,8 +129,12 @@ export default function SystemsTableList({ query }: { query: string }) {
         render: (_, record) => (
           <div className="flex justify-center gap-3">
             <ConfigSystem id={record.id} />
-            <UpdateSystem id={record.id} />
-            <DeleteSystem record={record} deleteSystem={deleteSystem} />
+            {isPlatformAdmin && (
+              <>
+                <UpdateSystem id={record.id} />
+                <DeleteSystem record={record} deleteSystem={deleteSystem} />
+              </>
+            )}
           </div>
         ),
       },
