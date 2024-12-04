@@ -2,9 +2,6 @@
   "extends": [
     "next",
     "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:jsx-a11y/recommended",
     "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
@@ -16,19 +13,15 @@
     }
   },
   "rules": {
-    "prefer-const": "warn",
-    "no-constant-binary-expression": "error",
-    "react/react-in-jsx-scope": "off",
-    "react/display-name": "off",
+    "no-undef": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": [
-      "warn"
-    ],
     "prettier/prettier": [
       "error",
       {
         "endOfLine": "auto",
-        "printWidth": 120
+        "singleQuote": true,
+        "trailingComma": "es5",
+        "arrowParens": "avoid"
       }
     ]
   }
