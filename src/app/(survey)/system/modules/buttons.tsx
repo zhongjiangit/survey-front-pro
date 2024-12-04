@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils';
-import { DeleteOutlined } from '@ant-design/icons';
+import { ZeroOrOneTypeEnum } from '@/types/CommonType';
+import { SystemType } from '@/types/SystemType';
 import { PencilIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { Popconfirm, Tooltip } from 'antd';
-import { Bolt } from 'lucide-react';
+import { Bolt, MonitorPause, TvMinimalPlay } from 'lucide-react';
 import Link from 'next/link';
 
 export function CreateSystem() {
@@ -31,25 +32,51 @@ export function UpdateSystem({ id }: { id: string }) {
 }
 
 export function DeleteSystem({
-  id,
+  record,
   deleteSystem,
 }: {
-  id: string;
+  record: SystemType;
   deleteSystem: (params: { id: string }) => void;
 }) {
+  const { id } = record;
+  // <MonitorPause />
+  // <TvMinimalPlay />
   return (
     <Popconfirm
-      title="删除系统"
-      description="删除后将不可恢复，您确定要删除此系统吗？"
-      onConfirm={() => deleteSystem({ id })}
+      title={
+        record.systemStatus === ZeroOrOneTypeEnum.Zero ? '启用系统' : '停用系统'
+      }
+      description={
+        record.systemStatus === ZeroOrOneTypeEnum.Zero
+          ? '您确定要启用此系统吗？'
+          : '您确定要停用此系统吗？'
+      }
+      onConfirm={() => {
+        if (record.systemStatus === ZeroOrOneTypeEnum.Zero) {
+          // restart system
+          // TODO: implement restart system
+        } else {
+          deleteSystem({ id });
+        }
+      }}
     >
       <div
         className={cn(
           ' cursor-pointer rounded-md border p-1 h-7 w-7 hover:bg-gray-100 hover:text-blue-300 duration-300',
-          'flex items-center justify-center text-red-500 hover:text-red-700 duration-300 pl-1.5'
+          'flex items-center justify-center duration-300 pl-1.5',
+          {
+            'text-red-500 hover:text-red-700':
+              record.systemStatus === ZeroOrOneTypeEnum.One,
+            'text-green-500 hover:text-green-700':
+              record.systemStatus === ZeroOrOneTypeEnum.Zero,
+          }
         )}
       >
-        <DeleteOutlined className="w-4 h-4" />
+        {record.systemStatus === ZeroOrOneTypeEnum.Zero ? (
+          <TvMinimalPlay className="w-4 h-4" />
+        ) : (
+          <MonitorPause className="w-4 h-4" />
+        )}
       </div>
     </Popconfirm>
   );

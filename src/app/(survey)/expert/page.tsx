@@ -62,8 +62,6 @@ function Page() {
         return Promise.reject('currentSystem is not exist');
       }
       return Api.getTagList({
-        // TODO
-        // currentSystemId: 5,
         currentSystemId: currentSystem.systemId,
         tagType: TagTypeEnum.Expert,
       });

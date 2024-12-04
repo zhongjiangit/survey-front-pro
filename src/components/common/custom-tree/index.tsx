@@ -13,7 +13,7 @@ import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
-import RenderInput from './RenderInput';
+import RenderInput from './render-input';
 
 export interface CustomTreeDataNode extends TreeDataNode {
   children?: CustomTreeDataNode[];
@@ -21,6 +21,7 @@ export interface CustomTreeDataNode extends TreeDataNode {
 }
 
 interface CustomTreeProps {
+  draggable?: boolean;
   maxDepth?: number;
   setParam?: boolean;
   dataSource: CustomTreeDataNode[];
@@ -31,6 +32,7 @@ interface CustomTreeProps {
 
 function CustomTree(props: CustomTreeProps) {
   const {
+    draggable = false,
     maxDepth = 100,
     dataSource,
     setParam = false,
@@ -460,7 +462,7 @@ function CustomTree(props: CustomTreeProps) {
           <DownOutlined className="absolute top-[7px] right-[7px]" />
         }
         showLine
-        draggable
+        draggable={draggable}
         onDragEnter={onDragEnter}
         onDrop={onDrop}
         titleRender={nodeData => {
