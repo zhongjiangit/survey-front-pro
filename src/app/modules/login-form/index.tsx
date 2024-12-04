@@ -16,6 +16,7 @@ import {
 import {
   LoginForm as Form,
   ProFormCaptcha,
+  ProFormInstance,
   ProFormText,
 } from '@ant-design/pro-components';
 import { useRequest } from 'ahooks';
@@ -24,16 +25,21 @@ import { FlaskConical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
+  const formRef = useRef<ProFormInstance>();
   const router = useRouter();
   const setUser = useSurveyUserStore(state => state.setUser);
   const setCurrentSystem = useSurveySystemStore(
     state => state.setCurrentSystem
   );
   const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
+
+  const [type, setType] = useState<string>('account');
+
+  const [captchaUrl, setCaptchaUrl] = useState('');
 
   const { run, loading } = useRequest(
     params => {
@@ -66,12 +72,68 @@ export default function LoginForm() {
     }
   );
 
-  const [type, setType] = useState<string>('account');
+  const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(
+    () => {
+      return Api.getCaptcha();
+    },
+    {
+      manual: true,
+      onSuccess: response => {
+        const blob = response.data;
+        const url = URL.createObjectURL(blob);
+        setCaptchaUrl(url);
+      },
+    }
+  );
+
+  const { run: sendSms, loading: sendSmsLoading } = useRequest(
+    params => {
+      return Api.sendSms({ ...params, eventType: 1 });
+    },
+    {
+      manual: true,
+      onSuccess: response => {
+        if (response?.message) {
+          messageApi.open({
+            type: 'error',
+            content: response.message,
+          });
+        } else if (response?.result === 0) {
+          message.success('验证码发送成功！');
+        }
+      },
+      onError: error => {
+        messageApi.open({
+          type: 'error',
+          content: error.message,
+        });
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (type === 'mobile') {
+      getCaptcha();
+    }
+    formRef.current?.resetFields();
+  }, [getCaptcha, type]);
+
+  const handleGetCaptcha = async () => {
+    try {
+      const values = await formRef.current?.validateFields([
+        'cellPhone',
+        'captcha',
+      ]);
+      console.log(values);
+      sendSms(values);
+    } catch (errorInfo) {}
+  };
 
   return (
     <div className="w-96 md:shadow-2xl rounded-lg">
       {contextHolder}
       <Form
+        formRef={formRef}
         contentStyle={{
           minWidth: 280,
           width: 320,
@@ -166,7 +228,7 @@ export default function LoginForm() {
                 size: 'large',
                 prefix: <MobileOutlined />,
               }}
-              name="mobile"
+              name="cellPhone"
               placeholder={'请输入手机号！'}
               rules={[
                 {
@@ -185,7 +247,7 @@ export default function LoginForm() {
                   size: 'large',
                   prefix: <CodepenOutlined />,
                 }}
-                name="verification"
+                name="captcha"
                 placeholder={'请输入右侧图形码！'}
                 rules={[
                   {
@@ -194,13 +256,19 @@ export default function LoginForm() {
                   },
                 ]}
               />
-              {/* <Image
-                width={124}
-                height={40}
-                alt="captcha"
-                style={{ cursor: 'pointer', borderRadius: 4 }}
-                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-              /> */}
+              {captchaUrl && (
+                <div
+                  onClick={getCaptcha}
+                  className="overflow-hidden cursor-pointer"
+                >
+                  <Image
+                    src={captchaUrl}
+                    alt="Captcha"
+                    width={120}
+                    height={40}
+                  />
+                </div>
+              )}
             </div>
 
             <ProFormCaptcha
@@ -218,7 +286,7 @@ export default function LoginForm() {
                 }
                 return '获取验证码';
               }}
-              name="captcha"
+              name="password"
               rules={[
                 {
                   required: true,
@@ -232,6 +300,7 @@ export default function LoginForm() {
                 // if (!result) {
                 //   return;
                 // }
+                handleGetCaptcha();
                 console.log(phone);
 
                 message.success('获取验证码成功！验证码为：1234');

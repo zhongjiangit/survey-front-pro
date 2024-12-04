@@ -65,11 +65,13 @@ export default function SystemsTableList({ query }: { query: string }) {
         title: '创建时间',
         dataIndex: 'createDate',
         key: 'createDate',
+        align: 'center',
       },
       {
         title: '层级',
         dataIndex: 'levelCount',
         key: 'levelCount',
+        align: 'center',
       },
       {
         title: '各层级名称',
@@ -87,6 +89,7 @@ export default function SystemsTableList({ query }: { query: string }) {
       {
         title: '剩余次数/总次数',
         key: 'freeTimes',
+        align: 'center',
         render: (_, { leftTimes, freeTimes }) => (
           <div>
             {leftTimes} / {freeTimes}
@@ -97,12 +100,14 @@ export default function SystemsTableList({ query }: { query: string }) {
         title: '账号有效期',
         dataIndex: 'validDate',
         key: 'validDate',
+        align: 'center',
       },
       {
         title: '操作',
         key: 'action',
+        align: 'center',
         render: (_, record) => (
-          <div className="flex justify-start gap-3">
+          <div className="flex justify-center gap-3">
             <ConfigSystem id={record.id} />
             <UpdateSystem id={record.id} />
             <DeleteSystem id={record.id} deleteSystem={deleteSystem} />

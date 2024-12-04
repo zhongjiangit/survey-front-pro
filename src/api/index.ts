@@ -1,4 +1,4 @@
-import CookieApi from './cookie';
+import commonApi from './common';
 import expertApi from './expert';
 import login from './login';
 import orgApi from './org';
@@ -9,6 +9,7 @@ import taskApi from './task';
 import templateApi from './template';
 
 const Api = {
+  ...commonApi,
   ...login,
   ...templateApi,
   ...orgApi,
@@ -16,7 +17,6 @@ const Api = {
   ...systemApi,
   ...tagApi,
   ...expertApi,
-  ...CookieApi,
   ...taskApi,
 };
 

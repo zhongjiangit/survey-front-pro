@@ -1,7 +1,5 @@
 'use client';
 
-import { isProd } from '@/api/config';
-import CookieApi from '@/api/cookie';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useRoles } from '@/hooks/useRoles';
 import { getFirstMenu } from '@/lib/get-first-menu';
@@ -42,12 +40,6 @@ export function Provider({ colorScheme, children }: Props) {
       }
     }
   }, [roles, router, setCurrentRole, setRoles]);
-
-  useEffect(() => {
-    if (!isProd) {
-      CookieApi.getCookie();
-    }
-  }, []);
 
   return (
     <ColorSchemeContext.Provider value={store}>
