@@ -57,9 +57,9 @@ interface Values {
 
 const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   refreshMyPublishTask,
+  setOpen,
 }) => {
   const [modal, contextHolder] = Modal.useModal();
-  const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [checkAll, setCheckAll] = useState(false);
   const [templateId, setTemplateId] = useState<number>();
@@ -103,7 +103,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
-    (index: number) => {
+    (index: number, filterValue: string[] = []) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
@@ -122,8 +122,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     }
   );
 
-  const { data: listAllAssignSub, run: getListAllAssignSub } = useRequest(
-    () => {
+  const {
+    data: listAllAssignSub,
+    run: getListAllAssignSub,
+    loading: allAssignSubLoading,
+  } = useRequest(
+    (filterValue: string[] = []) => {
       console.log('getListAllAssignSub');
 
       if (!currentSystem || !currentOrg) {
@@ -222,13 +226,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
 
   const onValuesChange = (changedValues: any, allValues: any) => {
     console.log('changedValues', changedValues);
+    if (changedValues?.publishType) {
+      setFilterValue([]);
+      setMember([]);
+      form.setFieldsValue({ orgs: [], levels: [] });
+    }
     if (changedValues?.publishType === publishTypeEnum.Level) {
       getTagList(TagTypeEnum.Org);
+      getListLevelAssignSub(null, filterValue);
     } else if (changedValues?.publishType === publishTypeEnum.Staff) {
-      getListAllAssignSub();
       getTagList(TagTypeEnum.Member);
+      getListAllAssignSub();
     } else if (changedValues?.levels) {
-      getListLevelAssignSub(changedValues?.levels[0]);
+      getListLevelAssignSub(changedValues?.levels?.[0], filterValue);
     }
   };
 
@@ -292,18 +302,31 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     setFilterValue(value);
   };
 
-  const showConfirm = () => {
+  const showConfirm = (value: string[]) => {
+    const onOk = () => {
+      setFilterValue(value);
+      setMember([]);
+      form.setFieldValue('orgs', []);
+      let publishType = form.getFieldValue('publishType');
+      if (publishType === PublishTypeEnum.Org) {
+        getListLevelAssignSub(form.getFieldValue('levels')?.[0], value);
+      }
+      if (publishType === PublishTypeEnum.Member) {
+        getListAllAssignSub(value);
+      }
+    };
+    // 如果未选择就无需确认
+    if (!member.length && !form.getFieldValue('orgs')?.length) {
+      onOk();
+      return;
+    }
     // TODO 之前所选单位是不是为空，，不为空则需要确认。
     modal.confirm({
       title: '过滤条件确认',
       icon: <ExclamationCircleFilled />,
       content: <>改变过滤条件之后，之前的选择将会清空，确认改变过滤条件？</>,
       onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
-        onFilterChange([]);
+        onOk();
       },
     });
   };
@@ -386,24 +409,26 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           <TreeSelect
             className="w-72 flex-1"
             value={filterValue}
-            onChange={onFilterChange}
-            onBlur={showConfirm}
+            onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
             showCheckedStrategy={'SHOW_PARENT'}
+            placeholder="选择标签过滤人员"
           />
         </div>
         <div className="mr-5 text-right flex gap-4 items-center">
           <span className="text-blue-400">已选：{memberStaffs().length}人</span>
-          <span className="cursor-pointer text-red-500 hover:text-red-600">
+          <span
+            className="cursor-pointer text-red-500 hover:text-red-600"
+            onClick={() => setMember([])}
+          >
             <CloseCircleOutlined /> 清空
           </span>
         </div>
       </div>
-
       <Divider></Divider>
-
       <div
+        key={allAssignSubLoading ? '1' : '2'}
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -411,18 +436,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         }}
         className="px-20"
       >
-        <div className="flex gap-20">
+        <div key={filterValue.join(',')} className="flex gap-20 w-full">
           {levelOrgs?.map((level: any, index: number) => (
-            <Tree
-              key={index}
-              treeData={level}
-              checkedKeys={member}
-              loadData={onLoadMember}
-              checkable
-              defaultExpandAll
-              onCheck={onSelectMember}
-              style={{ flexShrink: 1 }}
-            />
+            <div key={index} style={{ flex: 'auto', width: '0px' }}>
+              <Tree
+                treeData={level}
+                checkedKeys={member}
+                loadData={onLoadMember}
+                checkable
+                defaultExpandAll
+                onCheck={onSelectMember}
+                style={{ flexShrink: 1 }}
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -456,11 +482,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           <TreeSelect
             className="w-72 flex-1"
             value={filterValue}
-            onChange={onFilterChange}
-            onBlur={showConfirm}
+            onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
             showCheckedStrategy={'SHOW_PARENT'}
+            placeholder="选择标签过滤单位"
           />
         </div>
         <div className="mr-5 text-blue-400 text-right">
@@ -470,15 +496,28 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
 
       <Divider></Divider>
       <div className="px-20">
-        {!!listLevelAssignSub?.data.length && (
-          <Checkbox
-            indeterminate={indeterminate}
-            onChange={onCheckAllChange}
-            checked={checkAll}
-          >
-            全选
-          </Checkbox>
-        )}
+        <Form.Item noStyle dependencies={['orgs']}>
+          {() => {
+            if (!listLevelAssignSub?.data.length) {
+              return null;
+            }
+            let checkedList = form.getFieldValue('orgs') || [];
+            setOrgSelectedNum(checkedList.length);
+            let indeterminate =
+              !!checkedList.length &&
+              checkedList.length < (plainOptions?.length || 0);
+            let checkedAll = checkedList.length === plainOptions.length;
+            return (
+              <Checkbox
+                indeterminate={indeterminate}
+                onChange={onCheckAllChange}
+                checked={checkedAll}
+              >
+                全选
+              </Checkbox>
+            );
+          }}
+        </Form.Item>
         <Form.Item
           name="orgs"
           label=""
@@ -504,18 +543,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   return (
-    <div className="absolute right-0 -top-14">
-      <Button
-        type="primary"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        发布新任务
-      </Button>
+    <>
       <Modal
         width={1400}
-        open={open}
+        open={true}
         title="新建任务"
         okText="确定"
         cancelText="取消"
@@ -629,11 +660,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           <Col span={12}></Col>
           <Col span={12}>
             <Form.Item name="publishType" label="任务分配方式">
-              <Radio.Group
-                onChange={() => {
-                  onFilterChange([]);
-                }}
-              >
+              <Radio.Group>
                 <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
                 <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
               </Radio.Group>
@@ -662,8 +689,30 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         </Form.Item>
       </Modal>
       {contextHolder}
+    </>
+  );
+};
+
+const TaskAdd: React.FC<TaskEditModalProps> = ({ refreshMyPublishTask }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="absolute right-0 -top-14">
+      <Button
+        type="primary"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        发布新任务
+      </Button>
+      {open && (
+        <TaskAddNewModal
+          refreshMyPublishTask={refreshMyPublishTask}
+          setOpen={v => setOpen(v)}
+        ></TaskAddNewModal>
+      )}
     </div>
   );
 };
 
-export default TaskAddNewModal;
+export default TaskAdd;
