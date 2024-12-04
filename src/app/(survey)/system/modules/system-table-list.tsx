@@ -7,6 +7,7 @@ import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
 import { Table, Tag } from 'antd';
 import { useMemo } from 'react';
+import { ZeroOrOneTypeEnum } from '../../../../types/CommonType';
 import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 
 export default function SystemsTableList({ query }: { query: string }) {
@@ -68,6 +69,22 @@ export default function SystemsTableList({ query }: { query: string }) {
         align: 'center',
       },
       {
+        title: '状态',
+        dataIndex: 'systemStatus',
+        key: 'systemStatus',
+        align: 'center',
+        render: systemStatus => (
+          <div className="flex items-center justify-center">
+            <Tag
+              className="ml-2"
+              color={systemStatus === ZeroOrOneTypeEnum.Zero ? 'red' : 'green'}
+            >
+              {systemStatus === ZeroOrOneTypeEnum.Zero ? '停用' : '正常'}
+            </Tag>
+          </div>
+        ),
+      },
+      {
         title: '层级',
         dataIndex: 'levelCount',
         key: 'levelCount',
@@ -79,7 +96,7 @@ export default function SystemsTableList({ query }: { query: string }) {
         render: (_, { levels }) => (
           <div className="flex">
             {levels.map((level, index) => (
-              <Tag key={index} color={index % 2 === 0 ? 'blue' : 'green'}>
+              <Tag key={index} color={index % 2 === 0 ? 'blue' : 'cyan'}>
                 {level.levelName}
               </Tag>
             ))}
@@ -110,7 +127,7 @@ export default function SystemsTableList({ query }: { query: string }) {
           <div className="flex justify-center gap-3">
             <ConfigSystem id={record.id} />
             <UpdateSystem id={record.id} />
-            <DeleteSystem id={record.id} deleteSystem={deleteSystem} />
+            <DeleteSystem record={record} deleteSystem={deleteSystem} />
           </div>
         ),
       },

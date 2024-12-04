@@ -1,4 +1,4 @@
-import { StaffType } from './CommonType';
+import { StaffType, ZeroOrOneType } from './CommonType';
 
 export type LevelType = {
   id?: string;
@@ -12,6 +12,7 @@ export interface SystemType {
   validDate: string;
   systemName: string;
   levelCount: number;
+  systemStatus: ZeroOrOneType;
   levels: LevelType[];
   leftTimes: number;
   freeTimes: number;

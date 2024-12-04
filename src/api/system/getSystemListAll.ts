@@ -1,4 +1,5 @@
 import { SurveyService } from '@/service';
+import { ZeroOrOneType } from '@/types/CommonType';
 import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
@@ -12,8 +13,9 @@ export interface SystemListType {
   systemName: string;
   freeTimes: number;
   leftTimes: number;
-  allowSubInitiate: 1 | 0;
-  allowSupCheck: 1 | 0;
+  systemStatus: ZeroOrOneType;
+  allowSubInitiate: ZeroOrOneType;
+  allowSupCheck: ZeroOrOneType;
   validDate: string;
   levelCount: number;
   levels: TagType[];
