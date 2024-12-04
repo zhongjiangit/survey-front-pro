@@ -287,7 +287,7 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
       />
       <Modal
         open={open}
-        title={`${1 ? '编辑' : '新增'}专家`}
+        title={`${currentExpert.id != null ? '编辑' : '新增'}专家`}
         okText="确定"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
@@ -331,7 +331,7 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
             allowClear
             multiple
             treeDefaultExpandAll
-            treeData={[]}
+            treeData={expertTags}
             treeCheckable={true}
             showCheckedStrategy={'SHOW_PARENT'}
           />
