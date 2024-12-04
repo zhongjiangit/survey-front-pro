@@ -5,7 +5,7 @@ import { TemplateOutlineCreateParamsType } from '@/api/template/create-outline';
 import { ZeroOrOneTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Form, Input, message, Modal, Radio, Space } from 'antd';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 interface Values {
@@ -22,6 +22,8 @@ interface CreateModalProps {
   setOpen: (open: boolean) => void;
   refreshList: () => void;
   initValues?: any;
+  selectedId?: string | null;
+  selectedTab?: string | null;
 }
 
 // 创建枚举 check | collect
@@ -36,11 +38,14 @@ const CreateModal = ({
   setOpen,
   refreshList,
   initValues,
+  selectedId,
+  selectedTab,
 }: CreateModalProps) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
+  const router = useRouter();
 
   const { run: createOutline, loading: submitLoading } = useRequest(
     params => {
@@ -48,11 +53,14 @@ const CreateModal = ({
     },
     {
       manual: true,
-      onSuccess: () => {
+      onSuccess: response => {
         messageApi.success('创建成功');
         form.resetFields();
         setOpen(false);
         refreshList();
+        router.push(
+          `/system/config/check?id=${selectedId}&tab=${selectedTab}&tempId=${response.data.id}`
+        );
       },
     }
   );

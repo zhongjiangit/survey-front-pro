@@ -30,7 +30,7 @@ const NewCollectItem: React.FC<Props> = ({
     if (initValues) {
       form.setFieldsValue({ ...initValues });
     } else {
-      form.setFieldsValue({ isRequired: false });
+      form.setFieldsValue({ isRequired: true });
     }
   }, [form, initValues]);
 
@@ -81,7 +81,7 @@ const NewCollectItem: React.FC<Props> = ({
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
           onFinish={onFinish}
-          initialValues={{ isRequired: false }}
+          initialValues={{ isRequired: true }}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
         >

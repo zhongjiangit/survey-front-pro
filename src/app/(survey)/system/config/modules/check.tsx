@@ -176,6 +176,8 @@ const Check = ({ system }: CheckProps) => {
       <CreateModal
         type={selectedTab as 'check' | 'collect'}
         open={open}
+        selectedId={selectedId}
+        selectedTab={selectedTab}
         setOpen={setOpen}
         refreshList={getCheckList}
         initValues={
