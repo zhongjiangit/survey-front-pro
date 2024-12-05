@@ -43,7 +43,7 @@ const { confirm } = Modal;
 
 interface TaskEditModalProps {
   refreshMyPublishTask?: () => void;
-  setOpen?: () => void;
+  setOpen: (open: boolean) => void;
 }
 
 interface Values {
@@ -104,7 +104,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
-    (index: number, filterValue: string[] = []) => {
+    (index: number | null, filterValue: string[] = []) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
@@ -694,7 +694,9 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 };
 
-const TaskAdd: React.FC<TaskEditModalProps> = ({ refreshMyPublishTask }) => {
+const TaskAdd: React.FC<{ refreshMyPublishTask?: () => void }> = ({
+  refreshMyPublishTask,
+}) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="absolute right-0 -top-14">
