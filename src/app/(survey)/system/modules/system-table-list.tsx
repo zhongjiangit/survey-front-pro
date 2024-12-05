@@ -7,7 +7,7 @@ import { SystemType } from '@/types/SystemType';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
 import { Table, Tag } from 'antd';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Role_Enum, ZeroOrOneTypeEnum } from '../../../../types/CommonType';
 import { ConfigSystem, DeleteSystem, UpdateSystem } from './buttons';
 
@@ -22,17 +22,24 @@ export default function SystemsTableList({ query }: { query: string }) {
     run: getSystemListAll,
   } = useRequest(
     () => {
-      if (!currentSystem?.systemId) {
+      if (!isPlatformAdmin && !currentSystem?.systemId) {
         return Promise.reject('currentSystem is not exist');
+      } else if (!isPlatformAdmin && currentSystem?.systemId) {
+        return Api.getSystemListAll({
+          currentSystemId: currentSystem.systemId,
+        });
+      } else {
+        return Api.getSystemListAll({ currentSystemId: null });
       }
-      return Api.getSystemListAll({
-        currentSystemId: currentSystem.systemId,
-      });
     },
     {
       refreshDeps: [currentSystem?.systemId],
     }
   );
+
+  useEffect(() => {
+    getSystemListAll();
+  }, [getSystemListAll, isPlatformAdmin]);
 
   const dataSources = useMemo(() => {
     if ((systemList?.data ?? []).length > 0) {

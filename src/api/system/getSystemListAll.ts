@@ -26,7 +26,7 @@ export interface SystemListType {
  * getSystemListAll
  * @returns
  */
-function getSystemListAll(params: { currentSystemId?: number }) {
+function getSystemListAll(params: { currentSystemId?: number | null }) {
   return SurveyService.post<CommonResponseType<SystemListType[]>>(
     `${baseUrl}/system/listAll`,
     {
