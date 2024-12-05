@@ -43,6 +43,7 @@ const { confirm } = Modal;
 
 interface TaskEditModalProps {
   refreshMyPublishTask?: () => void;
+  setOpen?: () => void;
 }
 
 interface Values {
