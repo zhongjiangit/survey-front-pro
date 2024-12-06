@@ -34,13 +34,13 @@ export function UpdateSystem({ id }: { id: string }) {
 export function DeleteSystem({
   record,
   deleteSystem,
+  enableSystem,
 }: {
   record: SystemType;
   deleteSystem: (params: { id: string }) => void;
+  enableSystem: (params: { id: string }) => void;
 }) {
   const { id } = record;
-  // <MonitorPause />
-  // <TvMinimalPlay />
   return (
     <Popconfirm
       title={
@@ -53,8 +53,7 @@ export function DeleteSystem({
       }
       onConfirm={() => {
         if (record.systemStatus === ZeroOrOneTypeEnum.Zero) {
-          // restart system
-          // TODO: implement restart system
+          enableSystem({ id });
         } else {
           deleteSystem({ id });
         }

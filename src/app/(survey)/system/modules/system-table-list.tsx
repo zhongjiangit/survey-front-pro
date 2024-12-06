@@ -54,8 +54,20 @@ export default function SystemsTableList({ query }: { query: string }) {
   }, [systemList?.data, query]);
 
   const { run: deleteSystem, loading: deleteLoading } = useRequest(
-    params => {
+    (params: any) => {
       return Api.deleteSystem(params);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        getSystemListAll();
+      },
+    }
+  );
+
+  const { run: enableSystem, loading: enableLoading } = useRequest(
+    (params: any) => {
+      return Api.enableSystem(params);
     },
     {
       manual: true,
@@ -139,7 +151,11 @@ export default function SystemsTableList({ query }: { query: string }) {
             {isPlatformAdmin && (
               <>
                 <UpdateSystem id={record.id} />
-                <DeleteSystem record={record} deleteSystem={deleteSystem} />
+                <DeleteSystem
+                  record={record}
+                  deleteSystem={deleteSystem}
+                  enableSystem={enableSystem}
+                />
               </>
             )}
           </div>
@@ -154,7 +170,7 @@ export default function SystemsTableList({ query }: { query: string }) {
       // @ts-ignore
       columns={columns}
       dataSource={dataSources}
-      loading={isLoading || deleteLoading}
+      loading={isLoading || deleteLoading || enableLoading}
     />
   );
 }

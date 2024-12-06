@@ -3,7 +3,6 @@ import { ColorScheme } from '@/types/ColorScheme';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { inter } from '../components/display/fonts';
 import { cn } from '../lib/utils';
 import { Provider } from './provider';
 
@@ -27,7 +26,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={cn({ dark: colorScheme === ColorScheme.DARK })}>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`antialiased`}>
         <AntdRegistry>
           <Provider colorScheme={colorScheme as ColorScheme}>
             {children}

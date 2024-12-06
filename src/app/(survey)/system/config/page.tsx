@@ -2,7 +2,9 @@
 
 import Api from '@/api';
 import Breadcrumbs from '@/components/common/breadcrumbs';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { Role_Enum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Spin, Tabs, TabsProps } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -20,15 +22,20 @@ export default function Page() {
   const selectedId = searchParams.get('id');
   const [activeKey, setActiveKey] = useState(selectedTab || 'basic');
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+  const isPlatformAdmin = currentRole?.key === Role_Enum.PLATFORM_ADMIN;
 
   const { data: systemList, loading: isLoading } = useRequest(
     () => {
-      if (currentSystem?.systemId === undefined) {
-        return Promise.reject('currentSystem.systemId is undefined');
+      if (!isPlatformAdmin && !currentSystem?.systemId) {
+        return Promise.reject('currentSystem is not exist');
+      } else if (!isPlatformAdmin && currentSystem?.systemId) {
+        return Api.getSystemListAll({
+          currentSystemId: currentSystem.systemId,
+        });
+      } else {
+        return Api.getSystemListAll({ currentSystemId: null });
       }
-      return Api.getSystemListAll({
-        currentSystemId: currentSystem?.systemId,
-      });
     },
     {
       refreshDeps: [currentSystem?.systemId],

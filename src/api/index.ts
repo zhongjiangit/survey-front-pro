@@ -2,6 +2,7 @@ import commonApi from './common';
 import expertApi from './expert';
 import login from './login';
 import orgApi from './org';
+import settingApi from './setting';
 import staffApi from './staff';
 import systemApi from './system';
 import tagApi from './tag';
@@ -18,6 +19,7 @@ const Api = {
   ...tagApi,
   ...expertApi,
   ...taskApi,
+  ...settingApi,
 };
 
 export default Api;

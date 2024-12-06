@@ -11,6 +11,23 @@ export const Role_Enum = {
   EXPERT: 'isExpert',
 };
 
+/*
+平台管理员：10
+系统管理员：20
+单位管理员：30
+普通管理员：40
+普通成员：50
+专家：60
+*/
+export const Role_Type = {
+  [Role_Enum.PLATFORM_ADMIN]: 10,
+  [Role_Enum.SYSTEM_ADMIN]: 20,
+  [Role_Enum.ORG_ADMIN]: 30,
+  [Role_Enum.NORMAL_ADMIN]: 40,
+  [Role_Enum.MEMBER]: 50,
+  [Role_Enum.EXPERT]: 60,
+};
+
 // ----------------- 通用类型 0 | 1 -----------------
 // 返回 0 ｜ 1 的类型， 0 代表否，1 代表是 或者 是否允许  0：不允许  1：允许
 export type ZeroOrOneType = 0 | 1;

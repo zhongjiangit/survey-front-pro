@@ -4,7 +4,6 @@ import Api from '@/api';
 import { StaffListResponse } from '@/api/staff/getStaffList';
 import ExpertManage from '@/app/modules/expert-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
-import { lusitana } from '@/components/display/fonts';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { TagTypeEnum } from '@/types/CommonType';
@@ -135,7 +134,7 @@ function Page() {
   return (
     <main className="flex flex-col gap-5">
       <div className="flex w-full items-center justify-start gap-2">
-        <h1 className={`${lusitana.className} text-2xl`}>单位成员管理</h1>
+        <h1 className={`text-2xl`}>单位成员管理</h1>
       </div>
       <h2 className="flex items-center">
         <span className="text-red-600">*</span>&nbsp;你是

@@ -3,19 +3,19 @@ import Api from '@/api';
 import { StaffListResponse } from '@/api/staff/getStaffList';
 import MemberManage from '@/app/modules/member-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
-import { lusitana } from '@/components/display/fonts';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { TagTypeEnum } from '@/types/CommonType';
-import { SaveOutlined } from '@ant-design/icons';
+import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { Button, Divider, Form, message, TreeSelect } from 'antd';
+import { Button, Divider, Form, message, Tag, TreeSelect } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import OrgTree from './modules/org-tree';
 
 function Page() {
   const [org, setOrg] = useState<React.Key>();
   const [canEdit, setCanEdit] = useState<boolean>(true);
+  const [editStatus, setEditStatus] = useState(false);
   const [memberTags, setMemberTags] = useState<any>([]);
   const [staffOrg, setStaffOrg] = useState<any>();
   const [orgList, setOrgList] = useState<CustomTreeDataNode[]>([]);
@@ -45,6 +45,14 @@ function Page() {
     }
   );
 
+  const setCurrentOrg = useCallback(
+    (key: React.Key) => {
+      setOrg(key);
+      setEditStatus(false);
+    },
+    [setOrg]
+  );
+
   useEffect(() => {
     if (org && currentOrg?.orgId) {
       setCanEdit(Number(org) == currentOrg?.orgId);
@@ -53,7 +61,7 @@ function Page() {
 
   useEffect(() => {
     if (currentOrg?.orgId) {
-      setOrg(currentOrg.orgId);
+      setCurrentOrg(currentOrg.orgId);
     }
   }, [currentOrg?.orgId]);
 
@@ -98,6 +106,7 @@ function Page() {
             type: 'success',
             content: '更新成功',
           });
+          setEditStatus(false);
         } else {
           messageApi.open({
             type: 'error',
@@ -115,6 +124,8 @@ function Page() {
       //找到当前的管理员
       const admin = adminStaff;
       const newAdmin = {
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
         ...admin,
         tags,
       };
@@ -141,6 +152,9 @@ function Page() {
           );
           if (!!adminStaff[0]) {
             setAdminStaff(adminStaff[0]);
+            form.setFieldsValue({
+              tags: adminStaff[0].tags?.map((tag: any) => tag.key),
+            });
           }
         }
       },
@@ -174,7 +188,7 @@ function Page() {
     <main className="flex flex-col gap-5">
       {contextHolder}
       <div className="flex w-full items-center justify-start gap-2">
-        <h1 className={`${lusitana.className} text-2xl`}>单位成员管理</h1>
+        <h1 className={`text-2xl`}>单位成员管理</h1>
       </div>
       <h2 className="flex items-center">
         <span className="text-red-600">*</span>&nbsp;你是
@@ -183,7 +197,11 @@ function Page() {
       </h2>
       <div className="flex gap-3">
         <div className="w-60 rounded-lg border py-3">
-          <OrgTree dataSource={orgList} setOrg={setOrg} selectedOrg={org} />
+          <OrgTree
+            dataSource={orgList}
+            setOrg={setCurrentOrg}
+            selectedOrg={org}
+          />
         </div>
         <div className="flex-1">
           <div className="flex gap-6 items-center">
@@ -192,39 +210,64 @@ function Page() {
             <div className="flex gap-2 items-center">
               标签：
               {canEdit ? (
-                <Form
-                  form={form}
-                  name="control-hooks"
-                  className="flex items-center"
-                  onFinish={onAdminUpdate}
-                >
-                  <div className="flex gap-2 h-8">
-                    <Form.Item name="tags">
-                      <TreeSelect
-                        style={{ width: '200px' }}
-                        showSearch
-                        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                        placeholder="请选择标签"
-                        allowClear
-                        multiple
-                        treeDefaultExpandAll
-                        treeData={memberTags}
-                        treeCheckable={true}
-                        showCheckedStrategy={'SHOW_PARENT'}
-                      />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button
-                        type="link"
-                        htmlType="submit"
-                        icon={<SaveOutlined className="cursor-pointer" />}
-                      ></Button>
-                    </Form.Item>
+                editStatus ? (
+                  <Form
+                    form={form}
+                    name="control-hooks"
+                    className="flex items-center"
+                    onFinish={onAdminUpdate}
+                  >
+                    <div className="flex gap-2 h-8">
+                      <Form.Item name="tags">
+                        <TreeSelect
+                          style={{ width: '200px' }}
+                          showSearch
+                          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                          placeholder="请选择标签"
+                          allowClear
+                          multiple
+                          treeDefaultExpandAll
+                          treeData={memberTags}
+                          treeCheckable={true}
+                          showCheckedStrategy={'SHOW_PARENT'}
+                        />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button
+                          type="link"
+                          htmlType="submit"
+                          icon={<SaveOutlined className="cursor-pointer" />}
+                        ></Button>
+                      </Form.Item>
+                    </div>
+                  </Form>
+                ) : (
+                  <div className="flex justify-start items-center gap-3">
+                    <div className="flex justify-start items-center gap-1">
+                      {adminStaff?.tags?.map((item: any) => {
+                        return (
+                          <Tag key={item.key} color="success">
+                            {item.title}
+                          </Tag>
+                        );
+                      })}
+                    </div>
+                    <EditOutlined
+                      onClick={() => {
+                        setEditStatus(true);
+                      }}
+                    />
                   </div>
-                </Form>
+                )
               ) : (
-                <div>
-                  {adminStaff?.tags?.map((tag: any) => tag.title).join(',')}
+                <div className="flex justify-start items-center gap-1">
+                  {adminStaff?.tags?.map((item: any) => {
+                    return (
+                      <Tag key={item.key} color="success">
+                        {item.title}
+                      </Tag>
+                    );
+                  })}
                 </div>
               )}
             </div>

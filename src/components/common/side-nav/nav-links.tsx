@@ -138,7 +138,6 @@ export const originMenus = [
     key: '/profile',
     icon: <UserRoundCog className="w-4 h-4" />,
     access: [
-      Role_Enum.PLATFORM_ADMIN,
       Role_Enum.SYSTEM_ADMIN,
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,

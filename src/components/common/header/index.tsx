@@ -11,7 +11,6 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLongPress } from 'react-use';
-import { lusitana } from '../../display/fonts';
 import ThemeSwitcher from '../theme-switcher';
 import { AvatarDropdown } from './avatar-dropdown';
 
@@ -47,9 +46,7 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
 
   return (
     <div className="w-full flex items-center justify-between">
-      <div
-        className={`${lusitana.className} flex flex-row items-center gap-2 leading-none`}
-      >
+      <div className={`flex flex-row items-center gap-2 leading-none`}>
         <Link href="/">
           <Image alt="logo" className="w-8 h-8 md:w-12 md:h-12" src={logo} />
         </Link>
