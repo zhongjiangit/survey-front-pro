@@ -28,6 +28,18 @@ export const Role_Type = {
   [Role_Enum.EXPERT]: 60,
 };
 
+// ------------- 发送短信密码 type -----------
+// 事件类型 1：登录 2：修改密码 3：确认旧手机号 4：确认新手机号
+export type SendSmsType = 1 | 2 | 3 | 4;
+
+// ------------- 发送短信密码枚举 -----------
+export enum SendSmsTypeEnum {
+  Login = 1,
+  ChangePassword = 2,
+  ConfirmOldPhone = 3,
+  ConfirmNewPhone = 4,
+}
+
 // ----------------- 通用类型 0 | 1 -----------------
 // 返回 0 ｜ 1 的类型， 0 代表否，1 代表是 或者 是否允许  0：不允许  1：允许
 export type ZeroOrOneType = 0 | 1;
