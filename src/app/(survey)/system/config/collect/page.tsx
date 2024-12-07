@@ -222,7 +222,7 @@ export default function Page() {
                   <RenderFormItem
                     type={item.widgetType || 'input'}
                     option={
-                      widgetList.data.find(
+                      widgetList.data[0]?.widgets?.find(
                         widget => widget.id === item.widgetId
                       )?.widgetDetails
                     }

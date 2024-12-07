@@ -26,8 +26,11 @@ const TemplateDetailModal = ({
 
   const { data, run: getTemplateDetail } = useRequest(
     () => {
+      if (!currentSystem?.systemId) {
+        return Promise.reject('currentSystem is not exist');
+      }
       return Api.getTemplateDetails({
-        currentSystemId: currentSystem?.systemId!,
+        currentSystemId: currentSystem.systemId,
         templateId: templateId,
         templateType: TemplateType,
       }).then(value => {
@@ -90,14 +93,15 @@ const TemplateDetailModal = ({
           autoComplete="off"
           name="template_detail_modal"
         >
-          {!!data?.data?.items?.length ? (
+          {data?.data?.items?.length ? (
             data?.data?.items.map((item: CollectItemType, index: number) => (
               <div className="flex" key={index}>
                 <RenderFormItem
                   type={item.widgetType || 'input'}
                   option={
-                    widgetList.data.find(widget => widget.id === item.widgetId)
-                      ?.widgetDetails
+                    widgetList.data[0]?.widgets?.find(
+                      widget => widget.id === item.widgetId
+                    )?.widgetDetails
                   }
                   item={item}
                 />

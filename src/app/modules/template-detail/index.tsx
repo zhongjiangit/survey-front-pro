@@ -38,7 +38,7 @@ const TemplateDetail = ({
     });
   });
 
-  const {} = useRequest(
+  useRequest(
     () => {
       if (
         !currentSystem?.systemId ||
@@ -86,14 +86,23 @@ const TemplateDetail = ({
   );
 
   const saveSingleFill = () => {
+    if (
+      !currentSystem?.systemId ||
+      !currentOrg?.orgId ||
+      !singleFillId ||
+      !currentFillTask
+    ) {
+      return Promise.reject('参数补全');
+    }
+
     const formValues = form.getFieldsValue();
-    console.log('formValues', formValues);
+
     const formattedValues = Object.entries(formValues).map(([key, value]) => ({
       templateItemId: Number(key),
       fillContent: value,
     }));
     const fillData = {
-      currentSystemId: currentSystem?.systemId!,
+      currentSystemId: currentSystem.systemId,
       currentOrgId: currentOrg?.orgId,
       singleFillId: singleFillId,
       taskId: currentFillTask.taskId,
@@ -129,8 +138,9 @@ const TemplateDetail = ({
                 item={item}
                 type={item.widgetType || 'input'}
                 option={
-                  widgetList.data.find(widget => widget.id === item.widgetId)
-                    ?.widgetDetails
+                  widgetList.data[0]?.widgets?.find(
+                    widget => widget.id === item.widgetId
+                  )?.widgetDetails
                 }
               />
             </div>

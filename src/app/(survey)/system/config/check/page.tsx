@@ -209,7 +209,8 @@ export default function Page() {
                     <RenderFormItem
                       type={item.widgetType || 'input'}
                       option={
-                        widgetList.data.find(
+                        // TODO: 优化,这里后续会不止一种类型的widget
+                        widgetList.data[0]?.widgets?.find(
                           widget => widget.id === item.widgetId
                         )?.widgetDetails
                       }
