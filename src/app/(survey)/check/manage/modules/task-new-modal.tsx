@@ -75,11 +75,8 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
 }) => {
   const [modal, contextHolder] = Modal.useModal();
   const [form] = Form.useForm();
-  const [checkAll, setCheckAll] = useState(false);
   const [templateId, setTemplateId] = useState<number>();
-  const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
-  const [indeterminate, setIndeterminate] = useState(false);
-  const [filterValue, setFilterValue] = useState<string[]>([]);
+  const [filterValue, _setFilterValue] = useState<string[]>([]);
   const [levelOrgs, setLevelOrgs] = useState<any[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
@@ -87,6 +84,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   const [orgMembers, setOrgMembers] = useState<any>({});
   const [member, setMember] = useState<any[]>([]);
 
+  const setFilterValue = (value: string[]) => {
+    // hack 查询需要依赖及时更新的标签数据
+    filterValue.length = 0;
+    filterValue.push(...value);
+    _setFilterValue(value);
+  };
   // 人员部门树数据
   useMemo(() => {
     setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
@@ -117,7 +120,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         currentOrgId: currentOrg.orgId!,
         // TODO orgId是什么？
         orgId: currentOrg.orgId!,
-      });
+      }).then(res => res.data.slice(1));
     },
     {
       refreshDeps: [currentSystem, currentOrg],
@@ -125,7 +128,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
-    (index: number | null, filterValue: string[] = []) => {
+    (index: number | null) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
@@ -149,7 +152,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     run: getListAllAssignSub,
     loading: allAssignSubLoading,
   } = useRequest(
-    (filterValue: string[] = []) => {
+    () => {
       console.log('getListAllAssignSub');
 
       if (!currentSystem || !currentOrg) {
@@ -194,9 +197,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       manual: true,
     }
   );
-  useEffect(() => {
-    getTagList(TagTypeEnum.Org);
-  }, []);
 
   const { run: createInspTask, loading: submitLoading } = useRequest(
     (values: CreateInspTaskParamsType) => {
@@ -224,12 +224,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     }
     if (changedValues?.publishType === publishTypeEnum.Level) {
       getTagList(TagTypeEnum.Org);
-      getListLevelAssignSub(null, filterValue);
+      getListLevelAssignSub(null);
     } else if (changedValues?.publishType === publishTypeEnum.Staff) {
       getTagList(TagTypeEnum.Member);
       getListAllAssignSub();
     } else if (changedValues?.levels) {
-      getListLevelAssignSub(changedValues?.levels?.[0], filterValue);
+      getListLevelAssignSub(changedValues?.levels?.[0]);
       form.setFieldsValue({ orgs: [] });
     }
   };
@@ -253,12 +253,17 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       createDate.orgs = values.orgs?.map((item: string) => ({
         orgId: Number(item),
       }));
+      createDate.orgTags = filterValue?.map((item: string) => ({
+        key: item,
+      }));
     } else if (values.publishType === PublishTypeEnum.Member) {
       // 任务分配到人 可以选择人或部门
       createDate.staffs = member.map((item: string) => ({
         staffId: Number(item),
       }));
-      createDate.includeOrgs = [];
+      createDate.staffTags = filterValue?.map((item: string) => ({
+        key: item,
+      }));
     }
     createInspTask(createDate);
   };
@@ -269,16 +274,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   const onCheckAllChange = (e: any) => {
-    if (e.target.checked) {
-      form.setFieldValue('orgs', plainOptions);
-      setOrgSelectedNum(plainOptions.length);
-      setCheckAll(true);
-    } else {
-      form.setFieldValue('orgs', []);
-      setOrgSelectedNum(0);
-      setCheckAll(false);
-    }
-    setIndeterminate(false);
+    form.setFieldValue('orgs', e.target.checked ? plainOptions : []);
   };
 
   const showPublishTypeConfirm = () => {
@@ -309,16 +305,15 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     const onOk = () => {
       setFilterValue(value);
       setOrgMembers({});
-
       setMember([]);
       form.setFieldValue('orgs', []);
 
       const publishType = form.getFieldValue('publishType');
       if (publishType === PublishTypeEnum.Org) {
-        getListLevelAssignSub(form.getFieldValue('levels')?.[0], value);
+        getListLevelAssignSub(form.getFieldValue('levels')?.[0]);
       }
       if (publishType === PublishTypeEnum.Member) {
-        getListAllAssignSub(value);
+        getListAllAssignSub();
       }
     };
     // 如果未选择就无需确认
@@ -373,6 +368,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     nodeData.isLeaf
       ? nodeData.title
       : `${nodeData.orgName} (共${getSelectedNum(member, nodeData.children || [])}/${nodeData.staffCount}人)`;
+
+  useEffect(() => {
+    if (!listVisibleLevels) {
+      return;
+    }
+    let publishType = PublishTypeEnum.Org;
+    // 没有可选的层级 就下发到人
+    if (listVisibleLevels && !listVisibleLevels.length) {
+      publishType = PublishTypeEnum.Member;
+    }
+    form.setFieldValue('publishType', publishType);
+    onValuesChange({ publishType }, {});
+  }, [listVisibleLevels]);
 
   const MemberSelect = (
     <div>
@@ -452,7 +460,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         ]}
       >
         <Checkbox.Group
-          options={listVisibleLevels?.data?.map(item => ({
+          options={listVisibleLevels?.map(item => ({
             label: item.levelName,
             value: item.levelIndex,
           }))}
@@ -472,9 +480,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             placeholder="选择标签过滤单位"
           />
         </div>
-        <div className="mr-5 text-blue-400 text-right">
-          已选：{orgSelectedNum} 单位
-        </div>
+        <Form.Item noStyle dependencies={['orgs']}>
+          {() => {
+            if (!listLevelAssignSub?.data.length) {
+              return null;
+            }
+            const checkedList = form.getFieldValue('orgs') || [];
+            return (
+              <div className="mr-5 text-blue-400 text-right">
+                已选：{checkedList.length} 单位
+              </div>
+            );
+          }}
+        </Form.Item>
       </div>
 
       <Divider></Divider>
@@ -485,7 +503,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
               return null;
             }
             const checkedList = form.getFieldValue('orgs') || [];
-            setOrgSelectedNum(checkedList.length);
             const indeterminate =
               !!checkedList.length &&
               checkedList.length < (plainOptions?.length || 0);
@@ -507,14 +524,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           rules={[{ required: true, message: '请选择单位' }]}
         >
           <Checkbox.Group
-            onChange={checkedList => {
-              setOrgSelectedNum(checkedList.length);
-              setIndeterminate(
-                !!checkedList.length &&
-                  checkedList.length < (plainOptions?.length || 0)
-              );
-              setCheckAll(checkedList.length === plainOptions.length);
-            }}
             options={listLevelAssignSub?.data.map(item => ({
               label: item.orgName,
               value: item.orgId,
@@ -594,7 +603,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             >
               <RangePicker
                 format="YYYY-MM-DD HH:mm"
-                showTime={{ format: 'HH:mm:ss' }}
+                showTime={{ format: 'HH:mm' }}
                 style={{ width: '100%' }}
               />
             </Form.Item>
@@ -626,9 +635,16 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             )}
           </Col>
           <Col span={12}>
-            <Form.Item name="maxFillCount" label="每位填报者可提交最多份数">
+            <Form.Item
+              name="maxFillCount"
+              label="每位填报者可提交最多份数"
+              extra={
+                <span className="text-slate-500">
+                  *当不输入值时，为不限份数
+                </span>
+              }
+            >
               <InputNumber style={{ width: '100%' }} min={0}></InputNumber>
-              <span className="text-slate-500">*当不输入值时，为不限份数</span>
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -649,6 +665,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
                     id={id}
                     ref={ref}
                     value={value}
+                    disabled={!listVisibleLevels?.length}
                     onChange={async (...arg) => {
                       await showPublishTypeConfirm();
                       onChange(...arg);
@@ -664,6 +681,9 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         </Row>
         <Form.Item noStyle dependencies={['publishType']}>
           {({ getFieldValue }) => {
+            if (!listVisibleLevels) {
+              return null;
+            }
             return (
               <div className="flex justify-center">
                 <div

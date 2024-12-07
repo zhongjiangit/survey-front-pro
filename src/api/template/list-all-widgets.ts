@@ -33,7 +33,7 @@ export interface TemplateListType {
   widgets: WidgetItemType[];
   widgetDetails?: any;
   widgetName?: string;
-  widgetType?: string;
+  widgetType?: WidgetType;
 }
 
 interface WidgetLisResponse {
