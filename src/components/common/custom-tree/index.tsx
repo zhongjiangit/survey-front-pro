@@ -18,6 +18,10 @@ import RenderInput from './render-input';
 export interface CustomTreeDataNode extends TreeDataNode {
   children?: CustomTreeDataNode[];
   type?: string;
+  key: string | number;
+  orgName?: string;
+  staffCount?: number;
+  isLeaf?: boolean;
 }
 
 interface CustomTreeProps {

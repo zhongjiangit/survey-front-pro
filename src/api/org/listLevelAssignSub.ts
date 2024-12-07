@@ -16,6 +16,9 @@ export interface ListLevelAssignSubParamsType {
   tags?: {
     key: number;
   }[];
+  staffTags?: {
+    key: number;
+  }[];
 }
 
 /**
