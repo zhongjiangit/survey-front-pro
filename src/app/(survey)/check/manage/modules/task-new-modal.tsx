@@ -36,7 +36,14 @@ import {
   Tree,
   TreeSelect,
 } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  getSelectedNum,
+  membersToNode,
+  selectMember,
+  updateTreeData,
+  updateTreeDataV2,
+} from '@/app/(survey)/check/manage/modules/utils';
 
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
@@ -46,16 +53,22 @@ interface TaskEditModalProps {
   setOpen: (open: boolean) => void;
 }
 
-interface Values {
-  taskName: string;
-  timeFillEstimate: any;
-  templateId: number;
-  publishType: publishTypeType;
-  maxFillCount: number;
-  levels?: string[];
-  orgs?: string[];
+interface FormItemWrapProps {
+  id?: string;
+  ref?: React.RefObject<HTMLInputElement>;
+  value?: any;
+  onChange?: (...arg: any[]) => void;
+  renderChildren: (arg: any) => React.ReactNode;
 }
-
+const FormItemWrap: React.FC<FormItemWrapProps> = ({
+  id,
+  ref,
+  value,
+  onChange,
+  renderChildren,
+}) => {
+  return renderChildren({ id, ref, value, onChange });
+};
 const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   refreshMyPublishTask,
   setOpen,
@@ -70,6 +83,14 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   const [levelOrgs, setLevelOrgs] = useState<any[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [levelOrgList, setLevelOrgList] = useState<any[]>([]);
+  const [orgMembers, setOrgMembers] = useState<any>({});
+  const [member, setMember] = useState<any[]>([]);
+
+  // 人员部门树数据
+  useMemo(() => {
+    setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
+  }, [levelOrgs, orgMembers]);
 
   const { data: checkList, loading: checkListLoading } = useRequest(
     () => {
@@ -77,7 +98,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.getTemplateOutlineList({
-        currentSystemId: currentSystem?.systemId!,
+        currentSystemId: currentSystem.systemId!,
         templateType: TemplateTypeEnum.Check,
       });
     },
@@ -92,10 +113,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.listVisibleLevels({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
         // TODO orgId是什么？
-        orgId: currentOrg?.orgId!,
+        orgId: currentOrg.orgId!,
       });
     },
     {
@@ -109,8 +130,8 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.listLevelAssignSub({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
         // TODO orgId 是1时查不出来数据
         levelIndex: index || 1,
         tags: filterValue.map(item => ({
@@ -135,61 +156,26 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.listAllAssignSub({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
-        tags: filterValue.map(item => ({
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
+        staffTags: filterValue.map(item => ({
           key: Number(item),
         })),
-      });
+      }).then(res => res.data);
     },
     {
       manual: true,
       onSuccess: data => {
-        const levelOrgs = data.data.map(level =>
+        const levelOrgs = data.map(level =>
           level.orgs.map(org => ({
+            ...org,
             title: `${org.orgName} (共${org.staffCount}人)`,
             key: org.orgId,
+            disableCheckbox: org.staffCount === 0,
+            isLeaf: false,
           }))
         );
         setLevelOrgs(levelOrgs);
-      },
-    }
-  );
-
-  const { run: getStaffListByTags } = useRequest(
-    (orgId: number) => {
-      if (!currentSystem || !currentOrg) {
-        return Promise.reject('No current system');
-      }
-      return Api.getStaffListByTags({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
-        orgId: orgId,
-        tags: filterValue.map(item => ({
-          key: Number(item),
-        })),
-      });
-    },
-    {
-      manual: true,
-      onSuccess: (data, params) => {
-        console.log('getStaffListByTags', data, params);
-        // 将data.data以children为属性的levelOrgs对应的id为param[0]中
-        const newLevelOrgs = levelOrgs.map((level: any) =>
-          level.map((org: any) => {
-            console.log('org', org, params[0], org.key == params[0]);
-
-            if (org.key == params[0]) {
-              console.log('params', org);
-              org.children = data.data.map(item => ({
-                key: item.id,
-                title: `${item.staffName}(${item.cellphone})`,
-              }));
-            }
-            return org;
-          })
-        );
-        setLevelOrgs(newLevelOrgs);
       },
     }
   );
@@ -200,7 +186,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.getTagList({
-        currentSystemId: currentSystem?.systemId!,
+        currentSystemId: currentSystem.systemId!,
         tagType: type || 1,
       });
     },
@@ -208,6 +194,9 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       manual: true,
     }
   );
+  useEffect(() => {
+    getTagList(TagTypeEnum.Org);
+  }, []);
 
   const { run: createInspTask, loading: submitLoading } = useRequest(
     (values: CreateInspTaskParamsType) => {
@@ -229,6 +218,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     console.log('changedValues', changedValues);
     if (changedValues?.publishType) {
       setFilterValue([]);
+      setOrgMembers({});
       setMember([]);
       form.setFieldsValue({ orgs: [], levels: [] });
     }
@@ -240,10 +230,11 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       getListAllAssignSub();
     } else if (changedValues?.levels) {
       getListLevelAssignSub(changedValues?.levels?.[0], filterValue);
+      form.setFieldsValue({ orgs: [] });
     }
   };
 
-  const onCreate = (values: Values) => {
+  const onCreate = (values: any) => {
     const createDate: any = {
       ...values,
       maxFillCount: values.maxFillCount || 0,
@@ -264,18 +255,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       }));
     } else if (values.publishType === PublishTypeEnum.Member) {
       // 任务分配到人 可以选择人或部门
-      /**
-       * staffs
-       *   staffId
-       * includeOrgs
-       *   orgId
-       */
-      createDate.staffs = memberStaffs().map((item: string) => ({
-        staffId: Number(item.replace(MEMBER_PREFIX, '')),
+      createDate.staffs = member.map((item: string) => ({
+        staffId: Number(item),
       }));
-      createDate.includeOrgs = memberOrgs().map((item: string) => ({
-        orgId: Number(item),
-      }));
+      createDate.includeOrgs = [];
     }
     createInspTask(createDate);
   };
@@ -298,17 +281,39 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     setIndeterminate(false);
   };
 
-  const onFilterChange = (value: string[]) => {
-    console.log(value);
-    setFilterValue(value);
+  const showPublishTypeConfirm = () => {
+    // 如果未选择就无需确认
+    if (!member.length && !form.getFieldValue('orgs')?.length) {
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      modal.confirm({
+        title: '确认任务分配方式',
+        icon: <ExclamationCircleFilled />,
+        content: (
+          <>改变任务分配方式后，之前的选择将会清空，确认任务分配方式？</>
+        ),
+        onOk() {
+          resolve(true);
+        },
+        onCancel() {
+          reject(false);
+        },
+      });
+    });
   };
 
-  const showConfirm = (value: string[]) => {
+  const showConfirm = (nodes: any[]) => {
+    const value = nodes.map(t => t.value);
+    console.log(value);
     const onOk = () => {
       setFilterValue(value);
+      setOrgMembers({});
+
       setMember([]);
       form.setFieldValue('orgs', []);
-      let publishType = form.getFieldValue('publishType');
+
+      const publishType = form.getFieldValue('publishType');
       if (publishType === PublishTypeEnum.Org) {
         getListLevelAssignSub(form.getFieldValue('levels')?.[0], value);
       }
@@ -332,7 +337,19 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     });
   };
 
-  const MEMBER_PREFIX = '__m__';
+  const getOrgMembers = async (key: number | string) => {
+    orgMembers[key] = [];
+    const res = await Api.getStaffListByTags({
+      currentSystemId: currentSystem?.systemId,
+      currentOrgId: currentOrg?.orgId,
+      orgId: Number(key),
+      tags: filterValue.map<{ key: number }>(item => ({ key: Number(item) })),
+    });
+    const members = membersToNode(res.data);
+    setOrgMembers((t: { [key: string]: any }) => ({ ...t, [key]: members }));
+    return members;
+  };
+
   const onLoadMember = async (node: CustomTreeDataNode) => {
     const { key, children } = node;
     if (children) {
@@ -342,65 +359,20 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     if (!currentSystem || !currentOrg) {
       return Promise.reject('No current system');
     }
-    const res = await Api.getStaffListByTags({
-      currentSystemId: currentSystem?.systemId,
-      currentOrgId: currentOrg?.orgId,
-      orgId: Number(key),
-      tags: filterValue.map(item => ({ key: Number(item) })),
-    });
-    const members = res.data.map(item => ({
-      key: MEMBER_PREFIX + item.id,
-      id: item.id,
-      title: `${item.staffName}(${item.cellphone})`,
-      type: 'member',
-      isLeaf: true,
-    }));
-    if (!members.length) {
-      return;
-    }
-    setLevelOrgs(orgs => orgs.map(t => updateTreeData(t, key, members)));
-    function updateTreeData(
-      list: CustomTreeDataNode[],
-      key: React.Key,
-      children: CustomTreeDataNode[]
-    ): CustomTreeDataNode[] {
-      return list.map(node => {
-        if (node.key === key) {
-          return { ...node, children };
-        }
-        if (node.children) {
-          return {
-            ...node,
-            children: updateTreeData(node.children, key, children),
-          };
-        }
-        return node;
-      });
-    }
+    await getOrgMembers(Number(key));
   };
 
-  /**
-   * staffs
-   *   staffId
-   * includeOrgs
-   *   orgId
-   */
-  const [member, setMember] = useState([]);
-  const memberStaffs = () =>
-    member.filter(k => (k + '').startsWith(MEMBER_PREFIX));
-  const memberOrgs = () =>
-    member.filter(k => !(k + '').startsWith(MEMBER_PREFIX));
-
-  const onSelectMember = (
+  const onSelectMember = async (
     checkedKeys: any,
     { checked, node }: { checked: boolean; node: any }
   ) => {
-    if (checked) {
-      setMember(member.concat(node.key));
-    } else {
-      setMember(member.filter(item => item !== node.key));
-    }
+    setMember(await selectMember(member, checked, node, getOrgMembers));
   };
+
+  const renderTitle = (nodeData: any) =>
+    nodeData.isLeaf
+      ? nodeData.title
+      : `${nodeData.orgName} (共${getSelectedNum(member, nodeData.children || [])}/${nodeData.staffCount}人)`;
 
   const MemberSelect = (
     <div>
@@ -413,12 +385,13 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
-            showCheckedStrategy={'SHOW_PARENT'}
+            treeCheckStrictly={true}
+            showCheckedStrategy={'SHOW_ALL'}
             placeholder="选择标签过滤人员"
           />
         </div>
         <div className="mr-5 text-right flex gap-4 items-center">
-          <span className="text-blue-400">已选：{memberStaffs().length}人</span>
+          <span className="text-blue-400">已选：{member.length}人</span>
           <span
             className="cursor-pointer text-red-500 hover:text-red-600"
             onClick={() => setMember([])}
@@ -427,7 +400,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           </span>
         </div>
       </div>
-      <Divider></Divider>
+      <Divider style={{ marginBottom: '8px' }}></Divider>
       <div
         key={allAssignSubLoading ? '1' : '2'}
         style={{
@@ -438,8 +411,15 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         className="px-20"
       >
         <div key={filterValue.join(',')} className="flex gap-20 w-full">
-          {levelOrgs?.map((level: any, index: number) => (
-            <div key={index} style={{ flex: 'auto', width: '0px' }}>
+          {levelOrgList?.map((level: any, index: number) => (
+            <div
+              className="border-b-card"
+              key={index}
+              style={{ flex: 'auto', width: '0px' }}
+            >
+              <div className="font-bold">
+                {listAllAssignSub?.[index]?.levelName}
+              </div>
               <Tree
                 treeData={level}
                 checkedKeys={member}
@@ -448,6 +428,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
                 defaultExpandAll
                 onCheck={onSelectMember}
                 style={{ flexShrink: 1 }}
+                titleRender={renderTitle}
               />
             </div>
           ))}
@@ -486,12 +467,13 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
-            showCheckedStrategy={'SHOW_PARENT'}
+            treeCheckStrictly={true}
+            showCheckedStrategy={'SHOW_ALL'}
             placeholder="选择标签过滤单位"
           />
         </div>
         <div className="mr-5 text-blue-400 text-right">
-          已选：{orgSelectedNum}单位
+          已选：{orgSelectedNum} 单位
         </div>
       </div>
 
@@ -502,12 +484,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             if (!listLevelAssignSub?.data.length) {
               return null;
             }
-            let checkedList = form.getFieldValue('orgs') || [];
+            const checkedList = form.getFieldValue('orgs') || [];
             setOrgSelectedNum(checkedList.length);
-            let indeterminate =
+            const indeterminate =
               !!checkedList.length &&
               checkedList.length < (plainOptions?.length || 0);
-            let checkedAll = checkedList.length === plainOptions.length;
+            const checkedAll = checkedList.length === plainOptions.length;
             return (
               <Checkbox
                 indeterminate={indeterminate}
@@ -661,10 +643,22 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           <Col span={12}></Col>
           <Col span={12}>
             <Form.Item name="publishType" label="任务分配方式">
-              <Radio.Group>
-                <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
-                <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
-              </Radio.Group>
+              <FormItemWrap
+                renderChildren={({ id, ref, value, onChange }) => (
+                  <Radio.Group
+                    id={id}
+                    ref={ref}
+                    value={value}
+                    onChange={async (...arg) => {
+                      await showPublishTypeConfirm();
+                      onChange(...arg);
+                    }}
+                  >
+                    <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
+                    <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>
+                  </Radio.Group>
+                )}
+              />
             </Form.Item>
           </Col>
         </Row>

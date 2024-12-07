@@ -28,6 +28,13 @@ import {
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import { treeData } from '../../testData';
+import { CustomTreeDataNode } from '@/components/common/custom-tree';
+import {
+  getSelectedNum,
+  membersToNode,
+  selectMember,
+  updateTreeDataV2,
+} from '@/app/(survey)/check/manage/modules/utils';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
@@ -35,6 +42,8 @@ interface TaskDetailEditModalProps {
   record: any;
   type: ModalType;
   refreshList: () => void;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
 }
 
 const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
@@ -42,8 +51,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   record,
   type,
   refreshList,
+  open,
+  setOpen,
 }: TaskDetailEditModalProps) => {
-  const [open, setOpen] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
   const [filterValue, setFilterValue] = useState<string[]>([]);
   const [form] = Form.useForm();
@@ -53,6 +63,15 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const [orgSelectedNum, setOrgSelectedNum] = useState<number>(0);
   const [staffSelectedNum, setStaffSelectedNum] = useState<number>(0);
   const [indeterminate, setIndeterminate] = useState(false);
+  const [levelOrgs, setLevelOrgs] = useState<any[]>([]);
+  const [levelOrgList, setLevelOrgList] = useState<any[]>([]);
+  const [orgMembers, setOrgMembers] = useState<any>({});
+  const [task, setTask] = useState<any>(null);
+  const [member, setMember] = useState<any>([]);
+
+  useMemo(() => {
+    setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
+  }, [levelOrgs, orgMembers]);
 
   const { run: updateInspTaskFill } = useRequest(
     values => {
@@ -64,7 +83,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       manual: true,
       onSuccess: () => {
         form.resetFields();
-        setOpen(false);
+        setOpen!(false);
         refreshList();
         setCheckAll(false);
       },
@@ -110,15 +129,15 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
-    (index?: number) => {
+    (index: number, filterValue?: string[]) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
       return Api.listLevelAssignSub({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
         levelIndex: index || 1,
-        tags: filterValue.map(item => ({
+        tags: (filterValue || []).map(item => ({
           key: Number(item),
         })),
       });
@@ -129,13 +148,13 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 
   const { run: getInspTaskFill } = useRequest(
-    taskId => {
+    (taskId: number) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
       return Api.getInspTaskFill({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
         taskId: taskId,
       });
     },
@@ -150,8 +169,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
             dayjs(data.data.endTimeFillEstimate, 'YYYY-MM-DD HH:mm'),
           ],
         };
-        getListLevelAssignSub(initValues?.levels?.[1] ?? 1);
+        // getListLevelAssignSub(initValues?.levels?.[1] ?? 1);
         form.setFieldsValue(initValues);
+        setTask(data.data);
       },
     }
   );
@@ -162,10 +182,10 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.listVisibleLevels({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg?.orgId!,
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
         // TODO orgId是什么？
-        orgId: currentOrg?.orgId!,
+        orgId: currentOrg.orgId!,
       });
     },
     {
@@ -179,7 +199,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         return Promise.reject('No current system');
       }
       return Api.getTagList({
-        currentSystemId: currentSystem?.systemId!,
+        currentSystemId: currentSystem.systemId!,
         tagType: record.publishType,
       });
     },
@@ -187,6 +207,56 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       manual: true,
     }
   );
+
+  // 获取人员分配的所有单位
+  const {
+    data: listAllAssignSub,
+    run: getListAllAssignSub,
+    loading: allAssignSubLoading,
+  } = useRequest(
+    (filterValue: string[] = []) => {
+      console.log('getListAllAssignSub');
+
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listAllAssignSub({
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
+        staffTags: filterValue.map<{ key: number }>(item => ({
+          key: Number(item),
+        })),
+      }).then(res => res.data);
+    },
+    {
+      manual: true,
+      onSuccess: data => {
+        setLevelOrgs(
+          data.map(level =>
+            level.orgs.map(org => ({
+              ...org,
+              title: `${org.orgName} (共${org.staffCount}人)`,
+              key: org.orgId,
+              disableCheckbox: org.staffCount === 0,
+              isLeaf: false,
+            }))
+          )
+        );
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    if (record.publishType === PublishTypeEnum.Org) {
+      //
+    }
+    if (record.publishType === PublishTypeEnum.Member) {
+      getListAllAssignSub();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -197,14 +267,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     if (record.isLowest === ZeroOrOneTypeEnum.One) {
       getStaffListByTags();
     }
-  }, [
-    getInspTaskFill,
-    getListVisibleLevels,
-    getStaffListByTags,
-    getTagList,
-    open,
-    record,
-  ]);
+  }, [open]);
 
   const onCreate = (values: any) => {
     const createDate: any = {
@@ -216,10 +279,11 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       endTimeFillEstimate:
         values.timeFillEstimate[1].format('YYYY-MM-DD HH:mm'),
     };
+    console.log(values);
     delete createDate.timeFillEstimate;
     if (
       record.publishType === PublishTypeEnum.Org &&
-      record.isLowest === ZeroOrOneTypeEnum.Zero
+      task.isLowest !== ZeroOrOneTypeEnum.One
     ) {
       createDate.levels = values.levels?.map((item: string) => ({
         levelIndex: Number(item),
@@ -229,10 +293,17 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       }));
     } else if (
       record.publishType === PublishTypeEnum.Org &&
-      record.isLowest === ZeroOrOneTypeEnum.One
+      task.isLowest === ZeroOrOneTypeEnum.One
     ) {
       createDate.staffs = values.staffs?.map((item: string) => ({
         staffId: Number(item),
+      }));
+    } else if (record.publishType === PublishTypeEnum.Member) {
+      createDate.staffs = member?.map((item: string) => ({
+        staffId: Number(item),
+      }));
+      createDate.staffTags = filterValue?.map((item: string) => ({
+        key: item,
       }));
     }
     updateInspTaskFill(createDate);
@@ -248,25 +319,87 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     setCheckAll(e.target.checked);
   };
 
-  const onFilterChange = (value: string[]) => {
-    console.log(value);
-    setFilterValue(value);
-  };
-
-  const showConfirm = () => {
+  const showConfirm = (nodes: any[]) => {
+    const value = nodes.map(t => t.value);
+    const onOk = () => {
+      setFilterValue(value);
+      setMember([]);
+      setOrgMembers({});
+      form.setFieldValue('orgs', []);
+      if (record.publishType === PublishTypeEnum.Org) {
+        getListLevelAssignSub(form.getFieldValue('levels')?.[0], value);
+      }
+      if (record.publishType === PublishTypeEnum.Member) {
+        getListAllAssignSub(value);
+      }
+    };
+    // 如果未选择就无需确认
+    if (!member.length && !form.getFieldValue('orgs')?.length) {
+      onOk();
+      return;
+    }
     // TODO 之前所选单位是不是为空，，不为空则需要确认。
     modal.confirm({
       title: '过滤条件确认',
       icon: <ExclamationCircleFilled />,
       content: <>改变过滤条件之后，之前的选择将会清空，确认改变过滤条件？</>,
       onOk() {
-        console.log('OK');
-      },
-      onCancel() {
-        console.log('Cancel');
-        onFilterChange([]);
+        onOk();
       },
     });
+  };
+
+  const getOrgMembers = async (key: number | string) => {
+    orgMembers[key] = [];
+    const res = await Api.getStaffListByTags({
+      currentSystemId: currentSystem?.systemId,
+      currentOrgId: currentOrg?.orgId,
+      orgId: Number(key),
+      tags: filterValue.map<{ key: number }>(item => ({ key: Number(item) })),
+    });
+    const members = membersToNode(res.data);
+    setOrgMembers((t: any) => ({ ...t, [key]: members }));
+    return members;
+  };
+
+  const onLoadMember = async (node: CustomTreeDataNode) => {
+    const { key, children } = node;
+    if (children) {
+      return;
+    }
+    // Hack 防止重复加载
+    node.children = [];
+    return await getOrgMembers(key as number);
+  };
+
+  useEffect(() => {
+    if (task && task.publishType === PublishTypeEnum.Member) {
+      setMember(task.staffs.map((item: { staffId: number }) => item.staffId));
+      const p = Promise.resolve();
+      // 获取已选部门人员列表
+      for (const orgId of [
+        ...new Set<number>(
+          task.staffs.map((item: { orgId: number }) => item.orgId)
+        ),
+      ]) {
+        p.then(() => getOrgMembers(orgId));
+      }
+    }
+    if (task && task.publishType === PublishTypeEnum.Org) {
+      getListLevelAssignSub(task.levels?.[0]?.levelIndex, filterValue);
+    }
+  }, [task]);
+
+  const onSelectMember = async (
+    checkedKeys: any,
+    { checked, node }: { checked: boolean; node: any }
+  ) => {
+    setMember(await selectMember(member, checked, node, getOrgMembers));
+  };
+  const titleRender = (nodeData: any) => {
+    return nodeData.isLeaf
+      ? nodeData.title
+      : `${nodeData.orgName} (共${getSelectedNum(member, nodeData.children || [])}/${nodeData.staffCount}人)`;
   };
 
   const MemberSelect = (
@@ -277,15 +410,14 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           className="flex flex-1 justify-between items-center"
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          <Select
-            mode="multiple"
+          <TreeSelect
             style={{ width: '40%' }}
-            options={[
-              { label: 'aaaaa', value: '1' },
-              { label: 'bbbbb', value: '2' },
-              { label: 'ccccc', value: '3' },
-              { label: 'ddddd', value: '4' },
-            ]}
+            onChange={showConfirm}
+            treeData={formatTreeData([tagList?.data.tags])}
+            treeCheckable={true}
+            treeCheckStrictly={true}
+            showCheckedStrategy={'SHOW_ALL'}
+            placeholder="选择标签过滤人员"
           />
           <span
             style={{
@@ -293,46 +425,37 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
               color: 'red',
             }}
           >
-            已选：12人
+            已选：{member.length}人
           </span>
         </div>
       </div>
 
       <Divider></Divider>
       <div
+        key={filterValue.join(',')}
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           margin: '0 40px 0 0',
         }}
       >
-        <Tree
-          checkable
-          treeData={treeData[0]}
-          defaultExpandAll
-          style={{
-            flexShrink: 1,
-            // marginRight: '10%',
-          }}
-        />
-        <Tree
-          checkable
-          treeData={treeData[1]}
-          defaultExpandAll
-          style={{
-            flexShrink: 1,
-            // marginRight: '10%',
-          }}
-        />
-        <Tree
-          checkable
-          treeData={treeData[2]}
-          defaultExpandAll
-          style={{
-            flexShrink: 1,
-            // marginRight: '10%',
-          }}
-        />
+        {levelOrgList?.map((level: any, index: number) => (
+          <div key={index} style={{ flex: 'auto', width: '0px' }}>
+            <div className="font-bold">
+              {listAllAssignSub?.[index]?.levelName}
+            </div>
+            <Tree
+              treeData={level}
+              checkedKeys={member}
+              loadData={onLoadMember}
+              checkable
+              defaultExpandAll
+              onCheck={onSelectMember}
+              style={{ flexShrink: 1 }}
+              titleRender={titleRender}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -353,7 +476,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       >
         <Checkbox.Group
           onChange={value => {
-            getListLevelAssignSub(value[0]);
+            getListLevelAssignSub(value[0], filterValue);
+            form.setFieldValue('orgs', []);
           }}
           //listVisibleLevels剔除数组中的第一个元素
           options={
@@ -377,29 +501,45 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         </div>
         <TreeSelect
           style={{ width: '40%' }}
-          value={filterValue}
-          onChange={onFilterChange}
-          onBlur={showConfirm}
+          onChange={showConfirm}
           treeData={formatTreeData([tagList?.data.tags])}
           treeCheckable={true}
-          showCheckedStrategy={'SHOW_PARENT'}
+          treeCheckStrictly={true}
+          showCheckedStrategy={'SHOW_ALL'}
         />
       </div>
 
       <div className="mr-5 text-blue-400 text-right">
-        已选：{orgSelectedNum}单位
+        <Form.Item noStyle dependencies={['orgs']}>
+          {() => {
+            return `已选：${form.getFieldValue('orgs')?.length} 单位`;
+          }}
+        </Form.Item>
       </div>
       <Divider></Divider>
       <div className="px-16">
-        {!!listLevelAssignSub?.data.length && (
-          <Checkbox
-            indeterminate={indeterminate}
-            onChange={onCheckAllChange}
-            checked={checkAll}
-          >
-            全选
-          </Checkbox>
-        )}
+        <Form.Item noStyle dependencies={['orgs']}>
+          {() => {
+            if (!listLevelAssignSub?.data.length) {
+              return null;
+            }
+            const checkedList = form.getFieldValue('orgs') || [];
+            setOrgSelectedNum(checkedList.length);
+            const indeterminate =
+              !!checkedList.length &&
+              checkedList.length < (plainOptions?.length || 0);
+            const checkedAll = checkedList.length === plainOptions.length;
+            return (
+              <Checkbox
+                indeterminate={indeterminate}
+                onChange={onCheckAllChange}
+                checked={checkedAll}
+              >
+                全选
+              </Checkbox>
+            );
+          }}
+        </Form.Item>
         <Form.Item
           name="orgs"
           label=""
@@ -434,8 +574,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         <TreeSelect
           style={{ width: '40%' }}
           value={filterValue}
-          onChange={onFilterChange}
-          onBlur={showConfirm}
+          onChange={showConfirm}
           treeData={formatTreeData([tagList?.data.tags])}
           treeCheckable={true}
           showCheckedStrategy={'SHOW_PARENT'}
@@ -481,14 +620,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
 
   return (
     <>
-      <a
-        className="text-blue-500"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        {linkName || '修改'}
-      </a>
       <Modal
         width={1400}
         open={open}
@@ -500,9 +631,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           onClick: () => form.submit(),
         }}
         onCancel={() => {
-          setOpen(false);
-          setCheckAll(false);
-          form.resetFields();
+          setOpen!(false);
         }}
       >
         <Form
@@ -541,9 +670,11 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                 <Divider orientation="left">分配详情</Divider>
                 <div style={{ marginLeft: '20px' }}>
                   {record.publishType === PublishTypeEnum.Org
-                    ? record.isLowest === ZeroOrOneTypeEnum.Zero
-                      ? OrgSelect
-                      : LastOrgSelect
+                    ? !task
+                      ? null
+                      : task?.isLowest !== ZeroOrOneTypeEnum.One
+                        ? OrgSelect
+                        : LastOrgSelect
                     : MemberSelect}
                 </div>
               </div>
@@ -556,4 +687,36 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 };
 
-export default TaskDetailEditModal;
+// export default TaskDetailEditModal;
+const TaskDetailEditBtn: React.FC<TaskDetailEditModalProps> = ({
+  linkName,
+  record,
+  type,
+  refreshList,
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <a
+        className="text-blue-500"
+        onClick={() => {
+          setOpen(!open);
+        }}
+      >
+        {linkName || '修改'}
+      </a>
+      {open && (
+        <TaskDetailEditModal
+          key={record.taskId}
+          record={record}
+          type={type}
+          refreshList={refreshList}
+          linkName={linkName}
+          open={open}
+          setOpen={setOpen}
+        />
+      )}
+    </>
+  );
+};
+export default TaskDetailEditBtn;
