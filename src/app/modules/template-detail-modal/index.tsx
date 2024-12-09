@@ -23,6 +23,7 @@ const TemplateDetailModal = ({
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const [widgetList, setWidgetList] = useState<any>([]);
 
   const { data, run: getTemplateDetail } = useRequest(
     () => {
@@ -42,20 +43,27 @@ const TemplateDetailModal = ({
     }
   );
 
-  const { data: widgetList = { data: [] }, run: getAllWidgetsList } =
-    useRequest(
-      () => {
-        if (!currentSystem) {
-          return Promise.reject('currentSystem is not exist');
-        }
-        return Api.getAllWidgetsList({
-          currentSystemId: Number(currentSystem?.systemId),
-        });
-      },
-      {
-        manual: true,
+  const { run: getAllWidgetsList } = useRequest(
+    () => {
+      if (!currentSystem) {
+        return Promise.reject('currentSystem is not exist');
       }
-    );
+      return Api.getAllWidgetsList({
+        currentSystemId: Number(currentSystem?.systemId),
+      });
+    },
+    {
+      manual: true,
+      onSuccess: response => {
+        if (response.data) {
+          const widgets = response.data.reduce((acc: any, cur: any) => {
+            return acc.concat(cur.widgets);
+          }, []);
+          setWidgetList(widgets);
+        }
+      },
+    }
+  );
 
   useEffect(() => {
     if (open) {
@@ -99,8 +107,8 @@ const TemplateDetailModal = ({
                 <RenderFormItem
                   type={item.widgetType || 'input'}
                   option={
-                    widgetList.data[0]?.widgets?.find(
-                      widget => widget.id === item.widgetId
+                    widgetList?.find(
+                      (widget: any) => widget.id === item.widgetId
                     )?.widgetDetails
                   }
                   item={item}

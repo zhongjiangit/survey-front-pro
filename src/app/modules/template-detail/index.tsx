@@ -9,6 +9,7 @@ import { TemplateType, TemplateTypeEnum } from '@/types/CommonType';
 import { AnyObject } from '@/typings/type';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form } from 'antd';
+import { useState } from 'react';
 
 interface TemplateDetailProps {
   templateId?: number;
@@ -27,6 +28,7 @@ const TemplateDetail = ({
   });
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [widgetList, setWidgetList] = useState<any>([]);
   const { data: formDetailData } = useRequest(() => {
     if (!currentSystem?.systemId) {
       return Promise.reject('currentSystem is not exist');
@@ -112,14 +114,26 @@ const TemplateDetail = ({
     saveSingleFillDetails(fillData);
   };
 
-  const { data: widgetList = { data: [] } } = useRequest(() => {
-    if (!currentSystem) {
-      return Promise.reject('currentSystem is not exist');
+  useRequest(
+    () => {
+      if (!currentSystem) {
+        return Promise.reject('currentSystem is not exist');
+      }
+      return Api.getAllWidgetsList({
+        currentSystemId: Number(currentSystem?.systemId),
+      });
+    },
+    {
+      onSuccess: response => {
+        if (response.data) {
+          const widgets = response.data.reduce((acc: any, cur: any) => {
+            return acc.concat(cur.widgets);
+          }, []);
+          setWidgetList(widgets);
+        }
+      },
     }
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(currentSystem?.systemId),
-    });
-  });
+  );
 
   return (
     <Form
@@ -138,9 +152,8 @@ const TemplateDetail = ({
                 item={item}
                 type={item.widgetType || 'input'}
                 option={
-                  widgetList.data[0]?.widgets?.find(
-                    widget => widget.id === item.widgetId
-                  )?.widgetDetails
+                  widgetList?.find((widget: any) => widget.id === item.widgetId)
+                    ?.widgetDetails
                 }
               />
             </div>

@@ -6,7 +6,7 @@ import { useRequest } from 'ahooks';
 import type { FormProps } from 'antd';
 import { Button, Drawer, Form, Input, Select, Switch } from 'antd';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NewCollectItemType } from '../check/page';
 
 interface Props {
@@ -25,6 +25,8 @@ const NewCollectItem: React.FC<Props> = ({
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
+  const [widgetOptions, setWidgetOptions] = useState<any>([]);
+  const [widgetList, setWidgetList] = useState<any>([]);
 
   useEffect(() => {
     if (initValues) {
@@ -34,11 +36,36 @@ const NewCollectItem: React.FC<Props> = ({
     }
   }, [form, initValues]);
 
-  const { data: widgetList = { data: [] } } = useRequest(() => {
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(systemId),
-    });
-  });
+  useRequest(
+    () => {
+      return Api.getAllWidgetsList({
+        currentSystemId: Number(systemId),
+      });
+    },
+    {
+      refreshDeps: [systemId],
+      onSuccess: response => {
+        if (response.data) {
+          const options = response.data.map((group: any) => {
+            return {
+              label: <span>{group.groupName}</span>,
+              title: group.groupName,
+              options: group.widgets.map((item: any) => ({
+                label: item.widgetName,
+                value: item.id,
+              })),
+            };
+          });
+          // find all widgets and push into widgetsList
+          const widgets = response.data.reduce((acc: any, cur: any) => {
+            return acc.concat(cur.widgets);
+          }, []);
+          setWidgetList(widgets);
+          setWidgetOptions(options);
+        }
+      },
+    }
+  );
 
   const onClose = () => {
     form.resetFields();
@@ -50,9 +77,7 @@ const NewCollectItem: React.FC<Props> = ({
     values.isRequired = values.isRequired
       ? ZeroOrOneTypeEnum.One
       : ZeroOrOneTypeEnum.Zero;
-    const widget = widgetList.data[0]?.widgets?.find(
-      item => item.id === values.widgetId
-    );
+    const widget = widgetList?.find((item: any) => item.id === values.widgetId);
     pushItem({
       ...initValues,
       ...values,
@@ -109,10 +134,7 @@ const NewCollectItem: React.FC<Props> = ({
             <Select
               placeholder="选择控件"
               optionFilterProp="label"
-              options={widgetList.data[0]?.widgets?.map(item => ({
-                label: item.widgetName,
-                value: item.id,
-              }))}
+              options={widgetOptions}
             />
           </Form.Item>
           <Form.Item label="提醒事项" name="itemMemo">

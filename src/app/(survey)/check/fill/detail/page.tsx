@@ -36,7 +36,7 @@ const Page = () => {
   /**
    * 获取填表列表
    */
-  const {} = useRequest(
+  useRequest(
     () => {
       if (
         !currentSystem?.systemId ||
@@ -48,7 +48,7 @@ const Page = () => {
         );
       }
       return Api.listSingleFill({
-        currentSystemId: currentSystem?.systemId!,
+        currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg!.orgId!,
         taskId: currentFillTask?.taskId,
       });
@@ -90,7 +90,7 @@ const Page = () => {
           );
         }
         return Api.createSingleFill({
-          currentSystemId: currentSystem?.systemId!,
+          currentSystemId: currentSystem.systemId,
           currentOrgId: currentOrg!.orgId!,
           taskId: currentFillTask?.taskId,
         });

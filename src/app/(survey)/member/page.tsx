@@ -5,7 +5,7 @@ import MemberManage from '@/app/modules/member-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { TagTypeEnum } from '@/types/CommonType';
+import { StaffTypeEnum, TagTypeEnum } from '@/types/CommonType';
 import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import { Button, Divider, Form, message, Tag, TreeSelect } from 'antd';
@@ -135,7 +135,7 @@ function Page() {
     [adminStaff]
   );
 
-  const {} = useRequest(
+  useRequest(
     () => {
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
@@ -148,9 +148,9 @@ function Page() {
         const list = response?.data;
         if (list) {
           const adminStaff = list.filter(
-            staff => staff.id === currentOrg?.staffId
+            staff => staff.staffType === StaffTypeEnum.UnitAdmin
           );
-          if (!!adminStaff[0]) {
+          if (adminStaff[0]) {
             setAdminStaff(adminStaff[0]);
             form.setFieldsValue({
               tags: adminStaff[0].tags?.map((tag: any) => tag.key),

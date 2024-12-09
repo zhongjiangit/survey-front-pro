@@ -84,8 +84,8 @@ const Basic = (props: BasicProps) => {
       drawerData.type === 1
         ? orgTags
         : drawerData.type === 2
-        ? memberTags
-        : expertTags;
+          ? memberTags
+          : expertTags;
 
     // 如果tags存在，递归遍历删除里面的key
     if (tags) {
@@ -129,20 +129,10 @@ const Basic = (props: BasicProps) => {
 
   const onClose = () => {
     setDrawerOpen(false);
+    setOrgTags(undefined);
+    setMemberTags(undefined);
+    setExpertTags(undefined);
   };
-
-  // const tags = useMemo(() => {
-  //   switch (drawerData?.type) {
-  //     case 1:
-  //       return orgTags ? [orgTags] : [];
-  //     case 2:
-  //       return memberTags ? [memberTags] : [];
-  //     case 3:
-  //       return expertTags ? [expertTags] : [];
-  //     default:
-  //       return [];
-  //   }
-  // }, [drawerData?.type, expertTags, memberTags, orgTags]);
 
   const renderTree = useCallback(
     (type: number) => {

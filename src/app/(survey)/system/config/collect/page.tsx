@@ -82,6 +82,7 @@ export default function Page() {
   const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const router = useRouter();
+  const [widgetList, setWidgetList] = useState<any>([]);
   const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
     'copied-template-detail',
     {
@@ -142,14 +143,26 @@ export default function Page() {
     }
   );
 
-  const { data: widgetList = { data: [] } } = useRequest(() => {
-    if (!currentSystem) {
-      return Promise.reject('currentSystem is not exist');
+  useRequest(
+    () => {
+      if (!currentSystem) {
+        return Promise.reject('currentSystem is not exist');
+      }
+      return Api.getAllWidgetsList({
+        currentSystemId: Number(currentSystem?.systemId),
+      });
+    },
+    {
+      onSuccess: response => {
+        if (response.data) {
+          const widgets = response.data.reduce((acc: any, cur: any) => {
+            return acc.concat(cur.widgets);
+          }, []);
+          setWidgetList(widgets);
+        }
+      },
     }
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(currentSystem?.systemId),
-    });
-  });
+  );
 
   const createItem = () => {
     setOpen(true);
@@ -222,8 +235,8 @@ export default function Page() {
                   <RenderFormItem
                     type={item.widgetType || 'input'}
                     option={
-                      widgetList.data[0]?.widgets?.find(
-                        widget => widget.id === item.widgetId
+                      widgetList?.find(
+                        (widget: any) => widget.id === item.widgetId
                       )?.widgetDetails
                     }
                     item={item}

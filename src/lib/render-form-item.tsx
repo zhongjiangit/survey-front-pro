@@ -11,10 +11,9 @@ interface RenderFormItemProps {
 
 const RenderFormItem = (props: RenderFormItemProps) => {
   const { type, option, item } = props;
-
   const formatTreeData = (data: any) => {
     return data.map((item: any) => {
-      if (item.children) {
+      if (item?.children?.length > 0) {
         return {
           title: item.title,
           value: item.key,
@@ -33,62 +32,45 @@ const RenderFormItem = (props: RenderFormItemProps) => {
   const renderFormItem = (key: string, option: any) => {
     switch (key) {
       case 'input':
-        return (
-          // <Form.Item
-          //   className="flex-1"
-          //   label={item.itemCaption}
-          //   name={item.widgetId}
-          //   rules={[
-          //     {
-          //       required: item.isRequired === ZeroOrOneTypeEnum.One,
-          //       message: `${item.itemCaption}为必填项`,
-          //     },
-          //   ]}
-          // >
-          <Input type="input" />
-          // </Form.Item>
-        );
+        return <Input type="input" />;
       case 'textarea':
         return <TextArea rows={3} />;
       case 'radio':
-        return <Radio.Group options={option} />;
+        if (option?.length > 0) {
+          return <Radio.Group options={option} />;
+        }
+        return null;
       case 'checkbox':
-        return <Checkbox.Group options={option} />;
+        if (option?.length > 0) {
+          return <Checkbox.Group options={option} />;
+        }
+        return null;
       case 'file':
         return (
           <Upload {...props} type={undefined}>
             <Button icon={<UploadOutlined />}>点击上传文件</Button>
           </Upload>
         );
-
       case 'tree':
-        return (
-          <TreeSelect
-            treeData={formatTreeData([option])}
-            treeCheckable={true}
-            showCheckedStrategy={'SHOW_PARENT'}
-            placeholder={'请选择'}
-            style={{
-              width: '100%',
-            }}
-          />
-        );
-      // return (
-      //   <Tree
-      //     style={{ width: 400, paddingTop: 4 }}
-      //     switcherIcon={
-      //       <CaretDownOutlined className="absolute top-[7px] right-[7px]" />
-      //     }
-      //     checkable
-      //     treeData={[option]}
-      //   />
-      // );
+        if (option) {
+          return (
+            <TreeSelect
+              treeData={formatTreeData([option])}
+              treeCheckable={true}
+              showCheckedStrategy={'SHOW_PARENT'}
+              placeholder={'请选择'}
+              style={{
+                width: '100%',
+              }}
+            />
+          );
+        }
+        return null;
+
       default:
         break;
     }
   };
-
-  console.log('item', item);
 
   return (
     <Form.Item

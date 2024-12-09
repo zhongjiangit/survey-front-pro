@@ -47,6 +47,7 @@ export default function Page() {
   const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const router = useRouter();
+  const [widgetList, setWidgetList] = useState<any>([]);
   const [templateDetail, setTemplateDetail] = useLocalStorageState<any>(
     'copied-template-detail',
     {
@@ -56,6 +57,9 @@ export default function Page() {
 
   const { loading, data: responseData } = useRequest(
     () => {
+      if (!systemId || !tempId) {
+        return Promise.reject('systemId or tempId is not exist');
+      }
       return Api.getTemplateDetails({
         currentSystemId: Number(systemId),
         templateType: TemplateTypeEnum.Collect,
@@ -130,14 +134,26 @@ export default function Page() {
     }
   );
 
-  const { data: widgetList = { data: [] } } = useRequest(() => {
-    if (!currentSystem) {
-      return Promise.reject('currentSystem is not exist');
+  useRequest(
+    () => {
+      if (!currentSystem) {
+        return Promise.reject('currentSystem is not exist');
+      }
+      return Api.getAllWidgetsList({
+        currentSystemId: Number(currentSystem?.systemId),
+      });
+    },
+    {
+      onSuccess: response => {
+        if (response.data) {
+          const widgets = response.data.reduce((acc: any, cur: any) => {
+            return acc.concat(cur.widgets);
+          }, []);
+          setWidgetList(widgets);
+        }
+      },
     }
-    return Api.getAllWidgetsList({
-      currentSystemId: Number(currentSystem?.systemId),
-    });
-  });
+  );
 
   const createItem = () => {
     setOpen(true);
@@ -204,42 +220,43 @@ export default function Page() {
               className="min-w-96 w-[40vw]"
             >
               {items.length > 0 &&
-                items.map((item: NewCollectItemType, index: number) => (
-                  <div className="flex" key={index}>
-                    <RenderFormItem
-                      type={item.widgetType || 'input'}
-                      option={
-                        // TODO: 优化,这里后续会不止一种类型的widget
-                        widgetList.data[0]?.widgets?.find(
-                          widget => widget.id === item.widgetId
-                        )?.widgetDetails
-                      }
-                      item={item}
-                    />
-                    <div
-                      className={cn(
-                        'flex items-start justify-end gap-2 w-10 pt-2',
-                        {
-                          hidden: !canEdit,
+                items.map((item: NewCollectItemType, index: number) => {
+                  return (
+                    <div className="flex" key={index}>
+                      <RenderFormItem
+                        type={item.widgetType || 'input'}
+                        option={
+                          widgetList?.find(
+                            (widget: any) => widget.id === item.widgetId
+                          )?.widgetDetails
                         }
-                      )}
-                    >
-                      <EditOutlined
-                        className="hover:scale-125 cursor-pointer"
-                        onClick={() => {
-                          setCurrentItem(item);
-                          setOpen(true);
-                        }}
+                        item={item}
                       />
-                      <DeleteOutlined
-                        className="text-red-500 hover:scale-125 cursor-pointer"
-                        onClick={() => {
-                          removeItem(item.id);
-                        }}
-                      />
+                      <div
+                        className={cn(
+                          'flex items-start justify-end gap-2 w-10 pt-2',
+                          {
+                            hidden: !canEdit,
+                          }
+                        )}
+                      >
+                        <EditOutlined
+                          className="hover:scale-125 cursor-pointer"
+                          onClick={() => {
+                            setCurrentItem(item);
+                            setOpen(true);
+                          }}
+                        />
+                        <DeleteOutlined
+                          className="text-red-500 hover:scale-125 cursor-pointer"
+                          onClick={() => {
+                            removeItem(item.id);
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
               {/* {items.length > 0 && (
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

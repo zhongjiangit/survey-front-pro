@@ -213,8 +213,6 @@ function CustomTree(props: CustomTreeProps) {
    * @returns
    */
   const onCreate = () => {
-    console.log(treeData, 'treeData');
-
     // 递归遍历树节点，如果树节点中已经有input类型节点，则不允许新增
     if (checkNode(treeData)) {
       return;
@@ -475,10 +473,12 @@ function CustomTree(props: CustomTreeProps) {
             <div
               className="group flex items-center justify-center gap-1"
               onClick={() => {
-                setCurrentNode({
-                  key: nodeData.key as string,
-                  title: nodeData.title as string,
-                });
+                if (!checkNode(treeData)) {
+                  setCurrentNode({
+                    key: nodeData.key as string,
+                    title: nodeData.title as string,
+                  });
+                }
               }}
             >
               {nodeData.type === 'input' && (

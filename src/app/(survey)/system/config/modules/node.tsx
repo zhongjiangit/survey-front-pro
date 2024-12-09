@@ -54,8 +54,6 @@ const Node = (props: NodeProps) => {
   });
 
   useEffect(() => {
-    console.log('tagList', tagList);
-
     if (tagList?.data?.tags) {
       const tags = tagList.data.tags;
       // 递归遍历增加value字段，用于TreeSelect，value为key
@@ -162,7 +160,7 @@ const Node = (props: NodeProps) => {
       cellphone: values.cellphone,
       tags: [],
     };
-    if (!!values.tags) {
+    if (values.tags) {
       // 装换成key的json数组
       params.tags = values.tags.map((tag: string) => ({
         key: Number(tag),
@@ -209,8 +207,6 @@ const Node = (props: NodeProps) => {
       });
     }
   };
-
-  console.log('nodeSelected', nodeSelected);
 
   return (
     <div className="flex h-auto gap-3 min-h-[78vh]">
