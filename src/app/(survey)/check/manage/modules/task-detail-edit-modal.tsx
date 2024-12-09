@@ -482,6 +482,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         </div>
         <TreeSelect
           style={{ width: '40%' }}
+          value={filterValue}
           onChange={showConfirm}
           treeData={formatTreeData([tagList?.data.tags])}
           treeCheckable={true}
