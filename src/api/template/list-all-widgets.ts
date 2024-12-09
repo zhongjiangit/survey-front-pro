@@ -27,13 +27,9 @@ export interface WidgetItemType {
   widgetDetails: any;
 }
 export interface TemplateListType {
-  id?: number;
   groupId: number;
   groupName: string;
   widgets: WidgetItemType[];
-  widgetDetails?: any;
-  widgetName?: string;
-  widgetType?: WidgetType;
 }
 
 interface WidgetLisResponse {

@@ -135,7 +135,7 @@ export const originMenus = [
   },
   {
     label: '个人中心',
-    key: '/profile',
+    key: '/setting',
     icon: <UserRoundCog className="w-4 h-4" />,
     access: [
       Role_Enum.SYSTEM_ADMIN,

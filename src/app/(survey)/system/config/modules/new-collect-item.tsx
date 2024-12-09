@@ -50,7 +50,9 @@ const NewCollectItem: React.FC<Props> = ({
     values.isRequired = values.isRequired
       ? ZeroOrOneTypeEnum.One
       : ZeroOrOneTypeEnum.Zero;
-    const widget = widgetList.data?.find(item => item.id === values.widgetId);
+    const widget = widgetList.data[0]?.widgets?.find(
+      item => item.id === values.widgetId
+    );
     pushItem({
       ...initValues,
       ...values,
@@ -107,7 +109,7 @@ const NewCollectItem: React.FC<Props> = ({
             <Select
               placeholder="选择控件"
               optionFilterProp="label"
-              options={widgetList.data?.map(item => ({
+              options={widgetList.data[0]?.widgets?.map(item => ({
                 label: item.widgetName,
                 value: item.id,
               }))}

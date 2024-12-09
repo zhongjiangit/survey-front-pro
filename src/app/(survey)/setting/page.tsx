@@ -12,13 +12,12 @@ type SettingsState = {
   selectKey: SettingsStateKeys;
 };
 
-const Profile: React.FC = () => {
+const Setting: React.FC = () => {
   const isDesktop = useMedia('(min-width: 1024px)', false);
   const menuMap: Record<string, React.ReactNode> = {
     base: '基本设置',
     security: '安全设置',
     notification: '手机更换',
-    // recharge: '充值/续费',
   };
   const [initConfig, setInitConfig] = useState<SettingsState>({
     mode: 'inline',
@@ -49,8 +48,6 @@ const Profile: React.FC = () => {
         return <SecurityView />;
       case 'notification':
         return <Phone />;
-      // case 'recharge':
-      //   return <Recharge />;
       default:
         return null;
     }
@@ -79,4 +76,4 @@ const Profile: React.FC = () => {
     </div>
   );
 };
-export default Profile;
+export default Setting;

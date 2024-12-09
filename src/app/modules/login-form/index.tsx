@@ -7,6 +7,7 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import { getActiveRoles } from '@/lib/get-active-roles';
 import { getFirstMenu } from '@/lib/get-first-menu';
+import { SendSmsTypeEnum } from '@/types/CommonType';
 import {
   CodepenOutlined,
   LockOutlined,
@@ -29,9 +30,13 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
+
   const formRef = useRef<ProFormInstance>();
+
   const router = useRouter();
+
   const setUser = useSurveyUserStore(state => state.setUser);
+
   const setCurrentSystem = useSurveySystemStore(
     state => state.setCurrentSystem
   );
@@ -88,7 +93,7 @@ export default function LoginForm() {
 
   const { run: sendSms, loading: sendSmsLoading } = useRequest(
     params => {
-      return Api.sendSms({ ...params, eventType: 1 });
+      return Api.sendSms({ ...params, eventType: SendSmsTypeEnum.Login });
     },
     {
       manual: true,
@@ -126,7 +131,9 @@ export default function LoginForm() {
       ]);
       console.log(values);
       sendSms(values);
-    } catch (errorInfo) {}
+    } catch (errorInfo) {
+      // Intentionally ignored
+    }
   };
 
   return (
@@ -294,16 +301,7 @@ export default function LoginForm() {
                 },
               ]}
               onGetCaptcha={async phone => {
-                // const result = await getFakeCaptcha({
-                //   phone,
-                // });
-                // if (!result) {
-                //   return;
-                // }
                 handleGetCaptcha();
-                console.log(phone);
-
-                message.success('获取验证码成功！验证码为：1234');
               }}
             />
             <div className="mt-6 mb-2 flex justify-between items-center">
