@@ -162,12 +162,13 @@ export default function SystemsTableList({ query }: { query: string }) {
         ),
       },
     ],
-    [deleteSystem]
+    [deleteSystem, enableSystem, isPlatformAdmin]
   );
 
   return (
     <Table
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       columns={columns}
       dataSource={dataSources}
       loading={isLoading || deleteLoading || enableLoading}
