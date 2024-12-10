@@ -159,7 +159,9 @@ const Phone: React.FC = () => {
           // }}
           hideRequiredMark
         >
-          <div className="mb-4">现手机号：13699456784</div>
+          <div className="mb-4 font-medium">
+            现手机号：<span className="text-lg font-semibold">13699456784</span>
+          </div>
           <div className="flex gap-2 items-start">
             <ProFormText
               fieldProps={{

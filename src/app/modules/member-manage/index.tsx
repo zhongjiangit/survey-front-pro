@@ -218,11 +218,12 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               placeholder="请选择成员标签"
               allowClear
               multiple
-              value={[36, 37]}
-              // defaultValue={record?.tags?.map(tag => tag.key)}
-              onChange={value => {
-                console.log('value', value);
-              }}
+              // defaultValue={record?.tags
+              //   ?.filter(tag => !!tag?.key)
+              //   .map(tag => tag.key)}
+              // onChange={value => {
+              //   console.log('value', value);
+              // }}
               treeDefaultExpandAll
               treeData={memberTags}
               treeCheckable={true}

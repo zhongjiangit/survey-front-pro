@@ -46,7 +46,7 @@ export function useRoles() {
         },
         {
           key: 'isManager',
-          label: '一般管理员',
+          label: '普通管理员',
           isActive: currentOrg?.isStaff === 1 && currentOrg?.staffType === 2,
           name: currentOrg?.isStaff === 1 && currentOrg.staffName,
           staffType: StaffTypeEnum.Admin,

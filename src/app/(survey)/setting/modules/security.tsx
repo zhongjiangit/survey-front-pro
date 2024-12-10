@@ -152,6 +152,7 @@ const SecurityView: React.FC = () => {
               size: 'large',
               prefix: <MobileOutlined />,
             }}
+            disabled
             name="cellPhone"
             placeholder={'请输入手机号！'}
             rules={[
