@@ -51,7 +51,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
           const data = response?.data.filter(
             item => item.id !== currentOrg?.staffId
           );
-          // @ts-ignore
+          // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
           setDataSource(data);
         }
       },

@@ -19,9 +19,7 @@ import OrgSwitchModal from './switch-modal/org-switch-modal';
 import RoleSwitchModal from './switch-modal/role-switch-modal';
 import SystemSwitchModal from './switch-modal/system-switch-modal';
 
-export type GlobalHeaderRightProps = {};
-
-export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
+export const AvatarDropdown: React.FC = () => {
   const user = useSurveyUserStore(state => state.user);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const setCurrentRole = useSurveyCurrentRoleStore(
@@ -36,7 +34,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({}) => {
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const [isSystemModalOpen, setIsSystemModalOpen] = useState(false);
   /**
-   * 退出登录，并且将当前的 url 保存
+   * 退出登录
    */
   const loginOut = () => {
     setCurrentSystem({

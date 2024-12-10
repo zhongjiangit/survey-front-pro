@@ -25,7 +25,7 @@ function Page() {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const {} = useRequest(
+  useRequest(
     () => {
       return Api.getOrgList({
         currentSystemId: currentSystem?.systemId,
@@ -39,7 +39,9 @@ function Page() {
         if (treeData && currentOrg?.orgId) {
           setOrgList([treeData]);
           const orgNode = findOrg([treeData], currentOrg.orgId);
-          orgNode && setStaffOrg(orgNode);
+          if (orgNode) {
+            setStaffOrg(orgNode);
+          }
         }
       },
     }
@@ -65,7 +67,7 @@ function Page() {
     }
   }, [currentOrg?.orgId]);
 
-  const {} = useRequest(
+  useRequest(
     () => {
       if (!currentSystem?.systemId) {
         return Promise.reject('currentSystem is not exist');
@@ -84,7 +86,7 @@ function Page() {
             if (node.children) {
               node.children.forEach(addValue);
             }
-            // @ts-ignore
+            // @ts-expect-error: CustomTreeDataNode does not have a 'value' property
             node.value = node.key;
           };
           addValue(tags);
@@ -107,6 +109,7 @@ function Page() {
             content: '更新成功',
           });
           setEditStatus(false);
+          refreshStaffList();
         } else {
           messageApi.open({
             type: 'error',
@@ -135,7 +138,7 @@ function Page() {
     [adminStaff]
   );
 
-  useRequest(
+  const { refresh: refreshStaffList } = useRequest(
     () => {
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
