@@ -27,7 +27,7 @@ export function useRoles() {
           isActive: !!currentSystem?.isSystemManager,
           name:
             !!currentSystem?.isSystemManager && currentSystem.systemManagerName,
-          id: !!currentSystem?.isSystemManager && currentSystem.systemId,
+          id: currentOrg?.isStaff === 1 && currentOrg.staffId,
         },
         {
           key: 'isExpert',

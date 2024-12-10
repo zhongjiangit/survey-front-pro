@@ -48,8 +48,10 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       refreshDeps: [orgId, currentSystem?.systemId],
       onSuccess(response) {
         if (Array.isArray(response?.data)) {
-          const data = response?.data.filter(
-            item => item.id !== currentOrg?.staffId
+          const data = response?.data.filter(item =>
+            currentOrg?.staffType === StaffTypeEnum.UnitAdmin
+              ? item.staffType !== StaffTypeEnum.UnitAdmin
+              : item.staffType === StaffTypeEnum.Member
           );
           // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
           setDataSource(data);

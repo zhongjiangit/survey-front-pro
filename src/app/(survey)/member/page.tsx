@@ -4,6 +4,7 @@ import { StaffListResponse } from '@/api/staff/getStaffList';
 import MemberManage from '@/app/modules/member-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { StaffTypeEnum, TagTypeEnum } from '@/types/CommonType';
 import { EditOutlined, SaveOutlined } from '@ant-design/icons';
@@ -22,6 +23,7 @@ function Page() {
   const [adminStaff, setAdminStaff] = useState<StaffListResponse>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -65,7 +67,7 @@ function Page() {
     if (currentOrg?.orgId) {
       setCurrentOrg(currentOrg.orgId);
     }
-  }, [currentOrg?.orgId]);
+  }, [currentOrg?.orgId, setCurrentOrg]);
 
   useRequest(
     () => {
@@ -150,9 +152,7 @@ function Page() {
       onSuccess(response) {
         const list = response?.data;
         if (list) {
-          const adminStaff = list.filter(
-            staff => staff.staffType === StaffTypeEnum.UnitAdmin
-          );
+          const adminStaff = list.filter(staff => staff.id === currentRole?.id);
           if (adminStaff[0]) {
             setAdminStaff(adminStaff[0]);
             form.setFieldsValue({
@@ -195,8 +195,9 @@ function Page() {
       </div>
       <h2 className="flex items-center">
         <span className="text-red-600">*</span>&nbsp;你是
-        <span className="font-bold">{staffOrg?.title}</span>
-        的单位管理员，你可以维护该单位成员。其他单位的成员只可查看。
+        <span className="font-bold">{staffOrg?.title}</span>的
+        {adminStaff?.staffType === StaffTypeEnum.UnitAdmin ? '单位' : '普通'}
+        管理员，你可以维护该单位成员。其他单位的成员只可查看。
       </h2>
       <div className="flex gap-3">
         <div className="w-60 rounded-lg border py-3">
@@ -208,7 +209,13 @@ function Page() {
         </div>
         <div className="flex-1">
           <div className="flex gap-6 items-center">
-            <div> 单位管理员：{adminStaff?.staffName}</div>
+            <div>
+              {' '}
+              {adminStaff?.staffType === StaffTypeEnum.UnitAdmin
+                ? '单位'
+                : '普通'}
+              管理员：{adminStaff?.staffName}
+            </div>
             <div> 电话：{adminStaff?.cellphone}</div>
             <div className="flex gap-2 items-center">
               标签：
