@@ -159,7 +159,7 @@ const Collect = ({ system }: CollectProps) => {
     <main className="relative">
       <Button
         type="primary"
-        className="absolute -top-14 right-0"
+        style={{ position: 'absolute', right: 0, top: -56 }}
         onClick={() => {
           setCurrentTemplate(undefined);
           setOpen(true);
