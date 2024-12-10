@@ -135,13 +135,18 @@ function CustomTree(props: CustomTreeProps) {
    * @returns
    */
   const checkNode = useCallback(
-    (treeData: CustomTreeDataNode[]): boolean => {
+    (
+      treeData: CustomTreeDataNode[],
+      nodeData?: CustomTreeDataNode
+    ): boolean => {
       return treeData.some(node => {
         if (node.type === 'input') {
-          messageApi.open({
-            type: 'error',
-            content: '请先保存编辑中节点',
-          });
+          if (nodeData && nodeData?.type !== 'input') {
+            messageApi.open({
+              type: 'error',
+              content: '请先保存编辑中节点',
+            });
+          }
           return true;
         }
         if (node.children) {
@@ -473,7 +478,7 @@ function CustomTree(props: CustomTreeProps) {
             <div
               className="group flex items-center justify-center gap-1"
               onClick={() => {
-                if (!checkNode(treeData)) {
+                if (!checkNode(treeData, nodeData)) {
                   setCurrentNode({
                     key: nodeData.key as string,
                     title: nodeData.title as string,
