@@ -10,8 +10,8 @@ import { Tabs } from 'antd';
 import React, { useMemo, useRef, useState } from 'react';
 import FillCollect from '../modules/fill-collect';
 import RejectTimeline from '../modules/reject-timeline';
+import './style.css';
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
-
 const Page = () => {
   const initialItems: any = useMemo(
     () => [
@@ -169,6 +169,7 @@ const Page = () => {
       />
       <div className="py-10 min-h-96 h-[80vh] shadow-lg">
         <Tabs
+          rootClassName="fill-detail-tabs"
           tabPosition={'left'}
           type="editable-card"
           onChange={onChange}

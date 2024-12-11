@@ -41,6 +41,8 @@ import setReviewReviewComplete from './setReviewReviewComplete';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
+import uploadFillAttachment from '@/api/task/uploadFillAttachment';
+import deleteFillAttachment from '@/api/task/deleteFillAttachment';
 
 const taskApi = {
   createCollectionTask,
@@ -86,6 +88,8 @@ const taskApi = {
   expertSubmit,
   reviewAssignDelete,
   getFillProcessDetails,
+  uploadFillAttachment,
+  deleteFillAttachment,
 };
 
 export default taskApi;

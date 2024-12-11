@@ -1,0 +1,28 @@
+
+.fill-detail-tabs,
+.fill-detail-tabs .fill-detail-tabs,
+.fill-detail-tabs .ant-tabs-tabpane,
+.fill-detail-tabs .ant-tabs-content,
+.fill-detail-tabs .fillCollect,
+.fill-detail-tabs .fillCollect-left {
+    height: 100%;
+}
+
+.fill-detail-tabs .fillCollect-left {
+    flex: auto;
+    width: 0;
+}
+
+.fill-detail-tabs .fillCollect-form {
+    flex: auto;
+    height: 0;
+    width: 100%;
+    padding-right: 48px;
+    overflow-y: auto;
+}
+
+.fill-detail-tabs .fillCollect-form-action {
+    position: sticky;
+    bottom: 0px;
+    background: #fff;
+}

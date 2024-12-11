@@ -12,56 +12,20 @@ interface FillCollectProps {
 }
 
 const FillCollect = ({ singleFillId }: FillCollectProps) => {
-  const currentSystem = useSurveySystemStore(state => state.currentSystem);
-  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [currentFillTask] = useLocalStorageState<any>('current-fill-task', {
     defaultValue: {},
   });
-
-  /**
-   * 获取填表内容详情
-   */
-  const {} = useRequest(
-    () => {
-      if (
-        !currentSystem?.systemId ||
-        !currentOrg?.orgId ||
-        !currentFillTask?.taskId ||
-        !singleFillId
-      ) {
-        return Promise.reject(
-          'currentSystem or currentOrg or currentFillTask or singleFillId is not exist'
-        );
-      }
-      return Api.getSingleFillDetails({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg!.orgId!,
-        taskId: currentFillTask?.taskId,
-        singleFillId,
-      });
-    },
-    {
-      refreshDeps: [
-        currentSystem?.systemId,
-        currentOrg?.orgId,
-        currentFillTask?.taskId,
-        singleFillId,
-      ],
-      onSuccess: data => {},
-    }
-  );
-
   return (
-    <div className="flex gap-5 justify-between">
-      <div className="flex flex-col justify-center items-center gap-5">
+    <div className="fillCollect flex gap-5 justify-between">
+      <div className="fillCollect-left flex flex-col justify-center items-center gap-5">
         <h2 className="text-lg font-bold">{currentFillTask.taskName}</h2>
         <TemplateDetail
           templateType={TemplateTypeEnum.Check}
           templateId={currentFillTask.templateId}
+          taskId={currentFillTask.taskId}
           singleFillId={singleFillId}
         />
       </div>
-
       <div className="w-60 px-5 flex flex-col justify-center gap-5">
         <h1 className="text-xl font-bold">任务说明</h1>
         <p>这里是填报任务页面，包括填报任务的详情，填报任务的状态等</p>
