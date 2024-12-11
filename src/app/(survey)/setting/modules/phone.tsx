@@ -61,7 +61,6 @@ const Phone: React.FC = () => {
     params => {
       return Api.sendSms({
         ...params,
-        eventType: SendSmsTypeEnum.ChangePassword,
       });
     },
     {
@@ -91,14 +90,25 @@ const Phone: React.FC = () => {
         const values = await formRefPassword.current?.validateFields([
           'captchaOld',
         ]);
+
         console.log(values);
-        sendSms(values);
+        const params = {
+          captcha: values.captchaOld,
+          cellPhone: user?.cellphone,
+          eventType: SendSmsTypeEnum.ConfirmOldPhone,
+        };
+        sendSms(params);
       } else {
         const values = await formRefPassword.current?.validateFields([
           'cellphoneNew',
           'captchaNew',
         ]);
-        sendSms(values);
+        const params = {
+          captcha: values.captchaNew,
+          cellPhone: values.cellphoneNew,
+          eventType: SendSmsTypeEnum.ConfirmNewPhone,
+        };
+        sendSms(params);
       }
     } catch (errorInfo) {
       // console.log('Failed:', errorInfo);
@@ -127,7 +137,7 @@ const Phone: React.FC = () => {
 
   const handleFinish = (values: any) => {
     const params = {
-      cellphoneOld: '12345678900',
+      cellphoneOld: user?.cellphone,
       verifyCodeForOld: values.verifyCodeForOld,
       verifyCodeForNew: values.verifyCodeForNew,
       cellphoneNew: values.cellphoneNew,
@@ -219,7 +229,7 @@ const Phone: React.FC = () => {
               handleGetCaptcha('old');
               console.log(phone);
 
-              message.success('获取验证码成功！验证码为：1234');
+              message.success('获取验证码成功！');
             }}
           />
           <ProFormText
