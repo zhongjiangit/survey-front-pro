@@ -1,5 +1,7 @@
 'use client';
 import Api from '@/api';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import { SendSmsTypeEnum } from '@/types/CommonType';
 import {
@@ -17,6 +19,7 @@ import { useRequest } from 'ahooks';
 import { message } from 'antd';
 import { Key } from 'lucide-react';
 import Image from 'next/image';
+import router from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
 
 const SecurityView: React.FC = () => {
@@ -26,7 +29,38 @@ const SecurityView: React.FC = () => {
 
   const [captchaUrl, setCaptchaUrl] = useState('');
 
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+
+  const setCurrentRole = useSurveyCurrentRoleStore(
+    state => state.setCurrentRole
+  );
+
+  const setCurrentSystem = useSurveySystemStore(
+    state => state.setCurrentSystem
+  );
+
   const formRefPassword = useRef<ProFormInstance>();
+
+  /**
+   * 退出登录
+   */
+  const loginOut = () => {
+    setCurrentSystem({
+      ...currentSystem,
+      systemName: '',
+    });
+    setCurrentRole({
+      id: undefined,
+      isActive: false,
+      key: '',
+      label: '',
+      name: undefined,
+    });
+    // 清空local storage
+    localStorage.clear();
+    // 跳转到登录页
+    router.push('/');
+  };
 
   const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(
     () => {
@@ -98,6 +132,9 @@ const SecurityView: React.FC = () => {
             });
           } else if (response?.result === 0) {
             message.success('密码修改成功！');
+            setTimeout(() => {
+              loginOut();
+            }, 1500);
           }
         },
       }
