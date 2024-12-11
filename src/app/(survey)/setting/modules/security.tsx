@@ -1,5 +1,6 @@
 'use client';
 import Api from '@/api';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import { SendSmsTypeEnum } from '@/types/CommonType';
 import {
   CodepenOutlined,
@@ -20,6 +21,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const SecurityView: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
+
+  const user = useSurveyUserStore(state => state.user);
 
   const [captchaUrl, setCaptchaUrl] = useState('');
 
@@ -111,7 +114,10 @@ const SecurityView: React.FC = () => {
   useEffect(() => {
     getCaptcha();
     formRefPassword.current?.resetFields();
-  }, [getCaptcha]);
+    formRefPassword.current?.setFieldsValue({
+      cellPhone: user?.cellphone,
+    });
+  }, [getCaptcha, user?.cellphone]);
 
   return (
     <div className="flex pt-3">

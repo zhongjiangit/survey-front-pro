@@ -43,6 +43,7 @@ export interface UserSystemType {
 
 export interface UserType {
   userId: number;
+  cellphone: string;
   isPlatformManager: 0 | 1; // 是否是平台管理员
   platformManagerName?: string; // 平台管理员名称, 如果是平台管理员则有
   systems: UserSystemType[];

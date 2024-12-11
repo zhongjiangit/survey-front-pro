@@ -1,4 +1,5 @@
 import Api from '@/api';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 
 import { SendSmsTypeEnum } from '@/types/CommonType';
 import {
@@ -19,6 +20,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const Phone: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
+
+  const user = useSurveyUserStore(state => state.user);
 
   const [captchaUrlOld, setCaptchaUrlOld] = useState('');
 
@@ -159,9 +162,7 @@ const Phone: React.FC = () => {
           // }}
           hideRequiredMark
         >
-          <div className="mb-4 font-medium">
-            现手机号：<span className="text-lg font-semibold">13699456784</span>
-          </div>
+          <div className="mb-4">现手机号：{user?.cellphone}</div>
           <div className="flex gap-2 items-start">
             <ProFormText
               fieldProps={{
