@@ -9,11 +9,13 @@ import { TemplateType, TemplateTypeEnum } from '@/types/CommonType';
 import { AnyObject } from '@/typings/type';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form } from 'antd';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { baseUrl } from '@/api/config';
 
 interface TemplateDetailProps {
   templateId?: number;
   singleFillId?: number;
+  taskId?: number;
   templateType?: TemplateType;
 }
 
@@ -21,6 +23,7 @@ const TemplateDetail = ({
   templateId,
   templateType,
   singleFillId,
+  taskId,
 }: TemplateDetailProps) => {
   const [form] = Form.useForm();
   const [currentFillTask] = useLocalStorageState<any>('current-fill-task', {
@@ -29,6 +32,8 @@ const TemplateDetail = ({
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [widgetList, setWidgetList] = useState<any>([]);
+  const oldFormData = useRef<any>({});
+
   const { data: formDetailData } = useRequest(() => {
     if (!currentSystem?.systemId) {
       return Promise.reject('currentSystem is not exist');
@@ -40,7 +45,7 @@ const TemplateDetail = ({
     });
   });
 
-  useRequest(
+  const { data: singleFillDetails, run: getSingleFillDetails } = useRequest(
     () => {
       if (
         !currentSystem?.systemId ||
@@ -58,28 +63,41 @@ const TemplateDetail = ({
       });
     },
     {
-      refreshDeps: [
-        currentSystem?.systemId,
-        currentOrg?.orgId,
-        currentFillTask?.taskId,
-        singleFillId,
-      ],
-      onSuccess: data => {
-        console.log('getSingleFillDetails', data);
-        form.setFieldsValue(
-          data?.data?.reduce((acc: AnyObject, cur: any) => {
-            acc[cur.templateItemId] = cur.fillContent;
-            return acc;
-          }, {})
-        );
-      },
+      manual: true,
     }
   );
+
+  useEffect(() => {
+    getSingleFillDetails();
+  }, [
+    currentSystem?.systemId,
+    currentOrg?.orgId,
+    currentFillTask?.taskId,
+    singleFillId,
+  ]);
 
   const { run: saveSingleFillDetails } = useRequest(
     values => {
       return Api.saveSingleFillDetails({
         ...values,
+      }).then(res => {
+        getSingleFillDetails();
+        return res;
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+  const { run: deleteFillAttachment } = useRequest(
+    (attachmentId: number, templateItemId: number) => {
+      return Api.deleteFillAttachment({
+        taskId: taskId!,
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        singleFillId: singleFillId!,
+        templateItemId,
+        attachmentId,
       });
     },
     {
@@ -87,7 +105,7 @@ const TemplateDetail = ({
     }
   );
 
-  const saveSingleFill = () => {
+  const saveSingleFill = async () => {
     if (
       !currentSystem?.systemId ||
       !currentOrg?.orgId ||
@@ -96,13 +114,56 @@ const TemplateDetail = ({
     ) {
       return Promise.reject('参数补全');
     }
+    const formItems = formDetailData?.data?.items || [];
+    const formValues = await form.validateFields();
+    for (const item of formItems) {
+      if (item.widgetType === 'file' && formValues[item.templateItemId]) {
+        const fieldList = formValues[item.templateItemId] || [];
+        const files = [];
+        const oldFiles = oldFormData.current[item.templateItemId] || [];
+        for (const file of fieldList) {
+          if (!file.originFileObj) {
+            const idx = oldFiles.findIndex((f: any) => f.uid === file.uid);
+            if (idx !== -1) {
+              oldFiles.splice(idx, 1);
+            }
+            continue;
+          }
+          // 上传文件
+          const res = await Api.uploadFillAttachment({
+            taskId: taskId!,
+            currentSystemId: currentSystem.systemId!,
+            currentOrgId: currentOrg.orgId!,
+            singleFillId: singleFillId!,
+            templateItemId: item.templateItemId,
+            attachment: file.originFileObj,
+          });
+          files.push(res.data);
+        }
+        // 删除已删除的文件
+        for (const file of oldFiles) {
+          await file.remove();
+        }
+        formValues[item.templateItemId] = files;
+      }
+    }
 
-    const formValues = form.getFieldsValue();
-
-    const formattedValues = Object.entries(formValues).map(([key, value]) => ({
-      templateItemId: Number(key),
-      fillContent: value,
-    }));
+    const formattedValues = Object.entries(formValues).map(([key, value]) => {
+      const item: any = {
+        templateItemId: Number(key),
+      };
+      if (
+        formItems.find(
+          t =>
+            item.templateItemId === t.templateItemId && t.widgetType === 'file'
+        )
+      ) {
+        item.attachments = value;
+      } else {
+        item.fillContent = value;
+      }
+      return item;
+    });
     const fillData = {
       currentSystemId: currentSystem.systemId,
       currentOrgId: currentOrg?.orgId,
@@ -135,10 +196,52 @@ const TemplateDetail = ({
     }
   );
 
+  useEffect(() => {
+    if (!formDetailData && !singleFillDetails) {
+      return;
+    }
+    const data = singleFillDetails;
+    const params = {
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg?.orgId,
+      singleFillId: singleFillId,
+      taskId: currentFillTask.taskId,
+    };
+    const getFileParams = (attachmentId: number, templateItemId: number) => {
+      return Object.entries({ ...params, templateItemId, attachmentId })
+        .map(v => v.join('='))
+        .join('&');
+    };
+    form.setFieldsValue(
+      data?.data?.reduce(
+        (acc: AnyObject, cur: any) => {
+          acc[cur.templateItemId] = cur.fillContent;
+          const widget = formDetailData?.data?.items.find(
+            (widget: any) => widget.templateItemId === cur.templateItemId
+          );
+          // 附件转换
+          if (widget?.widgetType === 'file' && cur.attachments) {
+            acc[cur.templateItemId] = cur.attachments?.map((item: any) => ({
+              uid: item.attachmentId,
+              name: item.filename,
+              status: 'done',
+              url: `${baseUrl}/task/downloadFillAttachment?${getFileParams(item.attachmentId, cur.templateItemId)}`,
+              linkProps: { download: item.filename, target: null },
+              remove: () =>
+                deleteFillAttachment(item.attachmentId, cur.templateItemId),
+            }));
+          }
+          return acc;
+        },
+        (oldFormData.current = {})
+      )
+    );
+  }, [formDetailData, singleFillDetails]);
+
   return (
     <Form
       form={form}
-      className="min-w-96 w-[40vw]"
+      className="fillCollect-form min-w-96 w-[40vw]"
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
       autoComplete="off"
@@ -159,7 +262,7 @@ const TemplateDetail = ({
             </div>
           )
         )}
-      <Form.Item className="flex justify-center">
+      <Form.Item className="fillCollect-form-action flex justify-center">
         <Button type="primary" htmlType="submit" onClick={saveSingleFill}>
           保存
         </Button>

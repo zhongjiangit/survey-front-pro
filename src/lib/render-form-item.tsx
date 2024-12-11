@@ -1,6 +1,20 @@
 import { ZeroOrOneTypeEnum } from '@/types/CommonType';
 import { UploadOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Radio, TreeSelect, Upload } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  message,
+  Radio,
+  TreeSelect,
+  Upload,
+} from 'antd';
+import { useRequest } from 'ahooks';
+import getConfig from '@/api/common/getConfig';
+import FormItemWrap, {
+  RenderChildren,
+} from '@/components/common/form-item-wrap';
 const { TextArea } = Input;
 
 interface RenderFormItemProps {
@@ -11,6 +25,10 @@ interface RenderFormItemProps {
 
 const RenderFormItem = (props: RenderFormItemProps) => {
   const { type, option, item } = props;
+  const { data: sysConfig } = useRequest(() =>
+    getConfig().then(res => res.data)
+  );
+  const [messageApi, contextHolder] = message.useMessage();
   const formatTreeData = (data: any) => {
     return data.map((item: any) => {
       if (item?.children?.length > 0) {
@@ -46,11 +64,38 @@ const RenderFormItem = (props: RenderFormItemProps) => {
         }
         return null;
       case 'file':
-        return (
-          <Upload {...props} type={undefined}>
+        // eslint-disable-next-line no-case-declarations
+        const renderChildren: RenderChildren = ({
+          id,
+          ref,
+          value,
+          onChange,
+        }) => (
+          <Upload
+            id={id}
+            ref={ref}
+            fileList={value}
+            beforeUpload={(file, fileList) => {
+              if (sysConfig?.maxUploadFileSize < file.size) {
+                messageApi.error(
+                  `${file.name} 文件超限,请选择小于 ${sysConfig?.maxUploadFileSize / 1024 / 1024}M 的文件!`,
+                  3
+                );
+              } else {
+                onChange(fileList);
+              }
+              return false;
+            }}
+            onRemove={file => {
+              onChange(value.filter((t: any) => t.uid !== file.uid));
+            }}
+            type={undefined}
+          >
             <Button icon={<UploadOutlined />}>点击上传文件</Button>
           </Upload>
         );
+
+        return <FormItemWrap renderChildren={renderChildren} />;
       case 'tree':
         if (option) {
           return (
@@ -73,20 +118,23 @@ const RenderFormItem = (props: RenderFormItemProps) => {
   };
 
   return (
-    <Form.Item
-      className="flex-1"
-      label={item.itemCaption}
-      name={item.templateItemId}
-      extra={<span className="text-red-500">{item?.itemMemo}</span>}
-      rules={[
-        {
-          required: item.isRequired === ZeroOrOneTypeEnum.One,
-          message: `${item.itemCaption}为必填项`,
-        },
-      ]}
-    >
-      {renderFormItem(type, option)}
-    </Form.Item>
+    <>
+      {contextHolder}
+      <Form.Item
+        className="flex-1"
+        label={item.itemCaption}
+        name={item.templateItemId}
+        extra={<span className="text-red-500">{item?.itemMemo}</span>}
+        rules={[
+          {
+            required: item.isRequired === ZeroOrOneTypeEnum.One,
+            message: `${item.itemCaption}为必填项`,
+          },
+        ]}
+      >
+        {renderFormItem(type, option)}
+      </Form.Item>
+    </>
   );
 };
 
