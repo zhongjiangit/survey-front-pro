@@ -83,6 +83,7 @@ export default function SystemsTableList({ query }: { query: string }) {
         title: '系统名称',
         dataIndex: 'systemName',
         key: 'systemName',
+        width: 160,
       },
       {
         title: '创建时间',
@@ -114,9 +115,10 @@ export default function SystemsTableList({ query }: { query: string }) {
       },
       {
         title: '各层级名称',
+        width: 200,
         key: 'levels',
         render: (_, { levels }) => (
-          <div className="flex">
+          <div className="flex flex-wrap">
             {levels.map((level, index) => (
               <Tag key={index} color={index % 2 === 0 ? 'blue' : 'cyan'}>
                 {level.levelName}
