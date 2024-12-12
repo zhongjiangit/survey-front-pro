@@ -39,7 +39,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
-  const [adminStaff, setAdminStaff] = useState<StaffListResponse>([]);
+  const [adminStaff, setAdminStaff] = useState<StaffListResponse | null>(null);
 
   const { run: getStaffList } = useRequest(
     () => {
