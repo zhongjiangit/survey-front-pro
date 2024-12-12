@@ -1,10 +1,11 @@
 'use client';
 
 import Api from '@/api';
+import CustomSelect from '@/components/common/custom-select';
 import { ZeroOrOneTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import type { FormProps } from 'antd';
-import { Button, Drawer, Form, Input, Select, Switch } from 'antd';
+import { Button, Drawer, Form, Input, Switch } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { NewCollectItemType } from '../check/page';
@@ -25,12 +26,15 @@ const NewCollectItem: React.FC<Props> = ({
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const systemId = searchParams.get('id');
-  const [widgetOptions, setWidgetOptions] = useState<any>([]);
+  const [widgetItems, setWidgetItems] = useState<any>([]);
   const [widgetList, setWidgetList] = useState<any>([]);
 
   useEffect(() => {
     if (initValues) {
-      form.setFieldsValue({ ...initValues });
+      form.setFieldsValue({
+        ...initValues,
+        widgetId: { componentId: initValues.widgetId },
+      });
     } else {
       form.setFieldsValue({ isRequired: true });
     }
@@ -46,11 +50,13 @@ const NewCollectItem: React.FC<Props> = ({
       refreshDeps: [systemId],
       onSuccess: response => {
         if (response.data) {
-          const options = response.data.map((group: any) => {
+          const items = response.data.map((group: any) => {
             return {
-              label: <span>{group.groupName}</span>,
+              key: group.groupId,
+              label: group.groupName,
               title: group.groupName,
-              options: group.widgets.map((item: any) => ({
+              children: group.widgets.map((item: any) => ({
+                type: item.widgetType,
                 label: item.widgetName,
                 value: item.id,
               })),
@@ -61,7 +67,7 @@ const NewCollectItem: React.FC<Props> = ({
             return acc.concat(cur.widgets);
           }, []);
           setWidgetList(widgets);
-          setWidgetOptions(options);
+          setWidgetItems(items);
         }
       },
     }
@@ -77,10 +83,13 @@ const NewCollectItem: React.FC<Props> = ({
     values.isRequired = values.isRequired
       ? ZeroOrOneTypeEnum.One
       : ZeroOrOneTypeEnum.Zero;
-    const widget = widgetList?.find((item: any) => item.id === values.widgetId);
+    const widget = widgetList?.find(
+      (item: any) => item.id === values.widgetId.componentId
+    );
     pushItem({
       ...initValues,
       ...values,
+      widgetId: widget.id,
       widgetDetails: widget?.widgetDetails,
       widgetName: widget?.widgetName,
       widgetType: widget?.widgetType,
@@ -104,17 +113,19 @@ const NewCollectItem: React.FC<Props> = ({
         <Form
           name="item-check"
           form={form}
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
+          // labelCol={{ span: 8 }}
+          // wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
           onFinish={onFinish}
           initialValues={{ isRequired: true }}
           onFinishFailed={onFinishFailed}
           autoComplete="off"
+          layout="vertical"
         >
           <Form.Item
             label="标题"
             name="itemCaption"
+            layout="horizontal"
             rules={[{ required: true, message: '请输入标题' }]}
           >
             <Input type="input" placeholder="输入标题" />
@@ -122,6 +133,7 @@ const NewCollectItem: React.FC<Props> = ({
           <Form.Item
             label="是否必填"
             name="isRequired"
+            layout="horizontal"
             rules={[{ required: true, message: '请选择是否必填!' }]}
           >
             <Switch />
@@ -129,16 +141,16 @@ const NewCollectItem: React.FC<Props> = ({
           <Form.Item
             label="选择控件"
             name="widgetId"
+            // layout="vertical"
             rules={[{ required: true, message: '请选择展示控件' }]}
           >
-            <Select
-              placeholder="选择控件"
-              optionFilterProp="label"
-              options={widgetOptions}
+            <CustomSelect
+              source={widgetItems}
+              initValue={initValues?.widgetId}
             />
           </Form.Item>
-          <Form.Item label="提醒事项" name="itemMemo">
-            <Input type="input" placeholder="输入提醒事项" />
+          <Form.Item label="提醒事项：" name="itemMemo">
+            <Input.TextArea rows={4} placeholder="输入提醒事项" />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

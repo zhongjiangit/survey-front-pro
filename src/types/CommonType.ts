@@ -107,6 +107,16 @@ export type WidgetType =
   | 'file'
   | 'tree';
 
+// 列举表单组件类型 input radio checkbox textarea file tree 的枚举类型
+export enum WidgetTypeEnum {
+  Input = 'input',
+  Radio = 'radio',
+  Checkbox = 'checkbox',
+  Textarea = 'textarea',
+  File = 'file',
+  Tree = 'tree',
+}
+
 // ----------------- 通用类型 任务状态类型 -----------------
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
 // todo 看需求ui有已删除状态，接口无
