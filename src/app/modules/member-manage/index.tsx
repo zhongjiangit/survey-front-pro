@@ -1,5 +1,7 @@
 import Api from '@/api';
+import { StaffListResponse } from '@/api/staff/getStaffList';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { StaffType, StaffTypeEnum, StaffTypeObject } from '@/types/CommonType';
 import {
@@ -36,6 +38,8 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
   const [dataSource, setDataSource] = useState<TableFormDateType[]>([]);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
+  const [adminStaff, setAdminStaff] = useState<StaffListResponse>([]);
 
   const { run: getStaffList } = useRequest(
     () => {
@@ -48,6 +52,10 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       refreshDeps: [orgId, currentSystem?.systemId],
       onSuccess(response) {
         if (Array.isArray(response?.data)) {
+          const adminStaff = response?.data?.filter(
+            staff => staff.id === currentRole?.id
+          );
+          setAdminStaff(adminStaff[0]);
           const data = response?.data.filter(item =>
             currentOrg?.staffType === StaffTypeEnum.UnitAdmin
               ? item.staffType !== StaffTypeEnum.UnitAdmin
@@ -146,6 +154,30 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
     [currentSystem, currentOrg, deleteStaff]
   );
 
+  const roleOptions = useMemo(() => {
+    if (adminStaff?.staffType === StaffTypeEnum.UnitAdmin) {
+      return [
+        {
+          label: '普通管理员',
+          value: StaffTypeEnum.Admin,
+        },
+        {
+          label: '普通成员',
+          value: StaffTypeEnum.Member,
+        },
+      ];
+    } else if (adminStaff?.staffType === StaffTypeEnum.Admin) {
+      return [
+        {
+          label: '普通成员',
+          value: StaffTypeEnum.Member,
+        },
+      ];
+    } else {
+      return [];
+    }
+  }, [adminStaff?.staffType]);
+
   const columns: ProColumnType<TableFormDateType>[] = useMemo(
     () => [
       {
@@ -190,16 +222,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               allowClear
               style={{ minWidth: '160px' }}
               placeholder="请选择成员角色"
-              options={[
-                {
-                  label: '普通管理员',
-                  value: StaffTypeEnum.Admin,
-                },
-                {
-                  label: '普通成员',
-                  value: StaffTypeEnum.Member,
-                },
-              ]}
+              options={roleOptions}
             />
           );
         },
@@ -279,7 +302,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         },
       },
     ],
-    [memberTags, canEdit, onDelete]
+    [roleOptions, memberTags, canEdit, onDelete]
   );
 
   return (
