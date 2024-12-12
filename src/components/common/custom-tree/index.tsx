@@ -316,12 +316,8 @@ function CustomTree(props: CustomTreeProps) {
         return true;
       });
     };
-    setTreeSourceData(deleteNode(treeData, String(selectedKeys[0])));
+    setTreeSourceData(deleteNode(treeData, String(currentNode?.key)));
     setCurrentNode(undefined);
-    // messageApi.open({
-    //   type: 'success',
-    //   content: '节点删除成功',
-    // });
   };
 
   /**
