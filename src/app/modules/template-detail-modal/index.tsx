@@ -6,11 +6,15 @@ import { TemplateType } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Empty, Form, Modal } from 'antd';
 import { ReactNode, useEffect, useState } from 'react';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import getSingleFillFormData from '@/app/modules/template-detail/getSingleFillFormData';
 
 interface TemplateDetailModalProps {
   title?: string;
   showDom?: ReactNode;
   templateId: number;
+  taskId?: number;
+  singleFillId?: number;
   TemplateType: TemplateType;
 }
 
@@ -19,11 +23,31 @@ const TemplateDetailModal = ({
   showDom,
   templateId,
   TemplateType,
+  taskId,
+  singleFillId,
 }: TemplateDetailModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [widgetList, setWidgetList] = useState<any>([]);
+
+  const { data: singleFillDetails } = useRequest(
+    () => {
+      if (!open || !currentSystem?.systemId || !singleFillId || !taskId) {
+        return Promise.reject('currentSystem is not exist');
+      }
+      return Api.getSingleFillDetails({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        singleFillId: singleFillId,
+        taskId: taskId,
+      });
+    },
+    {
+      refreshDeps: [singleFillId, taskId, open],
+    }
+  );
 
   const { data, run: getTemplateDetail } = useRequest(
     () => {
@@ -72,6 +96,25 @@ const TemplateDetailModal = ({
     }
   }, [getAllWidgetsList, getTemplateDetail, open]);
 
+  useEffect(() => {
+    if (!open || !data || !singleFillDetails) {
+      return;
+    }
+    form.setFieldsValue(
+      getSingleFillFormData({
+        formDetailData: data?.data,
+        singleFillDetails: singleFillDetails.data,
+        deleteFillAttachment: () => {},
+        params: {
+          currentSystemId: currentSystem?.systemId!,
+          currentOrgId: currentOrg?.orgId!,
+          singleFillId: singleFillId!,
+          taskId: taskId!,
+        },
+      })
+    );
+  }, [singleFillDetails, data, open]);
+
   return (
     <>
       <a
@@ -118,11 +161,13 @@ const TemplateDetailModal = ({
           ) : (
             <Empty />
           )}
-          <Form.Item className="flex justify-center">
-            <Button disabled type="primary" htmlType="submit">
-              提交
-            </Button>
-          </Form.Item>
+          {!singleFillDetails && (
+            <Form.Item className="flex justify-center">
+              <Button disabled type="primary" htmlType="submit">
+                提交
+              </Button>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </>

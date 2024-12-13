@@ -11,11 +11,10 @@ import {
   TemplateTypeEnum,
   WidgetTypeEnum,
 } from '@/types/CommonType';
-import { AnyObject } from '@/typings/type';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form, message } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { baseUrl } from '@/api/config';
+import getSingleFillFormData from '@/app/modules/template-detail/getSingleFillFormData';
 
 interface TemplateDetailProps {
   templateId?: number;
@@ -83,19 +82,20 @@ const TemplateDetail = ({
     singleFillId,
   ]);
 
-  const { runAsync: saveSingleFillDetails,loading: submitLoading } = useRequest(
-    values => {
-      return Api.saveSingleFillDetails({
-        ...values,
-      }).then(res => {
-        getSingleFillDetails();
-        return res;
-      });
-    },
-    {
-      manual: true,
-    }
-  );
+  const { runAsync: saveSingleFillDetails, loading: submitLoading } =
+    useRequest(
+      values => {
+        return Api.saveSingleFillDetails({
+          ...values,
+        }).then(res => {
+          getSingleFillDetails();
+          return res;
+        });
+      },
+      {
+        manual: true,
+      }
+    );
   const { run: deleteFillAttachment } = useRequest(
     (attachmentId: number, templateItemId: number) => {
       return Api.deleteFillAttachment({
@@ -211,45 +211,19 @@ const TemplateDetail = ({
     if (!formDetailData && !singleFillDetails) {
       return;
     }
-    const data = singleFillDetails;
-    const params = {
-      currentSystemId: currentSystem?.systemId!,
-      currentOrgId: currentOrg?.orgId,
-      singleFillId: singleFillId,
-      taskId: currentFillTask.taskId,
-    };
-    const getFileParams = (attachmentId: number, templateItemId: number) => {
-      return Object.entries({ ...params, templateItemId, attachmentId })
-        .map(v => v.join('='))
-        .join('&');
-    };
-    form.setFieldsValue(
-      data?.data?.reduce(
-        (acc: AnyObject, cur: any) => {
-          acc[cur.templateItemId] = cur.fillContent;
-          const widget = formDetailData?.data?.items.find(
-            (widget: any) => widget.templateItemId === cur.templateItemId
-          );
-          // 附件转换
-          if (widget?.widgetType === WidgetTypeEnum.File && cur.attachments) {
-            acc[cur.templateItemId] = cur.attachments?.map((item: any) => ({
-              uid: item.attachmentId,
-              name: item.filename,
-              status: 'done',
-              url: `${baseUrl}/task/downloadFillAttachment?${getFileParams(item.attachmentId, cur.templateItemId)}`,
-              linkProps: { download: item.filename, target: null },
-              remove: () =>
-                deleteFillAttachment(item.attachmentId, cur.templateItemId),
-            }));
-          }
-          if (ArrWidgetTypes.includes(widget?.widgetType!)) {
-            acc[cur.templateItemId] = JSON.parse(cur.fillContent || '[]');
-          }
-          return acc;
-        },
-        (oldFormData.current = {})
-      )
-    );
+    const values = getSingleFillFormData({
+      formDetailData: formDetailData?.data!,
+      singleFillDetails: singleFillDetails?.data!,
+      deleteFillAttachment,
+      params: {
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg?.orgId!,
+        singleFillId: singleFillId!,
+        taskId: currentFillTask.taskId,
+      },
+    });
+    oldFormData.current = values;
+    form.setFieldsValue(values);
   }, [formDetailData, singleFillDetails]);
 
   return (
@@ -279,7 +253,12 @@ const TemplateDetail = ({
             )
           )}
         <Form.Item className="fillCollect-form-action flex justify-center">
-          <Button type="primary" htmlType="submit" loading={submitLoading} onClick={saveSingleFill}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={submitLoading}
+            onClick={saveSingleFill}
+          >
             保存
           </Button>
         </Form.Item>

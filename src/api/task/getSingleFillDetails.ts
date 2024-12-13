@@ -24,7 +24,7 @@ interface GetSingleFillDetailsParamsType {
     attachmentId	int		附件id
     attachmentFilename	string		附件文件名
 */
-interface GetSingleFillDetailsResponse {
+export interface GetSingleFillDetailsResponse {
   templateItemId: number;
   fillContent?: string;
   attachments?: {

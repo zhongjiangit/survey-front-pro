@@ -1,21 +1,16 @@
 import React from 'react';
 
-
 export interface FormItemWrapProps {
   id?: string;
   ref?: React.RefObject<HTMLInputElement>;
   value?: any;
+  disabled?: boolean;
   onChange?: (...arg: any[]) => void;
   renderChildren: RenderChildren;
 }
 
 export interface RenderChildren {
-  (props: {
-    id: string;
-    ref: React.RefObject<HTMLInputElement>;
-    value: any;
-    onChange: (...arg: any[]) => void;
-  }): React.ReactNode;
+  (props: Omit<FormItemWrapProps, 'renderChildren'>): React.ReactNode;
 }
 
 /**
@@ -25,10 +20,17 @@ const FormItemWrap: React.FC<FormItemWrapProps> = ({
   id,
   ref,
   value,
+  disabled,
   onChange,
   renderChildren,
 }) => {
-  return renderChildren({ id: id!, ref: ref!, value, onChange: onChange! });
+  return renderChildren({
+    id: id!,
+    ref: ref!,
+    value,
+    disabled,
+    onChange: onChange!,
+  });
 };
 
 export default FormItemWrap;

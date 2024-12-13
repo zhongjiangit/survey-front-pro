@@ -69,12 +69,14 @@ const RenderFormItem = (props: RenderFormItemProps) => {
           id,
           ref,
           value,
+          disabled,
           onChange,
         }) => (
           <Upload
             id={id}
             ref={ref}
             fileList={value}
+            disabled={disabled}
             beforeUpload={(file, fileList) => {
               if (sysConfig?.maxUploadFileSize < file.size) {
                 messageApi.error(
@@ -82,12 +84,12 @@ const RenderFormItem = (props: RenderFormItemProps) => {
                   3
                 );
               } else {
-                onChange((value || []).concat(file));
+                onChange?.((value || []).concat(file));
               }
               return false;
             }}
             onRemove={file => {
-              onChange(value.filter((t: any) => t.uid !== file.uid));
+              onChange?.(value.filter((t: any) => t.uid !== file.uid));
             }}
           >
             <Button icon={<UploadOutlined />}>点击上传文件</Button>
@@ -123,7 +125,7 @@ const RenderFormItem = (props: RenderFormItemProps) => {
         className="flex-1"
         label={item.itemCaption}
         name={item.templateItemId}
-        extra={<span className="text-red-500">{item?.itemMemo}</span>}
+        extra={false && <span className="text-red-500">{item?.itemMemo}</span>}
         rules={[
           {
             required: item.isRequired === ZeroOrOneTypeEnum.One,
