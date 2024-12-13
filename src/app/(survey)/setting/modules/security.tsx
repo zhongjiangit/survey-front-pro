@@ -1,5 +1,6 @@
 'use client';
 import Api from '@/api';
+import CloseWarning from '@/components/display/close-warning';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
@@ -28,6 +29,8 @@ const SecurityView: React.FC = () => {
   const user = useSurveyUserStore(state => state.user);
 
   const [captchaUrl, setCaptchaUrl] = useState('');
+
+  const [showCloseWarning, setShowCloseWarning] = useState(false);
 
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
@@ -131,8 +134,9 @@ const SecurityView: React.FC = () => {
               content: response.message,
             });
           } else if (response?.result === 0) {
-            message.success('密码修改成功！');
+            setShowCloseWarning(true);
             setTimeout(() => {
+              setShowCloseWarning(false);
               loginOut();
             }, 1500);
           }
@@ -262,6 +266,7 @@ const SecurityView: React.FC = () => {
           />
         </ProForm>
       </div>
+      {showCloseWarning && <CloseWarning />}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import Api from '@/api';
+import CloseWarning from '@/components/display/close-warning';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
@@ -29,6 +30,8 @@ const Phone: React.FC = () => {
   const [captchaUrlOld, setCaptchaUrlOld] = useState('');
 
   const [captchaUrlNew, setCaptchaUrlNew] = useState('');
+
+  const [showCloseWarning, setShowCloseWarning] = useState(false);
 
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
@@ -163,8 +166,9 @@ const Phone: React.FC = () => {
               content: response.message,
             });
           } else if (response?.result === 0) {
-            message.success('密码修改成功！');
+            setShowCloseWarning(true);
             setTimeout(() => {
+              setShowCloseWarning(false);
               loginOut();
             }, 1500);
           }
@@ -265,7 +269,6 @@ const Phone: React.FC = () => {
             onGetCaptcha={async phone => {
               handleGetCaptcha('old');
               console.log(phone);
-
               message.success('获取验证码成功！');
             }}
           />
@@ -341,13 +344,12 @@ const Phone: React.FC = () => {
             ]}
             onGetCaptcha={async phone => {
               handleGetCaptcha('new');
-              console.log(phone);
-
               message.success('获取验证码成功！验证码为：1234');
             }}
           />
         </ProForm>
       </div>
+      {showCloseWarning && <CloseWarning />}
     </div>
   );
 };

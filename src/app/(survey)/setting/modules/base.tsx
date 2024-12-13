@@ -1,6 +1,7 @@
 'use client';
 
 import Api from '@/api';
+import CloseWarning from '@/components/display/close-warning';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
@@ -9,12 +10,13 @@ import { ProForm, ProFormText } from '@ant-design/pro-components';
 import { useRequest } from 'ahooks';
 import { message } from 'antd';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 
 const BaseView: React.FC = () => {
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [showCloseWarning, setShowCloseWarning] = useState(false);
   const setCurrentRole = useSurveyCurrentRoleStore(
     state => state.setCurrentRole
   );
@@ -53,13 +55,11 @@ const BaseView: React.FC = () => {
       manual: true,
       onSuccess(response) {
         if (response.result === 0) {
-          messageApi.open({
-            type: 'success',
-            content: '更新成功',
-          });
+          setShowCloseWarning(true);
           setTimeout(() => {
+            setShowCloseWarning(false);
             loginOut();
-          }, 1500);
+          }, 5000);
         } else {
           messageApi.open({
             type: 'error',
@@ -116,6 +116,7 @@ const BaseView: React.FC = () => {
           />
         </ProForm>
       </div>
+      {showCloseWarning && <CloseWarning />}
     </div>
   );
 };
