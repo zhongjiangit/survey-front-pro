@@ -13,7 +13,7 @@ import {
 } from '@/types/CommonType';
 import { AnyObject } from '@/typings/type';
 import { useLocalStorageState, useRequest } from 'ahooks';
-import { Button, Form } from 'antd';
+import { Button, Form, message } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { baseUrl } from '@/api/config';
 
@@ -31,6 +31,8 @@ const TemplateDetail = ({
   taskId,
 }: TemplateDetailProps) => {
   const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [currentFillTask] = useLocalStorageState<any>('current-fill-task', {
     defaultValue: {},
   });
@@ -81,7 +83,7 @@ const TemplateDetail = ({
     singleFillId,
   ]);
 
-  const { run: saveSingleFillDetails } = useRequest(
+  const { runAsync: saveSingleFillDetails,loading: submitLoading } = useRequest(
     values => {
       return Api.saveSingleFillDetails({
         ...values,
@@ -180,7 +182,8 @@ const TemplateDetail = ({
       items: formattedValues,
     };
 
-    saveSingleFillDetails(fillData);
+    await saveSingleFillDetails(fillData);
+    messageApi.success('保存成功!');
   };
 
   useRequest(
@@ -250,35 +253,39 @@ const TemplateDetail = ({
   }, [formDetailData, singleFillDetails]);
 
   return (
-    <Form
-      form={form}
-      className="fillCollect-form min-w-96 w-[40vw]"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      autoComplete="off"
-      name="template_detail"
-    >
-      {formDetailData?.data?.items?.length &&
-        formDetailData?.data?.items.map(
-          (item: CollectItemType, index: number) => (
-            <div className="flex" key={index}>
-              <RenderFormItem
-                item={item}
-                type={item.widgetType || 'input'}
-                option={
-                  widgetList?.find((widget: any) => widget.id === item.widgetId)
-                    ?.widgetDetails
-                }
-              />
-            </div>
-          )
-        )}
-      <Form.Item className="fillCollect-form-action flex justify-center">
-        <Button type="primary" htmlType="submit" onClick={saveSingleFill}>
-          保存
-        </Button>
-      </Form.Item>
-    </Form>
+    <>
+      <Form
+        form={form}
+        className="fillCollect-form min-w-96 w-[40vw]"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        autoComplete="off"
+        name="template_detail"
+      >
+        {formDetailData?.data?.items?.length &&
+          formDetailData?.data?.items.map(
+            (item: CollectItemType, index: number) => (
+              <div className="flex" key={index}>
+                <RenderFormItem
+                  item={item}
+                  type={item.widgetType || 'input'}
+                  option={
+                    widgetList?.find(
+                      (widget: any) => widget.id === item.widgetId
+                    )?.widgetDetails
+                  }
+                />
+              </div>
+            )
+          )}
+        <Form.Item className="fillCollect-form-action flex justify-center">
+          <Button type="primary" htmlType="submit" loading={submitLoading} onClick={saveSingleFill}>
+            保存
+          </Button>
+        </Form.Item>
+      </Form>
+      {contextHolder}
+    </>
   );
 };
 
