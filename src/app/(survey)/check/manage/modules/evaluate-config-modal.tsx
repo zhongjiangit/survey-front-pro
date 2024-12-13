@@ -61,7 +61,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         destroyOnClose
         afterClose={() => form.resetFields()}
         open={open}
-        title="专家评审设置1"
+        title="专家评审设置"
         okText="提交"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
@@ -94,7 +94,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         >
           <RangePicker
             format="YYYY-MM-DD HH:mm"
-            showTime={{ format: 'HH:mm:ss' }}
+            showTime={{ format: 'HH:mm' }}
           />
         </Form.Item>
         <Form.Item name="showFiller" label="专家能否查看填报人信息">
