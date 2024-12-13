@@ -10,9 +10,10 @@ import {
   TemplateTypeEnum,
 } from '@/types/CommonType';
 import { useLocalStorageState, useRequest } from 'ahooks';
-import { Space, Table } from 'antd';
+import { Space, Table, Modal } from 'antd';
 import Link from 'next/link';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -37,6 +38,7 @@ interface CollectListItemProps {
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回 listFillCollectionTask接口未返回该字段，是找错接口了吗？ todo
 
 const ToAllotTask = () => {
+  const [modal, contextHolder] = Modal.useModal();
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -78,7 +80,14 @@ const ToAllotTask = () => {
     submit: (record: any) => (
       <a
         onClick={() => {
-          submitFill(record.taskId);
+          modal.confirm({
+            title: '确认',
+            icon: <ExclamationCircleFilled />,
+            content: <>确定提交？</>,
+            onOk() {
+              submitFill(record.taskId);
+            },
+          });
         }}
         className=" text-blue-500"
       >
@@ -222,6 +231,7 @@ const ToAllotTask = () => {
         dataSource={fillInspTaskData?.data || []}
         // dataSource={toAllotTaskData}
       ></Table>
+      {contextHolder}
     </>
   );
 };
