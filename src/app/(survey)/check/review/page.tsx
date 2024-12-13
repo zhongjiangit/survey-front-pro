@@ -12,7 +12,6 @@ import StandardDetailModal from '../modules/standard-detail-modal';
 import TaskReviewDetailModal from './modules/task-review-detail-modal';
 
 const CheckReview = () => {
-  const [total, setTotal] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -20,11 +19,23 @@ const CheckReview = () => {
 
   const operateButton = {
     detail: (record: any) => {
-      return <TaskReviewDetailModal key="detail" task={record} />;
+      return (
+        <TaskReviewDetailModal
+          key="detail"
+          task={record}
+          refreshList={refreshListReviewTaskExpertData}
+        />
+      );
     },
   };
-  const { data: listReviewTaskExpertData } = useRequest(
+  const {
+    data: listReviewTaskExpertData,
+    refresh: refreshListReviewTaskExpertData,
+  } = useRequest(
     () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('未获取到当前系统或组织 ID');
+      }
       return Api.listReviewTaskExpert({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg!.orgId!,
@@ -184,6 +195,15 @@ const CheckReview = () => {
       <Table
         columns={columns}
         dataSource={listReviewTaskExpertData?.data || []}
+        pagination={{
+          current: pageNumber,
+          pageSize,
+          total: listReviewTaskExpertData?.total,
+          onChange: (page, pageSize) => {
+            setPageNumber(page);
+            setPageSize(pageSize);
+          },
+        }}
       />
     </div>
   );

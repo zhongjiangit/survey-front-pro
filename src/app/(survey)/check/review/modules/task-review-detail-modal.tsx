@@ -22,21 +22,34 @@ import {
   Space,
   Table,
 } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
 
 interface TaskReviewDetailModalProps {
   task: any;
+  refreshList?: () => void;
 }
 
-const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
+const TaskReviewDetailModal = ({
+  task,
+  refreshList,
+}: TaskReviewDetailModalProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  const [_loading, _setLoading] = useState<any>({ loading: {} });
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<any>([]);
+
+  const setLoading = (key: string, loading: boolean) => {
+    _loading.loading[key] = loading;
+    _setLoading({ ..._loading });
+  };
+  const loading = _loading.loading;
 
   const {
     data: listReviewDetailsExpertData,
@@ -56,12 +69,14 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     {
       manual: true,
       onSuccess: data => {
+        form.resetFields();
+        form.setFieldsValue(data.data);
         console.log('listReviewDetailsExpertData', data);
       },
     }
   );
 
-  const { run: saveReviewDetails } = useRequest(
+  const { runAsync: saveReviewDetails } = useRequest(
     values => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('未获取到当前系统或组织 ID');
@@ -73,15 +88,10 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
         ...values,
       });
     },
-    {
-      manual: true,
-      onSuccess: () => {
-        refreshListReviewDetailsExpert();
-      },
-    }
+    { manual: true }
   );
 
-  const { run: expertSubmit } = useRequest(
+  const { runAsync: expertSubmit } = useRequest(
     values => {
       return Api.expertSubmit({
         currentSystemId: currentSystem?.systemId!,
@@ -93,7 +103,7 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     {
       manual: true,
       onSuccess: () => {
-        refreshListReviewDetailsExpert();
+        refreshList?.();
       },
     }
   );
@@ -104,19 +114,67 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
     }
   }, [getListReviewDetailsExpert, open]);
 
-  const saveReview = (record: any) => {
-    console.log('--------- form.getFieldsValue ---------');
-    console.log(form.getFieldsValue());
-
-    const values = formValues.find(
-      (item: any) => item.singleFillId === record.singleFillId
-    );
-    saveReviewDetails(values);
+  const saveReview = async (idx: number, noRefresh?: boolean) => {
+    const data = form.getFieldsValue();
+    const record = listReviewDetailsExpertData?.data[idx]!;
+    const values = data[idx];
+    record.expertComment = values.expertComment;
+    record.dimensionScores.forEach((t, i) => {
+      t.reviewScore = values.dimensionScores[i].reviewScore;
+    });
+    const loadingKey = record.singleFillId + '_save';
+    setLoading(loadingKey, true);
+    await saveReviewDetails(record).finally(() => {
+      setLoading(loadingKey, false);
+    });
+    if (!noRefresh) {
+      refreshListReviewDetailsExpert();
+    }
   };
 
-  const submitReview = (record: any) => {
-    expertSubmit({ singleFillId: record.singleFillId });
-    console.log('submit', record);
+  const submitReview = async (i: number, noRefresh?: boolean) => {
+    await saveReview(i, noRefresh);
+    const record = listReviewDetailsExpertData?.data[i]!;
+    const loadingKey = record.singleFillId + '_submit';
+    setLoading(loadingKey, true);
+    await expertSubmit({ singleFillId: record.singleFillId }).finally(() => {
+      setLoading(loadingKey, false);
+    });
+    if (!noRefresh) {
+      refreshListReviewDetailsExpert();
+    }
+  };
+
+  const saveCurrentPage = async () => {
+    setLoading('saveCurrentPage', true);
+    try {
+      for (
+        let i = 0;
+        i < (listReviewDetailsExpertData?.data || []).length;
+        i++
+      ) {
+        await saveReview(i, true);
+      }
+      refreshListReviewDetailsExpert();
+    } finally {
+      setLoading('saveCurrentPage', false);
+    }
+  };
+
+  const submitCurrentPage = async () => {
+    setLoading('submitCurrentPage', true);
+    try {
+      for (
+        let i = 0;
+        i < (listReviewDetailsExpertData?.data || []).length;
+        i++
+      ) {
+        await submitReview(i, true);
+      }
+      refreshListReviewDetailsExpert();
+    } finally {
+      setLoading('submitCurrentPage', false);
+    }
   };
 
   const changeFormValue = (
@@ -212,6 +270,8 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
             showDom={'详情'}
             templateId={record.templateId || 1}
             TemplateType={TemplateTypeEnum.Check}
+            taskId={task.taskId}
+            singleFillId={record.singleFillId}
           />
         );
       },
@@ -281,21 +341,10 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
               return (
                 <div key={i}>
                   <Form.Item
-                    name={`${item.dimensionId}-${index}-${i}`}
-                    initialValue={item.reviewScore}
+                    name={[index, 'dimensionScores', i, 'reviewScore']}
                     required
                   >
-                    <InputNumber
-                      min={0}
-                      max={100}
-                      onChange={e => {
-                        changeFormValue(
-                          record.singleFillId,
-                          e,
-                          item.dimensionId
-                        );
-                      }}
-                    />
+                    <InputNumber min={0} max={100} />
                   </Form.Item>
                   {i + 1 !== text.length && <Divider className="my-4" />}
                 </div>
@@ -317,16 +366,10 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
         return (
           <Form.Item
             required
-            name={`expertComment-${index}`}
+            name={[index, 'expertComment']}
             initialValue={text}
           >
-            <Input.TextArea
-              autoSize={{ minRows: 4, maxRows: 10 }}
-              defaultValue={text}
-              onChange={e => {
-                changeFormValue(record.singleFillId, e.target.value);
-              }}
-            />
+            <Input.TextArea autoSize={{ minRows: 4, maxRows: 10 }} />
           </Form.Item>
         );
       },
@@ -338,7 +381,7 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
       dataIndex: 'operation',
       fixed: 'right',
       align: 'center',
-      render: (_: any, record: any) => {
+      render: (_: any, record: any, index: number) => {
         return (
           <>
             {(record.processStatus === ProcessStatusTypeEnum.NotFill ||
@@ -348,18 +391,26 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
                 <a
                   className="text-blue-500"
                   onClick={() => {
-                    saveReview(record);
+                    saveReview(index);
                   }}
                 >
-                  保存
+                  {loading[record.singleFillId + '_save'] ? (
+                    <LoadingOutlined />
+                  ) : (
+                    '保存'
+                  )}
                 </a>
                 <a
                   className="text-blue-500"
                   onClick={() => {
-                    submitReview(record);
+                    submitReview(index);
                   }}
                 >
-                  提交
+                  {loading[record.singleFillId + '_submit'] ? (
+                    <LoadingOutlined />
+                  ) : (
+                    '提交'
+                  )}
                 </a>
               </Space>
             )}
@@ -396,10 +447,19 @@ const TaskReviewDetailModal = ({ task }: TaskReviewDetailModalProps) => {
         destroyOnClose
         footer={
           <div className="flex justify-end gap-5 px-20">
-            <Button size="large" onClick={() => {}}>
+            <Button
+              size="large"
+              loading={loading.saveCurrentPage}
+              onClick={() => saveCurrentPage()}
+            >
               保存本页
             </Button>
-            <Button size="large" type="primary" onClick={() => {}}>
+            <Button
+              size="large"
+              type="primary"
+              loading={loading.submitCurrentPage}
+              onClick={() => submitCurrentPage()}
+            >
               提交本页
             </Button>
           </div>
