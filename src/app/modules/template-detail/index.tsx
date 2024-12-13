@@ -5,7 +5,12 @@ import { CollectItemType } from '@/api/template/get-details';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import RenderFormItem from '@/lib/render-form-item';
-import { TemplateType, TemplateTypeEnum } from '@/types/CommonType';
+import {
+  ArrWidgetTypes,
+  TemplateType,
+  TemplateTypeEnum,
+  WidgetTypeEnum,
+} from '@/types/CommonType';
 import { AnyObject } from '@/typings/type';
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form } from 'antd';
@@ -117,12 +122,15 @@ const TemplateDetail = ({
     const formItems = formDetailData?.data?.items || [];
     const formValues = await form.validateFields();
     for (const item of formItems) {
-      if (item.widgetType === 'file' && formValues[item.templateItemId]) {
+      if (
+        item.widgetType === WidgetTypeEnum.File &&
+        formValues[item.templateItemId]
+      ) {
         const fieldList = formValues[item.templateItemId] || [];
         const files = [];
         const oldFiles = oldFormData.current[item.templateItemId] || [];
         for (const file of fieldList) {
-          if (!file.originFileObj) {
+          if (!(file instanceof File)) {
             const idx = oldFiles.findIndex((f: any) => f.uid === file.uid);
             if (idx !== -1) {
               oldFiles.splice(idx, 1);
@@ -136,7 +144,7 @@ const TemplateDetail = ({
             currentOrgId: currentOrg.orgId!,
             singleFillId: singleFillId!,
             templateItemId: item.templateItemId,
-            attachment: file.originFileObj,
+            attachment: file,
           });
           files.push(res.data);
         }
@@ -152,13 +160,13 @@ const TemplateDetail = ({
       const item: any = {
         templateItemId: Number(key),
       };
-      if (
-        formItems.find(
-          t =>
-            item.templateItemId === t.templateItemId && t.widgetType === 'file'
-        )
-      ) {
+      const widgetType = formItems.find(
+        t => item.templateItemId === t.templateItemId
+      ).widgetType;
+      if (widgetType === WidgetTypeEnum.File) {
         item.attachments = value;
+      } else if (ArrWidgetTypes.includes(widgetType)) {
+        item.fillContent = value ? JSON.stringify(value) : value;
       } else {
         item.fillContent = value;
       }
@@ -220,7 +228,7 @@ const TemplateDetail = ({
             (widget: any) => widget.templateItemId === cur.templateItemId
           );
           // 附件转换
-          if (widget?.widgetType === 'file' && cur.attachments) {
+          if (widget?.widgetType === WidgetTypeEnum.File && cur.attachments) {
             acc[cur.templateItemId] = cur.attachments?.map((item: any) => ({
               uid: item.attachmentId,
               name: item.filename,
@@ -230,6 +238,9 @@ const TemplateDetail = ({
               remove: () =>
                 deleteFillAttachment(item.attachmentId, cur.templateItemId),
             }));
+          }
+          if (ArrWidgetTypes.includes(widget?.widgetType)) {
+            acc[cur.templateItemId] = JSON.parse(cur.fillContent || '[]');
           }
           return acc;
         },

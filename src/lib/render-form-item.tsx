@@ -82,14 +82,13 @@ const RenderFormItem = (props: RenderFormItemProps) => {
                   3
                 );
               } else {
-                onChange(fileList);
+                onChange((value || []).concat(file));
               }
               return false;
             }}
             onRemove={file => {
               onChange(value.filter((t: any) => t.uid !== file.uid));
             }}
-            type={undefined}
           >
             <Button icon={<UploadOutlined />}>点击上传文件</Button>
           </Upload>

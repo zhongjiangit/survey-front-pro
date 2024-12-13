@@ -117,6 +117,12 @@ export enum WidgetTypeEnum {
   Tree = 'tree',
 }
 
+// 保存的值为数组的表单组件类型
+export const ArrWidgetTypes: WidgetType[] = [
+  WidgetTypeEnum.Checkbox,
+  WidgetTypeEnum.Tree,
+];
+
 // ----------------- 通用类型 任务状态类型 -----------------
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
 // todo 看需求ui有已删除状态，接口无
