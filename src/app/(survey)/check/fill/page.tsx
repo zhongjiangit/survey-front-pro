@@ -50,7 +50,7 @@ const ToAllotTask = () => {
     }
   );
 
-  const { run: submitFill } = useRequest(
+  const { runAsync: submitFill } = useRequest(
     (taskId: number) => {
       if (!currentSystem?.systemId || !currentOrg?.orgId) {
         return Promise.reject('currentSystem or currentOrg is not exist');
@@ -85,7 +85,9 @@ const ToAllotTask = () => {
             icon: <ExclamationCircleFilled />,
             content: <>确定提交？</>,
             onOk() {
-              submitFill(record.taskId);
+              submitFill(record.taskId).then(() => {
+                refreshFillInspTaskData();
+              });
             },
           });
         }}
@@ -96,27 +98,28 @@ const ToAllotTask = () => {
     ),
   };
 
-  const { data: fillInspTaskData } = useRequest(
-    () => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId) {
-        return Promise.reject('currentSystem or currentOrg is not exist');
+  const { data: fillInspTaskData, refreshAsync: refreshFillInspTaskData } =
+    useRequest(
+      () => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('currentSystem or currentOrg is not exist');
+        }
+        return Api.listFillInspTask({
+          currentSystemId: currentSystem?.systemId!,
+          currentOrgId: currentOrg!.orgId!,
+          pageNumber,
+          pageSize,
+        });
+      },
+      {
+        refreshDeps: [
+          currentSystem?.systemId,
+          currentOrg?.orgId,
+          pageNumber,
+          pageSize,
+        ],
       }
-      return Api.listFillInspTask({
-        currentSystemId: currentSystem?.systemId!,
-        currentOrgId: currentOrg!.orgId!,
-        pageNumber,
-        pageSize,
-      });
-    },
-    {
-      refreshDeps: [
-        currentSystem?.systemId,
-        currentOrg?.orgId,
-        pageNumber,
-        pageSize,
-      ],
-    }
-  );
+    );
 
   // 给columns添加ts类型
   const columns: any = [

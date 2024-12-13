@@ -10,6 +10,7 @@ const { RangePicker } = DatePicker;
 interface EvaluateConfigModalProps {
   type?: string | number;
   taskId: number;
+  refreshMyPublishTask?: () => void;
 }
 
 interface Values {
@@ -22,6 +23,7 @@ interface Values {
 const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   type = 'config',
   taskId,
+  refreshMyPublishTask,
 }: EvaluateConfigModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
@@ -46,6 +48,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
       endTimeReviewEstimate: values.dateRange[1].format('YYYY-MM-DD HH:mm'),
     }).then(() => {
       setOpen(false);
+      refreshMyPublishTask?.();
     });
   };
 

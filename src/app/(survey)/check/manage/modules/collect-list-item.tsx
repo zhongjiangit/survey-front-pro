@@ -139,12 +139,21 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const operateButtonEvaluate = {
     // 设置
     config: (record: ListMyInspTaskResponse) => {
-      return <EvaluateConfigModal taskId={record.taskId} />;
+      return (
+        <EvaluateConfigModal
+          taskId={record.taskId}
+          refreshMyPublishTask={refreshMyPublishTask}
+        />
+      );
     },
     // 修改
     edit: (record: ListMyInspTaskResponse) => {
       return (
-        <EvaluateConfigModal type={record.publishType} taskId={record.taskId} />
+        <EvaluateConfigModal
+          type={record.publishType}
+          taskId={record.taskId}
+          refreshMyPublishTask={refreshMyPublishTask}
+        />
       );
     },
     // 分配

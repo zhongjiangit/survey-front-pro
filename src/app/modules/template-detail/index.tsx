@@ -162,10 +162,10 @@ const TemplateDetail = ({
       };
       const widgetType = formItems.find(
         t => item.templateItemId === t.templateItemId
-      ).widgetType;
+      )?.widgetType;
       if (widgetType === WidgetTypeEnum.File) {
         item.attachments = value;
-      } else if (ArrWidgetTypes.includes(widgetType)) {
+      } else if (ArrWidgetTypes.includes(widgetType!)) {
         item.fillContent = value ? JSON.stringify(value) : value;
       } else {
         item.fillContent = value;
@@ -239,7 +239,7 @@ const TemplateDetail = ({
                 deleteFillAttachment(item.attachmentId, cur.templateItemId),
             }));
           }
-          if (ArrWidgetTypes.includes(widget?.widgetType)) {
+          if (ArrWidgetTypes.includes(widget?.widgetType!)) {
             acc[cur.templateItemId] = JSON.parse(cur.fillContent || '[]');
           }
           return acc;
