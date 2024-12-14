@@ -1,6 +1,13 @@
 'use client';
 
 import Api from '@/api';
+import {
+  getSelectedNum,
+  membersToNode,
+  selectMember,
+  updateTreeDataV2,
+} from '@/app/(survey)/check/manage/modules/utils';
+import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { formatTreeData } from '@/lib/format-tree-data';
@@ -22,21 +29,12 @@ import {
   Divider,
   Form,
   Modal,
-  Select,
   Tooltip,
   Tree,
   TreeSelect,
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { treeData } from '../../testData';
-import { CustomTreeDataNode } from '@/components/common/custom-tree';
-import {
-  getSelectedNum,
-  membersToNode,
-  selectMember,
-  updateTreeDataV2,
-} from '@/app/(survey)/check/manage/modules/utils';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
@@ -66,6 +64,14 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const [orgMembers, setOrgMembers] = useState<any>({});
   const [task, setTask] = useState<any>(null);
   const [member, setMember] = useState<any>([]);
+
+  const assignTaskToMember = useMemo(
+    () =>
+      record.publishType === PublishTypeEnum.Member ||
+      (record.publishType === PublishTypeEnum.Org &&
+        task?.isLowest === ZeroOrOneTypeEnum.One),
+    [record.publishType, task?.isLowest]
+  );
 
   const changeFilterValue = (value: string[]) => {
     // hack 查询需要依赖及时更新的标签数据
@@ -245,7 +251,15 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     };
     delete createDate.timeFillEstimate;
     // 下发到部门
-    if (record.publishType === PublishTypeEnum.Org) {
+    if (assignTaskToMember) {
+      // 下发到人
+      createDate.staffs = member?.map((item: string) => ({
+        staffId: Number(item),
+      }));
+      createDate.staffTags = filterValue?.map((item: string) => ({
+        key: item,
+      }));
+    } else {
       createDate.levels = values.levels?.map((item: string) => ({
         levelIndex: Number(item),
       }));
@@ -253,14 +267,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         orgId: Number(item),
       }));
       createDate.orgTags = filterValue?.map((item: string) => ({
-        key: item,
-      }));
-    } else if (record.publishType === PublishTypeEnum.Member) {
-      // 下发到人
-      createDate.staffs = member?.map((item: string) => ({
-        staffId: Number(item),
-      }));
-      createDate.staffTags = filterValue?.map((item: string) => ({
         key: item,
       }));
     }
@@ -288,10 +294,10 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       setMember([]);
       setOrgMembers({});
       form.setFieldValue('orgs', []);
-      if (record.publishType === PublishTypeEnum.Org) {
+      if (!assignTaskToMember) {
         getListLevelAssignSub(form.getFieldValue('levels')?.[0]);
       }
-      if (record.publishType === PublishTypeEnum.Member) {
+      if (assignTaskToMember) {
         getListAllAssignSub();
       }
     };
@@ -354,13 +360,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       return;
     }
     const filterValue =
-      (task.publishType === PublishTypeEnum.Org
-        ? task.orgTags
-        : task.staffTags
-      )?.map((item: any) => item.key) || [];
+      (!assignTaskToMember ? task.orgTags : task.staffTags)?.map(
+        (item: any) => item.key
+      ) || [];
     changeFilterValue(filterValue);
 
-    if (task.publishType === PublishTypeEnum.Member) {
+    if (assignTaskToMember) {
       setMember(task.staffs.map((item: { staffId: number }) => item.staffId));
 
       getTagList(TagTypeEnum.Member);
@@ -375,7 +380,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         p.then(() => getOrgMembers(orgId));
       }
     }
-    if (task.publishType === PublishTypeEnum.Org) {
+    if (!assignTaskToMember) {
       getListVisibleLevels();
       getTagList(TagTypeEnum.Org);
       getListLevelAssignSub(task.levels?.[0]?.levelIndex);
@@ -537,6 +542,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     </>
   );
 
+  console.log('record', record);
+  console.log(form.getFieldsValue());
+
   return (
     <>
       <Modal
@@ -588,9 +596,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                 </div>
                 <Divider orientation="left">分配详情</Divider>
                 <div style={{ marginLeft: '20px' }}>
-                  {record.publishType === PublishTypeEnum.Org
-                    ? OrgSelect
-                    : MemberSelect}
+                  {!assignTaskToMember ? OrgSelect : MemberSelect}
                 </div>
               </div>
             </div>
