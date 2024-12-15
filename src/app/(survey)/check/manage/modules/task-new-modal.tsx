@@ -658,7 +658,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           </Col>
           <Col span={12}></Col>
           <Col span={12}>
-            <Form.Item name="publishType" label="任务分配方式">
+            <Form.Item name="publishType" label="分配方式">
               <FormItemWrap
                 renderChildren={({ id, ref, value, onChange }) => (
                   <Radio.Group

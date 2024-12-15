@@ -8,7 +8,6 @@ import CollectListItem from './collect-list-item';
 import TaskAddNewModal from './task-new-modal';
 
 const MyPublishTask = () => {
-  const [total, setTotal] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -41,11 +40,11 @@ const MyPublishTask = () => {
       <CollectListItem
         tabType="self"
         itemData={myPublishTackData?.data}
-        refreshMyPublishTask={refreshMyPublishTask}
+        refreshPublishTask={refreshMyPublishTask}
       />
       <div className="flex py-4 justify-end">
         <Pagination
-          total={total}
+          total={myPublishTackData?.total || 0}
           showSizeChanger
           showQuickJumper
           pageSize={pageSize}

@@ -20,13 +20,11 @@ import {
 import React, { useState } from 'react';
 import { treeData } from '../../testData';
 
-interface TaskEditModalProps {}
-
 interface Values {
   taskName?: string;
 }
 
-const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
+const TaskAddNewModal: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [checkAll, setCheckAll] = useState(false);
@@ -281,7 +279,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({}) => {
             </Col>
             <Col span={12}></Col>
             <Col span={12}>
-              <Form.Item name="publishType" label="任务分配方式">
+              <Form.Item name="publishType" label="分配方式">
                 <Radio.Group>
                   <Radio value={PublishTypeEnum.Org}>任务分配到单位</Radio>
                   <Radio value={PublishTypeEnum.Member}>任务分配到人</Radio>

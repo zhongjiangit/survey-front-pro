@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 interface TaskEditModalProps {
   linkName?: string;
   task?: any;
-  refreshMyPublishTask?: () => void;
+  refreshPublishTask?: () => void;
 }
 
 interface Values {
@@ -21,7 +21,7 @@ interface Values {
 const TaskEditModal: React.FC<TaskEditModalProps> = ({
   linkName,
   task,
-  refreshMyPublishTask,
+  refreshPublishTask,
 }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
@@ -46,7 +46,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
       manual: true,
       onSuccess: () => {
         form.resetFields();
-        refreshMyPublishTask?.();
+        refreshPublishTask?.();
         setOpen(false);
       },
     }

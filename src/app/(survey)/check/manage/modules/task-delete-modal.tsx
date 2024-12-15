@@ -3,9 +3,7 @@
 import { Button, Col, Form, Input, Modal, Row } from 'antd';
 import React, { useState } from 'react';
 
-interface TaskDeleteModalProps {}
-
-const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
+const TaskDeleteModal: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
@@ -25,7 +23,7 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
   return (
     <>
       <a
-        className="underline text-blue-500"
+        className="text-blue-500"
         onClick={() => {
           setOpen(true);
           form.setFieldsValue({

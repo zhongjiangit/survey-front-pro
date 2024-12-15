@@ -1,9 +1,8 @@
 'use client';
 
-import React from 'react';
 import { DownOutlined } from '@ant-design/icons';
-import { Tree, Modal } from 'antd';
 import type { TreeDataNode, TreeProps } from 'antd';
+import { Modal, Tree } from 'antd';
 
 const treeData: TreeDataNode[] = [
   {
@@ -45,7 +44,7 @@ const TaskPassedModal = ({ open, setOpen }: TaskPassedModalProps) => {
   return (
     <Modal
       open={open}
-      title="通过数量"
+      title="通过量"
       okText="确定"
       cancelText="取消"
       onCancel={() => setOpen(false)}

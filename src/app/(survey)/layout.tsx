@@ -10,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Header isThemeShow={false} />
       </div>
       <div className="flex flex-col md:flex-row md:overflow-hidden">
-        <div className="w-full flex-none md:w-64">
+        <div className="w-full flex-none md:w-52">
           <SideNav />
         </div>
         <div className="min-h-[88vh] flex-grow p-6 md:overflow-y-auto md:m-4 rounded-lg">

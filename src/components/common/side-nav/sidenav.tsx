@@ -3,7 +3,7 @@ import NavLinks from './nav-links';
 
 export default function SideNav() {
   return (
-    <div className="flex h-full flex-col px-3 py-4 md:px-2">
+    <div className="flex h-full flex-col px-3 py-4 md:px-1">
       <div
         className={cn(
           'fixed w-full bottom-0 left-0 grid grid-cols-4 space-x-2 opacity-100 z-50',

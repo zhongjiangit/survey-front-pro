@@ -224,7 +224,7 @@ export default function NavLinks() {
       selectedKeys={selectedKeys}
       onSelect={onSelect}
       defaultOpenKeys={['/collect', '/check']}
-      style={{ width: 240 }}
+      style={{ width: 200 }}
       mode="inline"
       items={menus}
     />

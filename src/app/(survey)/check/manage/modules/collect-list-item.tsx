@@ -14,7 +14,7 @@ import {
   TemplateTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { Space, Table } from 'antd';
+import { Popconfirm, Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import ReviewDetailModal from '../../modules/review-detail-modal/page';
 import ReviewResultModal from '../../modules/review-result-modal/page';
@@ -31,7 +31,7 @@ type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
   itemData: ItemDataType | undefined;
-  refreshMyPublishTask: () => void;
+  refreshPublishTask: () => void;
 }
 
 // taskId	int		任务id
@@ -55,7 +55,7 @@ interface CollectListItemProps {
 // processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回
 
 const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
-  const { itemData, tabType, refreshMyPublishTask } = props;
+  const { itemData, tabType, refreshPublishTask } = props;
 
   const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
   const [passedNumModalOpen, setPassedNumModalOpen] = useState(false);
@@ -80,7 +80,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     {
       manual: true,
       onSuccess: () => {
-        refreshMyPublishTask();
+        refreshPublishTask();
       },
     }
   );
@@ -90,7 +90,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       return (
         <TaskDetailEditModal
           record={record}
-          refreshList={refreshMyPublishTask}
+          refreshList={refreshPublishTask}
           type={ModalTypeEnum.Edit}
         />
       );
@@ -119,15 +119,32 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       </a>
     ),
     finish: (record: any) => (
-      <a
-        className=" text-blue-500"
+      <Popconfirm
+        title="确认完成"
         key="finish"
-        onClick={() => {
+        description={
+          // TODO: 需要后端返回字段判断是否还有未提交的数据
+          record.processStatus === 0
+            ? '未提交的数据将丢弃是否继续？'
+            : '点击完成任务不可逆是否继续？'
+        }
+        onConfirm={() => {
           setInspFillComplete(record.taskId);
         }}
+        onCancel={() => {}}
+        okText="确定"
+        cancelText="取消"
       >
-        完成
-      </a>
+        <a
+          className=" text-blue-500"
+          key="finished"
+          // onClick={() => {
+          //   setInspFillComplete(record.taskId);
+          // }}
+        >
+          完成
+        </a>
+      </Popconfirm>
     ),
     download: (
       <a className=" text-blue-500" key="download">
@@ -142,7 +159,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       return (
         <EvaluateConfigModal
           taskId={record.taskId}
-          refreshMyPublishTask={refreshMyPublishTask}
+          refreshPublishTask={refreshPublishTask}
         />
       );
     },
@@ -152,7 +169,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         <EvaluateConfigModal
           type={record.publishType}
           taskId={record.taskId}
-          refreshMyPublishTask={refreshMyPublishTask}
+          refreshPublishTask={refreshPublishTask}
         />
       );
     },
@@ -195,6 +212,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       ),
       dataIndex: 'orgAndUser',
       align: 'center',
+      with: 100,
       onCell: (_: any, index: number) => {
         if (index === 0) {
           return { rowSpan: 2 };
@@ -211,7 +229,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: <div>任务分配方式</div>,
+      title: <div>分配方式</div>,
       dataIndex: 'publishType',
       align: 'center',
       onCell: (_: any, index: number) => {
@@ -224,7 +242,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error: fillTaskStatus might not be in TaskStatusObject
               PublishTypeObject[record.publishType]
             }
           </div>
@@ -269,11 +287,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       title: <div>状态</div>,
       dataIndex: 'taskStatus',
       align: 'center',
+      width: 80,
       render: (_: any, record: any) => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error: fillTaskStatus might not be in TaskStatusObject
               TaskStatusObject[record.taskStatus]
             }
           </div>
@@ -283,7 +302,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     {
       title: <div>任务预定期限</div>,
       dataIndex: 'key5',
-      width: '18%',
+      width: 160,
       align: 'center',
       render: (_: any, record: any) => {
         return (
@@ -307,7 +326,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: <div>通过数量</div>,
+      title: <div>通过量</div>,
       dataIndex: 'PassCount',
       align: 'center',
       render: (_: any, record: any, index: number) => {
@@ -357,7 +376,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: <div>填报数量</div>,
+      title: <div>填报量</div>,
       dataIndex: 'key8',
       align: 'center',
       render: (_: any, record: any, index: number) => {
@@ -441,7 +460,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         // 专家评审
         return (
           <Space className="flex justify-center items-center">
-            {!record.reviewTaskStatus && [operateButtonEvaluate.config(record)]}
+            {record.taskStatus !== TaskStatusTypeEnum.Finished && '-'}
+            {record.taskStatus === TaskStatusTypeEnum.Finished && [
+              operateButtonEvaluate.config(record),
+            ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.NotStart && [
               operateButtonEvaluate.edit(record),
               operateButtonEvaluate.allocate(record),
@@ -490,7 +512,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     arr[1] = {
       ...obj,
       stage: '（二）专家评审',
-      taskStatus: obj.reviewTaskStatus,
+      taskStatus: obj.fillTaskStatus,
       passPeople: obj.reviewPassPeople,
       passCount: obj.reviewPassCount,
       beginTimeEstimate: obj.beginTimeReviewEstimate,
@@ -511,14 +533,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             <div key={index}>
               <div className="flex justify-between items-center">
                 <div className="font-bold text-lg pb-2 pl-4">
-                  <span>NO.{index + 1}</span>
-                  {item?.taskName}
+                  <span>NO.{index + 1}</span> {item?.taskName}
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">
                     <TaskEditModal
                       task={item}
-                      refreshMyPublishTask={refreshMyPublishTask}
+                      refreshPublishTask={refreshPublishTask}
                     />
                     <TaskDeleteModal />
                   </div>
@@ -545,7 +566,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         taskId={viewTaskId}
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
-        refreshList={refreshMyPublishTask}
+        refreshList={refreshPublishTask}
       />
       <TaskMemberFillDetailModal
         open={filleMemberDetailModalOpen}

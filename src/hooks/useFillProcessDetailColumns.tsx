@@ -59,7 +59,7 @@ export function useFillProcessDetailColumns(
         title: levelName,
         dataIndex: `org${index + 1}`,
         render: (value: any) => {
-          return <>{value.orgName}</>;
+          return <>{value?.orgName}</>;
         },
       };
     });
