@@ -1,3 +1,5 @@
+import deleteFillAttachment from '@/api/task/deleteFillAttachment';
+import uploadFillAttachment from '@/api/task/uploadFillAttachment';
 import approveFill from './approveFill';
 import approveReview from './approveReview';
 import createCollectionTask from './createCollectionTask';
@@ -23,6 +25,7 @@ import listFillsByTaskPage from './listFillsByTaskPage';
 import listMyCollectionTask from './listMyCollectionTask';
 import listMyInspTask from './listMyInspTask';
 import listNeedReviewExpertDetails from './listNeedReviewExpertDetails';
+import listRejectFill from './listRejectFill';
 import listReviewAssignByExpert from './listReviewAssignByExpert';
 import listReviewAssignByFill from './listReviewAssignByFill';
 import listReviewDetailsExpert from './listReviewDetailsExpert';
@@ -31,6 +34,7 @@ import listReviewTaskExpert from './listReviewTaskExpert';
 import listSingleFill from './listSingleFill';
 import listSubCollectionTask from './listSubCollectionTask';
 import listSubInspTask from './listSubInspTask';
+import rejectFill from './rejectFill';
 import reviewAssignAdd from './reviewAssignAdd';
 import reviewAssignDelete from './reviewAssignDelete';
 import saveReviewDetails from './saveReviewDetails';
@@ -41,8 +45,6 @@ import setReviewReviewComplete from './setReviewReviewComplete';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
-import uploadFillAttachment from '@/api/task/uploadFillAttachment';
-import deleteFillAttachment from '@/api/task/deleteFillAttachment';
 
 const taskApi = {
   createCollectionTask,
@@ -70,6 +72,8 @@ const taskApi = {
   listSingleFill,
   listReviewDetailsManager,
   listNeedReviewExpertDetails,
+  listRejectFill,
+  rejectFill,
   getSingleFillDetails,
   listReviewDetailsExpert,
   listReviewAssignByFill,

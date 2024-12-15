@@ -7,9 +7,13 @@ import { useFillProcessDetailColumns } from '@/hooks/useFillProcessDetailColumns
 import { TaskProcessStatusEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
-import { message, Modal, Space, Table } from 'antd';
+import { Form, Input, message, Modal, Space, Table } from 'antd';
 import { ColumnType } from 'antd/es/table';
-import React from 'react';
+import React, { useState } from 'react';
+
+interface Values {
+  rejectComment: string;
+}
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -53,11 +57,15 @@ const TaskOrgFillDetailModal = ({
   taskId,
   refreshList,
 }: TaskFillDetailModalProps) => {
+  const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const { columns, setColumns } = useFillProcessDetailColumns([]);
+  const [form] = Form.useForm();
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState<any>();
 
-  const { data, run, refresh } = useRequest(
+  const { data, refresh } = useRequest(
     () => {
       if (!currentOrg?.orgId || !currentSystem?.systemId) {
         return Promise.reject('未获取到组织机构');
@@ -72,11 +80,36 @@ const TaskOrgFillDetailModal = ({
         taskId,
       });
     },
-
     {
       refreshDeps: [taskId],
       onSuccess: data => {
         setColumns(data.data);
+      },
+    }
+  );
+
+  const { run: rejectFill } = useRequest(
+    (values: Values) => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !taskId) {
+        return Promise.reject('未获取到组织机构');
+      }
+      return Api.rejectFill({
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        taskId,
+        staffId: currentRecord?.staffId,
+        rejectComment: values.rejectComment,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        messageApi.info('驳回成功');
+        setRejectModalOpen(false);
+        refresh();
+      },
+      onError: error => {
+        messageApi.error(error.toString());
       },
     }
   );
@@ -103,7 +136,7 @@ const TaskOrgFillDetailModal = ({
                   taskId: taskId,
                   staffId: record.staffId,
                 }).then(() => {
-                  message.info('通过成功');
+                  messageApi.info('通过成功');
                   refresh();
                   refreshList();
                 });
@@ -112,37 +145,84 @@ const TaskOrgFillDetailModal = ({
               通过
             </a>
           )}
-          {record.processStatus === TaskProcessStatusEnum.Submitted && (
-            <a className=" text-blue-500">驳回</a>
+          {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
+            <a
+              className=" text-blue-500"
+              onClick={() => {
+                setRejectModalOpen(true);
+                setCurrentRecord(record);
+              }}
+            >
+              驳回
+            </a>
           )}
         </Space>
       );
     },
   };
+
   return (
-    <Modal
-      open={open}
-      title={
-        <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-          <h2 className="text-xl">任务详情</h2>
-          {/* <Button type="primary">一键通过</Button> */}
-        </div>
-      }
-      okText="确定"
-      cancelText="取消"
-      width={1200}
-      onCancel={() => setOpen(false)}
-      onOk={() => {
-        setOpen(false);
-      }}
-      maskClosable={false}
-      footer={false}
-      afterClose={() => {
-        setColumns([]);
-      }}
-    >
-      <Table columns={[...columns, operationColumn]} dataSource={data?.data} />
-    </Modal>
+    <>
+      {contextHolder}
+      <Modal
+        open={open}
+        title={
+          <div className="flex gap-5 items-center justify-between mb-3 pr-10">
+            <h2 className="text-xl">任务详情</h2>
+            {/* <Button type="primary">一键通过</Button> */}
+          </div>
+        }
+        okText="确定"
+        cancelText="取消"
+        width={1200}
+        onCancel={() => setOpen(false)}
+        onOk={() => {
+          setOpen(false);
+        }}
+        maskClosable={false}
+        footer={false}
+        afterClose={() => {
+          setColumns([]);
+        }}
+      >
+        <Table
+          columns={[...columns, operationColumn]}
+          dataSource={data?.data}
+        />
+      </Modal>
+      <Modal
+        open={rejectModalOpen}
+        title="驳回信息"
+        okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
+        onCancel={() => setRejectModalOpen(false)}
+        destroyOnClose
+        modalRender={dom => (
+          <Form
+            layout="vertical"
+            form={form}
+            name="form_in_modal"
+            initialValues={{ modifier: 'public' }}
+            clearOnDestroy
+            onFinish={values => rejectFill(values)}
+          >
+            {dom}
+          </Form>
+        )}
+      >
+        <Form.Item
+          name="rejectComment"
+          label="驳回原因"
+          rules={[
+            {
+              required: true,
+              message: '请输入驳回原因!',
+            },
+          ]}
+        >
+          <Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }} />
+        </Form.Item>
+      </Modal>
+    </>
   );
 };
 

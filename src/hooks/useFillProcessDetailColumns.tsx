@@ -16,8 +16,6 @@ const baseColumns: TableColumnsType = [
     align: 'center',
     // width: '30%',
     render: (_, record) => {
-      console.log(record, 'record');
-
       return (
         <>
           {record.cellphone
