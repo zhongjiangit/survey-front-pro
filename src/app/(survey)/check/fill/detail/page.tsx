@@ -53,6 +53,7 @@ const Page = () => {
           const index = newTabIndex.current++;
           newPanes.push({
             label: `NO ${item.fillIndex}`,
+            singleFillId: item.singleFillId,
             children: <FillCollect singleFillId={item.singleFillId} />,
             key: `newTab${index}`,
           });
@@ -141,6 +142,7 @@ const Page = () => {
           const newPanes = [...items];
           newPanes.push({
             label: `NO ${newTabIndex.current}`,
+            singleFillId: data.data.singleFillId,
             children: <FillCollect singleFillId={data.data.singleFillId} />,
             key: newActiveKey,
           });
@@ -154,7 +156,7 @@ const Page = () => {
    * 删除填报文件
    */
   const { run: deleteSingleFill } = useRequest(
-    (singleFillId: number) => {
+    (singleFillId: number, targetKey: TargetKey) => {
       if (
         !currentSystem?.systemId ||
         !currentOrg?.orgId ||
@@ -174,16 +176,16 @@ const Page = () => {
     {
       manual: true,
       onSuccess: (data, params) => {
-        if (data.result !== 0) {
+        if (data.result === 0) {
           let newActiveKey = activeKey;
           let lastIndex = -1;
           items.forEach((item: any, i: number) => {
-            if (item.key === params[0]) {
+            if (item.key === params[1]) {
               lastIndex = i - 1;
             }
           });
-          const newPanes = items.filter((item: any) => item.key !== params[0]);
-          if (newPanes.length && Number(newActiveKey) === params[0]) {
+          const newPanes = items.filter((item: any) => item.key !== params[1]);
+          if (newPanes.length && newActiveKey === params[1]) {
             if (lastIndex >= 0) {
               newActiveKey = newPanes[lastIndex].key;
             } else {
@@ -209,26 +211,6 @@ const Page = () => {
     createSingleFill();
   };
 
-  // const remove = (targetKey: TargetKey) => {
-  //   let newActiveKey = activeKey;
-  //   let lastIndex = -1;
-  //   items.forEach((item: any, i: number) => {
-  //     if (item.key === targetKey) {
-  //       lastIndex = i - 1;
-  //     }
-  //   });
-  //   const newPanes = items.filter((item: any) => item.key !== targetKey);
-  //   if (newPanes.length && newActiveKey === targetKey) {
-  //     if (lastIndex >= 0) {
-  //       newActiveKey = newPanes[lastIndex].key;
-  //     } else {
-  //       newActiveKey = newPanes[0].key;
-  //     }
-  //   }
-  //   setItems(newPanes);
-  //   setActiveKey(newActiveKey);
-  // };
-
   const onEdit = (
     targetKey: React.MouseEvent | React.KeyboardEvent | string,
     action: 'add' | 'remove'
@@ -236,8 +218,10 @@ const Page = () => {
     if (action === 'add') {
       add();
     } else {
-      // remove(targetKey);
-      deleteSingleFill(Number(targetKey));
+      const item = items.find((item: any) => item.key === targetKey);
+      if (item?.singleFillId) {
+        deleteSingleFill(item.singleFillId, targetKey);
+      }
     }
   };
 
