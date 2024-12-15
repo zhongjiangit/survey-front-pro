@@ -25,6 +25,7 @@ interface ListFillInspTaskParamsType {
   createStaffId	int		发布成员id
   createStaffName	string		发布成员名称
   taskName	string		任务名称
+  description  string		任务描述
   beginTimeFillEstimate	string		预计填报开始时间 yyyy-mm-dd hh:MM:ss
   endTimeFillEstimate	string		预计填报结束时间 yyyy-mm-dd hh:MM:ss
   templateId	int		模板id
@@ -50,6 +51,7 @@ interface ListFillInspTaskResponse {
   createStaffId: number;
   createStaffName: string;
   taskName: string;
+  description: string;
   beginTimeFillEstimate: string;
   endTimeFillEstimate: string;
   templateId: number;

@@ -1,11 +1,8 @@
 'use client';
 
-import Api from '@/api';
 import TemplateDetail from '@/app/modules/template-detail';
-import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
-import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { TemplateTypeEnum } from '@/types/CommonType';
-import { useLocalStorageState, useRequest } from 'ahooks';
+import { useLocalStorageState } from 'ahooks';
 
 interface FillCollectProps {
   singleFillId?: number;
@@ -26,9 +23,9 @@ const FillCollect = ({ singleFillId }: FillCollectProps) => {
           singleFillId={singleFillId}
         />
       </div>
-      <div className="w-60 px-5 flex flex-col justify-center gap-5">
+      <div className="w-60 px-5 flex flex-col justify-start gap-5">
         <h1 className="text-xl font-bold">任务说明</h1>
-        <p>这里是填报任务页面，包括填报任务的详情，填报任务的状态等</p>
+        <p>{currentFillTask?.description}</p>
       </div>
     </div>
   );

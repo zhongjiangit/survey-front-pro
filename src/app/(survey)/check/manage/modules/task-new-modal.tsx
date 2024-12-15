@@ -2,6 +2,12 @@
 
 import Api from '@/api';
 import { CreateInspTaskParamsType } from '@/api/task/createInspTask';
+import {
+  getSelectedNum,
+  membersToNode,
+  selectMember,
+  updateTreeDataV2,
+} from '@/app/(survey)/check/manage/modules/utils';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
@@ -10,7 +16,6 @@ import { formatTreeData } from '@/lib/format-tree-data';
 import {
   publishTypeEnum,
   PublishTypeEnum,
-  publishTypeType,
   TagTypeEnum,
   TagTypeType,
   TemplateTypeEnum,
@@ -37,13 +42,6 @@ import {
   TreeSelect,
 } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  getSelectedNum,
-  membersToNode,
-  selectMember,
-  updateTreeData,
-  updateTreeDataV2,
-} from '@/app/(survey)/check/manage/modules/utils';
 
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
@@ -649,7 +647,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              name="taskDescription"
+              name="description"
               label="任务描述"
               // rules={[{ required: true }]}
             >

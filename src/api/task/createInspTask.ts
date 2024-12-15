@@ -6,6 +6,7 @@ import { baseUrl } from '../config';
 currentSystemId	int		登录用户当前操作的系统id
 currentOrgId	int		登录用户当前操作的单位id
 taskName	string		任务名称
+description  string		任务描述
 beginTimeFillEstimate	string		预计填报开始时间 yyyy-mm-dd hh:MM:ss
 endTimeFillEstimate	string		预计填报结束时间 yyyy-mm-dd hh:MM:ss
 templateId	int		模板id
@@ -25,6 +26,7 @@ export interface CreateInspTaskParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskName: string;
+  description: string;
   beginTimeFillEstimate: string;
   endTimeFillEstimate: string;
   templateId: number;

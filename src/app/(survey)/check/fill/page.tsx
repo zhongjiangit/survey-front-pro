@@ -9,11 +9,11 @@ import {
   ProcessStatusTypeEnum,
   TemplateTypeEnum,
 } from '@/types/CommonType';
-import { useLocalStorageState, useRequest } from 'ahooks';
-import { Space, Table, Modal } from 'antd';
-import Link from 'next/link';
-import React, { useState } from 'react';
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import { useLocalStorageState, useRequest } from 'ahooks';
+import { Modal, Space, Table } from 'antd';
+import Link from 'next/link';
+import { useState } from 'react';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -199,7 +199,7 @@ const ToAllotTask = () => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error：这里的record是any类型，所以会报错
               ProcessStatusObject[record.processStatus]
             }
           </div>
