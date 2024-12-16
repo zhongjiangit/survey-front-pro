@@ -6,12 +6,14 @@ import { baseUrl } from '../config';
 currentSystemId	int		登录用户当前操作的系统id
 currentOrgId	int		登录用户当前操作的单位id
 taskId	int		任务id
+staffId  int		员工id, 填报人id，为自己时可不传
 */
 
 interface ListSingleFillParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskId: number;
+  staffId?: number;
 }
 
 /*

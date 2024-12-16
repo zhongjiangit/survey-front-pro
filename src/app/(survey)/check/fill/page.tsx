@@ -5,15 +5,18 @@ import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
+  DetailShowTypeEnum,
   ProcessStatusObject,
   ProcessStatusTypeEnum,
   TemplateTypeEnum,
+  ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { useLocalStorageState, useRequest } from 'ahooks';
+import { useRequest } from 'ahooks';
 import { Modal, Space, Table } from 'antd';
-import Link from 'next/link';
 import { useState } from 'react';
+import RejectTimeline from '../../../modules/reject-timeline';
+import TaskDetail from '../../../modules/task-detail';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -43,12 +46,7 @@ const ToAllotTask = () => {
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const [currentFillTask, setCurrentFillTask] = useLocalStorageState<any>(
-    'current-fill-task',
-    {
-      defaultValue: {},
-    }
-  );
+  const [currentFillTask, setCurrentFillTask] = useState({});
 
   const { runAsync: submitFill } = useRequest(
     (taskId: number) => {
@@ -68,14 +66,15 @@ const ToAllotTask = () => {
 
   const operateButton = {
     fill: (record: any) => (
-      <Link
-        className=" text-blue-500"
+      <TaskDetail
+        task={record}
+        customTitle="填报任务"
+        showType={DetailShowTypeEnum.Fill}
         key="fill"
-        onClick={() => setCurrentFillTask(record)}
-        href={`/check/fill/detail?taskId=${record.taskId}`}
-      >
-        填报任务
-      </Link>
+      />
+    ),
+    reject: (record: any) => (
+      <RejectTimeline taskId={record.taskId} key="reject" />
     ),
     submit: (record: any) => (
       <a
@@ -208,9 +207,9 @@ const ToAllotTask = () => {
     },
     {
       title: <div>操作</div>,
-      width: '8%',
+      width: '12%',
       dataIndex: 'operation',
-      fixed: 'right',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
           <Space className="fle justify-center items-center">
@@ -222,6 +221,8 @@ const ToAllotTask = () => {
               operateButton.fill(record),
               operateButton.submit(record),
             ]}
+            {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
+              operateButton.reject(record)}
           </Space>
         );
       },

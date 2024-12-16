@@ -311,3 +311,13 @@ export enum ModalTypeEnum {
   Copy = '复制',
   Allot = '分配',
 }
+
+// ----------------- 通用类型 detail show type -----------------
+
+export type DetailShowType = 'fill' | 'check';
+
+// 枚举
+export enum DetailShowTypeEnum {
+  Fill = 'fill',
+  Check = 'check',
+}

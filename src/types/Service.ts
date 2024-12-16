@@ -1,7 +1,7 @@
 import { AnyObject } from '@/typings/type';
 import {
-  AxiosError,
   AxiosAdapter,
+  AxiosError,
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
@@ -27,7 +27,7 @@ export interface ServiceReqConfig extends AxiosRequestConfig {
 
 export type ReqFulfilledType = (config: ServiceReqConfig) => ServiceReqConfig;
 
-// @ts-ignore
+// @ts-expect-error: Property 'data' is missing in type 'ServiceResConfig' but required in type 'AxiosResponse'.
 export interface ServiceResConfig extends AxiosResponse {
   endTime?: number;
   duration?: number;
