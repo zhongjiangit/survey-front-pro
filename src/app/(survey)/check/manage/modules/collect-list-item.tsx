@@ -106,6 +106,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               setViewTaskId(record.taskId);
             } else {
               setFillMemberDetailModalOpen(true);
+              setViewTaskId(record.taskId);
             }
           }}
         >
@@ -569,6 +570,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         refreshList={refreshPublishTask}
       />
       <TaskMemberFillDetailModal
+        taskId={viewTaskId}
         open={filleMemberDetailModalOpen}
         setOpen={setFillMemberDetailModalOpen}
       />

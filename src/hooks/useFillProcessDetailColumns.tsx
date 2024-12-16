@@ -56,6 +56,13 @@ export function useFillProcessDetailColumns(
       return {
         title: levelName,
         dataIndex: `org${index + 1}`,
+        onCell: (text: any) => {
+          console.log('text', text);
+
+          return {
+            rowSpan: text.rowSpan?.[`org${index + 1}`] || 0,
+          };
+        },
         render: (value: any) => {
           return <>{value?.orgName}</>;
         },

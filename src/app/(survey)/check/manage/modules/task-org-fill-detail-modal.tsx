@@ -4,12 +4,13 @@ import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useFillProcessDetailColumns } from '@/hooks/useFillProcessDetailColumns';
+import { joinRowSpanDataChild } from '@/lib/join-rowspan-data';
 import { TaskProcessStatusEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import type { TableProps } from 'antd';
 import { Form, Input, message, Modal, Space, Table } from 'antd';
 import { ColumnType } from 'antd/es/table';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Values {
   rejectComment: string;
@@ -26,23 +27,6 @@ interface DataType {
   status: string;
   children?: DataType[];
 }
-
-// rowSelection objects indicates the need for row selection
-const rowSelection: TableRowSelection<DataType> = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      'selectedRows: ',
-      selectedRows
-    );
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
-  },
-};
 
 interface TaskFillDetailModalProps {
   open: boolean;
@@ -64,8 +48,13 @@ const TaskOrgFillDetailModal = ({
   const [form] = Form.useForm();
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<any>();
+  const [dataSource, setDataSource] = useState<any>();
 
-  const { data, refresh } = useRequest(
+  const {
+    run: getFillProcessDetails,
+    data,
+    refresh,
+  } = useRequest(
     () => {
       if (!currentOrg?.orgId || !currentSystem?.systemId) {
         return Promise.reject('未获取到组织机构');
@@ -81,9 +70,19 @@ const TaskOrgFillDetailModal = ({
       });
     },
     {
-      refreshDeps: [taskId],
+      manual: true,
       onSuccess: data => {
         setColumns(data.data);
+        const combineKeys = Object.keys(data.data[0].levels).map(
+          (_key, index) => `org${index + 1}`
+        );
+        const tableData = (combineKeys || []).reduce(
+          (prev: any[] | undefined, currentKey: string) => {
+            return joinRowSpanDataChild(prev, currentKey, 'orgId');
+          },
+          data?.data
+        );
+        setDataSource(tableData);
       },
     }
   );
@@ -161,6 +160,12 @@ const TaskOrgFillDetailModal = ({
     },
   };
 
+  useEffect(() => {
+    if (open) {
+      getFillProcessDetails();
+    }
+  }, [getFillProcessDetails, open]);
+
   return (
     <>
       {contextHolder}
@@ -169,11 +174,8 @@ const TaskOrgFillDetailModal = ({
         title={
           <div className="flex gap-5 items-center justify-between mb-3 pr-10">
             <h2 className="text-xl">任务详情</h2>
-            {/* <Button type="primary">一键通过</Button> */}
           </div>
         }
-        okText="确定"
-        cancelText="取消"
         width={1200}
         onCancel={() => setOpen(false)}
         onOk={() => {
@@ -181,13 +183,15 @@ const TaskOrgFillDetailModal = ({
         }}
         maskClosable={false}
         footer={false}
+        destroyOnClose
         afterClose={() => {
           setColumns([]);
         }}
       >
         <Table
+          bordered
           columns={[...columns, operationColumn]}
-          dataSource={data?.data}
+          dataSource={dataSource}
         />
       </Modal>
       <Modal
