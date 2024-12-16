@@ -83,6 +83,7 @@ const ReviewDetailModal = () => {
       render: text => (
         <div className="flex justify-center">
           <TemplateDetailModal
+            // TODO need to use the correct templateId
             templateId={1}
             TemplateType={TemplateTypeEnum.Check}
             title="试卷详情"

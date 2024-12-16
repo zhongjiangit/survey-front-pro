@@ -6,7 +6,7 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DetailShowType, DetailShowTypeEnum } from '@/types/CommonType';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { Modal, Tabs } from 'antd';
+import { message, Modal, Tabs } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import FillCollect from './detail';
 import './style.css';
@@ -38,6 +38,7 @@ const TaskDetail = ({
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const newTabIndex = useRef(0);
   const [isFillDetailOpen, setIsFillDetailOpen] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   /**
    * 获取填表列表
@@ -63,7 +64,11 @@ const TaskDetail = ({
             label: `NO ${item.fillIndex}`,
             singleFillId: item.singleFillId,
             children: (
-              <FillCollect singleFillId={item.singleFillId} task={task} />
+              <FillCollect
+                singleFillId={item.singleFillId}
+                task={task}
+                showType={showType}
+              />
             ),
             key: `newTab${index}`,
           });
@@ -166,6 +171,11 @@ const TaskDetail = ({
     targetKey: React.MouseEvent | React.KeyboardEvent | string,
     action: 'add' | 'remove'
   ) => {
+    console.log('targetKey', targetKey);
+    if (showType === DetailShowTypeEnum.Check) {
+      messageApi.error('查看模式下不允许操作');
+      return;
+    }
     if (action === 'add') {
       add();
     } else {
@@ -184,6 +194,7 @@ const TaskDetail = ({
 
   return (
     <>
+      {contextHolder}
       <a
         className=" text-blue-500"
         onClick={() => {
@@ -207,14 +218,12 @@ const TaskDetail = ({
       >
         <div className="py-10 min-h-96 h-[80vh] shadow-lg">
           <Tabs
-            {...(showType === DetailShowTypeEnum.Check
-              ? { onEdit: onEdit }
-              : {})}
             rootClassName="fill-detail-tabs"
             tabPosition={'left'}
             type="editable-card"
             onChange={onChange}
             activeKey={activeKey}
+            onEdit={onEdit}
             addIcon={
               createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
             }

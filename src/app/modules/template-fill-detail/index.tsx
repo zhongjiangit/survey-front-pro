@@ -2,11 +2,14 @@
 
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
+import getSingleFillFormData from '@/app/modules/template-fill-detail/getSingleFillFormData';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import RenderFormItem from '@/lib/render-form-item';
 import {
   ArrWidgetTypes,
+  DetailShowType,
+  DetailShowTypeEnum,
   TemplateType,
   TemplateTypeEnum,
   WidgetTypeEnum,
@@ -14,20 +17,21 @@ import {
 import { useLocalStorageState, useRequest } from 'ahooks';
 import { Button, Form, message } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import getSingleFillFormData from '@/app/modules/template-detail/getSingleFillFormData';
 
 interface TemplateDetailProps {
   templateId?: number;
   singleFillId?: number;
   taskId?: number;
   templateType?: TemplateType;
+  showType?: DetailShowType;
 }
 
-const TemplateDetail = ({
+const TemplateFillDetail = ({
   templateId,
   templateType,
   singleFillId,
   taskId,
+  showType = DetailShowTypeEnum.Fill,
 }: TemplateDetailProps) => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -230,6 +234,7 @@ const TemplateDetail = ({
     <>
       <Form
         form={form}
+        disabled={showType === DetailShowTypeEnum.Check}
         className="fillCollect-form min-w-96 w-[40vw]"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
@@ -268,4 +273,4 @@ const TemplateDetail = ({
   );
 };
 
-export default TemplateDetail;
+export default TemplateFillDetail;

@@ -1,13 +1,13 @@
 import Api from '@/api';
 import { CollectItemType } from '@/api/template/get-details';
+import getSingleFillFormData from '@/app/modules/template-fill-detail/getSingleFillFormData';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import RenderFormItem from '@/lib/render-form-item';
 import { TemplateType } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Button, Empty, Form, Modal } from 'antd';
 import { ReactNode, useEffect, useState } from 'react';
-import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
-import getSingleFillFormData from '@/app/modules/template-detail/getSingleFillFormData';
 
 interface TemplateDetailModalProps {
   title?: string;
@@ -164,7 +164,7 @@ const TemplateDetailModal = ({
           {!singleFillDetails && (
             <Form.Item className="flex justify-center">
               <Button disabled type="primary" htmlType="submit">
-                提交
+                保存
               </Button>
             </Form.Item>
           )}
