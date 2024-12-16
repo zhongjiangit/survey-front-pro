@@ -17,28 +17,6 @@ import { Modal, Space, Table } from 'antd';
 import { useState } from 'react';
 import RejectTimeline from '../../../modules/reject-timeline';
 import TaskDetail from '../../../modules/task-detail';
-interface ItemDataType {
-  title: string;
-  dataSource: any[];
-  showNumber: number;
-}
-interface CollectListItemProps {
-  tabType: 'self' | 'subordinate';
-  itemData: ItemDataType;
-}
-// taskId	int		任务id
-// systemId	int		系统id
-// orgId	int		发布单位id
-// orgName	string		发布单位名称
-// staffId	int		发布成员id
-// staffName	string		发布成员名称
-// taskName	string		任务名称
-// beginDateFillEstimate	string		预计填报开始日期 yyyy-mm-dd
-// endDateFillEstimate	string		预计填报结束日期 yyyy-mm-dd
-// templateId	int		模板id
-// maxFillCount	int		最大可提交份数，0表示不限制
-// taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
-// processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回 listFillCollectionTask接口未返回该字段，是找错接口了吗？ todo
 
 const ToAllotTask = () => {
   const [modal, contextHolder] = Modal.useModal();
@@ -46,7 +24,6 @@ const ToAllotTask = () => {
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const [currentFillTask, setCurrentFillTask] = useState({});
 
   const { runAsync: submitFill } = useRequest(
     (taskId: number) => {

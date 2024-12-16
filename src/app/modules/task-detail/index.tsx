@@ -197,10 +197,13 @@ const TaskDetail = ({
         open={isFillDetailOpen}
         onCancel={() => {
           setIsFillDetailOpen(false);
+          setItems([]);
         }}
         style={{ top: 20 }}
         width={1400}
         footer={null}
+        destroyOnClose
+        maskClosable={false}
       >
         <div className="py-10 min-h-96 h-[80vh] shadow-lg">
           <Tabs

@@ -48,11 +48,7 @@ const RejectTimeline = ({ taskId }: RejectTimelineProps) => {
       });
     },
     {
-      refreshDeps: [
-        currentSystem?.systemId,
-        currentOrg?.orgId,
-        currentRole?.id,
-      ],
+      manual: true,
     }
   );
 
@@ -60,7 +56,7 @@ const RejectTimeline = ({ taskId }: RejectTimelineProps) => {
     if (isModalOpen) {
       run();
     }
-  }, [open]);
+  }, [isModalOpen]);
 
   return (
     <>
