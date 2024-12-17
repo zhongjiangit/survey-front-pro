@@ -549,6 +549,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         taskId={viewTaskId}
         open={filleMemberDetailModalOpen}
         setOpen={setFillMemberDetailModalOpen}
+        refreshList={refreshPublishTask}
       />
     </>
   );

@@ -14,14 +14,14 @@ import {
   TemplateTypeEnum,
   WidgetTypeEnum,
 } from '@/types/CommonType';
-import { useLocalStorageState, useRequest } from 'ahooks';
+import { useRequest } from 'ahooks';
 import { Button, Form, message } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 interface TemplateDetailProps {
   templateId?: number;
   singleFillId?: number;
-  taskId?: number;
+  taskId: number;
   templateType?: TemplateType;
   showType?: DetailShowType;
 }
@@ -36,9 +36,6 @@ const TemplateFillDetail = ({
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [currentFillTask] = useLocalStorageState<any>('current-fill-task', {
-    defaultValue: {},
-  });
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [widgetList, setWidgetList] = useState<any>([]);
@@ -57,19 +54,14 @@ const TemplateFillDetail = ({
 
   const { data: singleFillDetails, run: getSingleFillDetails } = useRequest(
     () => {
-      if (
-        !currentSystem?.systemId ||
-        !currentOrg?.orgId ||
-        !singleFillId ||
-        !currentFillTask
-      ) {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !singleFillId) {
         return Promise.reject('参数补全');
       }
       return Api.getSingleFillDetails({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,
         singleFillId: singleFillId,
-        taskId: currentFillTask.taskId,
+        taskId: taskId,
       });
     },
     {
@@ -82,8 +74,9 @@ const TemplateFillDetail = ({
   }, [
     currentSystem?.systemId,
     currentOrg?.orgId,
-    currentFillTask?.taskId,
+    taskId,
     singleFillId,
+    getSingleFillDetails,
   ]);
 
   const { runAsync: saveSingleFillDetails, loading: submitLoading } =
@@ -100,6 +93,7 @@ const TemplateFillDetail = ({
         manual: true,
       }
     );
+
   const { run: deleteFillAttachment } = useRequest(
     (attachmentId: number, templateItemId: number) => {
       return Api.deleteFillAttachment({
@@ -117,12 +111,7 @@ const TemplateFillDetail = ({
   );
 
   const saveSingleFill = async () => {
-    if (
-      !currentSystem?.systemId ||
-      !currentOrg?.orgId ||
-      !singleFillId ||
-      !currentFillTask
-    ) {
+    if (!currentSystem?.systemId || !currentOrg?.orgId || !singleFillId) {
       return Promise.reject('参数补全');
     }
     const formItems = formDetailData?.data?.items || [];
@@ -182,7 +171,7 @@ const TemplateFillDetail = ({
       currentSystemId: currentSystem.systemId,
       currentOrgId: currentOrg?.orgId,
       singleFillId: singleFillId,
-      taskId: currentFillTask.taskId,
+      taskId: taskId,
       items: formattedValues,
     };
 
@@ -223,12 +212,21 @@ const TemplateFillDetail = ({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg?.orgId!,
         singleFillId: singleFillId!,
-        taskId: currentFillTask.taskId,
+        taskId: taskId,
       },
     });
     oldFormData.current = values;
     form.setFieldsValue(values);
-  }, [formDetailData, singleFillDetails]);
+  }, [
+    currentOrg?.orgId,
+    currentSystem?.systemId,
+    deleteFillAttachment,
+    form,
+    formDetailData,
+    singleFillDetails,
+    singleFillId,
+    taskId,
+  ]);
 
   return (
     <>

@@ -3,95 +3,39 @@
 import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import {
+  TaskProcessStatusEnum,
+  TaskProcessStatusObject,
+  TaskProcessStatusType,
+} from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import type { TableColumnsType, TableProps } from 'antd';
-import { message, Modal, Popover, Space, Table } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Form, Input, message, Modal, Space, Table } from 'antd';
+import { ColumnsType } from 'antd/es/table';
+import { useEffect, useMemo, useState } from 'react';
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>['rowSelection'];
-
-interface DataType {
-  key: React.ReactNode;
-  org: string;
-  member: string;
-  status: string;
-  children?: DataType[];
+interface Values {
+  rejectComment: string;
 }
-
-const columns: TableColumnsType<DataType> = [
-  {
-    title: '单位',
-    dataIndex: 'org',
-    key: 'org',
-    width: '20%',
-    render: (_: any, record: any) => {
-      return (
-        <div className="cursor-pointer">
-          <Popover content={record.org}>{record.org.split('/')[0]}</Popover>
-        </div>
-      );
-    },
-  },
-  {
-    title: '人员',
-    dataIndex: 'member',
-    key: 'member',
-    width: '30%',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    width: '20%',
-  },
-  {
-    title: <div>操作</div>,
-    dataIndex: 'operation',
-    align: 'center',
-    render: (_: any, record: any) => {
-      return (
-        <Space className="flex justify-center items-center">
-          {record.status && <a>资料详情</a>}
-          {record.status === '已提交(需审核)' && <a>通过</a>}
-          {record.status === '已提交(需审核)' && <a>驳回</a>}
-        </Space>
-      );
-    },
-  },
-];
-
-const data: DataType[] = [
-  {
-    key: 1,
-    org: 'aaa市/aaaa校',
-    status: '已提交(需审核)',
-    member: '成（139xxxx）资料提交： 1份',
-  },
-  {
-    key: 2,
-    org: 'aaa市/aaaa校',
-    status: '已通过',
-    member: '成（139xxxx）资料提交： 1份',
-  },
-];
 
 interface TaskFillDetailModalProps {
   taskId: number | undefined;
   open: boolean;
   setOpen: (open: boolean) => void;
+  refreshList: () => void;
 }
 
 const TaskMemberFillDetailModal = ({
   taskId,
   open,
   setOpen,
+  refreshList,
 }: TaskFillDetailModalProps) => {
   const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-
-  const [dataSource, setDataSource] = useState<any>();
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState<any>();
+  const [form] = Form.useForm();
 
   const {
     run: getFillProcessDetails,
@@ -114,22 +58,129 @@ const TaskMemberFillDetailModal = ({
     },
     {
       manual: true,
-      onSuccess: data => {
-        console.log('data', data);
+    }
+  );
 
-        // setColumns(data.data);
-        // const combineKeys = Object.keys(data.data[0].levels).map(
-        //   (_key, index) => `org${index + 1}`
-        // );
-        // const tableData = (combineKeys || []).reduce(
-        //   (prev: any[] | undefined, currentKey: string) => {
-        //     return joinRowSpanDataChild(prev, currentKey, 'orgId');
-        //   },
-        //   data?.data
-        // );
-        // setDataSource(tableData);
+  const { run: rejectFill } = useRequest(
+    (values: Values) => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !taskId) {
+        return Promise.reject('未获取到组织机构');
+      }
+      return Api.rejectFill({
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        taskId,
+        staffId: currentRecord?.staffId,
+        rejectComment: values.rejectComment,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        messageApi.info('驳回成功');
+        setRejectModalOpen(false);
+        refresh();
+      },
+      onError: error => {
+        messageApi.error(error.toString());
       },
     }
+  );
+
+  const columns: ColumnsType<any> = useMemo(
+    () => [
+      {
+        title: '单位',
+        dataIndex: 'org',
+        key: 'org',
+        width: '20%',
+        render: (_: any, record: any) => {
+          return (
+            <div className="cursor-pointer">
+              {/* TODO need to add org */}
+              {/* <Popover content={record.org}>{record.org.split('/')[0]}</Popover> */}
+            </div>
+          );
+        },
+      },
+      {
+        title: '人员',
+        dataIndex: 'member',
+        key: 'member',
+        align: 'center',
+        // width: '30%',
+        render: (_, record) => {
+          return (
+            <>
+              {record.cellphone
+                ? `${record.staffName}(${record.cellphone}) 资料提交：${record.fillCount}份`
+                : '-'}
+            </>
+          );
+        },
+      },
+      {
+        title: '状态',
+        dataIndex: 'processStatus',
+        align: 'center',
+        render: value => {
+          return (
+            <div>
+              {TaskProcessStatusObject[value as TaskProcessStatusType] || value}
+            </div>
+          );
+        },
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+        width: 200,
+        align: 'center',
+        render: (_: any, record: any) => {
+          return (
+            <Space className="flex justify-center items-center">
+              {record.processStatus && (
+                <a className=" text-blue-500">资料详情</a>
+              )}
+              {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
+                <a
+                  className=" text-blue-500"
+                  onClick={() => {
+                    if (taskId === undefined) {
+                      return;
+                    }
+                    Api.approveFill({
+                      currentSystemId: currentSystem!.systemId,
+                      currentOrgId: currentOrg!.orgId,
+                      taskId: taskId,
+                      staffId: record.staffId,
+                    }).then(() => {
+                      messageApi.info('通过成功');
+                      refresh();
+                      refreshList();
+                    });
+                  }}
+                >
+                  通过
+                </a>
+              )}
+              {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
+                <a
+                  className=" text-blue-500"
+                  onClick={() => {
+                    setRejectModalOpen(true);
+                    setCurrentRecord(record);
+                  }}
+                >
+                  驳回
+                </a>
+              )}
+            </Space>
+          );
+        },
+      },
+    ],
+    [currentOrg, currentSystem, messageApi, refresh, refreshList, taskId]
   );
 
   useEffect(() => {
@@ -139,23 +190,61 @@ const TaskMemberFillDetailModal = ({
   }, [getFillProcessDetails, open]);
 
   return (
-    <Modal
-      open={open}
-      title={
-        <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-          <h2 className="text-xl">任务详情 2</h2>
-        </div>
-      }
-      width={1000}
-      onCancel={() => setOpen(false)}
-      onOk={() => {
-        setOpen(false);
-      }}
-      maskClosable={false}
-      footer={false}
-    >
-      <Table<DataType> columns={columns} dataSource={data} />
-    </Modal>
+    <>
+      {contextHolder}
+      <Modal
+        open={open}
+        title={
+          <div className="flex gap-5 items-center justify-between mb-3 pr-10">
+            <h2 className="text-xl">任务详情</h2>
+          </div>
+        }
+        width={1000}
+        onCancel={() => setOpen(false)}
+        onOk={() => {
+          setOpen(false);
+        }}
+        maskClosable={false}
+        footer={false}
+      >
+        <Table
+          columns={columns}
+          dataSource={fillProcessDetailsList?.data || []}
+        />
+      </Modal>
+      <Modal
+        open={rejectModalOpen}
+        title="驳回信息"
+        okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
+        onCancel={() => setRejectModalOpen(false)}
+        destroyOnClose
+        modalRender={dom => (
+          <Form
+            layout="vertical"
+            form={form}
+            name="form_in_modal"
+            initialValues={{ modifier: 'public' }}
+            clearOnDestroy
+            onFinish={values => rejectFill(values)}
+          >
+            {dom}
+          </Form>
+        )}
+      >
+        <Form.Item
+          name="rejectComment"
+          label="驳回原因"
+          rules={[
+            {
+              required: true,
+              message: '请输入驳回原因!',
+            },
+          ]}
+        >
+          <Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }} />
+        </Form.Item>
+      </Modal>
+    </>
   );
 };
 

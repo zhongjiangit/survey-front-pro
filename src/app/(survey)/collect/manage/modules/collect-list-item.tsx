@@ -117,7 +117,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error: Object is possibly 'null'.
               PublishTypeObject[record.publishType]
             }
           </div>
@@ -160,7 +160,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error: Object is possibly 'null'.
               TaskStatusObject[record.taskStatus]
             }
           </div>

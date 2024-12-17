@@ -19,7 +19,7 @@ const baseColumns: TableColumnsType = [
       return (
         <>
           {record.cellphone
-            ? `${record.staffName}(${record.cellphone})资料提交：${record.fillCount}份`
+            ? `${record.staffName}(${record.cellphone}) 资料提交：${record.fillCount}份`
             : '-'}
         </>
       );
