@@ -10,6 +10,7 @@ const { RangePicker } = DatePicker;
 interface EvaluateConfigModalProps {
   type?: string | number;
   taskId: number;
+  taskName?: string;
   refreshPublishTask?: () => void;
 }
 
@@ -23,6 +24,7 @@ interface Values {
 const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   type = 'config',
   taskId,
+  taskName,
   refreshPublishTask,
 }: EvaluateConfigModalProps) => {
   const [open, setOpen] = useState(false);
@@ -80,7 +82,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         )}
       >
         <Form.Item label="任务名称">
-          <div className="text-blue-400">关于****任务</div>
+          <div className="font-medium">关于{taskName}的任务</div>
         </Form.Item>
         <Form.Item
           name="dateRange"
