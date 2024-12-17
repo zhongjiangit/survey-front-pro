@@ -1,15 +1,11 @@
 'use client';
 
-import TemplateFillDetail from '@/app/modules/template-fill-detail';
-
-interface FillCollectProps {}
-
-const FillCollect = (props: FillCollectProps) => {
+const FillCollect = () => {
   return (
     <div className="flex gap-5 justify-between">
       <div className="flex flex-col justify-center items-center gap-5">
         <h2 className="text-lg font-bold">小学教学计划资料收集1</h2>
-        <TemplateFillDetail />
+        {/* <TemplateFillDetail /> */}
       </div>
 
       <div className="w-60 px-5 flex flex-col justify-center gap-5">

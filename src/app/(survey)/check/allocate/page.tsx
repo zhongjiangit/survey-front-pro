@@ -1,6 +1,7 @@
 'use client';
 
 import Api from '@/api';
+import { taskType } from '@/app/modules/task-detail';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
@@ -48,7 +49,7 @@ const ToAllotTask = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [filleOrgDetailModalOpen, setFillOrgDetailModalOpen] = useState(false);
-  const [viewTaskId, setViewTaskId] = useState<number>();
+  const [viewTask, setViewTask] = useState<taskType>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
@@ -115,7 +116,7 @@ const ToAllotTask = () => {
         key="detail"
         onClick={() => {
           if (record.publishType === PublishTypeEnum.Org) {
-            setViewTaskId(record.taskId);
+            setViewTask(record);
             setFillOrgDetailModalOpen(true);
           } else {
             // setFillMemberDetailModalOpen(true);
@@ -287,7 +288,7 @@ const ToAllotTask = () => {
         dataSource={listAssignInspTaskData?.data || []}
       ></Table>
       <TaskOrgFillDetailModal
-        taskId={viewTaskId}
+        task={viewTask}
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
         refreshList={refreshListAssignInspTask}
