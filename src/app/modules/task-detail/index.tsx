@@ -22,13 +22,15 @@ export type taskType = {
 
 interface PageProps {
   customTitle?: string;
-  task: taskType;
+  task: taskType | undefined;
+  staffId?: number;
   showType?: DetailShowType;
 }
 
 const TaskDetail = ({
-  task,
+  task = { taskId: 0, templateId: 0, taskName: '', maxFillCount: 0 },
   showType = DetailShowTypeEnum.Check,
+  staffId,
   customTitle,
 }: PageProps) => {
   const { taskId, maxFillCount = 0 } = task;
@@ -48,11 +50,15 @@ const TaskDetail = ({
       if (!currentSystem?.systemId || !currentOrg?.orgId) {
         return Promise.reject('currentSystem or currentOrg is not exist');
       }
-      return Api.listSingleFill({
+      const params: any = {
         currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg!.orgId!,
         taskId: taskId,
-      });
+      };
+      if (showType === DetailShowTypeEnum.Check && staffId) {
+        params['staffId'] = staffId;
+      }
+      return Api.listSingleFill(params);
     },
     {
       manual: true,
@@ -190,7 +196,7 @@ const TaskDetail = ({
     if (isFillDetailOpen) {
       getListSingleFill();
     }
-  }, [isFillDetailOpen]);
+  }, [getListSingleFill, isFillDetailOpen]);
 
   return (
     <>

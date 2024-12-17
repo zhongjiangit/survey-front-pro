@@ -27,6 +27,7 @@ import TaskFilledModal from './task-filled-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
+import { taskType } from '@/app/modules/task-detail';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
@@ -42,7 +43,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [filleOrgDetailModalOpen, setFillOrgDetailModalOpen] = useState(false);
   const [filleMemberDetailModalOpen, setFillMemberDetailModalOpen] =
     useState(false);
-  const [viewTaskId, setViewTaskId] = useState<number>();
+  const [viewTask, setViewTask] = useState<taskType>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
@@ -83,10 +84,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           onClick={() => {
             if (record.publishType === PublishTypeEnum.Org) {
               setFillOrgDetailModalOpen(true);
-              setViewTaskId(record.taskId);
+              setViewTask(record);
             } else {
               setFillMemberDetailModalOpen(true);
-              setViewTaskId(record.taskId);
+              setViewTask(record);
             }
           }}
         >
@@ -540,13 +541,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         setOpen={setPassedNumModalOpen}
       />
       <TaskOrgFillDetailModal
-        taskId={viewTaskId}
+        task={viewTask}
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
         refreshList={refreshPublishTask}
       />
       <TaskMemberFillDetailModal
-        taskId={viewTaskId}
+        task={viewTask}
         open={filleMemberDetailModalOpen}
         setOpen={setFillMemberDetailModalOpen}
         refreshList={refreshPublishTask}

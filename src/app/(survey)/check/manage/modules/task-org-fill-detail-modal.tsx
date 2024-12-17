@@ -1,44 +1,32 @@
 'use client';
 
 import Api from '@/api';
+import TaskDetail, { taskType } from '@/app/modules/task-detail';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useFillProcessDetailColumns } from '@/hooks/useFillProcessDetailColumns';
 import { joinRowSpanDataChild } from '@/lib/join-rowspan-data';
-import { TaskProcessStatusEnum } from '@/types/CommonType';
+import { DetailShowTypeEnum, TaskProcessStatusEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import type { TableProps } from 'antd';
 import { Form, Input, message, Modal, Space, Table } from 'antd';
 import { ColumnType } from 'antd/es/table';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Values {
   rejectComment: string;
 }
 
-type TableRowSelection<T extends object = object> =
-  TableProps<T>['rowSelection'];
-
-interface DataType {
-  key: React.ReactNode;
-  city: string;
-  school: string;
-  member: string;
-  status: string;
-  children?: DataType[];
-}
-
 interface TaskFillDetailModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  taskId: number | undefined;
+  task: taskType | undefined;
   refreshList: () => void;
 }
 
 const TaskOrgFillDetailModal = ({
   open,
   setOpen,
-  taskId,
+  task,
   refreshList,
 }: TaskFillDetailModalProps) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -58,7 +46,7 @@ const TaskOrgFillDetailModal = ({
     () => {
       if (!currentOrg?.orgId || !currentSystem?.systemId) {
         return Promise.reject('未获取到组织机构');
-      } else if (!taskId) {
+      } else if (!task?.taskId) {
         return Promise.reject('未获取到任务信息');
       }
       return Api.getFillProcessDetails({
@@ -66,7 +54,7 @@ const TaskOrgFillDetailModal = ({
         currentOrgId: currentOrg.orgId,
         pageNumber: 1,
         pageSize: 10,
-        taskId,
+        taskId: task.taskId,
       });
     },
     {
@@ -89,13 +77,13 @@ const TaskOrgFillDetailModal = ({
 
   const { run: rejectFill } = useRequest(
     (values: Values) => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId || !taskId) {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !task?.taskId) {
         return Promise.reject('未获取到组织机构');
       }
       return Api.rejectFill({
         currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg.orgId,
-        taskId,
+        taskId: task.taskId,
         staffId: currentRecord?.staffId,
         rejectComment: values.rejectComment,
       });
@@ -121,18 +109,25 @@ const TaskOrgFillDetailModal = ({
     render: (_: any, record: any) => {
       return (
         <Space className="flex justify-center items-center">
-          {record.processStatus && <a className=" text-blue-500">资料详情</a>}
+          {record.processStatus && (
+            <TaskDetail
+              task={task}
+              staffId={record.staffId}
+              customTitle="任务详情"
+              showType={DetailShowTypeEnum.Check}
+            />
+          )}
           {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
             <a
               className=" text-blue-500"
               onClick={() => {
-                if (taskId === undefined) {
+                if (task?.taskId === undefined) {
                   return;
                 }
                 Api.approveFill({
                   currentSystemId: currentSystem!.systemId,
                   currentOrgId: currentOrg!.orgId,
-                  taskId: taskId,
+                  taskId: task.taskId,
                   staffId: record.staffId,
                 }).then(() => {
                   messageApi.info('通过成功');
