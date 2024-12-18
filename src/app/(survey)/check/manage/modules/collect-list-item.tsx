@@ -1,5 +1,6 @@
 import Api from '@/api';
 import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
+import { taskType } from '@/app/modules/task-detail';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
@@ -27,7 +28,6 @@ import TaskFilledModal from './task-filled-modal';
 import TaskMemberFillDetailModal from './task-member-fill-detail-modal';
 import TaskOrgFillDetailModal from './task-org-fill-detail-modal';
 import TaskPassedModal from './task-passed-modal';
-import { taskType } from '@/app/modules/task-detail';
 type ItemDataType = any[];
 interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
@@ -269,10 +269,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       render: (_: any, record: any) => {
         return (
           <div>
-            {
-              // @ts-expect-error: fillTaskStatus might not be in TaskStatusObject
-              TaskStatusObject[record.taskStatus]
-            }
+            {/* @ts-expect-error: fillTaskStatus might not be in TaskStatusObject */}
+            {record?.taskStatus ? TaskStatusObject[record.taskStatus] : '-'}
           </div>
         );
       },
@@ -330,13 +328,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                     ) : null}
                   </div>
                 ) : (
-                  <div
-                    onClick={() => {
-                      setPassedNumModalOpen(true);
-                    }}
-                  >
-                    {record.passPeople ? <a>{record.passPeople}人</a> : null}
-                    {record.passCount ? <a>{record.passCount}份</a> : null}
+                  <div className="flex flex-col">
+                    {record.passPeople ? (
+                      <span>{record.passPeople}人</span>
+                    ) : null}
+                    {record.passCount ? (
+                      <span>{record.passCount}份</span>
+                    ) : null}
                   </div>
                 )}
               </div>
@@ -344,7 +342,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           }
 
           return (
-            <div>
+            <div className="flex flex-col">
               {record.passPeople ? <a>{record.passPeople}人</a> : null}{' '}
               {record.passCount ? <a>{record.passCount}份</a> : null}
               <div>{record.reviewPassRate}</div>
@@ -384,12 +382,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                     ) : null}
                   </div>
                 ) : (
-                  <div>
+                  <div className="flex flex-col">
                     {record.showFillPeople ? (
-                      <a>{record.showFillPeople}人</a>
+                      <span>{record.showFillPeople}人</span>
                     ) : null}
                     {record.showFillCount ? (
-                      <a>{record.showFillCount}份</a>
+                      <span>{record.showFillCount}份</span>
                     ) : null}
                   </div>
                 )}
@@ -397,7 +395,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             );
           }
           return (
-            <div>
+            <div className="flex flex-col">
               {record.showFillPeople ? <a>{record.showFillPeople}人</a> : null}
               {record.showFillCount ? <a>{record.showFillCount}份</a> : null}
               <div>{record.reviewRate}</div>
@@ -438,8 +436,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         // 专家评审
         return (
           <Space className="flex justify-center items-center">
-            {record.taskStatus !== TaskStatusTypeEnum.Finished && '-'}
-            {record.taskStatus === TaskStatusTypeEnum.Finished && [
+            {record.fillTaskStatus !== TaskStatusTypeEnum.Finished && '-'}
+            {record.fillTaskStatus === TaskStatusTypeEnum.Finished && [
               operateButtonEvaluate.config(record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.NotStart && [
@@ -451,10 +449,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               // operateButtonEvaluate.edit('edit'),
               operateButtonEvaluate.allocate(record),
               operateButtonEvaluate.message,
-              operateButtonEvaluate.result(),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
               operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.result(),
             ]}
           </Space>
         );
@@ -467,8 +465,29 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'operation',
       fixed: 'right',
       align: 'center',
-      render: (_: any, record: any) => {
-        return <div>{operateButton.detail(record.publishType)}</div>;
+      render: (_: any, record: any, index: number) => {
+        if (index === 0) {
+          return (
+            <div>
+              {record.taskStatus === TaskStatusTypeEnum.NotStart && '-'}
+              {(record.taskStatus === TaskStatusTypeEnum.Processing ||
+                record.taskStatus === TaskStatusTypeEnum.Finished) &&
+                operateButton.detail(record)}
+            </div>
+          );
+        }
+        return (
+          <Space className="flex justify-center items-center">
+            {record?.reviewTaskStatus ? null : '-'}
+            {record.reviewTaskStatus === EvaluateStatusTypeEnum.Processing && [
+              operateButtonEvaluate.detail(record.publishType),
+            ]}
+            {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
+              operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.result(),
+            ]}
+          </Space>
+        );
       },
     },
   ];
@@ -490,7 +509,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     arr[1] = {
       ...obj,
       stage: '（二）专家评审',
-      taskStatus: obj.fillTaskStatus,
+      taskStatus: obj?.reviewTaskStatus,
       passPeople: obj.reviewPassPeople,
       passCount: obj.reviewPassCount,
       beginTimeEstimate: obj.beginTimeReviewEstimate,

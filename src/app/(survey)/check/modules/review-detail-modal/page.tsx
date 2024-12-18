@@ -14,7 +14,6 @@ import { TemplateTypeEnum } from '@/types/CommonType';
 import { checkDetailData } from '../../testData';
 import ProfessorDetail from './modules/professor-detail';
 
-interface ReviewDetailModalProps {}
 interface DataType {
   [key: string]: any;
 }
