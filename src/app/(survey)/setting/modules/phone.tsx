@@ -131,7 +131,7 @@ const Phone: React.FC = () => {
         console.log(values);
         const params = {
           captcha: values.captchaOld,
-          cellPhone: user?.cellphone,
+          cellphone: user?.cellphone,
           eventType: SendSmsTypeEnum.ConfirmOldPhone,
         };
         sendSms(params);
@@ -142,7 +142,7 @@ const Phone: React.FC = () => {
         ]);
         const params = {
           captcha: values.captchaNew,
-          cellPhone: values.cellphoneNew,
+          cellphone: values.cellphoneNew,
           eventType: SendSmsTypeEnum.ConfirmNewPhone,
         };
         sendSms(params);

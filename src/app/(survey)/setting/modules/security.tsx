@@ -110,7 +110,7 @@ const SecurityView: React.FC = () => {
   const handleGetCaptcha = async () => {
     try {
       const values = await formRefPassword.current?.validateFields([
-        'cellPhone',
+        'cellphone',
         'captcha',
       ]);
       console.log(values);
@@ -156,7 +156,7 @@ const SecurityView: React.FC = () => {
     getCaptcha();
     formRefPassword.current?.resetFields();
     formRefPassword.current?.setFieldsValue({
-      cellPhone: user?.cellphone,
+      cellphone: user?.cellphone,
     });
   }, [getCaptcha, user?.cellphone]);
 
@@ -200,7 +200,7 @@ const SecurityView: React.FC = () => {
               prefix: <MobileOutlined />,
             }}
             disabled
-            name="cellPhone"
+            name="cellphone"
             placeholder={'请输入手机号！'}
             rules={[
               {

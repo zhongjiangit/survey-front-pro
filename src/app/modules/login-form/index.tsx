@@ -126,7 +126,7 @@ export default function LoginForm() {
   const handleGetCaptcha = async () => {
     try {
       const values = await formRef.current?.validateFields([
-        'cellPhone',
+        'cellphone',
         'captcha',
       ]);
       console.log(values);
@@ -235,7 +235,7 @@ export default function LoginForm() {
                 size: 'large',
                 prefix: <MobileOutlined />,
               }}
-              name="cellPhone"
+              name="cellphone"
               placeholder={'请输入手机号！'}
               rules={[
                 {
