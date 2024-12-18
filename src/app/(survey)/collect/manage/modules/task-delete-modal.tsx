@@ -3,15 +3,11 @@
 import { Button, Col, Form, Input, Modal, Row } from 'antd';
 import React, { useState } from 'react';
 
-interface TaskDeleteModalProps {}
-
-const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
+const TaskDeleteModal: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
   const onClose = () => {
-    console.log(1214);
-
     form.setFieldsValue({
       cellphone: '139820881',
     });
@@ -27,7 +23,7 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
   return (
     <>
       <a
-        className="underline text-blue-500"
+        className="text-blue-500"
         onClick={() => {
           setOpen(true);
           form.setFieldsValue({
@@ -41,7 +37,7 @@ const TaskDeleteModal: React.FC<TaskDeleteModalProps> = ({}) => {
       </a>
       <Modal
         open={open}
-        title="取消资料收集"
+        title="取消资料抽检任务"
         okText="确定"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}

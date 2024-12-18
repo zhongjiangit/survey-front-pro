@@ -1,46 +1,101 @@
 'use client';
 
+import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
+  DetailShowTypeEnum,
   ProcessStatusObject,
   ProcessStatusTypeEnum,
   TemplateTypeEnum,
+  ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
-import { Space, Table } from 'antd';
-import Link from 'next/link';
-import { toAllotTaskData } from '../testData';
-interface ItemDataType {
-  title: string;
-  dataSource: any[];
-  showNumber: number;
-}
-interface CollectListItemProps {
-  tabType: 'self' | 'subordinate';
-  itemData: ItemDataType;
-}
-// taskId	int		任务id
-// systemId	int		系统id
-// orgId	int		发布单位id
-// orgName	string		发布单位名称
-// staffId	int		发布成员id
-// staffName	string		发布成员名称
-// taskName	string		任务名称
-// beginDateFillEstimate	string		预计填报开始日期 yyyy-mm-dd
-// endDateFillEstimate	string		预计填报结束日期 yyyy-mm-dd
-// templateId	int		模板id
-// maxFillCount	int		最大可提交份数，0表示不限制
-// taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
-// processStatus	int		提交状态 0：未提交 1: 已提交 2：驳回 listFillCollectionTask接口未返回该字段，是找错接口了吗？ todo
+import { ExclamationCircleFilled } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
+import { Modal, Space, Table } from 'antd';
+import { useState } from 'react';
+import RejectTimeline from '../../../modules/reject-timeline';
+import TaskDetail from '../../../modules/task-detail';
 
 const ToAllotTask = () => {
+  const [modal, contextHolder] = Modal.useModal();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  const { runAsync: submitFill } = useRequest(
+    (taskId: number) => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.fillerSubmit({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg!.orgId!,
+        taskId: taskId,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+
   const operateButton = {
-    fill: (
-      <Link className=" text-blue-500" key="fill" href="/collect/fill/detail">
-        填报任务
-      </Link>
+    fill: (record: any) => (
+      <TaskDetail
+        task={record}
+        customTitle="填报任务"
+        showType={DetailShowTypeEnum.Fill}
+        key="fill"
+      />
     ),
-    submit: <a className=" text-blue-500">提交</a>,
+    reject: (record: any) => (
+      <RejectTimeline taskId={record.taskId} key="reject" />
+    ),
+    submit: (record: any) => (
+      <a
+        onClick={() => {
+          modal.confirm({
+            title: '确认',
+            icon: <ExclamationCircleFilled />,
+            content: <>确定提交？</>,
+            onOk() {
+              submitFill(record.taskId).then(() => {
+                refreshFillInspTaskData();
+              });
+            },
+          });
+        }}
+        className=" text-blue-500"
+      >
+        提交
+      </a>
+    ),
   };
+
+  const { data: fillInspTaskData, refreshAsync: refreshFillInspTaskData } =
+    useRequest(
+      () => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('currentSystem or currentOrg is not exist');
+        }
+        return Api.listFillInspTask({
+          currentSystemId: currentSystem?.systemId!,
+          currentOrgId: currentOrg!.orgId!,
+          pageNumber,
+          pageSize,
+        });
+      },
+      {
+        refreshDeps: [
+          currentSystem?.systemId,
+          currentOrg?.orgId,
+          pageNumber,
+          pageSize,
+        ],
+      }
+    );
 
   // 给columns添加ts类型
   const columns: any = [
@@ -51,13 +106,13 @@ const ToAllotTask = () => {
           <div>发布人</div>
         </div>
       ),
-      dataIndex: 'orgAndUser',
       align: 'center',
+      dataIndex: 'orgAndUser',
       render: (_: any, record: any) => {
         return (
           <div>
-            <div>{record.orgName}</div>
-            <div>{record.staffName}</div>
+            <div>{record.createOrgName}</div>
+            <div>{record.createStaffName}</div>
           </div>
         );
       },
@@ -66,8 +121,8 @@ const ToAllotTask = () => {
       title: <div>任务名称</div>,
       dataIndex: 'taskName',
       align: 'center',
-      render: (_: any, record: any) => {
-        return <div>{record.taskName}</div>;
+      render: (text: string) => {
+        return <div>{text}</div>;
       },
     },
     {
@@ -84,8 +139,8 @@ const ToAllotTask = () => {
           <div>
             <div>
               <TemplateDetailModal
-                templateId={1}
-                TemplateType={TemplateTypeEnum.Collect}
+                templateId={record.templateId}
+                TemplateType={TemplateTypeEnum.Check}
               />
             </div>
             {record.maxFillCount !== 0 ? (
@@ -120,7 +175,7 @@ const ToAllotTask = () => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error：这里的record是any类型，所以会报错
               ProcessStatusObject[record.processStatus]
             }
           </div>
@@ -129,20 +184,22 @@ const ToAllotTask = () => {
     },
     {
       title: <div>操作</div>,
-      width: '8%',
+      width: '12%',
       dataIndex: 'operation',
-      fixed: 'right',
+      align: 'center',
       render: (_: any, record: any) => {
         return (
           <Space className="fle justify-center items-center">
             {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
-              operateButton.fill,
-              operateButton.submit,
+              operateButton.fill(record),
+              operateButton.submit(record),
             ]}
             {record.processStatus === ProcessStatusTypeEnum.Reject && [
-              operateButton.fill,
-              operateButton.submit,
+              operateButton.fill(record),
+              operateButton.submit(record),
             ]}
+            {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
+              operateButton.reject(record)}
           </Space>
         );
       },
@@ -150,7 +207,12 @@ const ToAllotTask = () => {
   ];
   return (
     <>
-      <Table columns={columns} dataSource={toAllotTaskData}></Table>
+      <Table
+        columns={columns}
+        dataSource={fillInspTaskData?.data || []}
+        // dataSource={toAllotTaskData}
+      ></Table>
+      {contextHolder}
     </>
   );
 };

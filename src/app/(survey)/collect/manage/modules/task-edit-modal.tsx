@@ -1,37 +1,80 @@
 'use client';
 
+import Api from '@/api';
+import { EditInspTaskParamsType } from '@/api/task/editInspTask';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useRequest } from 'ahooks';
 import { Form, Input, Modal } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-interface TaskEditModalProps {}
-
-interface Values {
-  taskName?: string;
+interface TaskEditModalProps {
+  linkName?: string;
+  task?: any;
+  refreshPublishTask?: () => void;
 }
 
-const TaskEditModal: React.FC<TaskEditModalProps> = ({}) => {
+interface Values {
+  taskName: string;
+}
+
+const TaskEditModal: React.FC<TaskEditModalProps> = ({
+  linkName,
+  task,
+  refreshPublishTask,
+}) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState<Values>();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  useEffect(() => {
+    if (task.taskName) {
+      form.setFieldsValue({
+        taskName: task.taskName,
+      });
+    }
+  }, [task]);
+
+  const { run: editInspTask, loading: submitLoading } = useRequest(
+    (values: EditInspTaskParamsType) => {
+      return Api.editInspTask({
+        ...values,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        form.resetFields();
+        refreshPublishTask?.();
+        setOpen(false);
+      },
+    }
+  );
 
   const onCreate = (values: Values) => {
     console.log('Received values of form: ', values);
-    setFormValues(values);
-    setOpen(false);
+    editInspTask({
+      ...values,
+      taskId: task.taskId,
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg?.orgId!,
+    });
   };
 
   return (
     <>
-      <a className="underline text-blue-500" onClick={() => setOpen(true)}>
-        编辑
+      <a className="text-blue-500" onClick={() => setOpen(true)}>
+        {linkName || '编辑'}
       </a>
       <Modal
         open={open}
-        title="编辑资料收集基本信息"
+        title="编辑抽检任务基本信息"
         okText="确定"
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={() => setOpen(false)}
+        confirmLoading={submitLoading}
         modalRender={dom => (
           <Form
             layout="vertical"
@@ -45,11 +88,11 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({}) => {
       >
         <Form.Item
           name="taskName"
-          label="调查名称"
+          label="抽检任务名称"
           rules={[
             {
               required: true,
-              message: '调查名称不能为空!',
+              message: '抽检任务名称不能为空!',
             },
           ]}
         >
