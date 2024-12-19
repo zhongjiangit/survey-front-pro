@@ -172,6 +172,18 @@ const Check = ({ system }: CheckProps) => {
         columns={columns}
         dataSource={checkList?.data || []}
         loading={loading || submitLoading}
+        pagination={{
+          total: checkList?.total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          // current: pageNumber,
+          // pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          // onChange: (page, pageSize) => {
+          //   setPageNumber(page);
+          //   setPageSize(pageSize);
+          // },
+        }}
       />
       <CreateModal
         type={selectedTab as 'check' | 'collect'}

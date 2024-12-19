@@ -185,7 +185,23 @@ const ReviewResultModal = () => {
         width={1400}
         footer={null}
       >
-        <Table<DataType> columns={columns} dataSource={dataSource} bordered />
+        <Table<DataType>
+          columns={columns}
+          dataSource={dataSource}
+          bordered
+          pagination={{
+            total: dataSource?.length,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            // current: pageNumber,
+            // pageSize: pageSize,
+            showTotal: total => `总共 ${total} 条`,
+            // onChange: (page, pageSize) => {
+            //   setPageNumber(page);
+            //   setPageSize(pageSize);
+            // },
+          }}
+        />
       </Modal>
     </>
   );

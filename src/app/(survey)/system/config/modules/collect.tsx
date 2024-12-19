@@ -172,6 +172,18 @@ const Collect = ({ system }: CollectProps) => {
         columns={columns}
         dataSource={collectList?.data || []}
         loading={loading || submitLoading}
+        pagination={{
+          total: collectList?.total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          // current: pageNumber,
+          // pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          // onChange: (page, pageSize) => {
+          //   setPageNumber(page);
+          //   setPageSize(pageSize);
+          // },
+        }}
       />
       <CreateModal
         type={selectedTab as 'check' | 'collect'}

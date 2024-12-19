@@ -1,9 +1,9 @@
 'use client';
 
+import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
 import { Button, Modal, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import TemplateDetailModal from '@/app/modules/template-detail-modal';
 
 import {
   fullJoinRowSpanData,
@@ -187,8 +187,18 @@ const ReviewDetailModal = () => {
           columns={columns}
           dataSource={dataSource}
           bordered
-
-          // pagination={false}
+          pagination={{
+            total: dataSource?.length,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            // current: pageNumber,
+            // pageSize: pageSize,
+            showTotal: total => `总共 ${total} 条`,
+            // onChange: (page, pageSize) => {
+            //   setPageNumber(page);
+            //   setPageSize(pageSize);
+            // },
+          }}
         />
       </Modal>
     </>

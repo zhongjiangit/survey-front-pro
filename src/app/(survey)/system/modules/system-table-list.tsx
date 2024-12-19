@@ -174,6 +174,18 @@ export default function SystemsTableList({ query }: { query: string }) {
       columns={columns}
       dataSource={dataSources}
       loading={isLoading || deleteLoading || enableLoading}
+      pagination={{
+        total: dataSources.length,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        // current: pageNumber,
+        // pageSize: pageSize,
+        showTotal: total => `总共 ${total} 条`,
+        // onChange: (page, pageSize) => {
+        //   setPageNumber(page);
+        //   setPageSize(pageSize);
+        // },
+      }}
     />
   );
 }

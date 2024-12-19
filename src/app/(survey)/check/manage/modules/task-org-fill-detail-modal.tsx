@@ -187,6 +187,12 @@ const TaskOrgFillDetailModal = ({
           bordered
           columns={[...columns, operationColumn]}
           dataSource={dataSource}
+          pagination={{
+            total: data?.total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: total => `总共 ${total} 条`,
+          }}
         />
       </Modal>
       <Modal

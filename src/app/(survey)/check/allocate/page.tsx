@@ -286,6 +286,18 @@ const ToAllotTask = () => {
       <Table
         columns={columns}
         dataSource={listAssignInspTaskData?.data || []}
+        pagination={{
+          total: listAssignInspTaskData?.total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          current: pageNumber,
+          pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          onChange: (page, pageSize) => {
+            setPageNumber(page);
+            setPageSize(pageSize);
+          },
+        }}
       ></Table>
       <TaskOrgFillDetailModal
         task={viewTask}

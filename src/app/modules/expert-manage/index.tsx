@@ -84,7 +84,7 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
       refreshDeps: [orgId, currentSystem?.systemId],
       onSuccess(response) {
         if (Array.isArray(response?.data)) {
-          // @ts-ignore
+          // @ts-expect-error: dataSource类型不匹配
           setDataSource(response.data);
         }
       },
@@ -159,7 +159,7 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
       values.tags = values.tags?.map((tag: number) => ({ key: tag }));
 
       if (currentSystem?.systemId && currentOrg?.orgId) {
-        if (!!currentExpert.id) {
+        if (currentExpert.id) {
           updateExpert({
             id: currentExpert.id,
             currentSystemId: currentSystem?.systemId,
@@ -284,6 +284,18 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
         loading={getListLoading}
         columns={columns}
         dataSource={dataSource}
+        pagination={{
+          total: dataSource.length,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          // current: pageNumber,
+          // pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          // onChange: (page, pageSize) => {
+          //   setPageNumber(page);
+          //   setPageSize(pageSize);
+          // },
+        }}
       />
       <Modal
         open={open}

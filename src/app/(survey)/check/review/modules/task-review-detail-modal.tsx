@@ -10,7 +10,7 @@ import {
   ProcessStatusTypeEnum,
   TemplateTypeEnum,
 } from '@/types/CommonType';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import {
   Button,
@@ -22,7 +22,6 @@ import {
   Space,
   Table,
 } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
 
@@ -284,7 +283,7 @@ const TaskReviewDetailModal = ({
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error: fillTaskStatus might not be in TaskStatusObject
               ProcessStatusObject[record.processStatus]
             }
           </div>
@@ -470,6 +469,18 @@ const TaskReviewDetailModal = ({
             columns={columns}
             dataSource={listReviewDetailsExpertData?.data || []}
             loading={getListReviewDetailsExpertLoading}
+            pagination={{
+              total: listReviewDetailsExpertData?.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              current: pageNumber,
+              pageSize: pageSize,
+              showTotal: total => `总共 ${total} 条`,
+              onChange: (page, pageSize) => {
+                setPageNumber(page);
+                setPageSize(pageSize);
+              },
+            }}
           />
         </Form>
       </Modal>

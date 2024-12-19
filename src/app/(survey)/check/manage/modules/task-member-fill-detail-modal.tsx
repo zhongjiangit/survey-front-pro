@@ -217,6 +217,12 @@ const TaskMemberFillDetailModal = ({
         <Table
           columns={columns}
           dataSource={fillProcessDetailsList?.data || []}
+          pagination={{
+            total: fillProcessDetailsList?.total || 0,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: total => `总共 ${total} 条`,
+          }}
         />
       </Modal>
       <Modal

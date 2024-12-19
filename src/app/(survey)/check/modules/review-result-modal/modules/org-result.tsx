@@ -85,6 +85,18 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
           size="small"
           bordered
           style={{ margin: '20px' }}
+          pagination={{
+            total: dataSource?.length,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            // current: pageNumber,
+            // pageSize: pageSize,
+            showTotal: total => `总共 ${total} 条`,
+            // onChange: (page, pageSize) => {
+            //   setPageNumber(page);
+            //   setPageSize(pageSize);
+            // },
+          }}
         ></Table>
       </Modal>
     </>

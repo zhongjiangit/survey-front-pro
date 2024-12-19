@@ -211,6 +211,18 @@ const ToAllotTask = () => {
         columns={columns}
         dataSource={fillInspTaskData?.data || []}
         // dataSource={toAllotTaskData}
+        pagination={{
+          total: fillInspTaskData?.total || 0,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          current: pageNumber,
+          pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          onChange: (page, pageSize) => {
+            setPageNumber(page);
+            setPageSize(pageSize);
+          },
+        }}
       ></Table>
       {contextHolder}
     </>

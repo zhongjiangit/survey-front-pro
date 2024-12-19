@@ -98,7 +98,7 @@ const CheckReview = () => {
         return (
           <div>
             {
-              // @ts-ignore
+              // @ts-expect-error: TS2339
               TaskStatusObject[record.reviewTaskStatus]
             }
           </div>
@@ -197,8 +197,11 @@ const CheckReview = () => {
         dataSource={listReviewTaskExpertData?.data || []}
         pagination={{
           current: pageNumber,
+          showSizeChanger: true,
+          showQuickJumper: true,
           pageSize,
           total: listReviewTaskExpertData?.total,
+          showTotal: total => `总共 ${total} 条`,
           onChange: (page, pageSize) => {
             setPageNumber(page);
             setPageSize(pageSize);

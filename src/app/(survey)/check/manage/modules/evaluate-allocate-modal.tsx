@@ -538,7 +538,18 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
                   columns={columns}
                   dataSource={listFillsByTaskPage?.data || []}
                   loading={getListFillsByTaskPageLoading}
-                  // onChange={onChange}
+                  pagination={{
+                    total: listFillsByTaskPage?.total,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    current: pageNumber,
+                    pageSize: pageSize,
+                    showTotal: total => `总共 ${total} 条`,
+                    onChange: (page, pageSize) => {
+                      setPageNumber(page);
+                      setPageSize(pageSize);
+                    },
+                  }}
                 />
               </div>
               <div className="flex justify-center p-2 gap-5">

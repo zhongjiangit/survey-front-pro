@@ -66,7 +66,22 @@ const Recharge: React.FC = () => {
   ];
   return (
     <div className="flex flex-col gap-5 pt-3">
-      <Table columns={columns} dataSource={data} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        pagination={{
+          total: data.length,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          // current: pageNumber,
+          // pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          // onChange: (page, pageSize) => {
+          //   setPageNumber(page);
+          //   setPageSize(pageSize);
+          // },
+        }}
+      />
       <div className="flex justify-center items-center">
         <Button size="large" className="text-lg">
           充值/续费

@@ -167,7 +167,22 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
           <div className="flex justify-end mb-2 ">
             <Button type="primary">一键通过</Button>
           </div>
-          <Table columns={columns} dataSource={dataSource}></Table>
+          <Table
+            columns={columns}
+            dataSource={dataSource}
+            pagination={{
+              total: dataSource?.length,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              // current: pageNumber,
+              // pageSize: pageSize,
+              showTotal: total => `总共 ${total} 条`,
+              // onChange: (page, pageSize) => {
+              //   setPageNumber(page);
+              //   setPageSize(pageSize);
+              // },
+            }}
+          ></Table>
         </div>
       </Modal>
     </>
