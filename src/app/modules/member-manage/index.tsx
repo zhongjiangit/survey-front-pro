@@ -56,13 +56,18 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
             staff => staff.id === currentRole?.id
           );
           setAdminStaff(adminStaff[0]);
-          const data = response?.data.filter(item =>
-            currentOrg?.staffType === StaffTypeEnum.UnitAdmin
-              ? item.staffType !== StaffTypeEnum.UnitAdmin
-              : item.staffType === StaffTypeEnum.Member
-          );
-          // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
-          setDataSource(data);
+          if (!canEdit) {
+            // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
+            setDataSource(response?.data);
+          } else {
+            const data = response?.data.filter(item =>
+              currentOrg?.staffType === StaffTypeEnum.UnitAdmin
+                ? item.staffType !== StaffTypeEnum.UnitAdmin
+                : item.staffType === StaffTypeEnum.Member
+            );
+            // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
+            setDataSource(data);
+          }
         }
       },
     }
