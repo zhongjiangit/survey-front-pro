@@ -16,6 +16,8 @@ interface ListFillsByTaskPageParamsType {
   taskId: number;
   pageNumber: number;
   pageSize: number;
+  orgTags?: { key: number | string }[];
+  staffTags?: { key: number | string }[];
 }
 
 /*
