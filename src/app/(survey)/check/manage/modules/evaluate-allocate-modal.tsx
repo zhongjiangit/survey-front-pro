@@ -63,7 +63,29 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
   const [pageSize, setPageSize] = useState(10);
   const [assignedFills, setAssignedFills] = useState<number[]>([]);
   const [assignedExperts, setAssignedExperts] = useState<string[]>([]);
+  // 专家试题列表
+  const [expertFills, setExpertFills] = useState<{
+    [expertId: number]: number[];
+  }>({});
 
+  const assignedFillExperts = useMemo(() => {
+    return Object.entries(expertFills).reduce(
+      (res: any, [expertId, assignedFillIds]) => {
+        if (!assignedExperts.includes(expertId)) {
+          return res;
+        }
+        assignedFillIds.forEach(id => {
+          (res[id] ??= []).push(expertId);
+        });
+        return res;
+      },
+      {}
+    );
+  }, [assignedExperts, expertFills]);
+
+  console.log(assignedFillExperts);
+
+  // 已分配专家列表
   const { run: getListReviewAssignByExpert, data: listReviewAssignByExpert } =
     useRequest(
       () => {
@@ -78,26 +100,38 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
       },
       {
         manual: true,
-        onSuccess(response) {},
+        onSuccess(response) {
+          setExpertFills(
+            response.data.reduce((res: any, t) => {
+              res[t.expertId] = t.assignedFills.map(t => t.singleFillId);
+              return res;
+            }, {})
+          );
+          setAssignedExperts(response.data.map(t => String(t.expertId)));
+        },
       }
     );
 
-  const { run: getListReviewAssignByFill } = useRequest(
-    () => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId) {
-        return Promise.reject('currentSystem or currentOrg is not exist');
+  // 以分配试题列表
+  const { data: listReviewAssignByFill, run: getListReviewAssignByFill } =
+    useRequest(
+      () => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('currentSystem or currentOrg is not exist');
+        }
+        return Api.listReviewAssignByFill({
+          currentSystemId: currentSystem?.systemId,
+          currentOrgId: currentOrg?.orgId,
+          taskId: task.taskId,
+        });
+      },
+      {
+        manual: true,
+        onSuccess(response) {
+          //
+        },
       }
-      return Api.listReviewAssignByFill({
-        currentSystemId: currentSystem?.systemId,
-        currentOrgId: currentOrg?.orgId,
-        taskId: task.taskId,
-      });
-    },
-    {
-      manual: true,
-      onSuccess(response) {},
-    }
-  );
+    );
 
   const {
     data: listFillsByTaskPage,
@@ -240,6 +274,25 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
     // setOpen(false);
   };
 
+  const changeAssignedFillExperts = (
+    id: number,
+    expertIds: number[],
+    add: boolean
+  ) => {
+    setExpertFills(
+      expertIds.reduce(
+        (res: any, expertId) => {
+          res[expertId] = (res[expertId] || []).filter((t: number) => t !== id);
+          if (add) {
+            res[expertId].push(id);
+          }
+          return res;
+        },
+        { ...expertFills }
+      )
+    );
+  };
+
   useEffect(() => {
     if (open) {
       getListReviewAssignByExpert();
@@ -334,10 +387,27 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
             /> */}
           </div>
         ),
+        // assignedFills.includes(record.singleFillId)
         render: (text, record) => (
           <Checkbox
-            checked={assignedFills.includes(record.singleFillId)}
+            checked={
+              assignedFillExperts[record.singleFillId]?.length &&
+              assignedFillExperts[record.singleFillId].length ===
+                assignedExperts.length
+            }
+            indeterminate={
+              assignedFillExperts[record.singleFillId]?.length &&
+              assignedFillExperts[record.singleFillId].length <
+                assignedExperts.length
+            }
             onChange={e => {
+              changeAssignedFillExperts(
+                record.singleFillId,
+                assignedExperts,
+                e.target.checked
+              );
+            }}
+            onChange1={e => {
               if (e.target.checked) {
                 setAssignedFills([...assignedFills, record.singleFillId]);
               } else {
@@ -350,7 +420,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
         ),
       },
     ],
-    [assignedFills]
+    [assignedFills, assignedFillExperts]
   );
 
   return (
@@ -417,11 +487,16 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">已分配试题</div>
-                    <div className="bg-slate-100">0</div>
+                    <div className="bg-slate-100">
+                      {listReviewAssignByFill?.data?.length || 0}
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="bg-slate-200">未分配试题</div>
-                    <div className="bg-slate-100">0</div>
+                    <div className="bg-slate-100">
+                      {(listFillsByTaskPage?.data.length || 0) -
+                        (listReviewAssignByFill?.data?.length || 0)}
+                    </div>
                   </div>
                 </div>
               </div>
