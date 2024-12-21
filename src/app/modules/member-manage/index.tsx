@@ -21,6 +21,7 @@ interface TableFormDateType {
   cellphone?: string;
   staffType?: StaffType;
   tags?: { key: number; title: string }[];
+  tagLabels?: string[];
 }
 
 interface MemberManageProps {
@@ -41,6 +42,17 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const [adminStaff, setAdminStaff] = useState<StaffListResponse | null>(null);
 
+  const formatMemberData = useCallback((data: TableFormDateType[]) => {
+    return data.map(item => {
+      return {
+        ...item,
+        tags: item.tags?.map(tag => tag.key),
+        tagLabels: item.tags?.map(tag => tag.title),
+      };
+    });
+  }, []);
+  console.log('dataSource', dataSource);
+
   const { run: getStaffList } = useRequest(
     () => {
       return Api.getStaffList({
@@ -58,7 +70,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
           setAdminStaff(adminStaff[0]);
           if (!canEdit) {
             // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
-            setDataSource(response?.data);
+            setDataSource(formatMemberData(response?.data));
           } else {
             const data = response?.data.filter(item =>
               currentOrg?.staffType === StaffTypeEnum.UnitAdmin
@@ -66,7 +78,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
                 : item.staffType === StaffTypeEnum.Member
             );
             // @ts-expect-error: dataSource is not assignable to type 'SetStateAction<TableFormDateType[]>'.
-            setDataSource(data);
+            setDataSource(formatMemberData(data));
           }
         }
       },
@@ -248,12 +260,6 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               placeholder="请选择成员标签"
               allowClear
               multiple
-              // defaultValue={record?.tags
-              //   ?.filter(tag => !!tag?.key)
-              //   .map(tag => tag.key)}
-              // onChange={value => {
-              //   console.log('value', value);
-              // }}
               treeDefaultExpandAll
               treeData={memberTags}
               treeCheckable={true}
@@ -264,10 +270,10 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
         render: (_, record: TableFormDateType) => {
           return (
             <span>
-              {record.tags?.map(item => {
+              {record.tagLabels?.map((item, index) => {
                 return (
-                  <Tag key={item.key} color="success">
-                    {item.title}
+                  <Tag key={index} color="success">
+                    {item}
                   </Tag>
                 );
               })}

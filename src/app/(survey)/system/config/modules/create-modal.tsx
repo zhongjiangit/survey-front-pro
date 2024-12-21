@@ -92,7 +92,7 @@ const CreateModal = ({
       currentSystemId: Number(systemId),
       templateType: type === 'collect' ? 1 : 2,
     };
-    if (!!initValues) {
+    if (initValues) {
       updateOutline({ ...params, templateId: initValues.templateId });
     } else {
       createOutline(params);
@@ -109,7 +109,7 @@ const CreateModal = ({
       {contextHolder}
       <Modal
         open={open}
-        title={`${!!initValues ? '编辑' : '创建'}${TemplateType[type]}模版`}
+        title={`${initValues ? '编辑' : '创建'}${TemplateType[type]}模版`}
         onCancel={onCancel}
         destroyOnClose
         footer={null}

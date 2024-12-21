@@ -133,6 +133,7 @@ const TemplateDetailModal = ({
         onCancel={() => {
           setOpen(false);
         }}
+        maskClosable={false}
         footer={null}
       >
         <Form

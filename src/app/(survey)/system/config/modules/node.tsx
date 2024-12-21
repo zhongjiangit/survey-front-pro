@@ -63,11 +63,13 @@ const Node = (props: NodeProps) => {
             addValue(child);
           });
         }
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         node.value = node.key;
       };
       addValue(tags);
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       setTreeSelectData([tags]);
     }
   }, [tagList]);
@@ -121,7 +123,7 @@ const Node = (props: NodeProps) => {
     }
   );
 
-  const {} = useRequest(
+  useRequest(
     () => {
       if (!system.id || isNaN(Number(nodeSelected))) {
         form.resetFields();
@@ -143,7 +145,7 @@ const Node = (props: NodeProps) => {
             managerName: values.managerName,
             cellphone: values.cellphone,
             isValid: values.isValid === 1,
-            tags: values.tags.map((tag: { key: number }) => String(tag.key)),
+            tags: values.tags.map((tag: { key: number }) => tag.key),
           });
         }
       },
@@ -181,7 +183,8 @@ const Node = (props: NodeProps) => {
         }
         // 如果node.key为string类型，删除
         if (typeof node?.key === 'string') {
-          // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           delete node?.key;
           delete node?.type;
           delete node?.isLeaf;
@@ -197,7 +200,7 @@ const Node = (props: NodeProps) => {
     if (orgTags) {
       saveOrgTree({
         currentSystemId: system.id,
-        // @ts-ignore
+        // @ts-expect
         orgs: orgTags,
       });
     } else {

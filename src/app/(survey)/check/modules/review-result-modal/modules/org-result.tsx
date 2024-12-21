@@ -74,6 +74,7 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
         title={<div className="mx-5 m-2">{modalTitle}</div>}
         open={open}
         footer={null}
+        maskClosable={false}
         onCancel={() => {
           setOpen(false);
         }}

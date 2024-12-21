@@ -30,6 +30,7 @@ const StandardDetailModal = ({ showDom }: Props) => {
       <Modal
         title="标准详情"
         open={open}
+        maskClosable={false}
         onOk={handleOk}
         onCancel={handleCancel}
       >

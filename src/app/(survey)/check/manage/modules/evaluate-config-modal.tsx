@@ -4,6 +4,7 @@ import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DatePicker, Form, Modal, Switch } from 'antd';
+import dayjs from 'dayjs';
 import React, { useState } from 'react';
 const { RangePicker } = DatePicker;
 
@@ -63,6 +64,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         destroyOnClose
         afterClose={() => form.resetFields()}
         open={open}
+        maskClosable={false}
         title="专家评审设置"
         okText="提交"
         cancelText="取消"
@@ -96,7 +98,10 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         >
           <RangePicker
             format="YYYY-MM-DD HH:mm"
-            showTime={{ format: 'HH:mm' }}
+            showTime={{
+              format: 'HH:mm',
+              defaultValue: [dayjs('09:00', 'HH:mm'), dayjs('09:00', 'HH:mm')],
+            }}
           />
         </Form.Item>
         <Form.Item name="showFiller" label="专家能否查看填报人信息">

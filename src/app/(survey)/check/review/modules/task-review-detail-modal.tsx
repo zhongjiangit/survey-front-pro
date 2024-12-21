@@ -444,6 +444,7 @@ const TaskReviewDetailModal = ({
           setOpen(false);
         }}
         destroyOnClose
+        maskClosable={false}
         footer={
           <div className="flex justify-end gap-5 px-20">
             <Button

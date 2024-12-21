@@ -1,36 +1,148 @@
 'use client';
 
-import { Button, Col, Form, Input, Modal, Row } from 'antd';
-import React, { useState } from 'react';
+import Api from '@/api';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
+import { SendSmsTypeEnum } from '@/types/CommonType';
+import {
+  CodepenOutlined,
+  LockOutlined,
+  MobileOutlined,
+} from '@ant-design/icons';
+import {
+  ProForm,
+  ProFormCaptcha,
+  ProFormInstance,
+  ProFormText,
+} from '@ant-design/pro-components';
+import { useRequest } from 'ahooks';
+import { message, Modal } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 
-const TaskDeleteModal: React.FC = () => {
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import Image from 'next/image';
+
+interface TaskDeleteModalProps {
+  taskId: number;
+  onRefresh: () => void;
+}
+
+const TaskDeleteModal = (props: TaskDeleteModalProps) => {
+  const { taskId, onRefresh } = props;
   const [open, setOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const onClose = () => {
-    form.setFieldsValue({
-      cellphone: '139820881',
-    });
-    setOpen(false);
+  const user = useSurveyUserStore(state => state.user);
+
+  const [captchaUrl, setCaptchaUrl] = useState('');
+
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  const formRefDeleteTask = useRef<ProFormInstance>();
+
+  const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(
+    () => {
+      return Api.getCaptcha();
+    },
+    {
+      manual: true,
+      onSuccess: response => {
+        const blob = response.data;
+        const url = URL.createObjectURL(blob);
+        setCaptchaUrl(url);
+      },
+    }
+  );
+
+  const { run: sendSms, loading: sendSmsLoading } = useRequest(
+    params => {
+      return Api.sendSms({
+        ...params,
+        eventType: SendSmsTypeEnum.ChangePassword,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: response => {
+        if (response?.message) {
+          messageApi.open({
+            type: 'error',
+            content: response.message,
+          });
+        } else if (response?.result === 0) {
+          messageApi.success('验证码发送成功！');
+        }
+      },
+      onError: error => {
+        messageApi.open({
+          type: 'error',
+          content: error.message,
+        });
+      },
+    }
+  );
+
+  const handleGetCaptcha = async () => {
+    try {
+      const values = await formRefDeleteTask.current?.validateFields([
+        'cellphone',
+        'captcha',
+      ]);
+      sendSms(values);
+    } catch (errorInfo) {
+      console.log('Failed:', errorInfo);
+    }
   };
 
-  const onCreate = (values: any) => {
-    console.log('Received values of form: ', values);
-    console.log(form.getFieldsValue());
-    onClose();
+  const { run: deleteReviewTask, loading: deleteReviewTaskLoading } =
+    useRequest(
+      (params: any) => {
+        return Api.deleteReviewTask(params);
+      },
+      {
+        manual: true,
+        onSuccess: response => {
+          if (response?.message) {
+            messageApi.open({
+              type: 'error',
+              content: response.message,
+            });
+          } else if (response?.result === 0) {
+            onRefresh();
+          }
+        },
+      }
+    );
+
+  const handleFinish = (values: any) => {
+    const params = {
+      taskId: taskId,
+      verifyCode: values.verifyCode,
+      currentSystemId: currentSystem!.systemId,
+      currentOrgId: currentOrg!.orgId,
+    };
+    deleteReviewTask(params);
   };
+
+  useEffect(() => {
+    if (open) {
+      getCaptcha();
+      formRefDeleteTask.current?.resetFields();
+      formRefDeleteTask.current?.setFieldsValue({
+        cellphone: user?.cellphone,
+      });
+    }
+  }, [getCaptcha, open, user?.cellphone]);
 
   return (
     <>
+      {contextHolder}
       <a
         className="text-blue-500"
         onClick={() => {
           setOpen(true);
-          form.setFieldsValue({
-            cellphone: '13982088460',
-            pic: '',
-            captcha: '',
-          });
         }}
       >
         取消
@@ -40,79 +152,106 @@ const TaskDeleteModal: React.FC = () => {
         title="取消资料抽检任务"
         okText="确定"
         cancelText="取消"
-        okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
-        onCancel={onClose}
-        modalRender={dom => (
-          <Form
-            layout="vertical"
-            form={form}
-            name="form_in_modal"
-            onFinish={values => onCreate(values)}
-          >
-            {dom}
-          </Form>
-        )}
+        maskClosable={false}
+        // destroyOnClose
+        footer={null}
+        onCancel={() => {
+          setOpen(false);
+        }}
       >
-        <p className="my-4">为了避免您的误操作，请输入验证码</p>
-        <Form.Item
-          name="cellphone"
-          label="手机号"
-          rules={[
-            {
-              required: true,
-              message: '手机号不能为空!',
+        <p className="my-4">为了避免您的误操作，请输入验证码!</p>
+        <ProForm
+          layout="vertical"
+          formRef={formRefDeleteTask}
+          onFinish={handleFinish}
+          submitter={{
+            searchConfig: {
+              submitText: '确 定',
             },
-          ]}
-        >
-          <Row gutter={8}>
-            <Col span={16}>
-              <Form.Item name="cellphone" noStyle>
-                <Input disabled type="input" placeholder="请输入手机号" />
-              </Form.Item>
-            </Col>
-            <Col span={8}></Col>
-          </Row>
-        </Form.Item>
-        <Form.Item
-          name="pic"
-          label="图形验证码"
-          rules={[
-            {
-              required: true,
+            submitButtonProps: {
+              loading: deleteReviewTaskLoading,
+              size: 'large',
+              style: {
+                float: 'right',
+                padding: '0 24px',
+              },
             },
-          ]}
+            render: (_, dom) => <div className="h-8">{dom[1]}</div>,
+          }}
+          hideRequiredMark
         >
-          <Row gutter={8}>
-            <Col span={16}>
-              <Form.Item name="pic" noStyle>
-                <Input type="input" placeholder="请输入右侧图形码" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Button>XIN2</Button>
-            </Col>
-          </Row>
-        </Form.Item>
-        <Form.Item
-          name="captcha"
-          label="验证码"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
-          <Row gutter={8}>
-            <Col span={16}>
-              <Form.Item name="captcha" noStyle>
-                <Input type="input" placeholder="请输入手机验证码" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Button>获取验证码</Button>
-            </Col>
-          </Row>
-        </Form.Item>
+          <ProFormText
+            fieldProps={{
+              size: 'large',
+              prefix: <MobileOutlined />,
+            }}
+            disabled
+            name="cellphone"
+            placeholder={'请输入手机号！'}
+            rules={[
+              {
+                required: true,
+                message: '手机号是必填项！',
+              },
+              {
+                pattern: /^1\d{10}$/,
+                message: '不合法的手机号！',
+              },
+            ]}
+          />
+          <div className="flex gap-2 items-start">
+            <ProFormText
+              fieldProps={{
+                size: 'large',
+                prefix: <CodepenOutlined />,
+                style: { width: 360 },
+              }}
+              name="captcha"
+              placeholder={'请输入右侧图形码！'}
+              rules={[
+                {
+                  required: true,
+                  message: '请输入图形码！',
+                },
+              ]}
+            />
+            {captchaUrl && (
+              <div
+                onClick={getCaptcha}
+                className="overflow-hidden cursor-pointer"
+              >
+                <Image src={captchaUrl} alt="Captcha" width={120} height={40} />
+              </div>
+            )}
+          </div>
+
+          <ProFormCaptcha
+            fieldProps={{
+              size: 'large',
+              prefix: <LockOutlined />,
+            }}
+            captchaProps={{
+              size: 'large',
+            }}
+            placeholder={'请输入验证码！'}
+            captchaTextRender={(timing, count) => {
+              if (timing) {
+                return `${count} ${'秒后重新获取'}`;
+              }
+              return '获取验证码';
+            }}
+            name="verifyCode"
+            rules={[
+              {
+                required: true,
+                message: '验证码是必填项！',
+              },
+            ]}
+            onGetCaptcha={async phone => {
+              handleGetCaptcha();
+            }}
+          />
+        </ProForm>
       </Modal>
     </>
   );

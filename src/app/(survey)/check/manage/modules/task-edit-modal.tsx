@@ -71,6 +71,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
         open={open}
         title="编辑抽检任务基本信息"
         okText="确定"
+        maskClosable={false}
         cancelText="取消"
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={() => setOpen(false)}
