@@ -4,6 +4,7 @@ export function formatTreeData(params: any) {
     return data?.map((item: any) => {
       return {
         label: item.title,
+        text: item.title,
         value: item.key,
         children: item.children ? formatTreeData(item.children) : [],
       };
