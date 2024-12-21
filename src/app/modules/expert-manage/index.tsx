@@ -305,6 +305,7 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={closeModal}
         destroyOnClose
+        maskClosable={false}
         confirmLoading={createLoading || updateLoading}
         modalRender={dom => (
           <Form

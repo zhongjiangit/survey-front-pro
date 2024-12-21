@@ -40,6 +40,7 @@ const TaskDeleteModal: React.FC = () => {
         title="取消资料抽检任务"
         okText="确定"
         cancelText="取消"
+        maskClosable={false}
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={onClose}
         modalRender={dom => (

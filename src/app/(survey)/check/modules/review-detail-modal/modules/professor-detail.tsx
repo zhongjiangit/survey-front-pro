@@ -157,6 +157,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
       <Modal
         title={<div className="mx-5 mt-2">专家评审详情</div>}
         open={open}
+        maskClosable={false}
         onCancel={() => {
           setOpen(false);
         }}

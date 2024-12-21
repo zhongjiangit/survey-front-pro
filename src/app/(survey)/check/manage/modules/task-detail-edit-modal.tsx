@@ -553,6 +553,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         title={`${type}抽检任务`}
         okText="确定"
         cancelText="取消"
+        maskClosable={false}
         okButtonProps={{
           autoFocus: true,
           onClick: () => form.submit(),

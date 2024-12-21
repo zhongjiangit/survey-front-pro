@@ -541,6 +541,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         okText="确定"
         cancelText="取消"
         destroyOnClose
+        maskClosable={false}
         okButtonProps={{
           autoFocus: true,
           onClick: () => form.submit(),

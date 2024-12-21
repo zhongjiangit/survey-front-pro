@@ -56,6 +56,7 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
       open={isRoleModalOpen}
       onOk={handleOk}
       destroyOnClose
+      maskClosable={false}
       onCancel={handleCancel}
       okText="确认"
       footer={

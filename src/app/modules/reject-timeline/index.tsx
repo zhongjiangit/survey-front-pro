@@ -67,6 +67,7 @@ const RejectTimeline = ({ taskId }: RejectTimelineProps) => {
         title="驳回履历"
         open={isModalOpen}
         onOk={handleOk}
+        maskClosable={false}
         onCancel={handleCancel}
       >
         <div className="p-10">

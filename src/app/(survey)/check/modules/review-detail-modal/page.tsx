@@ -171,6 +171,7 @@ const ReviewDetailModal = () => {
       <Modal
         title="专家详情"
         open={open}
+        maskClosable={false}
         onCancel={() => {
           setOpen(false);
         }}

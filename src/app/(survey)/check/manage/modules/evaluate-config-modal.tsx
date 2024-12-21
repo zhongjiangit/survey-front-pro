@@ -63,6 +63,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         destroyOnClose
         afterClose={() => form.resetFields()}
         open={open}
+        maskClosable={false}
         title="专家评审设置"
         okText="提交"
         cancelText="取消"
