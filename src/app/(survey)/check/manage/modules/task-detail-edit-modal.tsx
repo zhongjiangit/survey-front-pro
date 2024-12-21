@@ -590,7 +590,13 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                   >
                     <RangePicker
                       format="YYYY-MM-DD HH:mm"
-                      showTime={{ format: 'HH:mm' }}
+                      showTime={{
+                        format: 'HH:mm',
+                        defaultValue: [
+                          dayjs('09:00', 'HH:mm'),
+                          dayjs('09:00', 'HH:mm'),
+                        ],
+                      }}
                       style={{ width: '40%' }}
                     />
                   </Form.Item>

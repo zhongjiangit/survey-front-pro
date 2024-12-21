@@ -41,6 +41,7 @@ import {
   Tree,
   TreeSelect,
 } from 'antd';
+import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 
 const { RangePicker } = DatePicker;
@@ -602,7 +603,13 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             >
               <RangePicker
                 format="YYYY-MM-DD HH:mm"
-                showTime={{ format: 'HH:mm' }}
+                showTime={{
+                  format: 'HH:mm',
+                  defaultValue: [
+                    dayjs('09:00', 'HH:mm'),
+                    dayjs('09:00', 'HH:mm'),
+                  ],
+                }}
                 style={{ width: '100%' }}
               />
             </Form.Item>

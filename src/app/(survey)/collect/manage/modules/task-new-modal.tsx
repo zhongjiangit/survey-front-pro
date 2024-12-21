@@ -601,7 +601,9 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             >
               <RangePicker
                 format="YYYY-MM-DD HH:mm"
-                showTime={{ format: 'HH:mm' }}
+                showTime={{
+                  format: 'HH:mm',
+                }}
                 style={{ width: '100%' }}
               />
             </Form.Item>
