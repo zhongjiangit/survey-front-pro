@@ -298,8 +298,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   };
 
   const showConfirm = (nodes: any[]) => {
-    const value = nodes.map(t => t.value);
-    console.log(value);
+    const value = nodes;
     const onOk = () => {
       setFilterValue(value);
       setOrgMembers({});
@@ -391,8 +390,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
-            treeCheckStrictly={true}
-            showCheckedStrategy={'SHOW_ALL'}
+            showCheckedStrategy={TreeSelect.SHOW_PARENT}
             placeholder="选择标签过滤人员"
           />
         </div>
@@ -473,8 +471,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
-            treeCheckStrictly={true}
-            showCheckedStrategy={'SHOW_ALL'}
+            showCheckedStrategy={TreeSelect.SHOW_PARENT}
             placeholder="选择标签过滤单位"
           />
         </div>

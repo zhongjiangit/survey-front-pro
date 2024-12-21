@@ -288,7 +288,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
    * @param nodes
    */
   const showConfirm = (nodes: any[]) => {
-    const value = nodes.map(t => t.value);
+    const value = nodes;
     const onOk = () => {
       changeFilterValue(value);
       setMember([]);
@@ -401,8 +401,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
             onChange={showConfirm}
             treeData={formatTreeData([tagList?.data.tags])}
             treeCheckable={true}
-            treeCheckStrictly={true}
-            showCheckedStrategy={'SHOW_ALL'}
+            showCheckedStrategy={TreeSelect.SHOW_PARENT}
             placeholder="选择标签过滤人员"
           />
           <span
@@ -491,8 +490,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           onChange={showConfirm}
           treeData={formatTreeData([tagList?.data.tags])}
           treeCheckable={true}
-          treeCheckStrictly={true}
-          showCheckedStrategy={'SHOW_ALL'}
+          showCheckedStrategy={TreeSelect.SHOW_PARENT}
         />
       </div>
 
