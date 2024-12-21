@@ -436,6 +436,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
         width={1400}
         footer={false}
         destroyOnClose
+        maskClosable={false}
       >
         <div className="flex flex-col gap-5">
           <div className="flex items-center">
@@ -648,6 +649,7 @@ const EvaluateAllocateModal: React.FC<EvaluateAllocateModalProps> = ({
         width={1200}
         footer={false}
         destroyOnClose
+        maskClosable={false}
       >
         <SelectedTestTable />
       </Modal>

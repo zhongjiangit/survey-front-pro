@@ -47,6 +47,7 @@ const TaskPassedModal = ({ open, setOpen }: TaskPassedModalProps) => {
       title="通过量"
       okText="确定"
       cancelText="取消"
+      maskClosable={false}
       onCancel={() => setOpen(false)}
       onOk={() => {
         setOpen(false);

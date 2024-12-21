@@ -45,6 +45,7 @@ const TaskFilledModal = ({ open, setOpen }: TaskFilledModalProps) => {
     <Modal
       open={open}
       title="填报量"
+      maskClosable={false}
       okText="确定"
       cancelText="取消"
       onCancel={() => setOpen(false)}

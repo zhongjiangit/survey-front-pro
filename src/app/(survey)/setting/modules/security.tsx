@@ -113,10 +113,9 @@ const SecurityView: React.FC = () => {
         'cellphone',
         'captcha',
       ]);
-      console.log(values);
       sendSms(values);
     } catch (errorInfo) {
-      // console.log('Failed:', errorInfo);
+      console.log('Failed:', errorInfo);
     }
   };
 

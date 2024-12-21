@@ -201,6 +201,7 @@ const TaskOrgFillDetailModal = ({
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={() => setRejectModalOpen(false)}
         destroyOnClose
+        maskClosable={false}
         modalRender={dom => (
           <Form
             layout="vertical"

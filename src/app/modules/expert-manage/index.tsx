@@ -62,7 +62,8 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
 
   useEffect(() => {
     if (currentExpert.id) {
-      form.setFieldsValue(currentExpert);
+      const tags = currentExpert.tags?.map(tag => tag.key);
+      form.setFieldsValue({ ...currentExpert, tags });
       setOpen(true);
     }
   }, [currentExpert, form]);
@@ -238,6 +239,13 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
           if (canEdit) {
             return (
               <Space size="small">
+                <a
+                  onClick={() => {
+                    setCurrentExpert(record);
+                  }}
+                >
+                  编辑
+                </a>
                 <Popconfirm
                   key="delete"
                   title="删除此项"
@@ -247,13 +255,6 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
                 >
                   <a className="hover:text-red-500">删除</a>
                 </Popconfirm>
-                <a
-                  onClick={() => {
-                    setCurrentExpert(record);
-                  }}
-                >
-                  编辑
-                </a>
               </Space>
             );
           } else {
@@ -305,6 +306,7 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
         okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
         onCancel={closeModal}
         destroyOnClose
+        maskClosable={false}
         confirmLoading={createLoading || updateLoading}
         modalRender={dom => (
           <Form

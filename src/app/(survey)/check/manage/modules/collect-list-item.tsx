@@ -269,8 +269,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       render: (_: any, record: any) => {
         return (
           <div>
-            {/* @ts-expect-error: fillTaskStatus might not be in TaskStatusObject */}
-            {record?.taskStatus ? TaskStatusObject[record.taskStatus] : '-'}
+            {record?.taskStatus != null
+              ? // @ts-expect-error: fillTaskStatus might not be in TaskStatusObject
+                TaskStatusObject[record.taskStatus]
+              : '-'}
           </div>
         );
       },
@@ -538,7 +540,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                       task={item}
                       refreshPublishTask={refreshPublishTask}
                     />
-                    <TaskDeleteModal />
+                    <TaskDeleteModal
+                      taskId={item.taskId}
+                      onRefresh={refreshPublishTask}
+                    />
                   </div>
                 )}
               </div>

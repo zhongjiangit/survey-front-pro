@@ -183,6 +183,7 @@ const ReviewResultModal = () => {
           setOpen(false);
         }}
         width={1400}
+        maskClosable={false}
         footer={null}
       >
         <Table<DataType>

@@ -111,6 +111,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
           </div>
         }
         open={open}
+        maskClosable={false}
         onCancel={() => {
           setOpen(false);
         }}

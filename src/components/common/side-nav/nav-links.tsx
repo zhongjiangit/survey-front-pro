@@ -46,47 +46,6 @@ export const originMenus = [
     ],
   },
   {
-    label: '资料收集',
-    key: '/collect',
-    icon: <SquareLibrary className="w-4 h-4" />,
-    access: [
-      Role_Enum.SYSTEM_ADMIN,
-      Role_Enum.ORG_ADMIN,
-      Role_Enum.NORMAL_ADMIN,
-      Role_Enum.MEMBER,
-    ],
-    children: [
-      {
-        label: '管理',
-        key: '/collect/manage',
-        access: [
-          Role_Enum.SYSTEM_ADMIN,
-          Role_Enum.ORG_ADMIN,
-          Role_Enum.NORMAL_ADMIN,
-        ],
-      },
-      {
-        label: '分配',
-        key: '/collect/allocate',
-        access: [
-          Role_Enum.SYSTEM_ADMIN,
-          Role_Enum.ORG_ADMIN,
-          Role_Enum.NORMAL_ADMIN,
-        ],
-      },
-      {
-        label: '填报',
-        key: '/collect/fill',
-        access: [
-          Role_Enum.SYSTEM_ADMIN,
-          Role_Enum.ORG_ADMIN,
-          Role_Enum.NORMAL_ADMIN,
-          Role_Enum.MEMBER,
-        ],
-      },
-    ],
-  },
-  {
     label: '试题抽检',
     key: '/check',
     icon: <BookOpenCheck className="w-4 h-4" />,
@@ -130,6 +89,47 @@ export const originMenus = [
         label: '评审',
         key: '/check/review',
         access: [Role_Enum.EXPERT],
+      },
+    ],
+  },
+  {
+    label: '资料收集',
+    key: '/collect',
+    icon: <SquareLibrary className="w-4 h-4" />,
+    access: [
+      Role_Enum.SYSTEM_ADMIN,
+      Role_Enum.ORG_ADMIN,
+      Role_Enum.NORMAL_ADMIN,
+      Role_Enum.MEMBER,
+    ],
+    children: [
+      {
+        label: '管理',
+        key: '/collect/manage',
+        access: [
+          Role_Enum.SYSTEM_ADMIN,
+          Role_Enum.ORG_ADMIN,
+          Role_Enum.NORMAL_ADMIN,
+        ],
+      },
+      {
+        label: '分配',
+        key: '/collect/allocate',
+        access: [
+          Role_Enum.SYSTEM_ADMIN,
+          Role_Enum.ORG_ADMIN,
+          Role_Enum.NORMAL_ADMIN,
+        ],
+      },
+      {
+        label: '填报',
+        key: '/collect/fill',
+        access: [
+          Role_Enum.SYSTEM_ADMIN,
+          Role_Enum.ORG_ADMIN,
+          Role_Enum.NORMAL_ADMIN,
+          Role_Enum.MEMBER,
+        ],
       },
     ],
   },
