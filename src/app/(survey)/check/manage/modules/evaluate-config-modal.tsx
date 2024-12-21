@@ -5,7 +5,8 @@ import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DatePicker, Form, Modal, Switch } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRequest } from 'ahooks';
 const { RangePicker } = DatePicker;
 
 interface EvaluateConfigModalProps {
@@ -33,27 +34,66 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
-  const onCreate = (values: Values) => {
-    console.log('Received values of form: ', values);
-
-    const { showFiller, showExpertName, showExpertComment } = values;
-    if (!currentSystem?.systemId || !currentOrg?.orgId) {
-      return Promise.reject('未获取到组织机构');
+  const { run: getInspTaskReview } = useRequest(
+    () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('未获取到组织机构');
+      }
+      return Api.getInspTaskReview({
+        currentOrgId: currentOrg.orgId,
+        currentSystemId: currentSystem.systemId,
+        taskId,
+      });
+    },
+    {
+      manual: true,
+      onSuccess(res) {
+        form.setFieldsValue({
+          showFiller: res.data.showFiller === 1,
+          showExpertName: res.data.showExpertName === 1,
+          showExpertComment: res.data.showExpertComment === 1,
+          dateRange: [
+            res.data.beginTimeReviewEstimate &&
+              dayjs(res.data.beginTimeReviewEstimate),
+            res.data.beginTimeReviewEstimate &&
+              dayjs(res.data.endTimeReviewEstimate),
+          ],
+        });
+      },
     }
-    Api.updateInspTaskReview({
-      showFiller: showFiller ? 1 : 0,
-      showExpertName: showExpertName ? 1 : 0,
-      showExpertComment: showExpertComment ? 1 : 0,
-      taskId: taskId,
-      currentSystemId: currentSystem.systemId,
-      currentOrgId: currentOrg.orgId,
-      beginTimeReviewEstimate: values.dateRange[0].format('YYYY-MM-DD HH:mm'),
-      endTimeReviewEstimate: values.dateRange[1].format('YYYY-MM-DD HH:mm'),
-    }).then(() => {
-      setOpen(false);
-      refreshPublishTask?.();
-    });
-  };
+  );
+  useEffect(() => {
+    if (open) {
+      getInspTaskReview();
+    }
+  }, [open]);
+
+  const { run: updateInspTaskReview, loading: updateInspTaskReviewLoading } =
+    useRequest(
+      (values: any) => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('未获取到组织机构');
+        }
+        return Api.updateInspTaskReview({
+          showFiller: values.showFiller ? 1 : 0,
+          showExpertName: values.showExpertName ? 1 : 0,
+          showExpertComment: values.showExpertComment ? 1 : 0,
+          taskId: taskId,
+          currentSystemId: currentSystem.systemId,
+          currentOrgId: currentOrg.orgId,
+          beginTimeReviewEstimate:
+            values.dateRange[0].format('YYYY-MM-DD HH:mm'),
+          endTimeReviewEstimate: values.dateRange[1].format('YYYY-MM-DD HH:mm'),
+        });
+      },
+      {
+        manual: true,
+        onSuccess() {
+          setOpen(false);
+          refreshPublishTask?.();
+        },
+      }
+    );
 
   return (
     <>
@@ -68,7 +108,11 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         title="专家评审设置"
         okText="提交"
         cancelText="取消"
-        okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
+        okButtonProps={{
+          autoFocus: true,
+          htmlType: 'submit',
+          loading: updateInspTaskReviewLoading,
+        }}
         onCancel={() => setOpen(false)}
         modalRender={dom => (
           <Form
@@ -77,7 +121,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
             wrapperCol={{ span: 14 }}
             form={form}
             name="form_in_modal"
-            onFinish={values => onCreate(values)}
+            onFinish={values => updateInspTaskReview(values)}
           >
             {dom}
           </Form>
