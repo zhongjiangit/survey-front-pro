@@ -12,6 +12,10 @@ interface ListReviewAssignByFillParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskId: number;
+  pageNumber: number;
+  pageSize: number;
+  orgTags?: { key: number | string }[];
+  staffTags?: { key: number | string }[];
 }
 
 /*

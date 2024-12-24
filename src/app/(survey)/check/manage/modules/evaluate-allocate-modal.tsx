@@ -17,19 +17,19 @@ import {
   Table,
   Tree,
   TreeSelect,
+  Tooltip,
 } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ExclamationCircleFilled } from '@ant-design/icons';
+import {
+  ExclamationCircleFilled,
+  SortAscendingOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
 import { formatTreeData } from '@/lib/format-tree-data';
-
-const { RangePicker } = DatePicker;
+import { ListReviewAssignByFillResponse } from '@/api/task/listReviewAssignByFill';
 
 interface EvaluateAllocateModalProps {
   task: ListMyInspTaskResponse;
-}
-
-interface Values {
-  taskName?: string;
 }
 
 export const EvaluateAllocateModal: React.FC<
@@ -51,11 +51,20 @@ export const EvaluateAllocateModal: React.FC<
   const [assignedExperts, setAssignedExperts] = useState<string[]>([]);
   // 专家标签
   const [expertTags, setExpertTags] = useState<number[]>([]);
-
-  const [tableParams, setTableParams] = useState<any>({
+  // 试题表格参数
+  const [tableParams, _setTableParams] = useState<any>({
+    pagination: { current: 1, pageSize: 10 },
+    filters: {},
+    order: 1,
+  });
+  // 已分配试题表格参数
+  const [assignFillTableParams, setAssignFillTableParams] = useState<any>({
     pagination: { current: 1, pageSize: 10 },
     filters: {},
   });
+  const setTableParams = (data: any) => {
+    _setTableParams((state: any) => ({ ...state, ...data }));
+  };
 
   // 标签列表
   const { data: tagList } = useRequest(
@@ -89,6 +98,9 @@ export const EvaluateAllocateModal: React.FC<
     refresh: refreshListReviewAssignByExpert,
   } = useRequest(
     () => {
+      // if (evaluateType !== 'questionsToExperts') {
+      //   return Promise.reject('');
+      // }
       if (!currentSystem?.systemId || !currentOrg?.orgId) {
         return Promise.reject('currentSystem or currentOrg is not exist');
       }
@@ -98,7 +110,7 @@ export const EvaluateAllocateModal: React.FC<
         taskId: task.taskId,
       });
     },
-    { ready: true }
+    { ready: true, refreshDeps: [evaluateType] }
   );
 
   // 试题分配的专家
@@ -109,39 +121,52 @@ export const EvaluateAllocateModal: React.FC<
     return listReviewAssignByExpert.data.reduce(
       (res: any, { assignedFills, ...expert }) => {
         assignedFills.forEach(({ singleFillId }) => {
-          (res[singleFillId] ??= []).push(expert);
+          if (assignedExperts.includes(expert.expertId + '')) {
+            (res[singleFillId] ??= []).push(expert);
+          }
         });
         return res;
       },
       {}
     );
-  }, [listReviewAssignByExpert]);
+  }, [listReviewAssignByExpert, assignedExperts]);
 
   // 已分配试题列表
-  const { data: listReviewAssignByFill, run: getListReviewAssignByFill } =
-    useRequest(
-      () => {
-        if (!currentSystem?.systemId || !currentOrg?.orgId) {
-          return Promise.reject('currentSystem or currentOrg is not exist');
-        }
-        return Api.listReviewAssignByFill({
-          currentSystemId: currentSystem?.systemId,
-          currentOrgId: currentOrg?.orgId,
-          taskId: task.taskId,
-        });
-      },
-      {
-        manual: true,
-        onSuccess(response) {
-          //
-        },
+  const {
+    data: listReviewAssignByFill,
+    refresh: refreshListReviewAssignByFill,
+    loading: listReviewAssignByFillLoading,
+  } = useRequest(
+    () => {
+      if (evaluateType !== 'expertsToQuestions') {
+        return Promise.reject('');
       }
-    );
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
+      return Api.listReviewAssignByFill({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+        pageNumber: assignFillTableParams.pagination.current,
+        pageSize: assignFillTableParams.pagination.pageSize,
+        orgTags: tableParams.filters.orgName?.map((t: any) => ({ key: t })),
+        staffTags: tableParams.filters.staffName?.map((t: any) => ({ key: t })),
+      });
+    },
+    {
+      ready: true,
+      refreshDeps: [evaluateType, JSON.stringify(assignFillTableParams)],
+      onSuccess(response) {
+        //
+      },
+    }
+  );
 
   // 试题列表
   const {
     data: listFillsByTaskPage,
-    run: getListFillsByTaskPage,
+    refresh: refreshListFillsByTaskPage,
     loading: getListFillsByTaskPageLoading,
   } = useRequest(
     () => {
@@ -152,6 +177,7 @@ export const EvaluateAllocateModal: React.FC<
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,
         taskId: task.taskId,
+        order: tableParams.order,
         pageNumber: tableParams.pagination.current,
         pageSize: tableParams.pagination.pageSize,
         orgTags: tableParams.filters.orgName?.map((t: any) => ({ key: t })),
@@ -163,7 +189,7 @@ export const EvaluateAllocateModal: React.FC<
       refreshDeps: [open, pageNumber, pageSize, JSON.stringify(tableParams)],
       onSuccess() {
         // 清空已选择试题
-        setAssignedFills([]);
+        // setAssignedFills([]);
       },
     }
   );
@@ -211,6 +237,9 @@ export const EvaluateAllocateModal: React.FC<
       onSuccess() {
         // 刷新列表
         refreshListReviewAssignByExpert();
+        refreshListFillsByTaskPage();
+        refreshListReviewAssignByFill();
+        setDelAssignedFills([]);
       },
     }
   );
@@ -242,6 +271,8 @@ export const EvaluateAllocateModal: React.FC<
         manual: true,
         onSuccess(response) {
           refreshListReviewAssignByExpert();
+          refreshListFillsByTaskPage();
+          refreshListReviewAssignByFill();
           setDelAssignedFills([]);
         },
       }
@@ -269,27 +300,6 @@ export const EvaluateAllocateModal: React.FC<
     [assignedExperts.length, plainOptions.length]
   );
 
-  // const testCheckAll = useMemo(
-  //   () => listFillsByTaskPage?.data?.length === assignedFills.length,
-  //   [assignedFills.length, listFillsByTaskPage?.data?.length]
-  // );
-  // const testIndeterminate = useMemo(
-  //   () =>
-  //     assignedFills.length > 0 &&
-  //     assignedFills.length < (listFillsByTaskPage?.data?.length ?? 0),
-  //   [assignedFills.length, listFillsByTaskPage?.data?.length]
-  // );
-  // const onTestCheckAllChange: CheckboxProps['onChange'] = useCallback(
-  //   (e: any) => {
-  //     setAssignedFills(
-  //       e.target.checked
-  //         ? listFillsByTaskPage?.data?.map(option => option.singleFillId) ?? []
-  //         : []
-  //     );
-  //   },
-  //   [listFillsByTaskPage]
-  // );
-
   const onChange = (list: string[]) => {
     setAssignedExperts(list);
   };
@@ -307,15 +317,55 @@ export const EvaluateAllocateModal: React.FC<
     setTableParams({ pagination, filters });
   };
 
-  const columns: TableColumnsType<DataType> = useMemo(
-    () => [
+  const delOk = () => {
+    if (delAssignedFills.length) {
+      modal.confirm({
+        title: '删除',
+        icon: <ExclamationCircleFilled />,
+        content: <>确认删除已分配试题？</>,
+        onOk() {
+          reviewAssignDelete();
+        },
+      });
+    }
+  };
+
+  const columns: TableColumnsType<DataType> = useMemo(() => {
+    const checkProps = (record: DataType) => {
+      const experts = assignedFillExperts[record.singleFillId];
+      if (!experts?.length) {
+        return { checked: assignedFills.includes(record.singleFillId) };
+      }
+      const disabled = experts.length === assignedExperts.length;
+      const checked = !disabled && assignedFills.includes(record.singleFillId);
+      return { checked, disabled };
+    };
+    const orderBy = () =>
+      setTableParams({ order: tableParams.order === 1 ? 2 : 1 });
+    const orderColors = ['#1677ff', '#999'];
+    if (tableParams.order === 2) {
+      orderColors.reverse();
+    }
+    return [
       {
-        title: '单位',
+        title() {
+          return (
+            <>
+              <span>单位</span>
+              <a
+                className="ml-4"
+                style={{ color: orderColors[0] }}
+                onClick={orderBy}
+              >
+                <SortAscendingOutlined />
+              </a>
+            </>
+          );
+        },
         dataIndex: 'orgName',
         filters: formatTreeData([orgTags?.data.tags]),
         filterMode: 'tree',
         filterSearch: true,
-        width: '20%',
       },
       {
         title: '姓名',
@@ -323,29 +373,40 @@ export const EvaluateAllocateModal: React.FC<
         filters: formatTreeData([staffTags?.data.tags]),
         filterMode: 'tree',
         filterSearch: true,
-        width: '30%',
       },
       {
         title: '试题编号',
         dataIndex: 'fillIndex',
-        render: (text, record) => <Circle value={text} />,
-      },
-      {
-        title: '已分配专家',
-        dataIndex: 'expertCount',
         render: (text, record) => (
-          <span>{assignedFillExperts[record.singleFillId]?.length || 0}</span>
+          <Circle style={{ display: 'inline-block' }} value={text} />
         ),
+        width: '18%',
+        align: 'center',
       },
       {
-        title: (
-          <div className="flex gap-1">
-            <span>选择</span>
-          </div>
-        ),
+        title() {
+          return (
+            <>
+              <span>已分配专家</span>
+              <a
+                className="ml-4"
+                style={{ color: orderColors[1] }}
+                onClick={orderBy}
+              >
+                <SortAscendingOutlined />
+              </a>
+            </>
+          );
+        },
+        dataIndex: 'expertCount',
+        width: '18%',
+        align: 'center',
+      },
+      {
+        title: '选择',
         render: (text, record) => (
           <Checkbox
-            checked={assignedFills.includes(record.singleFillId)}
+            {...checkProps(record)}
             onChange={e => {
               if (e.target.checked) {
                 setAssignedFills([...assignedFills, record.singleFillId]);
@@ -357,9 +418,339 @@ export const EvaluateAllocateModal: React.FC<
             }}
           />
         ),
+        width: '10%',
+        align: 'center',
       },
-    ],
-    [assignedFills, assignedFillExperts, orgTags, listFillsByTaskPage]
+    ];
+  }, [assignedFills, assignedFillExperts, orgTags, staffTags, tableParams]);
+
+  // 已分配
+  const allowFillColumns: TableColumnsType<ListReviewAssignByFillResponse> =
+    useMemo(() => {
+      return [
+        {
+          title: '单位',
+          dataIndex: 'orgName',
+          filters: formatTreeData([orgTags?.data.tags]),
+          filterMode: 'tree',
+          filterSearch: true,
+          width: '15%',
+        },
+        {
+          title: '姓名',
+          dataIndex: 'staffName',
+          filters: formatTreeData([staffTags?.data.tags]),
+          filterMode: 'tree',
+          filterSearch: true,
+          width: '15%',
+        },
+        {
+          title: '试题编号',
+          dataIndex: 'fillIndex',
+          width: '10%',
+          render: (text, record) => (
+            <Circle style={{ display: 'inline-block' }} value={text} />
+          ),
+          align: 'center',
+        },
+        {
+          title: '已分配专家',
+          dataIndex: 'assignedExpertLength',
+          width: '10%',
+          render: (text, record) => (
+            <>
+              <a>{record.assignedExperts?.length}</a> 位
+            </>
+          ),
+          align: 'center',
+        },
+        {
+          title: '专家列表',
+          dataIndex: 'assignedExperts',
+          render: (text, record) =>
+            text.map((t: any) => {
+              const key = [t.expertId, record.singleFillId].join(',');
+              return (
+                <Checkbox
+                  checked={delAssignedFills.includes(key)}
+                  key={key}
+                  onChange={e => {
+                    setDelAssignedFills(
+                      e.target.checked
+                        ? [...delAssignedFills, key]
+                        : delAssignedFills.filter(item => item !== key)
+                    );
+                  }}
+                >
+                  {t.expertName} {t.cellphone}
+                </Checkbox>
+              );
+            }),
+        },
+      ];
+    }, [delAssignedFills]);
+
+  const overview = (
+    <div
+      className={cn('border', {
+        'w-80': evaluateType === 'questionsToExperts',
+      })}
+    >
+      <div className="bg-slate-300 p-3">总揽</div>
+      <div
+        className={cn(
+          'grid p-3',
+          evaluateType === 'questionsToExperts' ? 'grid-cols-3' : 'grid-cols-6'
+        )}
+      >
+        <div className="text-center">
+          <div className="bg-slate-200">专家总数</div>
+          <div className="bg-slate-100">
+            {expertListByTags?.data.length || 0}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="bg-slate-200">已分配专家</div>
+          <div className="bg-slate-100">
+            {listReviewAssignByExpert?.data.length || 0}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="bg-slate-200">未分配专家</div>
+          <div className="bg-slate-100">
+            {(expertListByTags?.data.length || 0) -
+              (listReviewAssignByExpert?.data.length || 0)}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="bg-slate-200">试题总数</div>
+          <div className="bg-slate-100">
+            {listFillsByTaskPage?.data.length || 0}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="bg-slate-200">已分配试题</div>
+          <div className="bg-slate-100">
+            {Object.keys(assignedFillExperts).length || 0}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="bg-slate-200">未分配试题</div>
+          <div className="bg-slate-100">
+            {(listFillsByTaskPage?.data.length || 0) -
+              (Object.keys(assignedFillExperts).length || 0)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const selectExperts = (
+    <div className="flex flex-col gap-5 px-5 max-h-[31rem] overflow-auto">
+      <TreeSelect
+        style={{ width: '200px' }}
+        value={expertTags}
+        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+        treeData={formatTreeData([expertTagList?.data.tags])}
+        placeholder="请选择专家标签进行过滤"
+        treeCheckable={true}
+        showCheckedStrategy={'SHOW_PARENT'}
+        treeDefaultExpandAll
+        multiple
+        onChange={keys => {
+          setExpertTags(keys);
+          getExpertListByTags(keys);
+        }}
+      />
+      <div className="flex flex-col max-h-[28rem] overflow-auto">
+        {plainOptions.length > 0 && (
+          <Checkbox
+            indeterminate={expertIndeterminate}
+            onChange={onExpertCheckAllChange}
+            checked={expertCheckAll}
+          >
+            全选
+          </Checkbox>
+        )}
+        <Checkbox.Group
+          options={plainOptions}
+          value={assignedExperts}
+          onChange={onChange}
+          className="grid grid-cols-1"
+        />
+      </div>
+    </div>
+  );
+
+  const fillTable = (
+    <Table<DataType>
+      size="small"
+      scroll={{ y: '450px', x: '100%' }}
+      className="flex-none"
+      style={{ width: '70%' }}
+      columns={columns}
+      dataSource={listFillsByTaskPage?.data || []}
+      loading={getListFillsByTaskPageLoading}
+      pagination={{
+        total: listFillsByTaskPage?.total,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        current: tableParams.pagination.current,
+        pageSize: tableParams.pagination.pageSize,
+        showTotal: total => `总共 ${total} 条`,
+      }}
+      onChange={handleTableChange}
+    />
+  );
+
+  const actions = (
+    <div className="flex justify-center p-2 gap-5">
+      <Button
+        color="danger"
+        variant="outlined"
+        onClick={() => setAssignedFills([])}
+      >
+        清空全部已选试题
+      </Button>
+      <Button
+        type="default"
+        onClick={() => {
+          setAssignedFills(
+            listFillsByTaskPage?.data.map(t => t.singleFillId) || []
+          );
+        }}
+      >
+        全选试题
+      </Button>
+      <Button
+        type={
+          assignedExperts.length && assignedFills.length ? 'primary' : 'default'
+        }
+        onClick={saveReviewAssignAdd}
+      >
+        分配已选{assignedFills.length ? ` (${assignedFills.length})` : ''}
+      </Button>
+    </div>
+  );
+
+  // 专家分配试题面板
+  const expertPanel = (
+    <div className="flex gap-5">
+      <div className="flex flex-col gap-5">
+        {overview}
+        <div className="flex flex-col gap-2 w-80 border">
+          <div className="bg-slate-300 p-3">已分配专家详情/删除已分配</div>
+          <div className="h-80 w-full p-x overflow-auto">
+            <Tree
+              checkable
+              checkedKeys={delAssignedFills}
+              onCheck={(keys: any) => setDelAssignedFills(keys)}
+              treeData={listReviewAssignByExpert?.data.map(item => ({
+                title: (
+                  <div className="flex justify-start items-center gap-1">
+                    <span>{item.expertName}</span>
+                    <span>({item.cellphone})</span>
+                    <span>已分配{item.assignedFills.length}套</span>
+                  </div>
+                ),
+                key: item.expertId.toString(),
+                children: item?.assignedFills?.map(fill => {
+                  return {
+                    title: (
+                      <div className="flex justify-start items-center gap-1">
+                        <span>{fill.orgName}</span>
+                        <span>{fill.staffName}</span>
+                        <span>{fill.fillIndex}</span>
+                      </div>
+                    ),
+                    key: item.expertId + ',' + fill.singleFillId.toString(),
+                  };
+                }),
+              }))}
+              // defaultExpandAll
+              style={{
+                flexShrink: 1,
+                // marginRight: '10%',
+              }}
+            />
+          </div>
+          <div className="flex p-2 justify-center">
+            <Button
+              type={delAssignedFills.length ? 'primary' : 'default'}
+              onClick={delOk}
+              loading={reviewAssignDeleteLoading}
+            >
+              删除已选
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-5">
+        <div className={cn('w-auto text-center flex flex-row')}>
+          {selectExperts}
+          {fillTable}
+        </div>
+        {actions}
+      </div>
+    </div>
+  );
+
+  const tips = `操作说明:
+【方法1】选择一套试题，再选择一位或多位专家后点击"分配"实现为一套试题分配专家。
+【方法1】选择多套试题，再选择一位或多位专家后点击“分配"实现为多套试题同时分配多位相同的专家。
+特别说明:翻页后会保存当页所选`;
+
+  // 试题分配专家面板
+  const questionPanel = (
+    <div>
+      <div>{overview}</div>
+      <div className="flex items-end mt-3 mb-3">
+        <div className="mr-auto">已分配试题详情/删除已分配</div>
+        <Button
+          type={delAssignedFills.length ? 'primary' : 'default'}
+          onClick={delOk}
+          loading={reviewAssignDeleteLoading}
+        >
+          删除已选
+        </Button>
+      </div>
+      <div>
+        <Table<ListReviewAssignByFillResponse>
+          size="small"
+          scroll={{ y: '450px', x: '100%' }}
+          columns={allowFillColumns}
+          dataSource={listReviewAssignByFill?.data || []}
+          loading={listReviewAssignByFillLoading}
+          pagination={{
+            total: listReviewAssignByFill?.total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            current: assignFillTableParams.pagination.current,
+            pageSize: assignFillTableParams.pagination.pageSize,
+            showTotal: total => `总共 ${total} 条`,
+          }}
+          onChange={(pagination, filters) =>
+            setAssignFillTableParams({ pagination, filters })
+          }
+        />
+      </div>
+      <div className="flex items-end mt-3 mb-3">
+        <div className="mr-auto">
+          <Tooltip
+            overlayStyle={{ maxWidth: 'max-content' }}
+            title={<div className="whitespace-pre">{tips}</div>}
+          >
+            <span>分配(增量分配) </span>
+            <QuestionCircleOutlined />
+          </Tooltip>
+        </div>
+      </div>
+      <div className="flex gap-5">
+        {fillTable}
+        {selectExperts}
+      </div>
+      {actions}
+    </div>
   );
 
   return (
@@ -383,6 +774,9 @@ export const EvaluateAllocateModal: React.FC<
               value={evaluateType}
               onChange={value => {
                 setEvaluateType(value);
+                setDelAssignedFills([]);
+                setAssignedExperts([]);
+                setAssignedFills([]);
               }}
             >
               <Select.Option value="questionsToExperts">
@@ -393,212 +787,8 @@ export const EvaluateAllocateModal: React.FC<
               </Select.Option>
             </Select>
           </div>
-          <div className="flex gap-5">
-            <div className="flex flex-col gap-5">
-              <div className="w-80 border">
-                <div className="bg-slate-300 p-3">总揽</div>
-                <div className="grid grid-cols-3 p-3">
-                  <div className="text-center">
-                    <div className="bg-slate-200">专家总数</div>
-                    <div className="bg-slate-100">
-                      {expertListByTags?.data.length || 0}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-slate-200">已分配专家</div>
-                    <div className="bg-slate-100">
-                      {listReviewAssignByExpert?.data.length || 0}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-slate-200">未分配专家</div>
-                    <div className="bg-slate-100">
-                      {(expertListByTags?.data.length || 0) -
-                        (listReviewAssignByExpert?.data.length || 0)}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-slate-200">试题总数</div>
-                    <div className="bg-slate-100">
-                      {listFillsByTaskPage?.data.length || 0}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-slate-200">已分配试题</div>
-                    <div className="bg-slate-100">
-                      {Object.keys(assignedFillExperts).length || 0}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-slate-200">未分配试题</div>
-                    <div className="bg-slate-100">
-                      {(listFillsByTaskPage?.data.length || 0) -
-                        (Object.keys(assignedFillExperts).length || 0)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {evaluateType === 'questionsToExperts' ? (
-                <div className="flex flex-col gap-2 w-80 border">
-                  <div className="bg-slate-300 p-3">
-                    已分配专家详情/删除已分配
-                  </div>
-                  <div className="h-80 w-full p-x overflow-auto">
-                    <Tree
-                      checkable
-                      checkedKeys={delAssignedFills}
-                      onCheck={(keys: any) => setDelAssignedFills(keys)}
-                      treeData={listReviewAssignByExpert?.data.map(item => ({
-                        title: (
-                          <div className="flex justify-start items-center gap-1">
-                            <span>{item.expertName}</span>
-                            <span>({item.cellphone})</span>
-                            <span>已分配{item.assignedFills.length}套</span>
-                          </div>
-                        ),
-                        key: item.expertId.toString(),
-                        children: item?.assignedFills?.map(fill => {
-                          return {
-                            title: (
-                              <div className="flex justify-start items-center gap-1">
-                                <span>{fill.orgName}</span>
-                                <span>{fill.staffName}</span>
-                                <span>{fill.fillIndex}</span>
-                              </div>
-                            ),
-                            key:
-                              item.expertId +
-                              ',' +
-                              fill.singleFillId.toString(),
-                          };
-                        }),
-                      }))}
-                      // defaultExpandAll
-                      style={{
-                        flexShrink: 1,
-                        // marginRight: '10%',
-                      }}
-                    />
-                  </div>
-                  <div className="flex p-2 justify-center">
-                    <Button
-                      onClick={() => {
-                        delAssignedFills.length &&
-                          modal.confirm({
-                            title: '删除',
-                            icon: <ExclamationCircleFilled />,
-                            content: <>确认删除已分配试题？</>,
-                            onOk() {
-                              reviewAssignDelete();
-                            },
-                          });
-                      }}
-                      loading={reviewAssignDeleteLoading}
-                    >
-                      删除已选
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2 w-80 border">
-                  <div className="bg-slate-300 p-3">
-                    已分配试题详情/删除已分配
-                  </div>
-                  <div className="flex justify-center items-center h-40">
-                    <Button
-                      onClick={() => {
-                        setSelectedModalOpen(true);
-                      }}
-                    >
-                      查看详情
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col gap-5">
-              <div
-                className={cn('w-auto text-center flex', {
-                  'flex-row': evaluateType === 'questionsToExperts',
-                  'flex-row-reverse': evaluateType === 'expertsToQuestions',
-                })}
-              >
-                <div className="flex flex-col gap-5 px-5 max-h-[31rem] overflow-auto">
-                  <TreeSelect
-                    style={{ width: '200px' }}
-                    value={expertTags}
-                    dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                    treeData={formatTreeData([expertTagList?.data.tags])}
-                    placeholder="请选择专家标签进行过滤"
-                    treeCheckable={true}
-                    showCheckedStrategy={'SHOW_PARENT'}
-                    treeDefaultExpandAll
-                    multiple
-                    onChange={keys => {
-                      setExpertTags(keys);
-                      getExpertListByTags(keys);
-                    }}
-                  />
-                  <div className="flex flex-col max-h-[28rem] overflow-auto">
-                    {plainOptions.length > 0 && (
-                      <Checkbox
-                        indeterminate={expertIndeterminate}
-                        onChange={onExpertCheckAllChange}
-                        checked={expertCheckAll}
-                      >
-                        全选
-                      </Checkbox>
-                    )}
-                    <Checkbox.Group
-                      options={plainOptions}
-                      value={assignedExperts}
-                      onChange={onChange}
-                      className="grid grid-cols-1"
-                    />
-                  </div>
-                </div>
-
-                <Table<DataType>
-                  size="small"
-                  className="w-[48rem]"
-                  columns={columns}
-                  dataSource={listFillsByTaskPage?.data || []}
-                  loading={getListFillsByTaskPageLoading}
-                  pagination={{
-                    total: listFillsByTaskPage?.total,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    current: tableParams.pagination.current,
-                    pageSize: tableParams.pagination.pageSize,
-                    showTotal: total => `总共 ${total} 条`,
-                  }}
-                  onChange={handleTableChange}
-                />
-              </div>
-              <div className="flex justify-center p-2 gap-5">
-                <Button
-                  type="default"
-                  onClick={() => {
-                    setAssignedFills(
-                      listFillsByTaskPage?.data.map(t => t.singleFillId) || []
-                    );
-                  }}
-                >
-                  全选试题
-                </Button>
-                <Button
-                  color="danger"
-                  variant="outlined"
-                  onClick={() => setAssignedFills([])}
-                >
-                  清空全部已选试题
-                </Button>
-                <Button type="primary" onClick={saveReviewAssignAdd}>
-                  分配已选
-                </Button>
-              </div>
-            </div>
-          </div>
+          {evaluateType === 'questionsToExperts' && expertPanel}
+          {evaluateType === 'expertsToQuestions' && questionPanel}
         </div>
       </Modal>
       <Modal
