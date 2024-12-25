@@ -28,11 +28,11 @@ const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
   { coKey: 'name', compareKeys: ['name', 'org3'] },
 ];
 
-interface ReviewDetailModalProps {
+interface Props {
   task: ListMyInspTaskResponse;
 }
 
-const ReviewDetailModal = (props: any) => {
+const ReviewDetailModal = (props: Props) => {
   const { task } = props;
   const [dataSource, setDataSource] = useState<any>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);

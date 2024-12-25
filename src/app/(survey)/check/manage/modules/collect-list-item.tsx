@@ -17,8 +17,8 @@ import {
 import { useRequest } from 'ahooks';
 import { Popconfirm, Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
-import ReviewDetailModal from '../../modules/review-detail-modal/page';
-import ReviewResultModal from '../../modules/review-result-modal/page';
+import ReviewDetailModal from '../../modules/review-detail-modal';
+import ReviewResultModal from '../../modules/review-result-modal';
 import EvaluateAllocateModal from './evaluate-allocate-modal';
 import EvaluateConfigModal from './evaluate-config-modal';
 import TaskDeleteModal from './task-delete-modal';

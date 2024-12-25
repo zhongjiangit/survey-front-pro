@@ -23,7 +23,7 @@ interface Props {
   task: ListMyInspTaskResponse;
 }
 
-const ReviewResultModal = (props: any) => {
+const ReviewResultModal = (props: Props) => {
   const { task } = props;
   const [dataSource, setDataSource] = useState<any>();
   const [open, setOpen] = useState(false);
