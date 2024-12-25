@@ -27,6 +27,7 @@ import {
 } from '@ant-design/icons';
 import { formatTreeData } from '@/lib/format-tree-data';
 import { ListReviewAssignByFillResponse } from '@/api/task/listReviewAssignByFill';
+import getReviewAssignOverview from '@/api/task/getReviewAssignOverview';
 
 interface EvaluateAllocateModalProps {
   task: ListMyInspTaskResponse;
@@ -113,6 +114,22 @@ export const EvaluateAllocateModal: React.FC<
     { ready: true, refreshDeps: [evaluateType] }
   );
 
+  // 获取总览
+  const { data: reviewAssignOverview, refresh: refreshReviewAssignOverview } =
+    useRequest(
+      () => {
+        if (!currentSystem?.systemId || !currentOrg?.orgId) {
+          return Promise.reject('currentSystem or currentOrg is not exist');
+        }
+        return Api.getReviewAssignOverview({
+          currentSystemId: currentSystem?.systemId,
+          currentOrgId: currentOrg?.orgId,
+          taskId: task.taskId,
+        });
+      },
+      { ready: true, refreshDeps: [] }
+    );
+
   // 试题分配的专家
   const assignedFillExperts = useMemo(() => {
     if (!listReviewAssignByExpert?.data) {
@@ -150,16 +167,17 @@ export const EvaluateAllocateModal: React.FC<
         taskId: task.taskId,
         pageNumber: assignFillTableParams.pagination.current,
         pageSize: assignFillTableParams.pagination.pageSize,
-        orgTags: tableParams.filters.orgName?.map((t: any) => ({ key: t })),
-        staffTags: tableParams.filters.staffName?.map((t: any) => ({ key: t })),
+        orgTags: assignFillTableParams.filters.orgName?.map((t: any) => ({
+          key: t,
+        })),
+        staffTags: assignFillTableParams.filters.staffName?.map((t: any) => ({
+          key: t,
+        })),
       });
     },
     {
       ready: true,
       refreshDeps: [evaluateType, JSON.stringify(assignFillTableParams)],
-      onSuccess(response) {
-        //
-      },
     }
   );
 
@@ -187,10 +205,6 @@ export const EvaluateAllocateModal: React.FC<
     {
       ready: true,
       refreshDeps: [open, pageNumber, pageSize, JSON.stringify(tableParams)],
-      onSuccess() {
-        // 清空已选择试题
-        // setAssignedFills([]);
-      },
     }
   );
 
@@ -237,8 +251,9 @@ export const EvaluateAllocateModal: React.FC<
       onSuccess() {
         // 刷新列表
         refreshListReviewAssignByExpert();
-        refreshListFillsByTaskPage();
         refreshListReviewAssignByFill();
+        refreshReviewAssignOverview();
+        refreshListFillsByTaskPage();
         setDelAssignedFills([]);
       },
     }
@@ -271,8 +286,9 @@ export const EvaluateAllocateModal: React.FC<
         manual: true,
         onSuccess(response) {
           refreshListReviewAssignByExpert();
-          refreshListFillsByTaskPage();
           refreshListReviewAssignByFill();
+          refreshReviewAssignOverview();
+          refreshListFillsByTaskPage();
           setDelAssignedFills([]);
         },
       }
@@ -506,39 +522,37 @@ export const EvaluateAllocateModal: React.FC<
         <div className="text-center">
           <div className="bg-slate-200">专家总数</div>
           <div className="bg-slate-100">
-            {expertListByTags?.data.length || 0}
+            {reviewAssignOverview?.data.totalExpertCount || 0}
           </div>
         </div>
         <div className="text-center">
           <div className="bg-slate-200">已分配专家</div>
           <div className="bg-slate-100">
-            {listReviewAssignByExpert?.data.length || 0}
+            {reviewAssignOverview?.data.assignedExpertCount || 0}
           </div>
         </div>
         <div className="text-center">
           <div className="bg-slate-200">未分配专家</div>
           <div className="bg-slate-100">
-            {(expertListByTags?.data.length || 0) -
-              (listReviewAssignByExpert?.data.length || 0)}
+            {reviewAssignOverview?.data.unassignedExpertCount || 0}
           </div>
         </div>
         <div className="text-center">
           <div className="bg-slate-200">试题总数</div>
           <div className="bg-slate-100">
-            {listFillsByTaskPage?.data.length || 0}
+            {reviewAssignOverview?.data.totalSingleFillCount || 0}
           </div>
         </div>
         <div className="text-center">
           <div className="bg-slate-200">已分配试题</div>
           <div className="bg-slate-100">
-            {Object.keys(assignedFillExperts).length || 0}
+            {reviewAssignOverview?.data.assignedSingleFillCount || 0}
           </div>
         </div>
         <div className="text-center">
           <div className="bg-slate-200">未分配试题</div>
           <div className="bg-slate-100">
-            {(listFillsByTaskPage?.data.length || 0) -
-              (Object.keys(assignedFillExperts).length || 0)}
+            {reviewAssignOverview?.data.unassignedSingleFillCount || 0}
           </div>
         </div>
       </div>

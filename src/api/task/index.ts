@@ -46,6 +46,7 @@ import showReviewResult from './showReviewResult';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
+import getReviewAssignOverview from './getReviewAssignOverview';
 
 const taskApi = {
   createCollectionTask,
@@ -96,6 +97,7 @@ const taskApi = {
   uploadFillAttachment,
   deleteFillAttachment,
   showReviewResult,
+  getReviewAssignOverview,
 };
 
 export default taskApi;
