@@ -1,18 +1,62 @@
 import { originMenus } from '@/components/common/side-nav/nav-links';
-import { cloneDeep } from 'lodash';
 
-export function getFirstMenu(currentRole: any) {
-  const clonedMenus = cloneDeep(originMenus);
+/**
+ * 获取用户菜单
+ * @param currentRole
+ */
+export function getMenus(currentRole: any) {
   const getMenus = (menus: any, currentRole: any) =>
-    menus.filter((item: any) => {
-      if (item.access.includes(currentRole?.key as string)) {
-        if (item.children) {
-          item.children = getMenus(item.children, currentRole);
+    menus
+      .map((item: any) => {
+        item = { ...item };
+        if (item.access.includes(currentRole?.key as string)) {
+          if (item.children) {
+            item.children = getMenus(item.children, currentRole);
+          }
+          return item;
         }
+      })
+      .filter((t: any) => t);
+  return getMenus(originMenus, currentRole);
+}
+
+/**
+ * 获取第一个菜单
+ * @param currentRole
+ */
+export function getFirstMenu(currentRole: any) {
+  const paths = getMenus(currentRole);
+  return paths[0]?.children ? paths[0]?.children[0]?.key : paths[0]?.key;
+}
+
+/**
+ * 获取第一个菜单
+ * @param menus
+ */
+export function getFirstMenuByMenus(menus: any[]) {
+  return menus[0]?.children ? menus[0]?.children[0]?.key : menus[0]?.key;
+}
+
+/**
+ * 判断菜单是否存在
+ * 1 是否有访问权限
+ * @param menus
+ * @param pathName
+ */
+export function hasMenu(menus: any[], pathName: string) {
+  return find(menus, pathName);
+  function find(menus: any, pathName: string) {
+    if (!menus) {
+      return;
+    }
+    for (const menu of menus) {
+      if (menu.key === pathName) {
         return true;
       }
-      return false;
-    });
-  const paths = getMenus(clonedMenus, currentRole);
-  return paths[0]?.children ? paths[0]?.children[0]?.key : paths[0]?.key;
+      if (find(menu.children, pathName)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
