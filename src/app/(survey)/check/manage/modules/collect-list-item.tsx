@@ -156,12 +156,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       return <EvaluateAllocateModal task={record} />;
     },
     // 评审详情
-    detail: (type: PublishTypeType) => {
-      return <ReviewDetailModal />;
+    detail: (type: PublishTypeType, record: ListMyInspTaskResponse) => {
+      return <ReviewDetailModal task={record} />;
     },
     // 评审结果
-    result: () => {
-      return <ReviewResultModal />;
+    result: (record: ListMyInspTaskResponse) => {
+      return <ReviewResultModal task={record} />;
     },
     message: (
       <a className=" text-blue-500" key="message">
@@ -447,14 +447,15 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               operateButtonEvaluate.allocate(record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Processing && [
-              operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.detail(record.publishType, record),
               // operateButtonEvaluate.edit('edit'),
               operateButtonEvaluate.allocate(record),
               operateButtonEvaluate.message,
+              // operateButtonEvaluate.result(record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
-              operateButtonEvaluate.detail(record.publishType),
-              operateButtonEvaluate.result(),
+              operateButtonEvaluate.detail(record.publishType, record),
+              operateButtonEvaluate.result(record),
             ]}
           </Space>
         );
@@ -482,11 +483,11 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
           <Space className="flex justify-center items-center">
             {record?.reviewTaskStatus ? null : '-'}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Processing && [
-              operateButtonEvaluate.detail(record.publishType),
+              operateButtonEvaluate.detail(record.publishType, record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
-              operateButtonEvaluate.detail(record.publishType),
-              operateButtonEvaluate.result(),
+              operateButtonEvaluate.detail(record.publishType, record),
+              operateButtonEvaluate.result(record),
             ]}
           </Space>
         );

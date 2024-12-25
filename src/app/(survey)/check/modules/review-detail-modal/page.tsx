@@ -5,12 +5,16 @@ import Circle from '@/components/display/circle';
 import { Button, Modal, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 
+import Api from '@/api';
+import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
   fullJoinRowSpanData,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
-import { checkDetailData } from '../../testData';
+import { useRequest } from 'ahooks';
 import ProfessorDetail from './modules/professor-detail';
 
 interface DataType {
@@ -23,10 +27,42 @@ const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
   { coKey: 'org3', compareKeys: ['org3'] },
   { coKey: 'name', compareKeys: ['name', 'org3'] },
 ];
-const ReviewDetailModal = () => {
-  const [dataSource, setDataSource] = useState<any>();
 
+interface ReviewDetailModalProps {
+  task: ListMyInspTaskResponse;
+}
+
+const ReviewDetailModal = (props: any) => {
+  const { task } = props;
+  const [dataSource, setDataSource] = useState<any>();
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [open, setOpen] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const {
+    run: getListReviewDetailsManager,
+    data: listReviewDetailsManagerData,
+    loading: getListReviewDetailsManagerLoading,
+  } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('currentSystem or currentOrg is not defined');
+      }
+      return Api.listReviewDetailsManager({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      });
+    },
+    {
+      manual: true,
+      refreshDeps: [pageNumber, pageSize],
+    }
+  );
 
   const columns: TableProps<DataType>['columns'] = [
     {
@@ -150,13 +186,19 @@ const ReviewDetailModal = () => {
     setDataSource(
       joinRowSpanKey.reduce((prev: any[] | undefined, keyParams) => {
         return fullJoinRowSpanData(prev, keyParams);
-      }, checkDetailData)
+      }, listReviewDetailsManagerData?.data || []) // checkDetailData
     );
 
     return () => {
       setDataSource(undefined);
     };
-  }, [checkDetailData]);
+  }, [listReviewDetailsManagerData]);
+
+  useEffect(() => {
+    if (open) {
+      getListReviewDetailsManager();
+    }
+  }, [getListReviewDetailsManager, open]);
 
   return (
     <>
@@ -176,6 +218,7 @@ const ReviewDetailModal = () => {
           setOpen(false);
         }}
         width={1400}
+        loading={getListReviewDetailsManagerLoading}
         footer={null}
       >
         <div className="flex justify-end mb-2">
@@ -192,13 +235,13 @@ const ReviewDetailModal = () => {
             total: dataSource?.length,
             showSizeChanger: true,
             showQuickJumper: true,
-            // current: pageNumber,
-            // pageSize: pageSize,
+            current: pageNumber,
+            pageSize: pageSize,
             showTotal: total => `总共 ${total} 条`,
-            // onChange: (page, pageSize) => {
-            //   setPageNumber(page);
-            //   setPageSize(pageSize);
-            // },
+            onChange: (page, pageSize) => {
+              setPageNumber(page);
+              setPageSize(pageSize);
+            },
           }}
         />
       </Modal>

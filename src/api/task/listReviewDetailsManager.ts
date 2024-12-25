@@ -34,6 +34,7 @@ interface ListReviewDetailsManagerParamsType {
   needSubmitExpertCount	int		待提交专家
   rejectedExpertCount	int		已驳回专家
 */
+
 interface ListReviewDetailsManagerResponse {
   singleFillId: number;
   orgCount: number;

@@ -1,12 +1,16 @@
 'use client';
 
+import Api from '@/api';
+import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { joinRowSpanData } from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
 import { Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import { checkDetailData } from '../../testData';
 import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
 
@@ -15,9 +19,37 @@ interface DataType {
 }
 const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
 
-const ReviewResultModal = () => {
+interface Props {
+  task: ListMyInspTaskResponse;
+}
+
+const ReviewResultModal = (props: any) => {
+  const { task } = props;
   const [dataSource, setDataSource] = useState<any>();
   const [open, setOpen] = useState(false);
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  const {
+    run: getReviewResult,
+    data: reviewResultData,
+    loading: getReviewResultLoading,
+  } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('currentSystem or currentOrg is not defined');
+      }
+      return Api.showReviewResult({
+        currentSystemId: currentSystem?.systemId,
+        currentOrgId: currentOrg?.orgId,
+        taskId: task.taskId,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
+
   const columns: TableProps<DataType>['columns'] = [
     {
       title: (
@@ -158,13 +190,19 @@ const ReviewResultModal = () => {
     setDataSource(
       joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
         return joinRowSpanData(prev, currentKey);
-      }, checkDetailData)
+      }, reviewResultData?.data || []) // checkDetailData
     );
 
     return () => {
       setDataSource(undefined);
     };
-  }, [checkDetailData]);
+  }, [reviewResultData]);
+
+  useEffect(() => {
+    if (open) {
+      getReviewResult();
+    }
+  }, [getReviewResult, open]);
 
   return (
     <>
@@ -185,6 +223,7 @@ const ReviewResultModal = () => {
         width={1400}
         maskClosable={false}
         footer={null}
+        loading={getReviewResultLoading}
       >
         <Table<DataType>
           columns={columns}

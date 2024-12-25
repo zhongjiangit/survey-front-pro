@@ -42,6 +42,7 @@ import saveSingleFillDetails from './saveSingleFillDetails';
 import setCollectionFillComplete from './setCollectionFillComplete';
 import setInspFillComplete from './setInspFillComplete';
 import setReviewReviewComplete from './setReviewReviewComplete';
+import showReviewResult from './showReviewResult';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
@@ -94,6 +95,7 @@ const taskApi = {
   getFillProcessDetails,
   uploadFillAttachment,
   deleteFillAttachment,
+  showReviewResult,
 };
 
 export default taskApi;
