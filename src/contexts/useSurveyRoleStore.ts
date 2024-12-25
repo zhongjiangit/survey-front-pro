@@ -4,9 +4,12 @@ import { persist } from 'zustand/middleware';
 
 type SurveyCurrentRoleStore = {
   roles: RoleType[] | null;
+  menus: any[];
   setRoles: (roles: RoleType[]) => void;
+  getMenus: () => any[];
+  setMenus: (menus: any[]) => void;
   currentRole: RoleType | null;
-  setCurrentRole: (currentRole: RoleType) => void;
+  setCurrentRole: (currentRole: RoleType | null) => void;
 };
 
 /**
@@ -14,12 +17,23 @@ type SurveyCurrentRoleStore = {
  */
 export const useSurveyCurrentRoleStore = create<SurveyCurrentRoleStore>()(
   persist(
-    set => ({
-      roles: null,
-      setRoles: roles => set({ roles }),
-      currentRole: null,
-      setCurrentRole: currentRole => set({ currentRole }),
-    }),
+    set => {
+      let menus: any[] = [];
+      return {
+        roles: null,
+        menus: [],
+        getMenus() {
+          return menus;
+        },
+        setRoles: roles => set({ roles }),
+        setMenus: _menus => {
+          menus = _menus;
+          set({ menus });
+        },
+        currentRole: null,
+        setCurrentRole: currentRole => set({ currentRole }),
+      };
+    },
     {
       name: 'survey.currentRole',
     }

@@ -2,7 +2,6 @@ import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useRoles } from '@/hooks/useRoles';
 import type { RadioChangeEvent } from 'antd';
 import { Button, Modal, Radio, Space } from 'antd';
-import { useRouter } from 'next/navigation';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 
 interface RoleSwitchModalProps {
@@ -14,24 +13,24 @@ const RoleSwitchModal: FunctionComponent<RoleSwitchModalProps> = ({
   isRoleModalOpen,
   setIsRoleModalOpen,
 }) => {
-  const router = useRouter();
-  const setCurrentRole = useSurveyCurrentRoleStore(
-    state => state.setCurrentRole
-  );
+  const [currentRole, setCurrentRole] = useSurveyCurrentRoleStore(state => [
+    state.currentRole,
+    state.setCurrentRole,
+  ]);
   const roles = useRoles();
-  const currentRole = roles?.find(role => role.isActive);
 
   const [selectedRole, setSelectedRole] = useState(currentRole?.key);
-
-  useEffect(() => {
-    const currentRole = roles?.find(role => role.isActive);
-    setSelectedRole(currentRole?.key);
-  }, [roles]);
 
   const activeRoles = useMemo(
     () => roles?.filter(role => role.isActive),
     [roles]
   );
+
+  useEffect(() => {
+    if (isRoleModalOpen) {
+      setSelectedRole(currentRole?.key);
+    }
+  }, [isRoleModalOpen]);
 
   const onChange = (e: RadioChangeEvent) => {
     setSelectedRole(e.target.value);

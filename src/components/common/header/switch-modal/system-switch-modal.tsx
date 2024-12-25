@@ -16,11 +16,10 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
   isSystemModalOpen,
   setIsSystemModalOpen,
 }) => {
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
-  const currentSystem = useSurveySystemStore(state => state.currentSystem);
-  const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
+  const [currentSystem, setCurrentSystem] = useSurveySystemStore(state => [
+    state.currentSystem,
+    state.setCurrentSystem,
+  ]);
 
   const [selectedSystem, setSelectedSystem] = useState(currentSystem?.systemId);
 
@@ -37,7 +36,6 @@ const SystemSwitchModal: FunctionComponent<SystemSwitchModalProps> = ({
       system => system.systemId === selectedSystem
     );
     setCurrentSystem(currentSystem);
-    setCurrentOrg(currentSystem?.orgs[0]);
     setIsSystemModalOpen(false);
   };
 

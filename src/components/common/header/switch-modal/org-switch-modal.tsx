@@ -13,17 +13,18 @@ const OrgSwitchModal: FunctionComponent<OrgSwitchModalProps> = ({
   isOrgModalOpen,
   setIsOrgModalOpen,
 }) => {
-  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const [selectedOrg, setSelectedOrg] = useState(currentOrg?.orgId);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
-  const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
+  const [currentOrg, setCurrentOrg] = useSurveyOrgStore(state => [
+    state.currentOrg,
+    state.setCurrentOrg,
+  ]);
+  const [selectedOrg, setSelectedOrg] = useState(currentOrg?.orgId);
 
   useEffect(() => {
-    if (currentSystem?.orgs[0]) {
-      setCurrentOrg(currentSystem?.orgs[0]);
-      setSelectedOrg(currentSystem?.orgs[0]?.orgId);
+    if (isOrgModalOpen) {
+      setSelectedOrg(currentOrg?.orgId);
     }
-  }, [currentSystem?.orgs, setCurrentOrg]);
+  }, [isOrgModalOpen]);
 
   const onChange = (e: RadioChangeEvent) => {
     setSelectedOrg(e.target.value);

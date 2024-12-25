@@ -1,11 +1,11 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { getFirstMenu } from '@/lib/get-first-menu';
+import { getFirstMenuByMenus, hasMenu } from '@/lib/get-first-menu';
 import { Role_Enum } from '@/types/CommonType';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
-import { cloneDeep } from 'lodash';
+
 import {
   BookOpenCheck,
   BookUser,
@@ -16,7 +16,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export const originMenus = [
   {
@@ -156,77 +156,31 @@ export const originMenus = [
 export default function NavLinks() {
   const router = useRouter();
   const pathname = usePathname();
-  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [menus, setMenus] = useState(originMenus);
+  const [menus] = useSurveyCurrentRoleStore(state => [state.getMenus()]);
 
-  // const menus = useMemo(() => {
-  //   const cloneMenus = cloneDeep(originMenus);
-  //   return cloneMenus.filter(item => {
-  //     if (item.access.includes(currentRole?.key as string)) {
-  //       if (item.children) {
-  //         const children = item.children.filter(child => {
-  //           return child.access.includes(currentRole?.key as string);
-  //         });
-  //         item.children = children;
-  //       }
-  //       return true;
-  //     }
-  //     return false;
-  //   });
-  // }, [currentRole]);
-
+  // 跳转至第一个菜单
   useEffect(() => {
-    const cloneMenus = cloneDeep(originMenus);
-    const filteredMenus = cloneMenus.filter(item => {
-      if (item.access.includes(currentRole?.key as string)) {
-        if (item.children) {
-          const children = item.children.filter(child => {
-            return child.access.includes(currentRole?.key as string);
-          });
-          item.children = children;
-        }
-        return true;
-      }
-      return false;
-    });
-    setMenus(filteredMenus);
-    const firstMenu = getFirstMenu(currentRole);
-    // 根据当前路径设置选中的菜单项，items是含有children的数组，所以需要遍历,返回匹配的key
-    const key = filteredMenus
-      .map(item => {
-        if (pathname.includes(item.key) && !item.children) {
-          return item.key;
-        }
-        if (item.children) {
-          return item.children.find(child => pathname.includes(child.key))?.key;
-        }
-        return null;
-      })
-      .filter(Boolean)[0];
-    if (key && key !== selectedKeys[0]) {
-      setSelectedKeys([key]);
-    } else if (
-      filteredMenus.length &&
-      key === undefined &&
-      firstMenu !== pathname
-    ) {
+    if (!menus?.length || hasMenu(menus, pathname)) {
+      return;
+    }
+    const firstMenu = getFirstMenuByMenus(menus);
+    if (firstMenu) {
       router.push(firstMenu);
     }
-  }, [currentRole, pathname, router, selectedKeys]);
+  }, [pathname, menus]);
 
   const onSelect: MenuProps['onSelect'] = e => {
-    setSelectedKeys(e.selectedKeys);
     router.push(e.key);
   };
+
   return (
     <Menu
-      selectedKeys={selectedKeys}
+      selectedKeys={[pathname]}
       onSelect={onSelect}
       defaultOpenKeys={['/collect', '/check']}
       style={{ width: 200 }}
       mode="inline"
-      items={menus}
+      items={menus || []}
     />
   );
 }
