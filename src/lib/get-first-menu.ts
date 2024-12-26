@@ -44,20 +44,27 @@ export function getFirstMenuByMenus(menus: any[]) {
  * @param pathName
  */
 export function hasMenu(menus: any[], pathName: string) {
+  return !!selectMenu(menus, pathName);
+}
+
+export function selectMenu(menus: any[], pathName: string) {
   return find(menus, pathName);
   function find(menus: any, pathName: string) {
     if (!menus) {
-      return false;
+      return;
     }
-    for (const menu of menus) {
+    for (let menu of menus) {
       // 匹配菜单 有父菜单权限也可以
-      if (pathName.startsWith(menu.key)) {
-        return true;
+      if (
+        menu.allowChildren
+          ? pathName.startsWith(menu.key)
+          : menu.key === pathName
+      ) {
+        return menu;
       }
-      if (find(menu.children, pathName)) {
-        return true;
+      if ((menu = find(menu.children, pathName))) {
+        return menu;
       }
     }
-    return false;
   }
 }

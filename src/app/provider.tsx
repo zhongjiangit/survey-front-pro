@@ -42,6 +42,9 @@ export function Provider({ colorScheme, children }: Props) {
     ]);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
     let _currentSystem = currentSystem;
     let _currentOrg = currentOrg;
     let _currentRole = currentRole;

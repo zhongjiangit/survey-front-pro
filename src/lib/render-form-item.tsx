@@ -78,9 +78,12 @@ const RenderFormItem = (props: RenderFormItemProps) => {
             fileList={value}
             disabled={disabled}
             beforeUpload={(file, fileList) => {
-              if (sysConfig?.maxUploadFileSize < file.size) {
+              if (
+                sysConfig?.maxUploadFileSize &&
+                sysConfig?.maxUploadFileSize < file.size
+              ) {
                 messageApi.error(
-                  `${file.name} 文件超限,请选择小于 ${sysConfig?.maxUploadFileSize / 1024 / 1024}M 的文件!`,
+                  `${file.name} 文件超限,请选择小于 ${sysConfig.maxUploadFileSize / 1024 / 1024}M 的文件!`,
                   3
                 );
               } else {
