@@ -7,11 +7,10 @@ import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { cn } from '@/lib/utils';
 import { useRequest } from 'ahooks';
-import type { CheckboxProps, TableColumnsType, TableProps } from 'antd';
+import { CheckboxProps, message, TableColumnsType, TableProps } from 'antd';
 import {
   Button,
   Checkbox,
-  DatePicker,
   Modal,
   Select,
   Table,
@@ -19,7 +18,7 @@ import {
   TreeSelect,
   Tooltip,
 } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ExclamationCircleFilled,
   SortAscendingOutlined,
@@ -27,7 +26,8 @@ import {
 } from '@ant-design/icons';
 import { formatTreeData } from '@/lib/format-tree-data';
 import { ListReviewAssignByFillResponse } from '@/api/task/listReviewAssignByFill';
-import getReviewAssignOverview from '@/api/task/getReviewAssignOverview';
+import { DetailShowTypeEnum } from '@/types/CommonType';
+import FillDetail from '@/app/modules/task-detail/fillDetail';
 
 interface EvaluateAllocateModalProps {
   task: ListMyInspTaskResponse;
@@ -37,6 +37,7 @@ export const EvaluateAllocateModal: React.FC<
   EvaluateAllocateModalProps & { setOpen: (open: boolean) => void }
 > = ({ task, setOpen }) => {
   const open = true;
+  const [messageApi, messageContextHolder] = message.useMessage();
   const [modal, contextHolder] = Modal.useModal();
   const [selectedModalOpen, setSelectedModalOpen] = useState(false);
   const [evaluateType, setEvaluateType] = useState('questionsToExperts');
@@ -249,6 +250,7 @@ export const EvaluateAllocateModal: React.FC<
     {
       manual: true,
       onSuccess() {
+        messageApi.success('分配成功');
         // 刷新列表
         refreshListReviewAssignByExpert();
         refreshListReviewAssignByFill();
@@ -285,6 +287,7 @@ export const EvaluateAllocateModal: React.FC<
       {
         manual: true,
         onSuccess(response) {
+          messageApi.success('删除成功');
           refreshListReviewAssignByExpert();
           refreshListReviewAssignByFill();
           refreshReviewAssignOverview();
@@ -394,7 +397,13 @@ export const EvaluateAllocateModal: React.FC<
         title: '试题编号',
         dataIndex: 'fillIndex',
         render: (text, record) => (
-          <Circle style={{ display: 'inline-block' }} value={text} />
+          <FillDetail
+            task={task}
+            singleFillId={record.singleFillId}
+            action={<Circle style={{ display: 'inline-block' }} value={text} />}
+            customTitle="试题详情"
+            showType={DetailShowTypeEnum.Check}
+          />
         ),
         width: '18%',
         align: 'center',
@@ -465,7 +474,15 @@ export const EvaluateAllocateModal: React.FC<
           dataIndex: 'fillIndex',
           width: '10%',
           render: (text, record) => (
-            <Circle style={{ display: 'inline-block' }} value={text} />
+            <FillDetail
+              task={task}
+              singleFillId={record.singleFillId}
+              action={
+                <Circle style={{ display: 'inline-block' }} value={text} />
+              }
+              customTitle="试题详情"
+              showType={DetailShowTypeEnum.Check}
+            />
           ),
           align: 'center',
         },
@@ -640,7 +657,11 @@ export const EvaluateAllocateModal: React.FC<
         type={
           assignedExperts.length && assignedFills.length ? 'primary' : 'default'
         }
-        onClick={saveReviewAssignAdd}
+        onClick={() =>
+          assignedExperts.length &&
+          assignedFills.length &&
+          saveReviewAssignAdd()
+        }
       >
         分配已选{assignedFills.length ? ` (${assignedFills.length})` : ''}
       </Button>
@@ -671,11 +692,19 @@ export const EvaluateAllocateModal: React.FC<
                 children: item?.assignedFills?.map(fill => {
                   return {
                     title: (
-                      <div className="flex justify-start items-center gap-1">
-                        <span>{fill.orgName}</span>
-                        <span>{fill.staffName}</span>
-                        <span>{fill.fillIndex}</span>
-                      </div>
+                      <FillDetail
+                        task={task}
+                        singleFillId={fill.singleFillId}
+                        action={
+                          <div className="flex justify-start items-center gap-1">
+                            <span>{fill.orgName} / </span>
+                            <span>{fill.staffName} / </span>
+                            <span>题号:{fill.fillIndex}</span>
+                          </div>
+                        }
+                        customTitle="试题详情"
+                        showType={DetailShowTypeEnum.Check}
+                      />
                     ),
                     key: item.expertId + ',' + fill.singleFillId.toString(),
                   };
@@ -770,6 +799,7 @@ export const EvaluateAllocateModal: React.FC<
   return (
     <>
       {contextHolder}
+      {messageContextHolder}
       <Modal
         style={{ top: '5%' }}
         open={open}

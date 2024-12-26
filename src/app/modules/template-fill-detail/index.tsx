@@ -255,16 +255,18 @@ const TemplateFillDetail = ({
               </div>
             )
           )}
-        <Form.Item className="fillCollect-form-action flex justify-center">
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={submitLoading}
-            onClick={saveSingleFill}
-          >
-            保存
-          </Button>
-        </Form.Item>
+        {showType !== DetailShowTypeEnum.Check && (
+          <Form.Item className="fillCollect-form-action flex justify-center">
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={submitLoading}
+              onClick={saveSingleFill}
+            >
+              保存
+            </Button>
+          </Form.Item>
+        )}
       </Form>
       {contextHolder}
     </>
