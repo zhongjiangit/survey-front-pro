@@ -119,16 +119,9 @@ export function Provider({ colorScheme, children }: Props) {
     if (
       _currentOrg &&
       (!_currentRole ||
-        !roles?.some(t => t.isActive && t.key === _currentRole?.key))
+        !roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole)))
     ) {
       _currentRole = roles.filter(role => role.isActive)[0];
-    }
-    // 合并用户信息
-    if (_currentRole) {
-      Object.assign(
-        _currentRole,
-        roles.find(t => t.key === _currentRole.key)
-      );
     }
 
     setCurrentSystem(_currentSystem);

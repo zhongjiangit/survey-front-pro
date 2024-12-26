@@ -18,18 +18,11 @@ import HeaderDropdown from './header-dropdown';
 import OrgSwitchModal from './switch-modal/org-switch-modal';
 import RoleSwitchModal from './switch-modal/role-switch-modal';
 import SystemSwitchModal from './switch-modal/system-switch-modal';
-import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 
 export const AvatarDropdown: React.FC = () => {
   const user = useSurveyUserStore(state => state.user);
-  const setCurrentRole = useSurveyCurrentRoleStore(
-    state => state.setCurrentRole
-  );
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
-  const currentSystem = useSurveySystemStore(state => state.currentSystem);
-  const [currentOrg] = useSurveyOrgStore(state => [state.currentOrg]);
+  const [currentSystem,setCurrentSystem] = useSurveySystemStore(state => [state.currentSystem,state.setCurrentSystem]);
+  const [currentRole,setCurrentRole] = useSurveyCurrentRoleStore(state => [state.currentRole,state.setCurrentRole]);
   const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
@@ -114,7 +107,7 @@ export const AvatarDropdown: React.FC = () => {
       >
         <Button type="text" className="flex gap-1 items-center">
           <CircleUserRound className="w-5 h-5" />
-          {currentOrg?.staffName}
+          {currentRole?.name}
         </Button>
       </HeaderDropdown>
       <RoleSwitchModal

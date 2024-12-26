@@ -70,7 +70,6 @@ const TaskReviewDetailModal = ({
       onSuccess: data => {
         form.resetFields();
         form.setFieldsValue(data.data);
-        console.log('listReviewDetailsExpertData', data);
       },
     }
   );
@@ -175,64 +174,7 @@ const TaskReviewDetailModal = ({
       setLoading('submitCurrentPage', false);
     }
   };
-
-  const changeFormValue = (
-    singleFillId: number,
-    value: any,
-    dimensionId?: number
-  ) => {
-    console.log('===============', singleFillId, value, dimensionId);
-
-    const oldItem = formValues.find(
-      (item: any) => item.singleFillId === singleFillId
-    );
-
-    if (oldItem) {
-      if (dimensionId) {
-        let isExist = false;
-        if (oldItem.dimensionScores === undefined) {
-          oldItem.dimensionScores = [];
-        }
-        oldItem.dimensionScores = oldItem.dimensionScores.map((item: any) => {
-          if (item.dimensionId === dimensionId) {
-            isExist = true;
-            return {
-              ...item,
-              reviewScore: value,
-            };
-          }
-          return item;
-        });
-        if (!isExist) {
-          oldItem.dimensionScores.push({
-            dimensionId,
-            reviewScore: value,
-          });
-        }
-      } else {
-        oldItem.expertComment = value;
-      }
-    } else {
-      const item: any = { singleFillId: singleFillId, dimensionScores: [] };
-      if (dimensionId) {
-        item.dimensionScores = [
-          {
-            dimensionId,
-            reviewScore: value,
-          },
-        ];
-      } else {
-        item.expertComment = value;
-      }
-      formValues.push(item);
-    }
-
-    console.log('formValues', formValues);
-
-    setFormValues(formValues);
-  };
-
-  // console.log('formValues', formValues);
+  
 
   const columns: any = [
     {
