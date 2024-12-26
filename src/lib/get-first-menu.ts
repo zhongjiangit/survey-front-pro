@@ -47,10 +47,11 @@ export function hasMenu(menus: any[], pathName: string) {
   return find(menus, pathName);
   function find(menus: any, pathName: string) {
     if (!menus) {
-      return;
+      return false;
     }
     for (const menu of menus) {
-      if (menu.key === pathName) {
+      // 匹配菜单 有父菜单权限也可以
+      if (pathName.startsWith(menu.key)) {
         return true;
       }
       if (find(menu.children, pathName)) {
