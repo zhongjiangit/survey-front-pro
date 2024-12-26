@@ -123,6 +123,14 @@ export function Provider({ colorScheme, children }: Props) {
     ) {
       _currentRole = roles.filter(role => role.isActive)[0];
     }
+    // 合并用户信息
+    if (_currentRole) {
+      Object.assign(
+        _currentRole,
+        roles.find(t => t.key === _currentRole.key)
+      );
+    }
+
     setCurrentSystem(_currentSystem);
     setCurrentOrg(_currentOrg);
     setCurrentRole(_currentRole);
