@@ -460,6 +460,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         ]}
       >
         <Checkbox.Group
+          disabled={true}
           onChange={value => {
             getListLevelAssignSub(value[0]);
             form.setFieldValue('orgs', []);
