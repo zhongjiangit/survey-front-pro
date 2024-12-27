@@ -140,7 +140,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     }
   );
 
-  const { run: getInspTaskFill } = useRequest(
+  const { data: inspTaskFill, run: getInspTaskFill } = useRequest(
     (taskId: number) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
@@ -277,6 +277,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const plainOptions = useMemo(
     () => listLevelAssignSub?.data.map(item => item.orgId) || [],
     [listLevelAssignSub]
+  );
+
+  // 不是创建单位
+  const noCreateDept = useMemo(
+    () => inspTaskFill?.data.createOrgId !== currentOrg?.orgId,
+    [inspTaskFill, currentOrg]
   );
 
   const onCheckAllChange = (e: any) => {
@@ -541,9 +547,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     </>
   );
 
-  console.log('record', record);
-  console.log(form.getFieldsValue());
-
   return (
     <>
       <Modal
@@ -588,6 +591,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                     rules={[{ required: true }]}
                   >
                     <RangePicker
+                      disabled={noCreateDept}
                       format="YYYY-MM-DD HH:mm"
                       showTime={{
                         format: 'HH:mm',
