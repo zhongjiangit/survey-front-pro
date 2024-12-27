@@ -152,7 +152,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     loading: allAssignSubLoading,
   } = useRequest(
     () => {
-      console.log('getListAllAssignSub');
 
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
@@ -214,7 +213,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   );
 
   const onValuesChange = (changedValues: any, allValues: any) => {
-    console.log('changedValues', changedValues);
     if (changedValues?.publishType) {
       setFilterValue([]);
       setOrgMembers({});
@@ -476,7 +474,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             placeholder="选择标签过滤单位"
           />
         </div>
-        <Form.Item noStyle dependencies={['orgs']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.orgs !== curValues.orgs
+          }
+        >
           {() => {
             if (!listLevelAssignSub?.data.length) {
               return null;
@@ -493,7 +496,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
 
       <Divider></Divider>
       <div className="px-20">
-        <Form.Item noStyle dependencies={['orgs']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.orgs !== curValues.orgs
+          }
+        >
           {() => {
             if (!listLevelAssignSub?.data.length) {
               return null;
@@ -682,7 +690,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item noStyle dependencies={['publishType']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.publishType !== curValues.publishType
+          }
+        >
           {({ getFieldValue }) => {
             if (!listVisibleLevels) {
               return null;

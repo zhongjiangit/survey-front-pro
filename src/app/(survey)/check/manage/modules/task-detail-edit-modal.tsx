@@ -502,7 +502,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       </div>
 
       <div className="mr-5 text-blue-400 text-right">
-        <Form.Item noStyle dependencies={['orgs']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.orgs !== curValues.orgs
+          }
+        >
           {() => {
             return `已选：${form.getFieldValue('orgs')?.length} 单位`;
           }}
@@ -510,7 +515,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       </div>
       <Divider></Divider>
       <div className="px-16">
-        <Form.Item noStyle dependencies={['orgs']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.orgs !== curValues.orgs
+          }
+        >
           {() => {
             if (!listLevelAssignSub?.data.length) {
               return null;
