@@ -16,7 +16,6 @@ interface RejectTimelineProps {
 const RejectTimeline = ({ taskId, staffId }: RejectTimelineProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -36,10 +35,8 @@ const RejectTimeline = ({ taskId, staffId }: RejectTimelineProps) => {
    */
   const { data, run } = useRequest(
     () => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId || !currentRole?.id) {
-        return Promise.reject(
-          'currentSystem or currentOrg or currentRole is not exist'
-        );
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
       }
       return Api.listRejectFill({
         currentSystemId: currentSystem.systemId,

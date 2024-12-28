@@ -3,6 +3,7 @@
 import Api from '@/api';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
   DetailShowTypeEnum,
@@ -24,6 +25,7 @@ const ToAllotTask = () => {
   const [pageSize, setPageSize] = useState(10);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
 
   const { runAsync: submitFill } = useRequest(
     (taskId: number) => {
@@ -53,7 +55,7 @@ const ToAllotTask = () => {
     reject: (record: any) => (
       <RejectTimeline
         taskId={record.taskId}
-        staffId={record.staffId}
+        staffId={typeof currentRole?.id === 'number' ? currentRole.id : 0}
         key="reject"
       />
     ),
