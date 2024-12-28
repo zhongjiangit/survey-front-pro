@@ -1,7 +1,7 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { getFirstMenuByMenus, hasMenu } from '@/lib/get-first-menu';
+import { getFirstMenuByMenus, hasMenu, selectMenu } from '@/lib/get-first-menu';
 import { Role_Enum } from '@/types/CommonType';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
@@ -16,7 +16,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export const originMenus = [
   {
@@ -24,6 +24,7 @@ export const originMenus = [
     key: '/system',
     icon: <MonitorCog className="w-4 h-4" />,
     access: [Role_Enum.PLATFORM_ADMIN, Role_Enum.SYSTEM_ADMIN],
+    allowChildren: true,
   },
   {
     label: '成员管理',
@@ -34,6 +35,7 @@ export const originMenus = [
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,
     ],
+    allowChildren: true,
   },
   {
     label: '专家配置',
@@ -44,6 +46,7 @@ export const originMenus = [
       Role_Enum.ORG_ADMIN,
       Role_Enum.NORMAL_ADMIN,
     ],
+    allowChildren: true,
   },
   {
     label: '试题抽检',
@@ -65,6 +68,7 @@ export const originMenus = [
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
         ],
+        allowChildren: true,
       },
       {
         label: '分配',
@@ -74,6 +78,7 @@ export const originMenus = [
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
         ],
+        allowChildren: true,
       },
       {
         label: '填报',
@@ -84,11 +89,13 @@ export const originMenus = [
           Role_Enum.NORMAL_ADMIN,
           Role_Enum.MEMBER,
         ],
+        allowChildren: true,
       },
       {
         label: '评审',
         key: '/check/review',
         access: [Role_Enum.EXPERT],
+        allowChildren: true,
       },
     ],
   },
@@ -111,6 +118,7 @@ export const originMenus = [
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
         ],
+        allowChildren: true,
       },
       {
         label: '分配',
@@ -120,6 +128,7 @@ export const originMenus = [
           Role_Enum.ORG_ADMIN,
           Role_Enum.NORMAL_ADMIN,
         ],
+        allowChildren: true,
       },
       {
         label: '填报',
@@ -130,6 +139,7 @@ export const originMenus = [
           Role_Enum.NORMAL_ADMIN,
           Role_Enum.MEMBER,
         ],
+        allowChildren: true,
       },
     ],
   },
@@ -144,12 +154,14 @@ export const originMenus = [
       Role_Enum.MEMBER,
       Role_Enum.EXPERT,
     ],
+    allowChildren: true,
   },
   {
     label: '充值/续费',
     key: '/recharge',
     icon: <Cable className="w-4 h-4" />,
     access: [Role_Enum.SYSTEM_ADMIN],
+    allowChildren: true,
   },
 ];
 
@@ -157,6 +169,10 @@ export default function NavLinks() {
   const router = useRouter();
   const pathname = usePathname();
   const [menus] = useSurveyCurrentRoleStore(state => [state.getMenus()]);
+
+  const selectedKeys = useMemo(() => {
+    return [selectMenu(menus, pathname)?.key].filter(t => t);
+  }, [menus, pathname]);
 
   // 跳转至第一个菜单
   useEffect(() => {
@@ -175,7 +191,7 @@ export default function NavLinks() {
 
   return (
     <Menu
-      selectedKeys={[pathname]}
+      selectedKeys={selectedKeys}
       onSelect={onSelect}
       defaultOpenKeys={['/collect', '/check']}
       style={{ width: 200 }}

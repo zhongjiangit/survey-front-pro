@@ -21,14 +21,8 @@ import SystemSwitchModal from './switch-modal/system-switch-modal';
 
 export const AvatarDropdown: React.FC = () => {
   const user = useSurveyUserStore(state => state.user);
-  const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
-  const setCurrentRole = useSurveyCurrentRoleStore(
-    state => state.setCurrentRole
-  );
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
-  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const [currentSystem,setCurrentSystem] = useSurveySystemStore(state => [state.currentSystem,state.setCurrentSystem]);
+  const [currentRole,setCurrentRole] = useSurveyCurrentRoleStore(state => [state.currentRole,state.setCurrentRole]);
   const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);

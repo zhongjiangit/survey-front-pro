@@ -140,7 +140,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     }
   );
 
-  const { run: getInspTaskFill } = useRequest(
+  const { data: inspTaskFill, run: getInspTaskFill } = useRequest(
     (taskId: number) => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
@@ -277,6 +277,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   const plainOptions = useMemo(
     () => listLevelAssignSub?.data.map(item => item.orgId) || [],
     [listLevelAssignSub]
+  );
+
+  // 不是创建单位
+  const noCreateDept = useMemo(
+    () => inspTaskFill?.data.createOrgId !== currentOrg?.orgId,
+    [inspTaskFill, currentOrg]
   );
 
   const onCheckAllChange = (e: any) => {
@@ -460,6 +466,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         ]}
       >
         <Checkbox.Group
+          disabled={true}
           onChange={value => {
             getListLevelAssignSub(value[0]);
             form.setFieldValue('orgs', []);
@@ -495,7 +502,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       </div>
 
       <div className="mr-5 text-blue-400 text-right">
-        <Form.Item noStyle dependencies={['orgs']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.orgs !== curValues.orgs
+          }
+        >
           {() => {
             return `已选：${form.getFieldValue('orgs')?.length} 单位`;
           }}
@@ -503,7 +515,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       </div>
       <Divider></Divider>
       <div className="px-16">
-        <Form.Item noStyle dependencies={['orgs']}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.orgs !== curValues.orgs
+          }
+        >
           {() => {
             if (!listLevelAssignSub?.data.length) {
               return null;
@@ -539,9 +556,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       </div>
     </>
   );
-
-  console.log('record', record);
-  console.log(form.getFieldsValue());
 
   return (
     <>
@@ -587,6 +601,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
                     rules={[{ required: true }]}
                   >
                     <RangePicker
+                      disabled={noCreateDept}
                       format="YYYY-MM-DD HH:mm"
                       showTime={{
                         format: 'HH:mm',

@@ -42,6 +42,9 @@ export function Provider({ colorScheme, children }: Props) {
     ]);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
     let _currentSystem = currentSystem;
     let _currentOrg = currentOrg;
     let _currentRole = currentRole;
@@ -116,10 +119,11 @@ export function Provider({ colorScheme, children }: Props) {
     if (
       _currentOrg &&
       (!_currentRole ||
-        !roles?.some(t => t.isActive && t.key === _currentRole?.key))
+        !roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole)))
     ) {
       _currentRole = roles.filter(role => role.isActive)[0];
     }
+
     setCurrentSystem(_currentSystem);
     setCurrentOrg(_currentOrg);
     setCurrentRole(_currentRole);
