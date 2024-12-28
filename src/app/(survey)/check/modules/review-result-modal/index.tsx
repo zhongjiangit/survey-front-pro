@@ -6,18 +6,32 @@ import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { joinRowSpanData } from '@/lib/join-rowspan-data';
+import {
+  fullJoinRowSpanData,
+  joinRowSpanKeyParamsType,
+} from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
+import { checkDetailData } from '../../testData';
 import OrgResult from './modules/org-result';
 import ProfessorResult from './modules/professor-result';
 
 interface DataType {
   [key: string]: any;
 }
-const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
+// const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
+
+const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
+  { coKey: 'org1', compareKeys: ['org1'], childKey: { org1: 'orgId' } },
+  { coKey: 'org2', compareKeys: ['org2'], childKey: { org2: 'orgId' } },
+  { coKey: 'org3', compareKeys: ['org3'], childKey: { org3: 'orgId' } },
+  {
+    coKey: 'fillerStaffName',
+    compareKeys: ['fillerStaffName', 'fillerCellphone'],
+  },
+];
 
 interface Props {
   task: ListMyInspTaskResponse;
@@ -67,11 +81,11 @@ const ReviewResultModal = (props: Props) => {
       },
       render: (text, record) => (
         <>
-          <div>{text}</div>
+          <div>{text.orgName || '-'}</div>
           <OrgResult
             buttonText={`${record.org1Result}分`}
             record={record}
-            modalTitle={text}
+            modalTitle={text.orgName || '-'}
           ></OrgResult>
         </>
       ),
@@ -90,10 +104,10 @@ const ReviewResultModal = (props: Props) => {
       }),
       render: (text, record) => (
         <>
-          <div>{text}</div>
+          <div>{text.orgName || '-'}</div>
           <OrgResult
-            buttonText={`${record.org2Result}分`}
-            modalTitle={text}
+            buttonText={`${record?.org2Result}分`}
+            modalTitle={text.orgName || '-'}
             record={record}
           ></OrgResult>
         </>
@@ -113,27 +127,27 @@ const ReviewResultModal = (props: Props) => {
       }),
       render: (text, record) => (
         <>
-          <div>{text}</div>
+          <div>{text.orgName || '-'}</div>
           <OrgResult
             buttonText={`${record.org3Result}分`}
             record={record}
-            modalTitle={text}
+            modalTitle={text.orgName || '-'}
           ></OrgResult>
         </>
       ),
     },
     {
       title: '姓名',
-      dataIndex: 'name',
+      dataIndex: 'fillerStaffName',
       align: 'center',
       render: (text, record) => (
         <>
           <div>{text}</div>
-          <a className="text-blue-500">{record.phone}</a>
+          <a className="text-blue-500">{record.fillerCellphone}</a>
         </>
       ),
       onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
+        rowSpan: text.rowSpan?.fillerStaffName || 0,
       }),
     },
     {
@@ -144,9 +158,9 @@ const ReviewResultModal = (props: Props) => {
         </>
       ),
       align: 'center',
-      dataIndex: 'personResult',
+      dataIndex: 'fillerAverageScore',
       render: (text, record) =>
-        text && (
+        text != null && (
           <ProfessorResult
             buttonText={`${text}分`}
             record={record}
@@ -169,8 +183,7 @@ const ReviewResultModal = (props: Props) => {
         text && (
           <div className="flex justify-center">
             <TemplateDetailModal
-              // TODO need to use the correct templateId
-              templateId={1}
+              templateId={task.templateId}
               TemplateType={TemplateTypeEnum.Check}
               title="试卷详情"
               showDom={<Circle value={text} />}
@@ -188,9 +201,12 @@ const ReviewResultModal = (props: Props) => {
 
   useEffect(() => {
     setDataSource(
-      joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
-        return joinRowSpanData(prev, currentKey);
-      }, reviewResultData?.data || []) // checkDetailData
+      joinRowSpanKey.reduce(
+        (prev: any[] | undefined, currentKey) => {
+          return fullJoinRowSpanData(prev, currentKey);
+        },
+        reviewResultData?.data.length ? reviewResultData?.data : checkDetailData // TODO: remove this line
+      )
     );
 
     return () => {

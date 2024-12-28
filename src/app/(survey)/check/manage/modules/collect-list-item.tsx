@@ -316,6 +316,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                   <div
                     onClick={() => {
                       setPassedNumModalOpen(true);
+                      setViewTask(record);
                     }}
                   >
                     {record.passPeople ? (
@@ -370,6 +371,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                   <div
                     onClick={() => {
                       setFilledNumModalOpen(true);
+                      setViewTask(record);
                     }}
                   >
                     {record.showFillPeople ? (
@@ -448,10 +450,9 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Processing && [
               operateButtonEvaluate.detail(record.publishType, record),
-              // operateButtonEvaluate.edit('edit'),
               operateButtonEvaluate.allocate(record),
               operateButtonEvaluate.message,
-              // operateButtonEvaluate.result(record),
+              operateButtonEvaluate.result(record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
               operateButtonEvaluate.detail(record.publishType, record),
@@ -526,7 +527,6 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
 
   return (
     <>
-      {/* todo  */}
       <div className="flex flex-col gap-5">
         {itemData?.map((item, index) => {
           return (
@@ -560,10 +560,12 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       <TaskFilledModal
         open={filledNumModalOpen}
         setOpen={setFilledNumModalOpen}
+        task={viewTask}
       />
       <TaskPassedModal
         open={passedNumModalOpen}
         setOpen={setPassedNumModalOpen}
+        task={viewTask}
       />
       <TaskOrgFillDetailModal
         task={viewTask}

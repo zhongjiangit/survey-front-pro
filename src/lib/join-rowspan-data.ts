@@ -2,6 +2,7 @@ import _ from 'lodash';
 export interface joinRowSpanKeyParamsType {
   coKey: string; //添加rowspan的key
   compareKeys: string[]; //比较的key的集合
+  childKey?: any; //子集的key
 }
 // 处理数据rowSpan函数
 export const joinRowSpanData = (
@@ -50,9 +51,16 @@ export const fullJoinRowSpanData = (
   // 2、遍历数组，取下一项进行比较，当name相同则startItem的rowSpan+1, 否则设置新的startItem为下一项
   arr.forEach((item: any, index) => {
     const nextItem: any = arr[index + 1] || {};
-    const isEqual = params.compareKeys.every(
-      key => item[key] === nextItem[key]
-    );
+    const isEqual = params.compareKeys.every(key => {
+      const currentValue = params?.childKey?.[key]
+        ? item[key]?.[params.childKey[key]]
+        : item[key];
+      const nextValue = params?.childKey?.[key]
+        ? nextItem[key]?.[params.childKey[key]]
+        : nextItem[key];
+
+      return currentValue === nextValue;
+    });
     if (isEqual) {
       startItem.rowSpan[params.coKey]++;
     } else {

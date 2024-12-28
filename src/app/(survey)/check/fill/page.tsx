@@ -51,7 +51,11 @@ const ToAllotTask = () => {
       />
     ),
     reject: (record: any) => (
-      <RejectTimeline taskId={record.taskId} key="reject" />
+      <RejectTimeline
+        taskId={record.taskId}
+        staffId={record.staffId}
+        key="reject"
+      />
     ),
     submit: (record: any) => (
       <a

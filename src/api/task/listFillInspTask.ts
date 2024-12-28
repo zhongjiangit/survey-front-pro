@@ -20,6 +20,7 @@ interface ListFillInspTaskParamsType {
 	[]json		
   taskId	int		任务id
   systemId	int		系统id
+  staffId	int		成员id // 待后台添加
   createOrgId	int		发布单位id
   createOrgName	string		发布单位名称
   createStaffId	int		发布成员id

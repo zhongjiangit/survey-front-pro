@@ -10,9 +10,10 @@ import { useSurveySystemStore } from '../../../contexts/useSurveySystemStore';
 
 interface RejectTimelineProps {
   taskId: number;
+  staffId: number;
 }
 
-const RejectTimeline = ({ taskId }: RejectTimelineProps) => {
+const RejectTimeline = ({ taskId, staffId }: RejectTimelineProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
@@ -44,7 +45,7 @@ const RejectTimeline = ({ taskId }: RejectTimelineProps) => {
         currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg!.orgId!,
         taskId: taskId,
-        staffId: currentRole.id as number,
+        staffId: staffId,
       });
     },
     {
@@ -56,7 +57,7 @@ const RejectTimeline = ({ taskId }: RejectTimelineProps) => {
     if (isModalOpen) {
       run();
     }
-  }, [isModalOpen]);
+  }, [isModalOpen, run]);
 
   return (
     <>

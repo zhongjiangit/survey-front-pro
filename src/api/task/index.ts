@@ -13,9 +13,12 @@ import editInspTask from './editInspTask';
 import expertSubmit from './expertSubmit';
 import fillerSubmit from './fillerSubmit';
 import getCollectionTask from './getCollectionTask';
+import getFillCountDetails from './getFillCountDetails';
+import getFillPassCountDetails from './getFillPassCountDetails';
 import getFillProcessDetails from './getFillProcessDetails';
 import getInspTaskFill from './getInspTaskFill';
 import getInspTaskReview from './getInspTaskReview';
+import getReviewAssignOverview from './getReviewAssignOverview';
 import getSingleFillDetails from './getSingleFillDetails';
 import listAssignCollectionTask from './listAssignCollectionTask';
 import listAssignInspTask from './listAssignInspTask';
@@ -46,7 +49,6 @@ import showReviewResult from './showReviewResult';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
-import getReviewAssignOverview from './getReviewAssignOverview';
 
 const taskApi = {
   createCollectionTask,
@@ -98,6 +100,8 @@ const taskApi = {
   deleteFillAttachment,
   showReviewResult,
   getReviewAssignOverview,
+  getFillCountDetails,
+  getFillPassCountDetails,
 };
 
 export default taskApi;
