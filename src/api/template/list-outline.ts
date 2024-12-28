@@ -5,6 +5,7 @@ import { baseUrl } from '../config';
 export interface TemplateListParamsType {
   currentSystemId: number;
   templateType: TemplateType;
+  showValidOnly?: ZeroOrOneType;
 }
 
 export interface TemplateItemType {

@@ -6,7 +6,7 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DetailShowType, DetailShowTypeEnum } from '@/types/CommonType';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { message, Modal, Tabs } from 'antd';
+import { Empty, message, Modal, Tabs } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import FillCollect from './detail';
 import './style.css';
@@ -223,22 +223,28 @@ const TaskDetail = ({
         maskClosable={false}
       >
         <div className="py-10 min-h-96 h-[80vh] shadow-lg">
-          <Tabs
-            rootClassName="fill-detail-tabs"
-            tabPosition={'left'}
-            type="editable-card"
-            onChange={onChange}
-            activeKey={activeKey}
-            onEdit={onEdit}
-            addIcon={
-              createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
-            }
-            hideAdd={
-              items.length >= maxFillCount ||
-              showType === DetailShowTypeEnum.Check
-            }
-            items={items}
-          />
+          {items.length !== 0 ? (
+            <Tabs
+              rootClassName="fill-detail-tabs"
+              tabPosition={'left'}
+              type="editable-card"
+              onChange={onChange}
+              activeKey={activeKey}
+              onEdit={onEdit}
+              addIcon={
+                createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
+              }
+              hideAdd={
+                items.length >= maxFillCount ||
+                showType === DetailShowTypeEnum.Check
+              }
+              items={items}
+            />
+          ) : (
+            <div className="flex justify-center items-center h-[40vh]">
+              <Empty />
+            </div>
+          )}
         </div>
       </Modal>
     </>

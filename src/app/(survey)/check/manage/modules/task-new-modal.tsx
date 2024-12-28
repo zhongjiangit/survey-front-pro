@@ -19,6 +19,7 @@ import {
   TagTypeEnum,
   TagTypeType,
   TemplateTypeEnum,
+  ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import {
   CloseCircleOutlined,
@@ -102,6 +103,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       return Api.getTemplateOutlineList({
         currentSystemId: currentSystem.systemId!,
         templateType: TemplateTypeEnum.Check,
+        showValidOnly: ZeroOrOneTypeEnum.One,
       });
     },
     {
@@ -152,7 +154,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     loading: allAssignSubLoading,
   } = useRequest(
     () => {
-
       if (!currentSystem || !currentOrg) {
         return Promise.reject('No current system');
       }
