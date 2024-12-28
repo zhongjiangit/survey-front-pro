@@ -1,5 +1,10 @@
+import getConfig from '@/api/common/getConfig';
+import FormItemWrap, {
+  RenderChildren,
+} from '@/components/common/form-item-wrap';
 import { ZeroOrOneTypeEnum } from '@/types/CommonType';
 import { UploadOutlined } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
 import {
   Button,
   Checkbox,
@@ -10,11 +15,6 @@ import {
   TreeSelect,
   Upload,
 } from 'antd';
-import { useRequest } from 'ahooks';
-import getConfig from '@/api/common/getConfig';
-import FormItemWrap, {
-  RenderChildren,
-} from '@/components/common/form-item-wrap';
 const { TextArea } = Input;
 
 interface RenderFormItemProps {
@@ -128,7 +128,7 @@ const RenderFormItem = (props: RenderFormItemProps) => {
         className="flex-1"
         label={item.itemCaption}
         name={item.templateItemId}
-        extra={false && <span className="text-red-500">{item?.itemMemo}</span>}
+        extra={<span className="text-red-500">{item?.itemMemo}</span>}
         rules={[
           {
             required: item.isRequired === ZeroOrOneTypeEnum.One,

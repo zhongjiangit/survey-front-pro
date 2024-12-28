@@ -11,7 +11,7 @@ import {
   TaskProcessStatusType,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { Form, Input, message, Modal, Space, Table } from 'antd';
+import { Form, Input, message, Modal, Popover, Space, Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -97,10 +97,21 @@ const TaskMemberFillDetailModal = ({
         key: 'org',
         width: '20%',
         render: (_: any, record: any) => {
+          // 找出record对象中key以org开头的value
+          const orgs = Object.keys(record)
+            .filter(key => key.startsWith('org'))
+            .map(key => record[key]);
+          console.log('orgs', orgs);
+
           return (
             <div className="cursor-pointer">
-              {/* TODO need to add org */}
-              {/* <Popover content={record.org}>{record.org.split('/')[0]}</Popover> */}
+              <Popover
+                content={orgs.map((org: any) => org.orgName).join(' / ')}
+                title="单位"
+              >
+                {/* 取orgs的最后一个对象中的orgName */}
+                {orgs[orgs.length - 1].orgName}
+              </Popover>
             </div>
           );
         },
@@ -187,7 +198,7 @@ const TaskMemberFillDetailModal = ({
         },
       },
     ],
-    [currentOrg, currentSystem, messageApi, refresh, refreshList, task?.taskId]
+    [currentOrg, currentSystem, messageApi, refresh, refreshList, task]
   );
 
   useEffect(() => {
