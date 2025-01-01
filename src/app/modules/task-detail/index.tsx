@@ -7,7 +7,7 @@ import { DetailShowType, DetailShowTypeEnum } from '@/types/CommonType';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import { Empty, message, Modal, Tabs } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import FillCollect from './detail';
 import './style.css';
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
@@ -41,7 +41,15 @@ const TaskDetail = ({
   const newTabIndex = useRef(0);
   const [isFillDetailOpen, setIsFillDetailOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-
+  const noFillTab = useMemo(() => {
+    return {
+      label: `未填报`,
+      singleFillId: null,
+      children: <FillCollect task={task} noFill={true} />,
+      key: 'nofill',
+      closable: false,
+    };
+  }, [0]);
   /**
    * 获取填表列表
    */
@@ -76,11 +84,12 @@ const TaskDetail = ({
                 showType={showType}
               />
             ),
-            key: `newTab${index}`,
+            key: `newTab${item.singleFillId}`,
+            closable: showType === DetailShowTypeEnum.Fill,
           });
         });
         setItems(newPanes);
-        setActiveKey(newPanes[0].key);
+        setActiveKey(newPanes[0]?.key);
       },
     }
   );
@@ -103,17 +112,16 @@ const TaskDetail = ({
       {
         manual: true,
         onSuccess: (data, params) => {
-          console.log('params', params);
-
-          const newActiveKey = `newTab${newTabIndex.current++}`;
           const newPanes = [...items];
+          const newActiveKey = `newTab${data.data.singleFillId}`;
           newPanes.push({
-            label: `NO ${newTabIndex.current}`,
+            label: `NO ${newPanes.length + 1}`,
             singleFillId: data.data.singleFillId,
             children: (
               <FillCollect singleFillId={data.data.singleFillId} task={task} />
             ),
             key: newActiveKey,
+            closable: showType === DetailShowTypeEnum.Fill,
           });
           setItems(newPanes);
           setActiveKey(newActiveKey);
@@ -138,25 +146,16 @@ const TaskDetail = ({
     },
     {
       manual: true,
-      onSuccess: (data, params) => {
+      onSuccess: (data, [singleFillId, targetKey]) => {
         if (data.result === 0) {
-          let newActiveKey = activeKey;
-          let lastIndex = -1;
-          items.forEach((item: any, i: number) => {
-            if (item.key === params[1]) {
-              lastIndex = i - 1;
-            }
-          });
-          const newPanes = items.filter((item: any) => item.key !== params[1]);
-          if (newPanes.length && newActiveKey === params[1]) {
-            if (lastIndex >= 0) {
-              newActiveKey = newPanes[lastIndex].key;
-            } else {
-              newActiveKey = newPanes[0].key;
-            }
+          const idx = items.findIndex((item: any) => item.key === targetKey);
+          const newItems = items
+            .filter((t: any) => t.key !== targetKey)
+            .map((t: any, idx: number) => ({ ...t, label: `NO ${++idx}` }));
+          setItems(newItems);
+          if (targetKey === activeKey) {
+            setActiveKey(newItems[idx]?.key || newItems[idx - 1]?.key);
           }
-          setItems(newPanes);
-          setActiveKey(newActiveKey);
         }
       },
     }
@@ -167,7 +166,10 @@ const TaskDetail = ({
   };
 
   const add = () => {
-    if (showType === DetailShowTypeEnum.Fill && items.length > maxFillCount) {
+    if (
+      showType !== DetailShowTypeEnum.Fill ||
+      (maxFillCount && items.length >= maxFillCount)
+    ) {
       return;
     }
     createSingleFill();
@@ -197,7 +199,6 @@ const TaskDetail = ({
       getListSingleFill();
     }
   }, [getListSingleFill, isFillDetailOpen]);
-
   return (
     <>
       {contextHolder}
@@ -223,28 +224,22 @@ const TaskDetail = ({
         maskClosable={false}
       >
         <div className="py-10 min-h-96 h-[80vh] shadow-lg">
-          {items.length !== 0 ? (
-            <Tabs
-              rootClassName="fill-detail-tabs"
-              tabPosition={'left'}
-              type="editable-card"
-              onChange={onChange}
-              activeKey={activeKey}
-              onEdit={onEdit}
-              addIcon={
-                createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
-              }
-              hideAdd={
-                items.length >= maxFillCount ||
-                showType === DetailShowTypeEnum.Check
-              }
-              items={items}
-            />
-          ) : (
-            <div className="flex justify-center items-center h-[40vh]">
-              <Empty />
-            </div>
-          )}
+          <Tabs
+            rootClassName="fill-detail-tabs"
+            tabPosition={'left'}
+            type="editable-card"
+            onChange={onChange}
+            activeKey={items.length ? activeKey : 'nofill'}
+            onEdit={onEdit}
+            addIcon={
+              createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
+            }
+            hideAdd={
+              (maxFillCount && items.length >= maxFillCount) ||
+              showType === DetailShowTypeEnum.Check
+            }
+            items={items.concat(items.length ? [] : [noFillTab])}
+          />
         </div>
       </Modal>
     </>
