@@ -30,7 +30,7 @@ interface ShowReviewResultParamsType {
     fillIndex	int		试题编号
     score	int		试卷得分
  */
-interface ShowReviewResultResponse {
+export interface ShowReviewResultResponse {
   orgCount: number;
   org: {
     orgId: number;
@@ -46,6 +46,7 @@ interface ShowReviewResultResponse {
     fillIndex: number;
     score: number;
   }[];
+  levels: any
 }
 
 /**

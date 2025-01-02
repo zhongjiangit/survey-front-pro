@@ -4,17 +4,18 @@ import { ListReviewDetailsManagerResponse } from '@/api/task/listReviewDetailsMa
 import { LEVEL_LABEL } from '@/types/CommonType';
 import { useEffect, useState } from 'react';
 import OrgResult from '../review-result-modal/modules/org-result';
+import { ShowReviewResultResponse } from '@/api/task/showReviewResult';
+type OriginData =
+  | ListReviewDetailsManagerResponse[]
+  | ShowReviewResultResponse[]
+  | undefined;
 
-export function useReviewResultColumns(
-  originData: ListReviewDetailsManagerResponse[] | undefined | []
-) {
-  const [data, setData] = useState<
-    ListReviewDetailsManagerResponse[] | undefined | []
-  >(originData);
+export function useReviewResultColumns(originData: OriginData) {
+  const [data, setData] = useState<OriginData>(originData);
   const [finalColumns, setFinalColumns] = useState<any[]>([]);
   const levelCount = data?.[0]?.orgCount || 0;
   useEffect(() => {
-    if (!data || data.length === 0) {
+    if (!data || data?.length === 0) {
       return;
     }
     const tempColumn: any[] = [];

@@ -29,6 +29,7 @@ export interface GetFillCountDetailsResponse {
     orgId: number;
     orgName: string;
   }[];
+  orgCount: number;
   fillPeople: number;
   fillCount: number;
 }

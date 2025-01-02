@@ -371,9 +371,11 @@ export const EvaluateAllocateModal: React.FC<
 
   const expertIndeterminate = useMemo(
     () =>
-      !expertCheckAll &&
-      validSelectedExpert.length &&
-      validSelectedExpert.length < undisabledOptions.length,
+      !!(
+        !expertCheckAll &&
+        validSelectedExpert.length &&
+        validSelectedExpert.length < undisabledOptions.length
+      ),
     [assignedExperts, undisabledOptions]
   );
 
