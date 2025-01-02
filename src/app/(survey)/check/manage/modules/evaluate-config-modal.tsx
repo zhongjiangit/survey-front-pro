@@ -3,16 +3,17 @@
 import Api from '@/api';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useRequest } from 'ahooks';
 import { DatePicker, Form, Modal, Switch } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { useRequest } from 'ahooks';
 const { RangePicker } = DatePicker;
 
 interface EvaluateConfigModalProps {
   type?: string | number;
   taskId: number;
   taskName?: string;
+  defaultOpen?: boolean;
   refreshPublishTask?: () => void;
 }
 
@@ -27,9 +28,10 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   type = 'config',
   taskId,
   taskName,
+  defaultOpen = false,
   refreshPublishTask,
 }: EvaluateConfigModalProps) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [form] = Form.useForm();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
@@ -66,7 +68,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
     if (open) {
       getInspTaskReview();
     }
-  }, [open]);
+  }, [getInspTaskReview, open]);
 
   const { run: updateInspTaskReview, loading: updateInspTaskReviewLoading } =
     useRequest(

@@ -189,6 +189,12 @@ const ToAllotTask = () => {
       },
     },
     {
+      title: <div>填报数量</div>,
+      dataIndex: 'maxFillCount',
+      width: '10%',
+      align: 'center',
+    },
+    {
       title: <div>操作</div>,
       width: '12%',
       dataIndex: 'operation',
@@ -199,6 +205,11 @@ const ToAllotTask = () => {
             {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
               operateButton.fill(record),
               operateButton.submit(record),
+            ]}
+            {(record.processStatus === ProcessStatusTypeEnum.Submitted ||
+              record.processStatus === ProcessStatusTypeEnum.Passed ||
+              record.processStatus === ProcessStatusTypeEnum.DataDiscard) && [
+              operateButton.fill(record),
             ]}
             {record.processStatus === ProcessStatusTypeEnum.Reject && [
               operateButton.fill(record),

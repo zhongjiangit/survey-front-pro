@@ -233,40 +233,41 @@ const TemplateFillDetail = ({
       <Form
         form={form}
         disabled={showType === DetailShowTypeEnum.Check}
-        className="fillCollect-form min-w-96 w-[40vw]"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
+        className="fillCollect-form min-w-96 w-[40vw] flex justify-center"
         autoComplete="off"
         name="template_detail"
+        layout="vertical"
       >
-        {formDetailData?.data?.items?.length &&
-          formDetailData?.data?.items.map(
-            (item: CollectItemType, index: number) => (
-              <div className="flex" key={index}>
-                <RenderFormItem
-                  item={item}
-                  type={item.widgetType || 'input'}
-                  option={
-                    widgetList?.find(
-                      (widget: any) => widget.id === item.widgetId
-                    )?.widgetDetails
-                  }
-                />
-              </div>
-            )
+        <div className="w-96">
+          {formDetailData?.data?.items?.length &&
+            formDetailData?.data?.items.map(
+              (item: CollectItemType, index: number) => (
+                <div className="flex" key={index}>
+                  <RenderFormItem
+                    item={item}
+                    type={item.widgetType || 'input'}
+                    option={
+                      widgetList?.find(
+                        (widget: any) => widget.id === item.widgetId
+                      )?.widgetDetails
+                    }
+                  />
+                </div>
+              )
+            )}
+          {showType !== DetailShowTypeEnum.Check && (
+            <Form.Item className="fillCollect-form-action flex justify-center">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={submitLoading}
+                onClick={saveSingleFill}
+              >
+                保存
+              </Button>
+            </Form.Item>
           )}
-        {showType !== DetailShowTypeEnum.Check && (
-          <Form.Item className="fillCollect-form-action flex justify-center">
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={submitLoading}
-              onClick={saveSingleFill}
-            >
-              保存
-            </Button>
-          </Form.Item>
-        )}
+        </div>
       </Form>
       {contextHolder}
     </>

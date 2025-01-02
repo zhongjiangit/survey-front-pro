@@ -149,7 +149,7 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
       </a>
       <Modal
         open={open}
-        title="取消资料抽检任务"
+        title="取消任务"
         okText="确定"
         cancelText="取消"
         maskClosable={false}

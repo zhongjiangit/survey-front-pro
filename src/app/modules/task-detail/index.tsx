@@ -6,8 +6,8 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DetailShowType, DetailShowTypeEnum } from '@/types/CommonType';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { Empty, message, Modal, Tabs } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { message, Modal, Tabs } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import FillCollect from './detail';
 import './style.css';
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
@@ -41,15 +41,7 @@ const TaskDetail = ({
   const newTabIndex = useRef(0);
   const [isFillDetailOpen, setIsFillDetailOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const noFillTab = useMemo(() => {
-    return {
-      label: `未填报`,
-      singleFillId: null,
-      children: <FillCollect task={task} noFill={true} />,
-      key: 'nofill',
-      closable: false,
-    };
-  }, [0]);
+
   /**
    * 获取填表列表
    */
@@ -90,9 +82,14 @@ const TaskDetail = ({
         });
         setItems(newPanes);
         setActiveKey(newPanes[0]?.key);
+        if (showType === DetailShowTypeEnum.Fill && newPanes.length === 0) {
+          add();
+        }
       },
     }
   );
+
+  console.log('items', items);
 
   /**
    * 创建填报文件
@@ -165,7 +162,7 @@ const TaskDetail = ({
     setActiveKey(newActiveKey);
   };
 
-  const add = () => {
+  const add = useCallback(() => {
     if (
       showType !== DetailShowTypeEnum.Fill ||
       (maxFillCount && items.length >= maxFillCount)
@@ -173,7 +170,7 @@ const TaskDetail = ({
       return;
     }
     createSingleFill();
-  };
+  }, [createSingleFill, items.length, maxFillCount, showType]);
 
   const onEdit = (
     targetKey: React.MouseEvent | React.KeyboardEvent | string,
@@ -199,6 +196,7 @@ const TaskDetail = ({
       getListSingleFill();
     }
   }, [getListSingleFill, isFillDetailOpen]);
+
   return (
     <>
       {contextHolder}
@@ -238,7 +236,7 @@ const TaskDetail = ({
               (maxFillCount && items.length >= maxFillCount) ||
               showType === DetailShowTypeEnum.Check
             }
-            items={items.concat(items.length ? [] : [noFillTab])}
+            items={items}
           />
         </div>
       </Modal>

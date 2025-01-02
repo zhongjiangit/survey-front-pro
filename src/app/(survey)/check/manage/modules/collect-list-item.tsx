@@ -201,7 +201,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         return (
           <div className="flex flex-col gap-3 justify-center items-center">
             <div>{record.createOrgName}</div>
-            <div>{record.staffName}</div>
+            <div>{record.createStaffName}</div>
           </div>
         );
       },
