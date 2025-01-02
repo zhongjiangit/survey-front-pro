@@ -40,7 +40,9 @@ export const EvaluateAllocateModal: React.FC<
   const [messageApi, messageContextHolder] = message.useMessage();
   const [modal, contextHolder] = Modal.useModal();
   const [selectedModalOpen, setSelectedModalOpen] = useState(false);
-  const [evaluateType, setEvaluateType] = useState('questionsToExperts');
+  const [evaluateType, setEvaluateType] = useState<
+    'questionsToExperts' | 'expertsToQuestions'
+  >('questionsToExperts');
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [pageNumber, setPageNumber] = useState(1);
@@ -149,6 +151,50 @@ export const EvaluateAllocateModal: React.FC<
     );
   }, [listReviewAssignByExpert, assignedExperts]);
 
+  const disabledFills = useMemo(() => {
+    if (!assignedExperts.length || evaluateType === 'expertsToQuestions') {
+      return {};
+    }
+    return Object.entries<any[]>(assignedFillExperts).reduce(
+      (res: any, [fillId, experts]: [string, any[]]) => {
+        res[fillId] =
+          experts.length === assignedExperts.length &&
+          experts.every((t: any) => assignedExperts.includes(t.expertId + ''));
+        return res;
+      },
+      {}
+    );
+  }, [assignedFillExperts, assignedExperts]);
+
+  const disabledExperts = useMemo(() => {
+    if (
+      !assignedFills.length ||
+      !listReviewAssignByExpert?.data ||
+      evaluateType === 'questionsToExperts'
+    ) {
+      return {};
+    }
+    return listReviewAssignByExpert.data.reduce(
+      (res: any, { assignedFills: fills, ...expert }) => {
+        res[expert.expertId] = assignedFills.every((t: any) =>
+          fills.some((f: any) => f.singleFillId === t)
+        );
+        return res;
+      },
+      {}
+    );
+  }, [listReviewAssignByExpert, assignedFills]);
+
+  // 有效的已分配试题
+  const validSelectedFills = useMemo(() => {
+    return assignedFills.filter((t: number) => !disabledFills[t]);
+  }, [assignedFills, disabledFills]);
+
+  // 有效的已分配专家
+  const validSelectedExpert = useMemo(() => {
+    return assignedExperts.filter((t: string) => !disabledExperts[t]);
+  }, [assignedExperts, disabledExperts]);
+
   // 已分配试题列表
   const {
     data: listReviewAssignByFill,
@@ -251,6 +297,8 @@ export const EvaluateAllocateModal: React.FC<
       manual: true,
       onSuccess() {
         messageApi.success('分配成功');
+        setAssignedFills([]);
+        setAssignedExperts([]);
         // 刷新列表
         refreshListReviewAssignByExpert();
         refreshListReviewAssignByFill();
@@ -303,20 +351,30 @@ export const EvaluateAllocateModal: React.FC<
         return {
           label: item.expertName + '（' + item.cellphone + '）',
           value: item.id.toString(),
+          disabled: disabledExperts[item.id],
         };
       }) || []
     );
-  }, [expertListByTags]);
+  }, [expertListByTags, disabledExperts]);
 
-  const expertCheckAll = useMemo(
-    () => plainOptions.length === assignedExperts.length,
-    [assignedExperts.length, plainOptions.length]
+  const undisabledOptions = useMemo(
+    () => plainOptions.filter(t => !t.disabled),
+    [plainOptions]
   );
+
+  const expertCheckAll = useMemo(() => {
+    return !!(
+      validSelectedExpert.length &&
+      validSelectedExpert.length === undisabledOptions.length
+    );
+  }, [validSelectedExpert, undisabledOptions]);
+
   const expertIndeterminate = useMemo(
     () =>
-      assignedExperts.length > 0 &&
-      assignedExperts.length < plainOptions.length,
-    [assignedExperts.length, plainOptions.length]
+      !expertCheckAll &&
+      validSelectedExpert.length &&
+      validSelectedExpert.length < undisabledOptions.length,
+    [assignedExperts, undisabledOptions]
   );
 
   const onChange = (list: string[]) => {
@@ -351,11 +409,7 @@ export const EvaluateAllocateModal: React.FC<
 
   const columns: TableColumnsType<DataType> = useMemo(() => {
     const checkProps = (record: DataType) => {
-      const experts = assignedFillExperts[record.singleFillId];
-      if (!experts?.length) {
-        return { checked: assignedFills.includes(record.singleFillId) };
-      }
-      const disabled = experts.length === assignedExperts.length;
+      const disabled = disabledFills[record.singleFillId];
       const checked = !disabled && assignedFills.includes(record.singleFillId);
       return { checked, disabled };
     };
@@ -400,7 +454,12 @@ export const EvaluateAllocateModal: React.FC<
           <FillDetail
             task={task}
             singleFillId={record.singleFillId}
-            action={<Circle style={{ display: 'inline-block' }} value={text} />}
+            action={
+              <Circle
+                style={{ display: 'inline-block', cursor: 'pointer' }}
+                value={text}
+              />
+            }
             customTitle="试题详情"
             showType={DetailShowTypeEnum.Check}
           />
@@ -447,7 +506,15 @@ export const EvaluateAllocateModal: React.FC<
         align: 'center',
       },
     ];
-  }, [assignedFills, assignedFillExperts, orgTags, staffTags, tableParams]);
+  }, [
+    assignedFills,
+    assignedFillExperts,
+    orgTags,
+    staffTags,
+    tableParams,
+    disabledFills,
+    evaluateType,
+  ]);
 
   // 已分配
   const allowFillColumns: TableColumnsType<ListReviewAssignByFillResponse> =
@@ -478,7 +545,10 @@ export const EvaluateAllocateModal: React.FC<
               task={task}
               singleFillId={record.singleFillId}
               action={
-                <Circle style={{ display: 'inline-block' }} value={text} />
+                <Circle
+                  style={{ display: 'inline-block', cursor: 'pointer' }}
+                  value={text}
+                />
               }
               customTitle="试题详情"
               showType={DetailShowTypeEnum.Check}
@@ -577,7 +647,10 @@ export const EvaluateAllocateModal: React.FC<
   );
 
   const selectExperts = (
-    <div className="flex flex-col gap-5 px-5 max-h-[31rem] overflow-auto">
+    <div
+      className="flex flex-col gap-5 px-5 max-h-[31rem] overflow-auto"
+      style={{ width: '0', flex: 'auto' }}
+    >
       <TreeSelect
         style={{ width: '200px' }}
         value={expertTags}
@@ -600,12 +673,12 @@ export const EvaluateAllocateModal: React.FC<
             onChange={onExpertCheckAllChange}
             checked={expertCheckAll}
           >
-            全选
+            全选 (已选: {validSelectedExpert.length} 人)
           </Checkbox>
         )}
         <Checkbox.Group
           options={plainOptions}
-          value={assignedExperts}
+          value={validSelectedExpert}
           onChange={onChange}
           className="grid grid-cols-1"
         />
@@ -655,15 +728,17 @@ export const EvaluateAllocateModal: React.FC<
       </Button>
       <Button
         type={
-          assignedExperts.length && assignedFills.length ? 'primary' : 'default'
+          validSelectedExpert.length && validSelectedFills.length
+            ? 'primary'
+            : 'default'
         }
         onClick={() =>
-          assignedExperts.length &&
-          assignedFills.length &&
+          validSelectedExpert.length &&
+          validSelectedFills.length &&
           saveReviewAssignAdd()
         }
       >
-        分配已选{assignedFills.length ? ` (${assignedFills.length})` : ''}
+        分配已选 ({validSelectedExpert.length ? validSelectedFills.length : 0})
       </Button>
     </div>
   );
