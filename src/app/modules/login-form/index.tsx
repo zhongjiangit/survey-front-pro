@@ -61,10 +61,10 @@ export default function LoginForm() {
         } else if (response?.data) {
           setUser(response.data);
           setCurrentSystem(response.data.systems[0]);
-          setCurrentOrg(response.data.systems[0].orgs[0]);
+          setCurrentOrg(response.data.systems?.[0]?.orgs[0]);
           const roles = getActiveRoles(
             response.data,
-            response.data.systems[0].orgs[0],
+            response.data.systems[0]?.orgs[0],
             response.data.systems[0]
           );
           const activeRoles = roles.filter(role => role.isActive);
