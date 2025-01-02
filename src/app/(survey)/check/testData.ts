@@ -137,7 +137,7 @@ export const checkDetailData: any[] = [
     key: '2',
     org1: { orgId: 1, orgName: '四川省总办' },
     org2: { orgId: 2, orgName: '成都总办' },
-    org3: { orgId: 3, orgName: '第一小学' },
+    org3: { orgId: 4, orgName: '第一小学' },
     name: '杨1',
     phone: '123456789',
     detail: 3,

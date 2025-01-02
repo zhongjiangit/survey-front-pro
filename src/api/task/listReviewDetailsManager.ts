@@ -35,7 +35,7 @@ interface ListReviewDetailsManagerParamsType {
   rejectedExpertCount	int		已驳回专家
 */
 
-interface ListReviewDetailsManagerResponse {
+export interface ListReviewDetailsManagerResponse {
   singleFillId: number;
   orgCount: number;
   org: {

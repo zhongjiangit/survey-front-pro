@@ -24,7 +24,7 @@ interface GetFillCountDetailsParamsType {
   fillCount	int		填报份数
 
 */
-interface GetFillCountDetailsResponse {
+export interface GetFillCountDetailsResponse {
   org: {
     orgId: number;
     orgName: string;

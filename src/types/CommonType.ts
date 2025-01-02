@@ -321,3 +321,16 @@ export enum DetailShowTypeEnum {
   Fill = 'fill',
   Check = 'check',
 }
+
+export const LEVEL_LABEL: { [key: number]: string } = {
+  1: '第一层级单位',
+  2: '第二层级单位',
+  3: '第三层级单位',
+  4: '第四层级单位',
+  5: '第五层级单位',
+  6: '第六层级单位',
+  7: '第七层级单位',
+  8: '第八层级单位',
+  9: '第九层级单位',
+  10: '第十层级单位',
+};

@@ -7,15 +7,14 @@ import Circle from '@/components/display/circle';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
-  fullJoinRowSpanData,
+  joinRowSpanDataChild,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
-import { checkDetailData } from '../../testData';
-import OrgResult from './modules/org-result';
+import { useReviewResultColumns } from '../hooks/useReviewResultColumns';
 import ProfessorResult from './modules/professor-result';
 
 interface DataType {
@@ -43,6 +42,7 @@ const ReviewResultModal = (props: Props) => {
   const [open, setOpen] = useState(false);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const { columns, setColumns } = useReviewResultColumns([]);
 
   const {
     run: getReviewResult,
@@ -61,81 +61,94 @@ const ReviewResultModal = (props: Props) => {
     },
     {
       manual: true,
+      onSuccess: data => {
+        setColumns(data.data);
+        const combineKeys = Object.keys(data.data[0]?.levels).map(
+          (_key, index) => `org${index + 1}`
+        );
+        const tableData = (combineKeys || []).reduce(
+          (prev: any[] | undefined, currentKey: string) => {
+            return joinRowSpanDataChild(prev, currentKey, 'orgId');
+          },
+          data?.data
+        );
+        setDataSource(tableData);
+      },
     }
   );
 
-  const columns: TableProps<DataType>['columns'] = [
-    {
-      title: (
-        <>
-          <div>第一层级单位</div>
-          <div>平均分(点击查看详情)</div>
-        </>
-      ),
-      dataIndex: 'org1',
-      align: 'center',
-      onCell: text => {
-        return {
-          rowSpan: text.rowSpan?.org1 || 0,
-        };
-      },
-      render: (text, record) => (
-        <>
-          <div>{text.orgName || '-'}</div>
-          <OrgResult
-            buttonText={`${record.org1Result}分`}
-            record={record}
-            modalTitle={text.orgName || '-'}
-          ></OrgResult>
-        </>
-      ),
-    },
-    {
-      title: (
-        <>
-          <div>第二层级单位</div>
-          <div>平均分(点击查看详情)</div>
-        </>
-      ),
-      dataIndex: 'org2',
-      align: 'center',
-      onCell: text => ({
-        rowSpan: text.rowSpan?.org2 || 0,
-      }),
-      render: (text, record) => (
-        <>
-          <div>{text.orgName || '-'}</div>
-          <OrgResult
-            buttonText={`${record?.org2Result}分`}
-            modalTitle={text.orgName || '-'}
-            record={record}
-          ></OrgResult>
-        </>
-      ),
-    },
-    {
-      title: (
-        <>
-          <div>第三层级单位</div>
-          <div>平均分(点击查看详情)</div>
-        </>
-      ),
-      dataIndex: 'org3',
-      align: 'center',
-      onCell: text => ({
-        rowSpan: text.rowSpan?.org3 || 0,
-      }),
-      render: (text, record) => (
-        <>
-          <div>{text.orgName || '-'}</div>
-          <OrgResult
-            buttonText={`${record.org3Result}分`}
-            record={record}
-            modalTitle={text.orgName || '-'}
-          ></OrgResult>
-        </>
-      ),
-    },
+  const baseColumns: TableProps<DataType>['columns'] = [
+    // {
+    //   title: (
+    //     <>
+    //       <div>第一层级单位</div>
+    //       <div>平均分(点击查看详情)</div>
+    //     </>
+    //   ),
+    //   dataIndex: 'org1',
+    //   align: 'center',
+    //   onCell: text => {
+    //     return {
+    //       rowSpan: text.rowSpan?.org1 || 0,
+    //     };
+    //   },
+    //   render: (text, record) => (
+    //     <>
+    //       <div>{text.orgName || '-'}</div>
+    //       <OrgResult
+    //         buttonText={`${record.averageScore}分`}
+    //         record={record}
+    //         modalTitle={text.orgName || '-'}
+    //       ></OrgResult>
+    //     </>
+    //   ),
+    // },
+    // {
+    //   title: (
+    //     <>
+    //       <div>第二层级单位</div>
+    //       <div>平均分(点击查看详情)</div>
+    //     </>
+    //   ),
+    //   dataIndex: 'org2',
+    //   align: 'center',
+    //   onCell: text => ({
+    //     rowSpan: text.rowSpan?.org2 || 0,
+    //   }),
+    //   render: (text, record) => (
+    //     <>
+    //       <div>{text.orgName || '-'}</div>
+    //       <OrgResult
+    //         buttonText={`${record?.org2Result}分`}
+    //         modalTitle={text.orgName || '-'}
+    //         record={record}
+    //       ></OrgResult>
+    //     </>
+    //   ),
+    // },
+    // {
+    //   title: (
+    //     <>
+    //       <div>第三层级单位</div>
+    //       <div>平均分(点击查看详情)</div>
+    //     </>
+    //   ),
+    //   dataIndex: 'org3',
+    //   align: 'center',
+    //   onCell: text => ({
+    //     rowSpan: text.rowSpan?.org3 || 0,
+    //   }),
+    //   render: (text, record) => (
+    //     <>
+    //       <div>{text.orgName || '-'}</div>
+    //       <OrgResult
+    //         buttonText={`${record.org3Result}分`}
+    //         record={record}
+    //         modalTitle={text.orgName || '-'}
+    //       ></OrgResult>
+    //     </>
+    //   ),
+    // },
     {
       title: '姓名',
       dataIndex: 'fillerStaffName',
@@ -199,25 +212,28 @@ const ReviewResultModal = (props: Props) => {
     },
   ];
 
-  useEffect(() => {
-    setDataSource(
-      joinRowSpanKey.reduce(
-        (prev: any[] | undefined, currentKey) => {
-          return fullJoinRowSpanData(prev, currentKey);
-        },
-        reviewResultData?.data.length ? reviewResultData?.data : checkDetailData // TODO: remove this line
-      )
-    );
+  // useEffect(() => {
+  //   setDataSource(
+  //     joinRowSpanKey.reduce(
+  //       (prev: any[] | undefined, currentKey) => {
+  //         return fullJoinRowSpanData(prev, currentKey);
+  //       },
+  //       reviewResultData?.data.length ? reviewResultData?.data : checkDetailData // TODO: remove this line
+  //     )
+  //   );
 
-    return () => {
-      setDataSource(undefined);
-    };
-  }, [reviewResultData]);
+  //   return () => {
+  //     setDataSource(undefined);
+  //   };
+  // }, [reviewResultData]);
 
   useEffect(() => {
     if (open) {
       getReviewResult();
     }
+    return () => {
+      setDataSource(undefined);
+    };
   }, [getReviewResult, open]);
 
   return (
@@ -242,7 +258,7 @@ const ReviewResultModal = (props: Props) => {
         loading={getReviewResultLoading}
       >
         <Table<DataType>
-          columns={columns}
+          columns={[...columns, ...baseColumns]}
           dataSource={dataSource}
           bordered
           pagination={{

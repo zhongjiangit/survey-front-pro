@@ -4,11 +4,15 @@ import Api from '@/api';
 import { taskType } from '@/app/modules/task-detail';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { DownOutlined } from '@ant-design/icons';
+import {
+  fullJoinRowSpanData,
+  joinRowSpanKeyParamsType,
+} from '@/lib/join-rowspan-data';
 import { useRequest } from 'ahooks';
 import type { TreeDataNode, TreeProps } from 'antd';
-import { Modal, Tree } from 'antd';
-import { useEffect } from 'react';
+import { Modal, Table } from 'antd';
+import { useEffect, useState } from 'react';
+import { useFillCountDetailsColumn } from '../../modules/hooks/useFillCountDetailsColumn';
 
 const treeData: TreeDataNode[] = [
   {
@@ -42,11 +46,18 @@ interface TaskFilledModalProps {
   setOpen: (open: boolean) => void;
   task: taskType | undefined;
 }
-
+const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
+  { coKey: 'org1', compareKeys: ['org1'], childKey: { org1: 'orgId' } },
+  { coKey: 'org2', compareKeys: ['org2'], childKey: { org2: 'orgId' } },
+  { coKey: 'org3', compareKeys: ['org3'], childKey: { org3: 'orgId' } },
+];
 const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-
+  const { columns, setColumns } = useFillCountDetailsColumn([]);
+  const [dataSource, setDataSource] = useState<any>();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
     console.log('selected', selectedKeys, info);
   };
@@ -70,6 +81,17 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
     },
     {
       manual: true,
+      onSuccess: data => {
+        setColumns(data?.data);
+        setDataSource(
+          joinRowSpanKey.reduce(
+            (prev: any[] | undefined, keyParams) => {
+              return fullJoinRowSpanData(prev, keyParams);
+            },
+            data?.data.length ? data?.data : []
+          )
+        );
+      },
     }
   );
 
@@ -90,13 +112,31 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
       onOk={() => {
         setOpen(false);
       }}
+      width={1200}
     >
-      <Tree
+      {/* <Tree
         showLine
         switcherIcon={<DownOutlined />}
         defaultExpandAll
         onSelect={onSelect}
         treeData={treeData}
+      /> */}
+      <Table
+        columns={[...columns]}
+        dataSource={dataSource}
+        bordered
+        pagination={{
+          total: dataSource?.length,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          current: pageNumber,
+          pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          onChange: (page, pageSize) => {
+            setPageNumber(page);
+            setPageSize(pageSize);
+          },
+        }}
       />
     </Modal>
   );
