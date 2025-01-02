@@ -162,29 +162,29 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
             dayjs(data.data.endTimeFillEstimate, 'YYYY-MM-DD HH:mm'),
           ],
         };
-        // getListLevelAssignSub(initValues?.levels?.[1] ?? 1);
         form.setFieldsValue(initValues);
         setTask(data.data);
       },
     }
   );
 
-  const { data: listVisibleLevels, run: getListVisibleLevels } = useRequest(
-    () => {
-      if (!currentSystem || !currentOrg) {
-        return Promise.reject('No current system');
+  const { data: listVisibleLevels, runAsync: getListVisibleLevels } =
+    useRequest(
+      () => {
+        if (!currentSystem || !currentOrg) {
+          return Promise.reject('No current system');
+        }
+        return Api.listVisibleLevels({
+          currentSystemId: currentSystem.systemId!,
+          currentOrgId: currentOrg.orgId!,
+          // TODO orgId是什么？
+          orgId: currentOrg.orgId!,
+        });
+      },
+      {
+        manual: true,
       }
-      return Api.listVisibleLevels({
-        currentSystemId: currentSystem.systemId!,
-        currentOrgId: currentOrg.orgId!,
-        // TODO orgId是什么？
-        orgId: currentOrg.orgId!,
-      });
-    },
-    {
-      manual: true,
-    }
-  );
+    );
 
   const { data: tagList, run: getTagList } = useRequest(
     (tagType: TagTypeType) => {
@@ -387,9 +387,15 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       }
     }
     if (!assignTaskToMember) {
-      getListVisibleLevels();
+      getListVisibleLevels().then(res => {
+        // 获取要查询的单位层级 分配只能选下级层级
+        const currentLevel =
+          task.createOrgId === currentOrg?.orgId
+            ? task.levels?.[0]?.levelIndex
+            : res.data[1].levelIndex;
+        getListLevelAssignSub(currentLevel);
+      });
       getTagList(TagTypeEnum.Org);
-      getListLevelAssignSub(task.levels?.[0]?.levelIndex);
     }
   }, [task]);
 
@@ -473,12 +479,10 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           }}
           //listVisibleLevels剔除数组中的第一个元素
           options={
-            listVisibleLevels?.data
-              .filter((item, index) => index !== 0)
-              .map(item => ({
-                label: item.levelName,
-                value: item.levelIndex,
-              })) || []
+            listVisibleLevels?.data.slice(1).map(item => ({
+              label: item.levelName,
+              value: item.levelIndex,
+            })) || []
           }
         ></Checkbox.Group>
       </Form.Item>
