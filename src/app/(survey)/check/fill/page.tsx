@@ -147,6 +147,7 @@ const ToAllotTask = () => {
               <TemplateDetailModal
                 templateId={record.templateId}
                 TemplateType={TemplateTypeEnum.Check}
+                description={record.description}
               />
             </div>
             {record.maxFillCount !== 0 ? (

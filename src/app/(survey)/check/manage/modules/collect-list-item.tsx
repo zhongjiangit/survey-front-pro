@@ -250,6 +250,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               <TemplateDetailModal
                 templateId={record.templateId}
                 TemplateType={TemplateTypeEnum.Check}
+                description={record.description}
               />
             </div>
             {record.maxFillCount !== 0 ? (

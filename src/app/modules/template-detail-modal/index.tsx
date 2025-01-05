@@ -16,6 +16,7 @@ interface TemplateDetailModalProps {
   taskId?: number;
   singleFillId?: number;
   TemplateType: TemplateType;
+  description?: string;
 }
 
 const TemplateDetailModal = ({
@@ -25,6 +26,7 @@ const TemplateDetailModal = ({
   TemplateType,
   taskId,
   singleFillId,
+  description = '',
 }: TemplateDetailModalProps) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
@@ -127,7 +129,7 @@ const TemplateDetailModal = ({
       </a>
 
       <Modal
-        width={1400}
+        width={1200}
         open={open}
         title={title || '模板详情'}
         onCancel={() => {
@@ -136,40 +138,46 @@ const TemplateDetailModal = ({
         maskClosable={false}
         footer={null}
       >
-        <Form
-          form={form}
-          disabled
-          className="min-w-96 w-[40vw]"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          autoComplete="off"
-          name="template_detail_modal"
-        >
-          {data?.data?.items?.length ? (
-            data?.data?.items.map((item: CollectItemType, index: number) => (
-              <div className="flex" key={index}>
-                <RenderFormItem
-                  type={item.widgetType || 'input'}
-                  option={
-                    widgetList?.find(
-                      (widget: any) => widget.id === item.widgetId
-                    )?.widgetDetails
-                  }
-                  item={item}
-                />
-              </div>
-            ))
-          ) : (
-            <Empty />
-          )}
-          {!singleFillDetails && (
-            <Form.Item className="flex justify-center">
-              <Button disabled type="primary" htmlType="submit">
-                保存
-              </Button>
-            </Form.Item>
-          )}
-        </Form>
+        <div className="flex gap-5 justify-between">
+          <Form
+            form={form}
+            disabled
+            className="min-w-96 w-[40vw]"
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            autoComplete="off"
+            name="template_detail_modal"
+          >
+            {data?.data?.items?.length ? (
+              data?.data?.items.map((item: CollectItemType, index: number) => (
+                <div className="flex" key={index}>
+                  <RenderFormItem
+                    type={item.widgetType || 'input'}
+                    option={
+                      widgetList?.find(
+                        (widget: any) => widget.id === item.widgetId
+                      )?.widgetDetails
+                    }
+                    item={item}
+                  />
+                </div>
+              ))
+            ) : (
+              <Empty />
+            )}
+            {!singleFillDetails && (
+              <Form.Item className="flex justify-center">
+                <Button disabled type="primary" htmlType="submit">
+                  保存
+                </Button>
+              </Form.Item>
+            )}
+          </Form>
+          <div className="flex flex-col justify-start items-center w-80">
+            <h2 className="text-lg font-bold">任务说明</h2>
+            <div>{description}</div>
+          </div>
+        </div>
       </Modal>
     </>
   );
