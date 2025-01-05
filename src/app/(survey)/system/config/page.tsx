@@ -73,13 +73,13 @@ export default function Page() {
   );
 
   useEffect(() => {
-    if (!!selectedTab) {
+    if (selectedTab) {
       setActiveKey(selectedTab);
     }
   }, [selectedTab]);
 
   const items: TabsProps['items'] = useMemo(() => {
-    if (!!system) {
+    if (system) {
       return [
         {
           key: 'basic',

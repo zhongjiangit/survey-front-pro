@@ -82,6 +82,21 @@ const Check = ({ system }: CheckProps) => {
     }
   );
 
+  const { run: deleteTemplate, loading: deleteLoading } = useRequest(
+    (id: number) => {
+      return Api.deleteTemplate({
+        id: id,
+        currentSystemId: system.id,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        getCheckList();
+      },
+    }
+  );
+
   const copyCheckTemplate = (record: TemplateItemType) => {
     createOutline({
       templateId: record.templateId,
@@ -96,7 +111,7 @@ const Check = ({ system }: CheckProps) => {
   const columns = useMemo(
     () => [
       {
-        title: '收集模板',
+        title: '抽检模板',
         dataIndex: 'templateTitle',
         key: 'checkList',
       },
@@ -144,7 +159,9 @@ const Check = ({ system }: CheckProps) => {
             <Popconfirm
               title="删除模版"
               description="删除后将不可恢复，您确定要删除此模版吗？"
-              // onConfirm={confirm}
+              onConfirm={() => {
+                deleteTemplate(record.templateId);
+              }}
             >
               <a>删除</a>
             </Popconfirm>
@@ -171,18 +188,12 @@ const Check = ({ system }: CheckProps) => {
       <Table
         columns={columns}
         dataSource={checkList?.data || []}
-        loading={loading || submitLoading}
+        loading={loading || submitLoading || deleteLoading}
         pagination={{
           total: checkList?.total,
           showSizeChanger: true,
           showQuickJumper: true,
-          // current: pageNumber,
-          // pageSize: pageSize,
           showTotal: total => `总共 ${total} 条`,
-          // onChange: (page, pageSize) => {
-          //   setPageNumber(page);
-          //   setPageSize(pageSize);
-          // },
         }}
       />
       <CreateModal

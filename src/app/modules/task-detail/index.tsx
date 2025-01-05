@@ -6,7 +6,7 @@ import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { DetailShowType, DetailShowTypeEnum } from '@/types/CommonType';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { message, Modal, Tabs } from 'antd';
+import { Empty, message, Modal, Tabs } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import FillCollect from './detail';
 import './style.css';
@@ -221,24 +221,28 @@ const TaskDetail = ({
         destroyOnClose
         maskClosable={false}
       >
-        <div className="py-10 min-h-96 h-[80vh] shadow-lg">
-          <Tabs
-            rootClassName="fill-detail-tabs"
-            tabPosition={'left'}
-            type="editable-card"
-            onChange={onChange}
-            activeKey={items.length ? activeKey : 'nofill'}
-            onEdit={onEdit}
-            addIcon={
-              createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
-            }
-            hideAdd={
-              (maxFillCount && items.length >= maxFillCount) ||
-              showType === DetailShowTypeEnum.Check
-            }
-            items={items}
-          />
-        </div>
+        {showType === DetailShowTypeEnum.Check && items.length === 0 ? (
+          <Empty />
+        ) : (
+          <div className="py-10 min-h-96 h-[80vh] shadow-lg">
+            <Tabs
+              rootClassName="fill-detail-tabs"
+              tabPosition={'left'}
+              type="editable-card"
+              onChange={onChange}
+              activeKey={items.length ? activeKey : 'nofill'}
+              onEdit={onEdit}
+              addIcon={
+                createSingleFillLoading ? <LoadingOutlined /> : <PlusOutlined />
+              }
+              hideAdd={
+                (maxFillCount && items.length >= maxFillCount) ||
+                showType === DetailShowTypeEnum.Check
+              }
+              items={items}
+            />
+          </div>
+        )}
       </Modal>
     </>
   );

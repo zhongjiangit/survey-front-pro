@@ -1,9 +1,10 @@
+import createCollectDetails from './create-details';
 import createTemplateOutline from './create-outline';
-import getTemplateOutlineList from './list-outline';
-import updateTemplateTitle from './update-title';
 import getTemplateDetails from './get-details';
 import getAllWidgetsList from './list-all-widgets';
-import createCollectDetails from './create-details';
+import getTemplateOutlineList from './list-outline';
+import deleteTemplate from './template-delete';
+import updateTemplateTitle from './update-title';
 
 const templateApi = {
   createTemplateOutline,
@@ -12,6 +13,7 @@ const templateApi = {
   getTemplateDetails,
   getAllWidgetsList,
   createCollectDetails,
+  deleteTemplate,
 };
 
 export default templateApi;
