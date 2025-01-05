@@ -124,14 +124,15 @@ export const ArrWidgetTypes: WidgetType[] = [
 ];
 
 // ----------------- 通用类型 任务状态类型 -----------------
-// taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
+// taskStatus	int		任务状态 0：未开始 1：进行中 2：完成 9: 已取消
 // todo 看需求ui有已删除状态，接口无
-export type TaskStatusType = 0 | 1 | 2;
+export type TaskStatusType = 0 | 1 | 2 | 9;
 
 export enum TaskStatusTypeEnum {
   NotStart = 0,
   Processing = 1,
   Finished = 2,
+  Cancel = 9,
 }
 
 // 生成task类型对象
@@ -139,6 +140,7 @@ export const TaskStatusObject = {
   [TaskStatusTypeEnum.NotStart]: '未开始',
   [TaskStatusTypeEnum.Processing]: '进行中',
   [TaskStatusTypeEnum.Finished]: '完成',
+  [TaskStatusTypeEnum.Cancel]: '已取消',
 };
 
 // ----------------- 通用类型 评估状态类型 -----------------
@@ -148,6 +150,7 @@ export enum EvaluateStatusTypeEnum {
   NotStart = 0,
   Processing = 1,
   Finished = 2,
+  Cancel = 9,
 }
 
 // 生成evaluate类型对象
@@ -156,6 +159,7 @@ export const EvaluateStatusObject = {
   [EvaluateStatusTypeEnum.NotStart]: '未开始',
   [EvaluateStatusTypeEnum.Processing]: '进行中',
   [EvaluateStatusTypeEnum.Finished]: '完成',
+  [EvaluateStatusTypeEnum.Cancel]: '已取消',
 };
 
 // ----------------- 通用类型 评审状态类型 -----------------

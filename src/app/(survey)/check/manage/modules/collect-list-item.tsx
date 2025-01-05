@@ -13,6 +13,7 @@ import {
   TaskStatusObject,
   TaskStatusTypeEnum,
   TemplateTypeEnum,
+  ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Popconfirm, Space, Table } from 'antd';
@@ -105,8 +106,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         title="确认完成"
         key="finish"
         description={
-          // TODO: 需要后端返回字段判断是否还有未提交的数据
-          record.processStatus === 0
+          record.hasUncompletedFill === ZeroOrOneTypeEnum.One
             ? '未提交的数据将丢弃是否继续？'
             : '点击完成任务不可逆是否继续？'
         }
@@ -542,10 +542,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                       task={item}
                       refreshPublishTask={refreshPublishTask}
                     />
-                    <TaskDeleteModal
-                      taskId={item.taskId}
-                      onRefresh={refreshPublishTask}
-                    />
+                    {item.fillTaskStatus !== 2 ||
+                    item.reviewTaskStatus !== 2 ? (
+                      <TaskDeleteModal
+                        taskId={item.taskId}
+                        onRefresh={refreshPublishTask}
+                      />
+                    ) : null}
                   </div>
                 )}
               </div>

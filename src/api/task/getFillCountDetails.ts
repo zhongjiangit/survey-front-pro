@@ -17,6 +17,7 @@ interface GetFillCountDetailsParamsType {
 /*
 				
     []json		
+  orgCount  int		上层各级单位数量
   org[n]	json		上层各级单位信息，按从上到下顺序，[n]依次取1，2，3。。。例如 org1,org2,org3。。。
     orgId	int		单位id
     orgName	string		单位名称

@@ -25,6 +25,7 @@ interface ListSubInspTaskParamsType {
   createStaffId	int		发布成员id
   createStaffName	string		发布成员名称
   taskName	string		任务名称
+  description	string		任务描述
   beginTimeFillEstimate	string		预计填报开始时间 yyyy-mm-dd hh:MM:ss
   endTimeFillEstimate	string		预计填报结束时间 yyyy-mm-dd hh:MM:ss
   endTimeFillActual	string	○	实际填报结束时间 yyyy-mm-dd hh:MM:ss，未结束不传
@@ -55,6 +56,7 @@ export interface ListSubInspTaskResponse {
   createStaffId: number;
   createStaffName: string;
   taskName: string;
+  description: string;
   beginTimeFillEstimate: string;
   endTimeFillEstimate: string;
   endTimeFillActual?: string;

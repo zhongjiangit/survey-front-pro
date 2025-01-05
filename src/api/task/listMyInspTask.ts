@@ -25,6 +25,7 @@ interface ListMyInspTaskParamsType {
   createStaffId	int		发布成员id
   createStaffName	string		发布成员名称
   taskName	string		任务名称
+  description	string		任务描述
   beginTimeFillEstimate	string		预计填报开始时间 yyyy-mm-dd hh:MM:ss
   endTimeFillEstimate	string		预计填报结束时间 yyyy-mm-dd hh:MM:ss
   endTimeFillActual	string	○	实际填报结束时间 yyyy-mm-dd hh:MM:ss，未结束不传
@@ -46,7 +47,9 @@ interface ListMyInspTaskParamsType {
   reviewPeople	int	○	评审阶段填报专家人数，未设置评审不传
   reviewCount	int	○	评审阶段填报专家份数，未设置评审不传
   reviewRate	int	○	评审阶段填报比例，0-100整数值，未设置评审不传
-  reviewTaskStatus	int	○	评审阶段任务状态 0：未开始 1：进行中 2：完成，未设置评审不传
+  reviewTaskStatus	int	○	评审阶段任务状态 0：未开始 1：进行中 2：完成 9：已取消，未设置评审不传
+  hasUncompletedFill	int		是否还有需要处理的填报数据 0：无  1：有
+  hasUncompletedReview	int		是否还有需要处理的评审数据 0：无  1：有
 */
 export interface ListMyInspTaskResponse {
   taskId: number;
@@ -56,6 +59,7 @@ export interface ListMyInspTaskResponse {
   createStaffId: number;
   createStaffName: string;
   taskName: string;
+  description: string;
   beginTimeFillEstimate: string;
   endTimeFillEstimate: string;
   endTimeFillActual?: string;
@@ -78,6 +82,8 @@ export interface ListMyInspTaskResponse {
   reviewCount?: number;
   reviewRate?: number;
   reviewTaskStatus?: number;
+  hasUncompletedFill: number;
+  hasUncompletedReview: number;
 }
 
 /**

@@ -151,7 +151,7 @@ const ReviewResultModal = (props: Props) => {
           setOpen(true);
         }}
       >
-        评审结果1
+        评审结果
       </a>
       <Modal
         title="专家详情"

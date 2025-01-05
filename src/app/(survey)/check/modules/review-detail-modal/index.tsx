@@ -203,7 +203,7 @@ const ReviewDetailModal = (props: Props) => {
           setOpen(true);
         }}
       >
-        评审详情2
+        评审详情
       </a>
       <Modal
         title="专家详情"
