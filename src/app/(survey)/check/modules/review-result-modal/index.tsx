@@ -34,7 +34,11 @@ const ReviewResultModal = (props: Props) => {
   const { columns, setColumns } = useReviewResultColumns([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const { run: getReviewResult, loading: getReviewResultLoading } = useRequest(
+  const {
+    run: getReviewResult,
+    loading: getReviewResultLoading,
+    data: reviewResultData,
+  } = useRequest(
     () => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('currentSystem or currentOrg is not defined');
@@ -43,6 +47,8 @@ const ReviewResultModal = (props: Props) => {
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,
         taskId: task.taskId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
       });
     },
     {
@@ -169,7 +175,7 @@ const ReviewResultModal = (props: Props) => {
           dataSource={dataSource}
           bordered
           pagination={{
-            total: dataSource?.length,
+            total: reviewResultData?.total,
             showSizeChanger: true,
             showQuickJumper: true,
             current: pageNumber,

@@ -16,23 +16,15 @@ interface ApproveFillParamsType {
   staffId: number;
 }
 
-/*
-
-*/
-export interface ApproveFillResponse {}
-
 /**
  * approveFill
  * @param params
  * @returns
  */
 function approveFill(params: ApproveFillParamsType) {
-  return SurveyService.post<CommonResponseType<ApproveFillResponse>>(
-    `${baseUrl}/task/approveFill`,
-    {
-      ...params,
-    }
-  );
+  return SurveyService.post<CommonResponseType>(`${baseUrl}/task/approveFill`, {
+    ...params,
+  });
 }
 
 export default approveFill;

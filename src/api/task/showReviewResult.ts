@@ -6,12 +6,16 @@ import { baseUrl } from '../config';
 currentSystemId	int		登录用户当前操作的系统id
 currentOrgId	int		登录用户当前操作的单位id
 taskId	int		任务id
+pageNumber	int		要取数据的页码数
+pageSize	int		每页展示的数据条数
 */
 
 interface ShowReviewResultParamsType {
   currentSystemId: number;
   currentOrgId: number;
   taskId: number;
+  pageNumber: number;
+  pageSize: number;
 }
 
 /*
@@ -46,7 +50,7 @@ export interface ShowReviewResultResponse {
     fillIndex: number;
     score: number;
   }[];
-  levels: any
+  levels: any;
 }
 
 /**

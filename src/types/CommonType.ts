@@ -338,3 +338,20 @@ export const LEVEL_LABEL: { [key: number]: string } = {
   9: '第九层级单位',
   10: '第十层级单位',
 };
+
+// 1：已通过专家 2：待审核专家 3：待提交专家  4:已驳回专家
+export type ReviewType = 1 | 2 | 3 | 4;
+
+export enum ReviewTypeEnum {
+  Passed = 1,
+  WaitAudit = 2,
+  WaitSubmit = 3,
+  Reject = 4,
+}
+
+export const ReviewTypeObject = {
+  [ReviewTypeEnum.Passed]: '已通过专家',
+  [ReviewTypeEnum.WaitAudit]: '待审核专家',
+  [ReviewTypeEnum.WaitSubmit]: '待提交专家',
+  [ReviewTypeEnum.Reject]: '已驳回专家',
+};

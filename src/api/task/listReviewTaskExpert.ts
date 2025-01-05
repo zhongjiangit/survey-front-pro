@@ -9,7 +9,12 @@ pageNumber	int		要取数据的页码数
 pageSize	int		每页展示的数据条数
 */
 
-interface ListReviewTaskExpertParamsType {}
+interface ListReviewTaskExpertParamsType {
+  currentSystemId: number;
+  currentOrgId: number;
+  pageNumber: number;
+  pageSize: number;
+}
 
 /*
 	[]json		

@@ -19,6 +19,8 @@ import getFillProcessDetails from './getFillProcessDetails';
 import getInspTaskFill from './getInspTaskFill';
 import getInspTaskReview from './getInspTaskReview';
 import getReviewAssignOverview from './getReviewAssignOverview';
+import getReviewResultOrg from './getReviewResultOrg';
+import getReviewResultStaff from './getReviewResultStaff';
 import getSingleFillDetails from './getSingleFillDetails';
 import listAssignCollectionTask from './listAssignCollectionTask';
 import listAssignInspTask from './listAssignInspTask';
@@ -33,6 +35,7 @@ import listReviewAssignByExpert from './listReviewAssignByExpert';
 import listReviewAssignByFill from './listReviewAssignByFill';
 import listReviewDetailsExpert from './listReviewDetailsExpert';
 import listReviewDetailsManager from './listReviewDetailsManager';
+import listReviewExpertDetails from './listReviewExpertDetails';
 import listReviewTaskExpert from './listReviewTaskExpert';
 import listSingleFill from './listSingleFill';
 import listSubCollectionTask from './listSubCollectionTask';
@@ -102,6 +105,9 @@ const taskApi = {
   getReviewAssignOverview,
   getFillCountDetails,
   getFillPassCountDetails,
+  getReviewResultOrg,
+  getReviewResultStaff,
+  listReviewExpertDetails,
 };
 
 export default taskApi;
