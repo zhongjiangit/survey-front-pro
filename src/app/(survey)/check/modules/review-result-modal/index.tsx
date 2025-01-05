@@ -7,7 +7,7 @@ import Circle from '@/components/display/circle';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
-  joinRowSpanDataChild,
+  fullJoinRowSpanData,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
@@ -20,17 +20,6 @@ import ProfessorResult from './modules/professor-result';
 interface DataType {
   [key: string]: any;
 }
-// const joinRowSpanKey = ['org1', 'org2', 'org3', 'name'];
-
-const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
-  { coKey: 'org1', compareKeys: ['org1'], childKey: { org1: 'orgId' } },
-  { coKey: 'org2', compareKeys: ['org2'], childKey: { org2: 'orgId' } },
-  { coKey: 'org3', compareKeys: ['org3'], childKey: { org3: 'orgId' } },
-  {
-    coKey: 'fillerStaffName',
-    compareKeys: ['fillerStaffName', 'fillerCellphone'],
-  },
-];
 
 interface Props {
   task: ListMyInspTaskResponse;
@@ -43,12 +32,9 @@ const ReviewResultModal = (props: Props) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const { columns, setColumns } = useReviewResultColumns([]);
-
-  const {
-    run: getReviewResult,
-    data: reviewResultData,
-    loading: getReviewResultLoading,
-  } = useRequest(
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { run: getReviewResult, loading: getReviewResultLoading } = useRequest(
     () => {
       if (!currentSystem || !currentOrg) {
         return Promise.reject('currentSystem or currentOrg is not defined');
@@ -62,93 +48,29 @@ const ReviewResultModal = (props: Props) => {
     {
       manual: true,
       onSuccess: data => {
+        const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
+        for (let i = 0; i < data?.data[0]?.orgCount; i++) {
+          joinRowSpanKey.push({
+            coKey: `org${i + 1}`,
+            compareKeys: [`org${i + 1}`],
+            childKey: { [`org${i + 1}`]: 'orgId' },
+          });
+        }
+        joinRowSpanKey.push({
+          coKey: 'fillerStaffName',
+          compareKeys: ['fillerStaffName', 'fillerCellphone'],
+        });
         setColumns(data.data);
-        const combineKeys = Object.keys(data.data[0]?.levels).map(
-          (_key, index) => `org${index + 1}`
+        setDataSource(
+          joinRowSpanKey?.reduce((prev: any[] | undefined, keyParams) => {
+            return fullJoinRowSpanData(prev, keyParams);
+          }, data?.data)
         );
-        const tableData = (combineKeys || []).reduce(
-          (prev: any[] | undefined, currentKey: string) => {
-            return joinRowSpanDataChild(prev, currentKey, 'orgId');
-          },
-          data?.data
-        );
-        setDataSource(tableData);
       },
     }
   );
 
   const baseColumns: TableProps<DataType>['columns'] = [
-    // {
-    //   title: (
-    //     <>
-    //       <div>第一层级单位</div>
-    //       <div>平均分(点击查看详情)</div>
-    //     </>
-    //   ),
-    //   dataIndex: 'org1',
-    //   align: 'center',
-    //   onCell: text => {
-    //     return {
-    //       rowSpan: text.rowSpan?.org1 || 0,
-    //     };
-    //   },
-    //   render: (text, record) => (
-    //     <>
-    //       <div>{text.orgName || '-'}</div>
-    //       <OrgResult
-    //         buttonText={`${record.averageScore}分`}
-    //         record={record}
-    //         modalTitle={text.orgName || '-'}
-    //       ></OrgResult>
-    //     </>
-    //   ),
-    // },
-    // {
-    //   title: (
-    //     <>
-    //       <div>第二层级单位</div>
-    //       <div>平均分(点击查看详情)</div>
-    //     </>
-    //   ),
-    //   dataIndex: 'org2',
-    //   align: 'center',
-    //   onCell: text => ({
-    //     rowSpan: text.rowSpan?.org2 || 0,
-    //   }),
-    //   render: (text, record) => (
-    //     <>
-    //       <div>{text.orgName || '-'}</div>
-    //       <OrgResult
-    //         buttonText={`${record?.org2Result}分`}
-    //         modalTitle={text.orgName || '-'}
-    //         record={record}
-    //       ></OrgResult>
-    //     </>
-    //   ),
-    // },
-    // {
-    //   title: (
-    //     <>
-    //       <div>第三层级单位</div>
-    //       <div>平均分(点击查看详情)</div>
-    //     </>
-    //   ),
-    //   dataIndex: 'org3',
-    //   align: 'center',
-    //   onCell: text => ({
-    //     rowSpan: text.rowSpan?.org3 || 0,
-    //   }),
-    //   render: (text, record) => (
-    //     <>
-    //       <div>{text.orgName || '-'}</div>
-    //       <OrgResult
-    //         buttonText={`${record.org3Result}分`}
-    //         record={record}
-    //         modalTitle={text.orgName || '-'}
-    //       ></OrgResult>
-    //     </>
-    //   ),
-    // },
     {
       title: '姓名',
       dataIndex: 'fillerStaffName',
@@ -212,21 +134,6 @@ const ReviewResultModal = (props: Props) => {
     },
   ];
 
-  // useEffect(() => {
-  //   setDataSource(
-  //     joinRowSpanKey.reduce(
-  //       (prev: any[] | undefined, currentKey) => {
-  //         return fullJoinRowSpanData(prev, currentKey);
-  //       },
-  //       reviewResultData?.data.length ? reviewResultData?.data : checkDetailData // TODO: remove this line
-  //     )
-  //   );
-
-  //   return () => {
-  //     setDataSource(undefined);
-  //   };
-  // }, [reviewResultData]);
-
   useEffect(() => {
     if (open) {
       getReviewResult();
@@ -244,7 +151,7 @@ const ReviewResultModal = (props: Props) => {
           setOpen(true);
         }}
       >
-        评审结果
+        评审结果1
       </a>
       <Modal
         title="专家详情"
@@ -265,13 +172,13 @@ const ReviewResultModal = (props: Props) => {
             total: dataSource?.length,
             showSizeChanger: true,
             showQuickJumper: true,
-            // current: pageNumber,
-            // pageSize: pageSize,
+            current: pageNumber,
+            pageSize: pageSize,
             showTotal: total => `总共 ${total} 条`,
-            // onChange: (page, pageSize) => {
-            //   setPageNumber(page);
-            //   setPageSize(pageSize);
-            // },
+            onChange: (page, pageSize) => {
+              setPageNumber(page);
+              setPageSize(pageSize);
+            },
           }}
         />
       </Modal>

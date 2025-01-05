@@ -15,20 +15,12 @@ import {
 } from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { checkDetailData } from '../../testData';
 import { useReviewDetailColumn } from '../hooks/useReviewDetailColumn';
 import ProfessorDetail from './modules/professor-detail';
 
 interface DataType {
   [key: string]: any;
 }
-
-const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
-  { coKey: 'org1', compareKeys: ['org1'], childKey: { org1: 'orgId' } },
-  { coKey: 'org2', compareKeys: ['org2'], childKey: { org2: 'orgId' } },
-  { coKey: 'org3', compareKeys: ['org3'], childKey: { org3: 'orgId' } },
-  { coKey: 'name', compareKeys: ['name', 'org3'], childKey: { org1: 'orgId' } },
-];
 
 interface Props {
   task: ListMyInspTaskResponse;
@@ -43,7 +35,6 @@ const ReviewDetailModal = (props: Props) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { columns, setColumns } = useReviewDetailColumn([]);
-  console.log('columns', columns);
 
   const {
     run: getListReviewDetailsManager,
@@ -66,13 +57,28 @@ const ReviewDetailModal = (props: Props) => {
       manual: true,
       refreshDeps: [pageNumber, pageSize],
       onSuccess: data => {
+        const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
+        const orgCount = data?.data[0]?.orgCount;
+        for (let i = 0; i < orgCount; i++) {
+          joinRowSpanKey.push({
+            coKey: `org${i + 1}`,
+            compareKeys: [`org${i + 1}`],
+            childKey: { [`org${i + 1}`]: 'orgId' },
+          });
+        }
+        joinRowSpanKey.push({
+          coKey: 'name',
+          compareKeys: ['name', `org${orgCount}`], //姓名列的合并条件是name和org的最后一级均相同
+          childKey: { [`org${orgCount}`]: 'orgId' },
+        });
         setColumns(data.data);
         setDataSource(
-          joinRowSpanKey.reduce(
+          joinRowSpanKey?.reduce(
             (prev: any[] | undefined, keyParams) => {
               return fullJoinRowSpanData(prev, keyParams);
             },
-            data?.data.length ? data?.data : checkDetailData // TODO: remove this line
+            data?.data
+            // data?.data.length ? data?.data : checkDetailData // TODO: remove this line
           )
         );
       },
@@ -80,35 +86,6 @@ const ReviewDetailModal = (props: Props) => {
   );
 
   const baseColumns: TableProps<DataType>['columns'] = [
-    // {
-    //   title: '第一层级单位',
-    //   dataIndex: 'org1',
-    //   align: 'center',
-    //   onCell: text => {
-    //     return {
-    //       rowSpan: text.rowSpan?.org1 || 0,
-    //     };
-    //   },
-    //   render: text => text.orgName || '-',
-    // },
-    // {
-    //   title: '第二层级单位',
-    //   dataIndex: 'org2',
-    //   align: 'center',
-    //   onCell: text => ({
-    //     rowSpan: text.rowSpan?.org2 || 0,
-    //   }),
-    //   render: text => text.orgName || '-',
-    // },
-    // {
-    //   title: '第三层级单位',
-    //   dataIndex: 'org3',
-    //   align: 'center',
-    //   onCell: text => ({
-    //     rowSpan: text.rowSpan?.org3 || 0,
-    //   }),
-    //   render: text => text.orgName || '-',
-    // },
     {
       title: '姓名',
       dataIndex: 'fillerStaffName',
@@ -226,7 +203,7 @@ const ReviewDetailModal = (props: Props) => {
           setOpen(true);
         }}
       >
-        评审详情
+        评审详情2
       </a>
       <Modal
         title="专家详情"

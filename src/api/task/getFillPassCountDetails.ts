@@ -23,13 +23,14 @@ interface GetFillPassCountDetailsParamsType {
   fillPassCount	int		填报通过份数
 */
 
-interface GetFillPassCountDetailsResponse {
+export interface GetFillPassCountDetailsResponse {
   org: {
     orgId: number;
     orgName: string;
   }[];
   fillPassPeople: number;
   fillPassCount: number;
+  orgCount: number;
 }
 
 /**

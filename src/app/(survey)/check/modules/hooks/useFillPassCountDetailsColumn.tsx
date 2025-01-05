@@ -1,6 +1,6 @@
 'use client';
 
-import { GetFillCountDetailsResponse } from '@/api/task/getFillCountDetails';
+import { GetFillPassCountDetailsResponse } from '@/api/task/getFillPassCountDetails';
 import { LEVEL_LABEL } from '@/types/CommonType';
 import { useEffect, useState } from 'react';
 
@@ -18,11 +18,11 @@ const emptyColumns = [
     dataIndex: `org1`,
   },
 ];
-export function useFillCountDetailsColumn(
-  originData: GetFillCountDetailsResponse[] | undefined | []
+export function useFillPassCountDetailsColumn(
+  originData: GetFillPassCountDetailsResponse[] | undefined | []
 ) {
   const [data, setData] = useState<
-    GetFillCountDetailsResponse[] | undefined | []
+    GetFillPassCountDetailsResponse[] | undefined | []
   >(originData);
   const [finalColumns, setFinalColumns] = useState<any[]>([]);
   const levelCount = data?.[0]?.orgCount || 0;
@@ -43,19 +43,16 @@ export function useFillCountDetailsColumn(
         align: 'center',
         render: (text: any, record: any) => {
           return text?.orgName && i + 1 === levelCount
-            ? `${text?.orgName}(${record?.fillPeople}人, ${record?.fillCount}份)`
+            ? `${text?.orgName}(${record?.fillPassPeople}人, ${record?.fillPassCount}份)`
             : text?.orgName || '-';
         },
       });
     }
-    console.log('tempColumn', tempColumn);
-
     setFinalColumns(tempColumn?.length ? tempColumn : emptyColumns);
     return () => {
       setFinalColumns(emptyColumns);
     };
   }, [data]);
-  console.log('finalColumns', finalColumns);
 
   return { columns: finalColumns, setColumns: setData };
 }

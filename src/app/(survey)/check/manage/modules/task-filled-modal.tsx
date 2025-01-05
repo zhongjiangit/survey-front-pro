@@ -9,48 +9,17 @@ import {
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
 import { useRequest } from 'ahooks';
-import type { TreeDataNode, TreeProps } from 'antd';
+import type { TreeProps } from 'antd';
 import { Modal, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { useFillCountDetailsColumn } from '../../modules/hooks/useFillCountDetailsColumn';
-
-const treeData: TreeDataNode[] = [
-  {
-    title: '四川省教育机构',
-    key: '0-0',
-    children: [
-      {
-        title: '乐山市',
-        key: '0-0-0',
-        children: [
-          {
-            title: '乐山第一小学（1人， 一份）',
-            key: '0-0-0-0',
-          },
-        ],
-      },
-      {
-        title: '绵阳市',
-        key: '0-0-1',
-      },
-      {
-        title: '成都市',
-        key: '0-0-2',
-      },
-    ],
-  },
-];
 
 interface TaskFilledModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   task: taskType | undefined;
 }
-const joinRowSpanKey: joinRowSpanKeyParamsType[] = [
-  { coKey: 'org1', compareKeys: ['org1'], childKey: { org1: 'orgId' } },
-  { coKey: 'org2', compareKeys: ['org2'], childKey: { org2: 'orgId' } },
-  { coKey: 'org3', compareKeys: ['org3'], childKey: { org3: 'orgId' } },
-];
+
 const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
@@ -83,6 +52,14 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
       manual: true,
       onSuccess: data => {
         setColumns(data?.data);
+        const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
+        for (let i = 0; i < data?.data[0]?.orgCount; i++) {
+          joinRowSpanKey.push({
+            coKey: `org${i + 1}`,
+            compareKeys: [`org${i + 1}`],
+            childKey: { [`org${i + 1}`]: 'orgId' },
+          });
+        }
         setDataSource(
           joinRowSpanKey.reduce(
             (prev: any[] | undefined, keyParams) => {
@@ -104,7 +81,7 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
   return (
     <Modal
       open={open}
-      title="填报量"
+      title="填报量1"
       maskClosable={false}
       okText="确定"
       cancelText="取消"
@@ -114,13 +91,6 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
       }}
       width={1200}
     >
-      {/* <Tree
-        showLine
-        switcherIcon={<DownOutlined />}
-        defaultExpandAll
-        onSelect={onSelect}
-        treeData={treeData}
-      /> */}
       <Table
         columns={[...columns]}
         dataSource={dataSource}

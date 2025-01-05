@@ -4,11 +4,15 @@ import Api from '@/api';
 import { taskType } from '@/app/modules/task-detail';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { DownOutlined } from '@ant-design/icons';
+import {
+  fullJoinRowSpanData,
+  joinRowSpanKeyParamsType,
+} from '@/lib/join-rowspan-data';
 import { useRequest } from 'ahooks';
 import type { TreeDataNode, TreeProps } from 'antd';
-import { Modal, Tree } from 'antd';
-import { useEffect } from 'react';
+import { Modal, Table } from 'antd';
+import { useEffect, useState } from 'react';
+import { useFillPassCountDetailsColumn } from '../../modules/hooks/useFillPassCountDetailsColumn';
 
 const treeData: TreeDataNode[] = [
   {
@@ -46,7 +50,10 @@ interface TaskPassedModalProps {
 const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-
+  const { columns, setColumns } = useFillPassCountDetailsColumn([]);
+  const [dataSource, setDataSource] = useState<any>();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const {
     run: getFillPassCountDetails,
     data: fillPassCountDetailsData,
@@ -66,6 +73,25 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
     },
     {
       manual: true,
+      onSuccess: data => {
+        setColumns(data?.data);
+        const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
+        for (let i = 0; i < data?.data[0]?.orgCount; i++) {
+          joinRowSpanKey.push({
+            coKey: `org${i + 1}`,
+            compareKeys: [`org${i + 1}`],
+            childKey: { [`org${i + 1}`]: 'orgId' },
+          });
+        }
+        setDataSource(
+          joinRowSpanKey.reduce(
+            (prev: any[] | undefined, keyParams) => {
+              return fullJoinRowSpanData(prev, keyParams);
+            },
+            data?.data.length ? data?.data : []
+          )
+        );
+      },
     }
   );
 
@@ -82,7 +108,7 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
   return (
     <Modal
       open={open}
-      title="通过量"
+      title="通过量1"
       okText="确定"
       cancelText="取消"
       maskClosable={false}
@@ -91,12 +117,22 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
         setOpen(false);
       }}
     >
-      <Tree
-        showLine
-        switcherIcon={<DownOutlined />}
-        defaultExpandAll
-        onSelect={onSelect}
-        treeData={treeData}
+      <Table
+        columns={[...columns]}
+        dataSource={dataSource}
+        bordered
+        pagination={{
+          total: dataSource?.length,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          current: pageNumber,
+          pageSize: pageSize,
+          showTotal: total => `总共 ${total} 条`,
+          onChange: (page, pageSize) => {
+            setPageNumber(page);
+            setPageSize(pageSize);
+          },
+        }}
       />
     </Modal>
   );

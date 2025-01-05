@@ -174,7 +174,6 @@ const TaskReviewDetailModal = ({
       setLoading('submitCurrentPage', false);
     }
   };
-  
 
   const columns: any = [
     {
@@ -374,7 +373,7 @@ const TaskReviewDetailModal = ({
   return (
     <>
       <a className="text-blue-500" onClick={() => setOpen(true)}>
-        评审详情
+        评审详情1
       </a>
       <Modal
         open={open}
