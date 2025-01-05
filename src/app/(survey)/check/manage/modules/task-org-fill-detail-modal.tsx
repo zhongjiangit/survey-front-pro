@@ -61,9 +61,11 @@ const TaskOrgFillDetailModal = ({
       manual: true,
       onSuccess: data => {
         setColumns(data.data);
-        const combineKeys = Object.keys(data.data[0].levels).map(
-          (_key, index) => `org${index + 1}`
-        );
+        const combineKeys =
+          data.data[0].levels &&
+          Object.keys(data.data[0].levels).map(
+            (_key, index) => `org${index + 1}`
+          );
         const tableData = (combineKeys || []).reduce(
           (prev: any[] | undefined, currentKey: string) => {
             return joinRowSpanDataChild(prev, currentKey, 'orgId');

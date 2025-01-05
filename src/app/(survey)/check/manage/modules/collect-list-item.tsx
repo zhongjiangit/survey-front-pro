@@ -435,13 +435,16 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                 operateButton.detail(record),
                 operateButton.download,
               ]}
+              {record.taskStatus === TaskStatusTypeEnum.Cancel && '-'}
             </Space>
           );
         }
         // 专家评审
         return (
           <Space className="flex justify-center items-center">
-            {record.fillTaskStatus !== TaskStatusTypeEnum.Finished && '-'}
+            {(record.fillTaskStatus !== TaskStatusTypeEnum.Finished ||
+              record.reviewTaskStatus === EvaluateStatusTypeEnum.Cancel) &&
+              '-'}
             {record.fillTaskStatus === TaskStatusTypeEnum.Finished && [
               operateButtonEvaluate.config(record),
             ]}
