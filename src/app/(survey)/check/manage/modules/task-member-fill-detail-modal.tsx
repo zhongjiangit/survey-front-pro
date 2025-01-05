@@ -99,9 +99,10 @@ const TaskMemberFillDetailModal = ({
         render: (_: any, record: any) => {
           // 找出record对象中key以org开头的value
           const orgs = Object.keys(record)
-            .filter(key => key.startsWith('org'))
+            .filter(
+              key => key.startsWith('org') && typeof record[key] === 'object'
+            )
             .map(key => record[key]);
-          console.log('orgs', orgs);
 
           return (
             <div className="cursor-pointer">

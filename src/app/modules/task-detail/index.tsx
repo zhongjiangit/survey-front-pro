@@ -89,8 +89,6 @@ const TaskDetail = ({
     }
   );
 
-  console.log('items', items);
-
   /**
    * 创建填报文件
    */

@@ -265,10 +265,8 @@ export const publishTypeObject = {
   [publishTypeEnum.Staff]: '指定人员发布',
 };
 
-// 任务处理状态， 10：待分配 20：未提交 50:已提交 60:已通过 70:已驳回 100：数据丢弃
-// getFillProcessDetails	获取任务填报处理详情的状态
 /*
-"填报状态 
+10：待分配
 20：未提交
 30：未提交至本人
 40：需本人审核

@@ -189,8 +189,6 @@ export default function Page() {
     setItems(newItems);
   };
 
-  console.log('items', items);
-
   return (
     <main>
       {contextHolder}

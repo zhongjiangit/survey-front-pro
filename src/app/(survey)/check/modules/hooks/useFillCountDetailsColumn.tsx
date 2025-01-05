@@ -55,7 +55,6 @@ export function useFillCountDetailsColumn(
       setFinalColumns(emptyColumns);
     };
   }, [data]);
-  console.log('finalColumns', finalColumns);
 
   return { columns: finalColumns, setColumns: setData };
 }
