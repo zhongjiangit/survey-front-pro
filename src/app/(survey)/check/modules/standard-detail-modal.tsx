@@ -1,11 +1,13 @@
-import { Modal } from 'antd';
-import { ReactNode, useState } from 'react';
+import { Modal, Table } from 'antd';
+import { ReactNode, useMemo, useState } from 'react';
+import { DimensionsType } from '@/api/template/create-details';
 
 interface Props {
   showDom?: ReactNode;
+  dimensions?: DimensionsType[];
 }
 
-const StandardDetailModal = ({ showDom }: Props) => {
+const StandardDetailModal = ({ showDom, dimensions }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleOk = () => {
@@ -15,6 +17,32 @@ const StandardDetailModal = ({ showDom }: Props) => {
   const handleCancel = () => {
     setOpen(false);
   };
+  const columns: any[] = useMemo(
+    () => [
+      {
+        title: '序号',
+        width: '15%',
+        render: (text, record, index) => `${index + 1}`,
+        editable: false,
+      },
+      {
+        title: '指标',
+        dataIndex: 'dimensionName',
+        width: '20%',
+      },
+      {
+        title: '最高分值',
+        dataIndex: 'score',
+        width: '20%',
+      },
+      {
+        title: '准则',
+        dataIndex: 'guideline',
+        width: '30%',
+      },
+    ],
+    []
+  );
 
   return (
     <>
@@ -26,7 +54,6 @@ const StandardDetailModal = ({ showDom }: Props) => {
       >
         {showDom || <span>详情</span>}
       </a>
-
       <Modal
         title="标准详情"
         open={open}
@@ -34,10 +61,7 @@ const StandardDetailModal = ({ showDom }: Props) => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <p>标准一</p>
-        <p>标准二</p>
-        <p>标准三</p>
-        <p>标准四</p>
+        <Table columns={columns} dataSource={dimensions} pagination={false} />
       </Modal>
     </>
   );

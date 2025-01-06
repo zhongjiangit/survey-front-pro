@@ -18,11 +18,12 @@ import {
   Form,
   Input,
   InputNumber,
+  message,
   Modal,
   Space,
   Table,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
 
 interface TaskReviewDetailModalProps {
@@ -34,6 +35,7 @@ const TaskReviewDetailModal = ({
   task,
   refreshList,
 }: TaskReviewDetailModalProps) => {
+  const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
@@ -57,6 +59,9 @@ const TaskReviewDetailModal = ({
     refresh: refreshListReviewDetailsExpert,
   } = useRequest(
     () => {
+      if (!open) {
+        return Promise.reject('未打开');
+      }
       return Api.listReviewDetailsExpert({
         currentSystemId: currentSystem?.systemId!,
         currentOrgId: currentOrg!.orgId!,
@@ -66,13 +71,51 @@ const TaskReviewDetailModal = ({
       });
     },
     {
-      manual: true,
+      refreshDeps: [pageSize, pageNumber, open],
       onSuccess: data => {
         form.resetFields();
         form.setFieldsValue(data.data);
       },
     }
   );
+  const { data: templateDetail, run: getTemplateDetails } = useRequest(
+    (tempId: number) => {
+      return Api.getTemplateDetails({
+        currentSystemId: currentSystem?.systemId!,
+        templateType: TemplateTypeEnum.Collect,
+        templateId: Number(tempId),
+      });
+    },
+    { manual: true }
+  );
+  useEffect(() => {
+    const tempId = listReviewDetailsExpertData?.data[0]?.templateId;
+    if (open && !templateDetail && tempId) {
+      getTemplateDetails(tempId);
+    }
+  }, [listReviewDetailsExpertData, templateDetail, open]);
+
+  const recordStatus = useMemo(() => {
+    return (listReviewDetailsExpertData?.data || []).reduce<{
+      [key: number]: { unedit: boolean; edit: boolean };
+    }>((res, record) => {
+      res[record.singleFillId] = {
+        unedit:
+          record.processStatus === ProcessStatusTypeEnum.WaitSubmitExpertData ||
+          record.processStatus === ProcessStatusTypeEnum.WaitAuditExpertData ||
+          record.processStatus === ProcessStatusTypeEnum.Submitted ||
+          record.processStatus === ProcessStatusTypeEnum.Passed ||
+          record.processStatus === ProcessStatusTypeEnum.PassedExpertData ||
+          record.processStatus === ProcessStatusTypeEnum.RejectExpertData ||
+          record.processStatus === ProcessStatusTypeEnum.DataDiscard,
+        edit:
+          record.processStatus === ProcessStatusTypeEnum.NotFill ||
+          record.processStatus === ProcessStatusTypeEnum.NotSubmit ||
+          record.processStatus === ProcessStatusTypeEnum.Reject,
+      };
+      return res;
+    }, {});
+  }, [listReviewDetailsExpertData]);
 
   const { runAsync: saveReviewDetails } = useRequest(
     values => {
@@ -101,24 +144,38 @@ const TaskReviewDetailModal = ({
     {
       manual: true,
       onSuccess: () => {
-        refreshList?.();
+        //
       },
     }
   );
 
-  useEffect(() => {
-    if (open) {
-      getListReviewDetailsExpert();
-    }
-  }, [getListReviewDetailsExpert, open]);
+  const [dimensions, sumScore] = useMemo(() => {
+    const dimensions = templateDetail?.data?.dimensions || [];
+    const sumScore = dimensions.reduce((a, b) => a + b.score, 0);
+    return [dimensions, sumScore];
+  }, [templateDetail]);
 
-  const saveReview = async (idx: number, noRefresh?: boolean) => {
+  const getRecordValues = (idx: number) => {
     const data = form.getFieldsValue();
     const record = listReviewDetailsExpertData?.data[idx]!;
     const values = data[idx];
-    record.expertComment = values.expertComment;
+    const reviewScoreList = record.dimensionScores.map(
+      (t, i) => values.dimensionScores[i].reviewScore
+    );
+    return [values.expertComment, reviewScoreList];
+  };
+
+  const validateRecord = (idx: number) => {
+    const [expertComment, reviewScoreList] = getRecordValues(idx);
+    return !reviewScoreList.some((t: any) => [null, undefined].includes(t));
+  };
+
+  const saveReview = async (idx: number, noRefresh?: boolean) => {
+    const record = listReviewDetailsExpertData?.data[idx]!;
+    const [expertComment, reviewScoreList] = getRecordValues(idx);
+    record.expertComment = expertComment;
     record.dimensionScores.forEach((t, i) => {
-      t.reviewScore = values.dimensionScores[i].reviewScore;
+      t.reviewScore = reviewScoreList[i];
     });
     const loadingKey = record.singleFillId + '_save';
     setLoading(loadingKey, true);
@@ -127,11 +184,16 @@ const TaskReviewDetailModal = ({
     });
     if (!noRefresh) {
       refreshListReviewDetailsExpert();
+      messageApi.success('保存成功!');
     }
   };
 
   const submitReview = async (i: number, noRefresh?: boolean) => {
-    await saveReview(i, noRefresh);
+    if (!validateRecord(i)) {
+      messageApi.error('请将评分填写完整!');
+      return;
+    }
+    await saveReview(i, true);
     const record = listReviewDetailsExpertData?.data[i]!;
     const loadingKey = record.singleFillId + '_submit';
     setLoading(loadingKey, true);
@@ -140,20 +202,22 @@ const TaskReviewDetailModal = ({
     });
     if (!noRefresh) {
       refreshListReviewDetailsExpert();
+      refreshList?.();
+      messageApi.success('提交成功!');
     }
   };
 
   const saveCurrentPage = async () => {
     setLoading('saveCurrentPage', true);
+    const list = listReviewDetailsExpertData?.data || [];
     try {
-      for (
-        let i = 0;
-        i < (listReviewDetailsExpertData?.data || []).length;
-        i++
-      ) {
-        await saveReview(i, true);
+      for (let i = 0; i < list.length; i++) {
+        if (recordStatus[list[i].singleFillId].edit) {
+          await saveReview(i, true);
+        }
       }
       refreshListReviewDetailsExpert();
+      messageApi.success('本页保存成功!');
     } finally {
       setLoading('saveCurrentPage', false);
     }
@@ -161,15 +225,24 @@ const TaskReviewDetailModal = ({
 
   const submitCurrentPage = async () => {
     setLoading('submitCurrentPage', true);
+    const list = listReviewDetailsExpertData?.data || [];
     try {
-      for (
-        let i = 0;
-        i < (listReviewDetailsExpertData?.data || []).length;
-        i++
-      ) {
-        await submitReview(i, true);
+      let start: any;
+      let submitChain = new Promise(resolve => (start = resolve));
+      for (let i = 0; i < list.length; i++) {
+        if (recordStatus[list[i].singleFillId].edit) {
+          if (!validateRecord(i)) {
+            messageApi.error('请将评分填写完整!');
+            return;
+          }
+          submitChain = submitChain.then(() => submitReview(i, true));
+        }
       }
+      start();
+      await submitChain;
       refreshListReviewDetailsExpert();
+      refreshList?.();
+      messageApi.success('本页提交成功!');
     } finally {
       setLoading('submitCurrentPage', false);
     }
@@ -232,7 +305,7 @@ const TaskReviewDetailModal = ({
       },
     },
     {
-      title: <div>评分（满分：50）</div>,
+      title: <div>评分（满分：{sumScore}）</div>,
       dataIndex: 'totalScore',
       align: 'center',
     },
@@ -241,6 +314,7 @@ const TaskReviewDetailModal = ({
         <div className="flex gap-1 items-center justify-center">
           <span>评价维度</span>
           <StandardDetailModal
+            dimensions={dimensions}
             showDom={<ExclamationCircleOutlined className="cursor-pointer" />}
           />
         </div>
@@ -283,8 +357,15 @@ const TaskReviewDetailModal = ({
                   <Form.Item
                     name={[index, 'dimensionScores', i, 'reviewScore']}
                     required
+                    noStyle
                   >
-                    <InputNumber min={0} max={100} />
+                    <InputNumber
+                      min={0}
+                      max={dimensions[i]?.score}
+                      placeholder="请输入"
+                      title={`最高分值: ${dimensions[i]?.score}`}
+                      disabled={recordStatus[record.singleFillId]?.unedit}
+                    />
                   </Form.Item>
                   {i + 1 !== text.length && <Divider className="my-4" />}
                 </div>
@@ -309,7 +390,10 @@ const TaskReviewDetailModal = ({
             name={[index, 'expertComment']}
             initialValue={text}
           >
-            <Input.TextArea autoSize={{ minRows: 4, maxRows: 10 }} />
+            <Input.TextArea
+              autoSize={{ minRows: 4, maxRows: 10 }}
+              disabled={recordStatus[record.singleFillId]?.unedit}
+            />
           </Form.Item>
         );
       },
@@ -324,9 +408,7 @@ const TaskReviewDetailModal = ({
       render: (_: any, record: any, index: number) => {
         return (
           <>
-            {(record.processStatus === ProcessStatusTypeEnum.NotFill ||
-              record.processStatus === ProcessStatusTypeEnum.NotSubmit ||
-              record.processStatus === ProcessStatusTypeEnum.Reject) && (
+            {recordStatus[record.singleFillId]?.edit && (
               <Space>
                 <a
                   className="text-blue-500"
@@ -354,26 +436,20 @@ const TaskReviewDetailModal = ({
                 </a>
               </Space>
             )}
-            {(record.processStatus ===
-              ProcessStatusTypeEnum.WaitSubmitExpertData ||
-              record.processStatus ===
-                ProcessStatusTypeEnum.WaitAuditExpertData ||
-              record.processStatus === ProcessStatusTypeEnum.Submitted ||
-              record.processStatus === ProcessStatusTypeEnum.Passed ||
-              record.processStatus === ProcessStatusTypeEnum.PassedExpertData ||
-              record.processStatus === ProcessStatusTypeEnum.RejectExpertData ||
-              record.processStatus === ProcessStatusTypeEnum.DataDiscard) &&
-              '-'}
+            {recordStatus[record.singleFillId]?.unedit && '-'}
           </>
         );
       },
     },
   ];
-
+  const batchBtnDisabled = Object.values(recordStatus).every(
+    item => item.unedit
+  );
   return (
     <>
+      {contextHolder}
       <a className="text-blue-500" onClick={() => setOpen(true)}>
-        评审详情1
+        评审详情
       </a>
       <Modal
         open={open}
@@ -390,6 +466,7 @@ const TaskReviewDetailModal = ({
           <div className="flex justify-end gap-5 px-20">
             <Button
               size="large"
+              disabled={batchBtnDisabled}
               loading={loading.saveCurrentPage}
               onClick={() => saveCurrentPage()}
             >
@@ -397,6 +474,7 @@ const TaskReviewDetailModal = ({
             </Button>
             <Button
               size="large"
+              disabled={batchBtnDisabled}
               type="primary"
               loading={loading.submitCurrentPage}
               onClick={() => submitCurrentPage()}
@@ -408,6 +486,9 @@ const TaskReviewDetailModal = ({
       >
         <Form form={form} component={false}>
           <Table
+            scroll={{
+              y: window.innerHeight - 100 - 24 - 40 - 32 - 52 - 80 - 64,
+            }}
             columns={columns}
             dataSource={listReviewDetailsExpertData?.data || []}
             loading={getListReviewDetailsExpertLoading}
