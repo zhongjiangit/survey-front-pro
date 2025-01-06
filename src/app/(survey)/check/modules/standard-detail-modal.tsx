@@ -22,7 +22,7 @@ const StandardDetailModal = ({ showDom, dimensions }: Props) => {
       {
         title: '序号',
         width: '15%',
-        render: (text, record, index) => `${index + 1}`,
+        render: (text: any, record: any, index: number) => `${index + 1}`,
         editable: false,
       },
       {
