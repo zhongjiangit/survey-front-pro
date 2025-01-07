@@ -6,8 +6,9 @@ import CustomTree, {
 } from '@/components/common/custom-tree';
 
 import Api from '@/api';
-import { TagCreateParamsType } from '@/api/org/set-detail';
-import { TagTypeEnum } from '@/types/CommonType';
+import { TagSaveParamsType } from '@/api/org/save-org-tree';
+import { OrgDetailParamsType } from '@/api/org/set-detail';
+import { OperationType, TagTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import {
   Button,
@@ -80,6 +81,8 @@ const Node = (props: NodeProps) => {
 
   const { run: saveOrgTree } = useRequest(
     params => {
+      console.log('params', params);
+
       return Api.saveOrgTree(params);
     },
     {
@@ -153,7 +156,7 @@ const Node = (props: NodeProps) => {
   );
 
   const onFinish = (values: any) => {
-    const params: TagCreateParamsType = {
+    const params: OrgDetailParamsType = {
       currentSystemId: system.id,
       orgId: Number(nodeSelected),
       // isValid 转换为1或0
@@ -171,7 +174,11 @@ const Node = (props: NodeProps) => {
     setOrgDetail(params);
   };
 
-  const onCreate = (tags: CustomTreeDataNode[]) => {
+  const onCreate = (
+    tags: CustomTreeDataNode[],
+    type?: OperationType,
+    tagId?: string | number
+  ) => {
     const orgTags = tags && Array.isArray(tags) ? tags[0] : null;
     // 如果tags存在，递归遍历删除里面的key
     if (orgTags) {
@@ -198,11 +205,22 @@ const Node = (props: NodeProps) => {
 
     // 保存到相应的标签中
     if (orgTags) {
-      saveOrgTree({
+      let params: TagSaveParamsType = {
         currentSystemId: system.id,
-        // @ts-expect
+        // @ts-expect-error: operationType is missing
         orgs: orgTags,
-      });
+      };
+      console.log('tagId', tagId, type);
+
+      if (tagId && type) {
+        params = {
+          ...params,
+          operationType: type,
+          // @ts-expect-error: operationOrgId is missing
+          operationOrgId: tagId,
+        };
+      }
+      saveOrgTree(params);
     } else {
       messageApi.open({
         type: 'info',

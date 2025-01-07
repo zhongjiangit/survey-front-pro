@@ -353,3 +353,12 @@ export const ReviewTypeObject = {
   [ReviewTypeEnum.WaitSubmit]: '待提交专家',
   [ReviewTypeEnum.Reject]: '已驳回专家',
 };
+
+// 操作类型 1:新增 2:删除 3:修改
+export type OperationType = 1 | 2 | 3;
+
+export enum OperationTypeEnum {
+  Add = 1,
+  Delete = 2,
+  Update = 3,
+}

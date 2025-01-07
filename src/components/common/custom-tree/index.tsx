@@ -1,5 +1,6 @@
 'use client';
 
+import { OperationType, OperationTypeEnum } from '@/types/CommonType';
 import {
   DeleteOutlined,
   DownOutlined,
@@ -31,7 +32,11 @@ interface CustomTreeProps {
   dataSource: CustomTreeDataNode[];
   setDataSource?: (data: CustomTreeDataNode[]) => void;
   setDataSelected?: (data: React.Key[]) => void;
-  onHandleCreate?: (tags: CustomTreeDataNode[]) => void;
+  onHandleCreate?: (
+    tags: CustomTreeDataNode[],
+    type: OperationType | undefined,
+    key: number | string | undefined
+  ) => void;
 }
 
 function CustomTree(props: CustomTreeProps) {
@@ -71,13 +76,17 @@ function CustomTree(props: CustomTreeProps) {
    * 设置dataSource, 用于外部控制
    */
   const setTreeSourceData = useCallback(
-    (data: CustomTreeDataNode[]) => {
+    (
+      data: CustomTreeDataNode[],
+      type?: OperationType,
+      key?: number | string
+    ) => {
       setTreeData(data);
       if (setDataSource) {
         setDataSource(data);
       }
       if (onHandleCreate) {
-        onHandleCreate(data);
+        onHandleCreate(data, type, key);
       }
     },
     [setDataSource, onHandleCreate]
@@ -174,7 +183,7 @@ function CustomTree(props: CustomTreeProps) {
         return;
       }
       if (treeData.length === 0) {
-        setTreeSourceData([{ key, title }]);
+        setTreeSourceData([{ key, title }], OperationTypeEnum.Add, key);
         setSelectedKeysData([key]);
         // messageApi.open({
         //   type: 'success',
@@ -198,20 +207,19 @@ function CustomTree(props: CustomTreeProps) {
           return node;
         });
       };
-      setTreeSourceData(saveNode(treeData, key, title));
+      console.log('currentNode', currentNode);
+
+      const type = isNaN(Number(currentNode?.key))
+        ? OperationTypeEnum.Add
+        : OperationTypeEnum.Update;
+      setTreeSourceData(saveNode(treeData, key, title), type, currentNode?.key);
       setCurrentNode(undefined);
       // messageApi.open({
       //   type: 'success',
       //   content: '节点保存成功',
       // });
     },
-    [
-      treeData,
-      setTreeSourceData,
-      messageApi,
-      setSelectedKeysData,
-      currentNode?.title,
-    ]
+    [treeData, currentNode, setTreeSourceData, messageApi, setSelectedKeysData]
   );
   /**
    * 创建节点
@@ -316,7 +324,11 @@ function CustomTree(props: CustomTreeProps) {
         return true;
       });
     };
-    setTreeSourceData(deleteNode(treeData, String(currentNode?.key)));
+    setTreeSourceData(
+      deleteNode(treeData, String(currentNode?.key)),
+      OperationTypeEnum.Delete,
+      currentNode?.key
+    );
     setCurrentNode(undefined);
   };
 
