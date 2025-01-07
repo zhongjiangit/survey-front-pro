@@ -108,7 +108,7 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
   return (
     <Modal
       open={open}
-      title="通过量1"
+      title="通过量"
       okText="确定"
       cancelText="取消"
       maskClosable={false}

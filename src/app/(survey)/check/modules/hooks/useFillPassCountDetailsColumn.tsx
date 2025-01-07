@@ -6,16 +6,8 @@ import { useEffect, useState } from 'react';
 
 const emptyColumns = [
   {
-    title: '第一层级单位',
-    dataIndex: `org1`,
-  },
-  {
-    title: '第二层级单位',
-    dataIndex: `org1`,
-  },
-  {
-    title: '第三层级单位',
-    dataIndex: `org1`,
+    title: '',
+    dataIndex: 'empty',
   },
 ];
 export function useFillPassCountDetailsColumn(

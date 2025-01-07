@@ -16,7 +16,9 @@ import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
 import { useState } from 'react';
 import TaskDetailEditModal from '../manage/modules/task-detail-edit-modal';
+import TaskFilledModal from '../manage/modules/task-filled-modal';
 import TaskOrgFillDetailModal from '../manage/modules/task-org-fill-detail-modal';
+import TaskPassedModal from '../manage/modules/task-passed-modal';
 interface ItemDataType {
   title: string;
   dataSource: any[];
@@ -52,6 +54,8 @@ const ToAllotTask = () => {
   const [viewTask, setViewTask] = useState<taskType>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [passedNumModalOpen, setPassedNumModalOpen] = useState(false);
+  const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
 
   const { data: listAssignInspTaskData, refresh: refreshListAssignInspTask } =
     useRequest(
@@ -221,7 +225,12 @@ const ToAllotTask = () => {
       align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div>
+          <div
+            onClick={() => {
+              setPassedNumModalOpen(true);
+              setViewTask(record);
+            }}
+          >
             {record.publishType === PublishTypeEnum.Org ? (
               <div>
                 <a className="text-blue-500 block">{record.fillPassPeople}人</a>
@@ -243,7 +252,12 @@ const ToAllotTask = () => {
       align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div onClick={() => {}}>
+          <div
+            onClick={() => {
+              setFilledNumModalOpen(true);
+              setViewTask(record);
+            }}
+          >
             {record.publishType === PublishTypeEnum.Org ? (
               <div>
                 <a className="text-blue-500 block">{record.fillPeople}人</a>
@@ -305,6 +319,16 @@ const ToAllotTask = () => {
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
         refreshList={refreshListAssignInspTask}
+      />
+      <TaskPassedModal
+        open={passedNumModalOpen}
+        setOpen={setPassedNumModalOpen}
+        task={viewTask}
+      />
+      <TaskFilledModal
+        open={filledNumModalOpen}
+        setOpen={setFilledNumModalOpen}
+        task={viewTask}
       />
     </>
   );
