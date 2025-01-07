@@ -8,7 +8,11 @@ import CustomTree, {
 import Api from '@/api';
 import { TagSaveParamsType } from '@/api/org/save-org-tree';
 import { OrgDetailParamsType } from '@/api/org/set-detail';
-import { OperationType, TagTypeEnum } from '@/types/CommonType';
+import {
+  OperationType,
+  OperationTypeEnum,
+  TagTypeEnum,
+} from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import {
   Button,
@@ -212,12 +216,20 @@ const Node = (props: NodeProps) => {
       };
       console.log('tagId', tagId, type);
 
-      if (tagId && type) {
+      if (
+        type === OperationTypeEnum.Update ||
+        type === OperationTypeEnum.Delete
+      ) {
         params = {
           ...params,
           operationType: type,
           // @ts-expect-error: operationOrgId is missing
           operationOrgId: tagId,
+        };
+      } else if (type === OperationTypeEnum.Add) {
+        params = {
+          ...params,
+          operationType: type,
         };
       }
       saveOrgTree(params);
