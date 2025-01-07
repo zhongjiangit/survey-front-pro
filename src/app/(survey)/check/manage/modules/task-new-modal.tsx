@@ -94,7 +94,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   useMemo(() => {
     setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
   }, [levelOrgs, orgMembers]);
-
+  
   const { data: checkList, loading: checkListLoading } = useRequest(
     () => {
       if (!currentSystem) {
@@ -425,6 +425,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
                 {listAllAssignSub?.[index]?.levelName}
               </div>
               <Tree
+                height={233}
                 treeData={level}
                 checkedKeys={member}
                 loadData={onLoadMember}
