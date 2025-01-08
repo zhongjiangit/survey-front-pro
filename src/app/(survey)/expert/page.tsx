@@ -68,7 +68,7 @@ function Page() {
     {
       onSuccess(response) {
         // 递归将response.data.tags中的key改为value
-        const tags = response?.data?.tags;
+        const tags = response?.data;
         if (tags) {
           const addValue = (node: CustomTreeDataNode) => {
             if (node.children) {
@@ -77,8 +77,8 @@ function Page() {
             // @ts-ignore
             node.value = node.key;
           };
-          addValue(tags);
-          setExpertTags([tags]);
+          tags.forEach(addValue);
+          setExpertTags(tags);
         }
       },
     }
@@ -100,7 +100,7 @@ function Page() {
           const adminStaff = list.filter(
             staff => staff.id === currentOrg?.staffId
           );
-          if (!!adminStaff[0]) {
+          if (adminStaff[0]) {
             setAdminStaff(adminStaff[0]);
           }
         }

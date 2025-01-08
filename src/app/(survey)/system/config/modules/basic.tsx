@@ -54,7 +54,7 @@ const Basic = (props: BasicProps) => {
     },
     {
       onSuccess(response) {
-        setTags([response?.data?.tags]);
+        setTags(response?.data);
       },
     }
   );

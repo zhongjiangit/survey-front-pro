@@ -59,8 +59,8 @@ const Node = (props: NodeProps) => {
   });
 
   useEffect(() => {
-    if (tagList?.data?.tags) {
-      const tags = tagList.data.tags;
+    if (tagList?.data) {
+      const tags = tagList.data;
       // 递归遍历增加value字段，用于TreeSelect，value为key
       const addValue = (node: CustomTreeDataNode) => {
         if (node.children) {
@@ -72,10 +72,10 @@ const Node = (props: NodeProps) => {
         // @ts-expect-error
         node.value = node.key;
       };
-      addValue(tags);
+      tags.forEach(addValue);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      setTreeSelectData([tags]);
+      setTreeSelectData(tags);
     }
   }, [tagList]);
 

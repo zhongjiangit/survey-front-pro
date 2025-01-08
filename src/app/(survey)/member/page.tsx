@@ -82,7 +82,7 @@ function Page() {
     {
       onSuccess(response) {
         // 递归将response.data.tags中的key改为value
-        const tags = response?.data?.tags;
+        const tags = response?.data;
         if (tags) {
           const addValue = (node: CustomTreeDataNode) => {
             if (node.children) {
@@ -91,8 +91,8 @@ function Page() {
             // @ts-expect-error: CustomTreeDataNode does not have a 'value' property
             node.value = node.key;
           };
-          addValue(tags);
-          setMemberTags([tags]);
+          tags.forEach(addValue);
+          setMemberTags(tags);
         }
       },
     }
