@@ -94,7 +94,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
   useMemo(() => {
     setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
   }, [levelOrgs, orgMembers]);
-  
+
   const { data: checkList, loading: checkListLoading } = useRequest(
     () => {
       if (!currentSystem) {
@@ -136,11 +136,13 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       return Api.listLevelAssignSub({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
-        // TODO orgId 是1时查不出来数据
         levelIndex: index || 1,
-        tags: filterValue.map(item => ({
-          key: Number(item),
-        })),
+        tags: filterValue
+          .map(item => ({
+            key: Number(item),
+          }))
+          .filter(t => t.key !== -1),
+        showUntagged: filterValue.includes('-1') ? 1 : 0,
       });
     },
     {
@@ -160,9 +162,12 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       return Api.listAllAssignSub({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
-        staffTags: filterValue.map(item => ({
-          key: Number(item),
-        })),
+        staffTags: filterValue
+          .map(item => ({
+            key: Number(item),
+          }))
+          .filter(t => t.key !== -1),
+        showUntagged: filterValue.includes('-1') ? 1 : 0,
       }).then(res => res.data);
     },
     {
@@ -195,6 +200,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
     {
       manual: true,
     }
+  );
+  const tagTreeData = useMemo(
+    () => formatTreeData(tagList?.data, true),
+    [tagList]
   );
 
   const { run: createInspTask, loading: submitLoading } = useRequest(
@@ -335,7 +344,10 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       currentSystemId: currentSystem?.systemId,
       currentOrgId: currentOrg?.orgId,
       orgId: Number(key),
-      tags: filterValue.map<{ key: number }>(item => ({ key: Number(item) })),
+      tags: filterValue
+        .map(item => ({ key: Number(item) }))
+        .filter(t => t.key !== -1),
+      showUntagged: filterValue.includes('-1') ? 1 : 0,
     });
     const members = membersToNode(res.data);
     setOrgMembers((t: { [key: string]: any }) => ({ ...t, [key]: members }));
@@ -388,7 +400,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             className="w-72 flex-1"
             value={filterValue}
             onChange={showConfirm}
-            treeData={formatTreeData([tagList?.data.tags])}
+            treeData={tagTreeData}
             treeCheckable={true}
             showCheckedStrategy={TreeSelect.SHOW_PARENT}
             placeholder="选择标签过滤人员"
@@ -470,7 +482,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             className="w-72 flex-1"
             value={filterValue}
             onChange={showConfirm}
-            treeData={formatTreeData([tagList?.data.tags])}
+            treeData={tagTreeData}
             treeCheckable={true}
             showCheckedStrategy={TreeSelect.SHOW_PARENT}
             placeholder="选择标签过滤单位"

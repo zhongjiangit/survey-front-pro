@@ -15,6 +15,7 @@ interface GetStaffListByTagsParamsType {
   currentOrgId?: number;
   orgId?: number;
   tags: CustomTreeDataNode[] | { key: number }[];
+  showUntagged?: 0 | 1;
 }
 
 /**
