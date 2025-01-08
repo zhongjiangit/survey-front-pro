@@ -9,6 +9,7 @@ import {
   DetailShowTypeEnum,
   ProcessStatusObject,
   ProcessStatusTypeEnum,
+  TaskStatusTypeEnum,
   TemplateTypeEnum,
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
@@ -47,8 +48,18 @@ const ToAllotTask = () => {
     fill: (record: any) => (
       <TaskDetail
         task={record}
-        customTitle="填报任务"
-        showType={DetailShowTypeEnum.Fill}
+        customTitle={
+          record.processStatus === ProcessStatusTypeEnum.Reject ||
+          record.processStatus === ProcessStatusTypeEnum.NotSubmit
+            ? '填报任务'
+            : '查看任务'
+        }
+        showType={
+          record.processStatus === ProcessStatusTypeEnum.Reject ||
+          record.processStatus === ProcessStatusTypeEnum.NotSubmit
+            ? DetailShowTypeEnum.Fill
+            : DetailShowTypeEnum.Check
+        }
         key="fill"
       />
     ),
@@ -202,23 +213,32 @@ const ToAllotTask = () => {
       align: 'center',
       render: (_: any, record: any) => {
         return (
-          <Space className="fle justify-center items-center">
-            {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
-              operateButton.fill(record),
-              operateButton.submit(record),
-            ]}
-            {(record.processStatus === ProcessStatusTypeEnum.Submitted ||
-              record.processStatus === ProcessStatusTypeEnum.Passed ||
-              record.processStatus === ProcessStatusTypeEnum.DataDiscard) && [
-              operateButton.fill(record),
-            ]}
-            {record.processStatus === ProcessStatusTypeEnum.Reject && [
-              operateButton.fill(record),
-              operateButton.submit(record),
-            ]}
-            {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
-              operateButton.reject(record)}
-          </Space>
+          <>
+            {record.fillTaskStatus === TaskStatusTypeEnum.NotStart ||
+            record.fillTaskStatus === TaskStatusTypeEnum.Cancel ? (
+              '-'
+            ) : (
+              <Space className="fle justify-center items-center">
+                {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
+                  operateButton.fill(record),
+                  operateButton.submit(record),
+                ]}
+                {(record.processStatus === ProcessStatusTypeEnum.Submitted ||
+                  record.processStatus === ProcessStatusTypeEnum.Passed ||
+                  record.processStatus ===
+                    ProcessStatusTypeEnum.DataDiscard) && [
+                  operateButton.fill(record),
+                ]}
+                {record.processStatus === ProcessStatusTypeEnum.Reject && [
+                  operateButton.fill(record),
+                  operateButton.submit(record),
+                ]}
+                {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
+                  operateButton.reject(record)}
+                {/* TODO 添加评审结果 */}
+              </Space>
+            )}
+          </>
         );
       },
     },

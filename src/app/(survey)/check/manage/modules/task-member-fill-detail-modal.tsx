@@ -1,6 +1,7 @@
 'use client';
 
 import Api from '@/api';
+import RejectTimeline from '@/app/modules/reject-timeline';
 import TaskDetail, { taskType } from '@/app/modules/task-detail';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
@@ -9,6 +10,7 @@ import {
   TaskProcessStatusEnum,
   TaskProcessStatusObject,
   TaskProcessStatusType,
+  ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Form, Input, message, Modal, Popover, Space, Table } from 'antd';
@@ -153,14 +155,18 @@ const TaskMemberFillDetailModal = ({
         render: (_: any, record: any) => {
           return (
             <Space className="flex justify-center items-center">
-              {record.processStatus && (
-                <TaskDetail
-                  task={task}
-                  staffId={record.staffId}
-                  customTitle="资料详情"
-                  showType={DetailShowTypeEnum.Check}
-                />
-              )}
+              {record.processStatus === TaskProcessStatusEnum.NotSubmitToSelf &&
+                '-'}
+              {record.processStatus !== TaskProcessStatusEnum.WaitAssign &&
+                record.processStatus !==
+                  TaskProcessStatusEnum.NotSubmitToSelf && (
+                  <TaskDetail
+                    task={task}
+                    staffId={record.staffId}
+                    customTitle="资料详情"
+                    showType={DetailShowTypeEnum.Check}
+                  />
+                )}
               {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
                 <a
                   className=" text-blue-500"
@@ -183,7 +189,8 @@ const TaskMemberFillDetailModal = ({
                   通过
                 </a>
               )}
-              {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
+              {(record.processStatus === TaskProcessStatusEnum.NeedSelfAudit ||
+                record.processStatus === TaskProcessStatusEnum.Passed) && (
                 <a
                   className=" text-blue-500"
                   onClick={() => {
@@ -193,6 +200,13 @@ const TaskMemberFillDetailModal = ({
                 >
                   驳回
                 </a>
+              )}
+              {record.rejectedOnce === ZeroOrOneTypeEnum.One && (
+                <RejectTimeline
+                  taskId={record.taskId}
+                  staffId={record.staffId}
+                  key="reject"
+                />
               )}
             </Space>
           );
