@@ -81,7 +81,7 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
   return (
     <Modal
       open={open}
-      title="填报量1"
+      title="填报量"
       maskClosable={false}
       okText="确定"
       cancelText="取消"

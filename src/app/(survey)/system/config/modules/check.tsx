@@ -85,8 +85,8 @@ const Check = ({ system }: CheckProps) => {
   const { run: deleteTemplate, loading: deleteLoading } = useRequest(
     (id: number) => {
       return Api.deleteTemplate({
-        id: id,
         currentSystemId: system.id,
+        templateId: id,
       });
     },
     {

@@ -2,12 +2,12 @@ import { SurveyService } from '@/service';
 import { baseUrl } from '../config';
 
 /*
- id	int		模板id
 currentSystemId	int		登录用户当前操作的系统id
+templateId	int		模版id
  */
 export interface TemplateDeleteParamsType {
-  id: number;
   currentSystemId: number;
+  templateId: number;
 }
 
 export function deleteTemplate(params: TemplateDeleteParamsType) {
