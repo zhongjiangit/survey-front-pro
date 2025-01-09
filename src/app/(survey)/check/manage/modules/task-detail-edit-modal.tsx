@@ -35,6 +35,7 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
+import { ListVisibleLevelsResponse } from '@/api/system/listVisibleLevels';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
@@ -272,6 +273,25 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     [inspTaskFill, currentOrg]
   );
 
+  const getLeveList = (task?: any, levels?: ListVisibleLevelsResponse[]) => {
+    if (task && levels) {
+      let list = levels.slice(1);
+      if (task.createOrgId !== currentOrg?.orgId) {
+        list = list.slice(
+          list.findIndex(t =>
+            task.levels.some((f: any) => f.levelIndex === t.levelIndex)
+          )
+        );
+      }
+      return list;
+    }
+    return [];
+  };
+  const levelList = useMemo(
+    () => getLeveList(task, listVisibleLevels?.data),
+    [listVisibleLevels, task]
+  );
+
   const onCheckAllChange = (e: any) => {
     form.setFieldValue('orgs', e.target.checked ? plainOptions : []);
   };
@@ -379,11 +399,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     if (!assignTaskToMember) {
       getListVisibleLevels().then(res => {
         // 获取要查询的单位层级 分配只能选下级层级
-        const currentLevel =
-          task.createOrgId === currentOrg?.orgId
-            ? task.levels?.[0]?.levelIndex
-            : res.data[1].levelIndex;
-        getListLevelAssignSub(currentLevel);
+        getListLevelAssignSub(getLeveList(task, res.data)[0].levelIndex);
       });
       getTagList(TagTypeEnum.Org);
     }
@@ -469,7 +485,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           }}
           //listVisibleLevels剔除数组中的第一个元素
           options={
-            listVisibleLevels?.data.slice(1).map(item => ({
+            levelList.map(item => ({
               label: item.levelName,
               value: item.levelIndex,
             })) || []
