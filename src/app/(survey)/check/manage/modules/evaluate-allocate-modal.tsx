@@ -264,7 +264,10 @@ export const EvaluateAllocateModal: React.FC<
       return Api.getExpertListByTags({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,
-        tags: tags.map((t: any) => ({ key: t })),
+        tags: tags
+          .map((t: any) => ({ key: Number(t) }))
+          .filter((t: any) => t.key !== -1),
+        showUntagged: tags.includes('-1') ? 1 : 0,
       });
     },
     {
@@ -438,14 +441,14 @@ export const EvaluateAllocateModal: React.FC<
           );
         },
         dataIndex: 'orgName',
-        filters: formatTreeData([orgTags?.data.tags]),
+        filters: formatTreeData(orgTags?.data, true),
         filterMode: 'tree',
         filterSearch: true,
       },
       {
         title: '姓名',
         dataIndex: 'staffName',
-        filters: formatTreeData([staffTags?.data.tags]),
+        filters: formatTreeData(staffTags?.data, true),
         filterMode: 'tree',
         filterSearch: true,
       },
@@ -525,7 +528,7 @@ export const EvaluateAllocateModal: React.FC<
         {
           title: '单位',
           dataIndex: 'orgName',
-          filters: formatTreeData([orgTags?.data.tags]),
+          filters: formatTreeData(orgTags?.data, true),
           filterMode: 'tree',
           filterSearch: true,
           width: '15%',
@@ -533,7 +536,7 @@ export const EvaluateAllocateModal: React.FC<
         {
           title: '姓名',
           dataIndex: 'staffName',
-          filters: formatTreeData([staffTags?.data.tags]),
+          filters: formatTreeData(staffTags?.data, true),
           filterMode: 'tree',
           filterSearch: true,
           width: '15%',
@@ -657,7 +660,7 @@ export const EvaluateAllocateModal: React.FC<
         style={{ width: '200px' }}
         value={expertTags}
         dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-        treeData={formatTreeData([expertTagList?.data.tags])}
+        treeData={formatTreeData(expertTagList?.data, true)}
         placeholder="请选择专家标签进行过滤"
         treeCheckable={true}
         showCheckedStrategy={'SHOW_PARENT'}

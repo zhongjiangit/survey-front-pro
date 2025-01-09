@@ -14,6 +14,7 @@ interface GetExpertListByTagsParamsType {
   currentSystemId?: number;
   currentOrgId?: number;
   tags: CustomTreeDataNode[];
+  showUntagged?: 0 | 1;
 }
 
 /**

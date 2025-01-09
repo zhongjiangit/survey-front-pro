@@ -99,28 +99,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     }
   );
 
-  /**
-   * 获取人员列表 下发到部门最后一级
-   */
-  const { data: orgMemberList, run: getStaffListByTags } = useRequest(
-    () => {
-      if (!currentSystem || !currentOrg) {
-        return Promise.reject('No current system');
-      }
-      return Api.getStaffListByTags({
-        currentSystemId: currentSystem.systemId,
-        currentOrgId: currentOrg.orgId,
-        orgId: currentOrg.orgId,
-        tags: filterValue.map(item => ({
-          key: Number(item),
-        })),
-      }).then(res => res.data);
-    },
-    {
-      manual: true,
-    }
-  );
-
   const { data: listLevelAssignSub, run: getListLevelAssignSub } = useRequest(
     (index: number) => {
       if (!currentSystem || !currentOrg) {
@@ -130,9 +108,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
         levelIndex: index || 1,
-        tags: filterValue.map(item => ({
-          key: Number(item),
-        })),
+        tags: filterValue
+          .map(item => ({
+            key: Number(item),
+          }))
+          .filter(t => t.key !== -1),
+        showUntagged: filterValue.includes('-1') ? 1 : 0,
       });
     },
     {
@@ -200,7 +181,10 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       manual: true,
     }
   );
-
+  const tagTreeData = useMemo(
+    () => formatTreeData(tagList?.data, true),
+    [tagList]
+  );
   // 获取人员分配的所有单位
   const {
     data: listAllAssignSub,
@@ -216,9 +200,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       return Api.listAllAssignSub({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
-        staffTags: filterValue.map<{ key: number }>(item => ({
-          key: Number(item),
-        })),
+        staffTags: filterValue
+          .map(item => ({
+            key: Number(item),
+          }))
+          .filter(t => t.key !== -1),
+        showUntagged: filterValue.includes('-1') ? 1 : 0,
       }).then(res => res.data);
     },
     {
@@ -329,9 +316,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       currentSystemId: currentSystem?.systemId,
       currentOrgId: currentOrg?.orgId,
       orgId: Number(key),
-      tags: filterValue.map<{ key: number }>(item => ({
-        key: Number(item),
-      })),
+      tags: filterValue
+        .map(item => ({
+          key: Number(item),
+        }))
+        .filter(t => t.key !== -1),
+      showUntagged: filterValue.includes('-1') ? 1 : 0,
     });
     const members = membersToNode(res.data);
     setOrgMembers((t: any) => ({ ...t, [key]: members }));
@@ -411,7 +401,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
             style={{ width: '40%' }}
             value={filterValue}
             onChange={showConfirm}
-            treeData={formatTreeData([tagList?.data.tags])}
+            treeData={tagTreeData}
             treeCheckable={true}
             showCheckedStrategy={TreeSelect.SHOW_PARENT}
             placeholder="选择标签过滤人员"
@@ -499,7 +489,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
           style={{ width: '40%' }}
           value={filterValue}
           onChange={showConfirm}
-          treeData={formatTreeData([tagList?.data.tags])}
+          treeData={tagTreeData}
           treeCheckable={true}
           showCheckedStrategy={TreeSelect.SHOW_PARENT}
         />

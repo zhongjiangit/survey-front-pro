@@ -9,7 +9,7 @@ export interface TagListType {
 }
 
 function getTagList(params: { currentSystemId: number; tagType: TagTypeType }) {
-  return SurveyService.post<CommonResponseType<TagListType>>(
+  return SurveyService.post<CommonResponseType<CustomTreeDataNode[]>>(
     `${baseUrl}/tag/list`,
     {
       ...params,

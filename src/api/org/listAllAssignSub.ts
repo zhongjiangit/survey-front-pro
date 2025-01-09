@@ -15,6 +15,7 @@ export interface ListAllAssignSubParamsType {
     key: number;
   }[];
   staffTags?: { key: number }[];
+  showUntagged?: 0 | 1;
 }
 
 /**

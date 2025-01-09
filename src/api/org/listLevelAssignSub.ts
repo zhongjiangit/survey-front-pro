@@ -19,6 +19,7 @@ export interface ListLevelAssignSubParamsType {
   staffTags?: {
     key: number;
   }[];
+  showUntagged?: 0 | 1;
 }
 
 /**
