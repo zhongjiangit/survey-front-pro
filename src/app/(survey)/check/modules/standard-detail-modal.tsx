@@ -1,14 +1,48 @@
-import { Modal, Table } from 'antd';
-import { ReactNode, useMemo, useState } from 'react';
+import Api from '@/api';
 import { DimensionsType } from '@/api/template/create-details';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { TemplateTypeEnum } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
+import { Modal, Table } from 'antd';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 
 interface Props {
   showDom?: ReactNode;
   dimensions?: DimensionsType[];
+  templateId?: number;
 }
 
-const StandardDetailModal = ({ showDom, dimensions }: Props) => {
+const StandardDetailModal = ({
+  showDom,
+  dimensions = [],
+  templateId,
+}: Props) => {
   const [open, setOpen] = useState(false);
+  const [sourceData, setSourceData] = useState([]);
+
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+
+  const { run: getTemplateDetails } = useRequest(
+    (tempId: number) => {
+      return Api.getTemplateDetails({
+        currentSystemId: currentSystem?.systemId!,
+        templateType: TemplateTypeEnum.Collect,
+        templateId: Number(tempId),
+      });
+    },
+    {
+      manual: true,
+      onSuccess: (data: any) => {
+        setSourceData(data?.data?.dimensions || []);
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (templateId) {
+      getTemplateDetails(templateId);
+    }
+  }, [getTemplateDetails, templateId]);
 
   const handleOk = () => {
     setOpen(false);
@@ -17,6 +51,7 @@ const StandardDetailModal = ({ showDom, dimensions }: Props) => {
   const handleCancel = () => {
     setOpen(false);
   };
+
   const columns: any[] = useMemo(
     () => [
       {
@@ -61,7 +96,11 @@ const StandardDetailModal = ({ showDom, dimensions }: Props) => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <Table columns={columns} dataSource={dimensions} pagination={false} />
+        <Table
+          columns={columns}
+          dataSource={templateId ? sourceData : dimensions}
+          pagination={false}
+        />
       </Modal>
     </>
   );

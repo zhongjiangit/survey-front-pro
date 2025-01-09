@@ -67,6 +67,25 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     }
   );
 
+  const { run: setReviewReviewComplete } = useRequest(
+    (taskId: number) => {
+      if (!currentOrg?.orgId || !currentSystem?.systemId) {
+        return Promise.reject('未获取到系统或组织机构');
+      }
+      return Api.setReviewReviewComplete({
+        currentSystemId: currentSystem?.systemId!,
+        currentOrgId: currentOrg.orgId,
+        taskId: taskId,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        refreshPublishTask();
+      },
+    }
+  );
+
   const operateButton = {
     edit: (record: ListMyInspTaskResponse) => {
       return (
@@ -159,6 +178,27 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     detail: (type: PublishTypeType, record: ListMyInspTaskResponse) => {
       return <ReviewDetailModal task={record} />;
     },
+    finish: (record: any) => (
+      <Popconfirm
+        title="确认完成"
+        key="finish"
+        description={
+          record.hasUnCompletedReview === ZeroOrOneTypeEnum.One
+            ? '未评审的数据将丢弃是否继续？'
+            : '点击完成任务不可逆是否继续？'
+        }
+        onConfirm={() => {
+          setReviewReviewComplete(record.taskId);
+        }}
+        onCancel={() => {}}
+        okText="确定"
+        cancelText="取消"
+      >
+        <a className=" text-blue-500" key="finished">
+          完成
+        </a>
+      </Popconfirm>
+    ),
     // 评审结果
     result: (record: ListMyInspTaskResponse) => {
       return <ReviewResultModal task={record} />;
@@ -442,12 +482,15 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         // 专家评审
         return (
           <Space className="flex justify-center items-center">
-            {(record.fillTaskStatus !== TaskStatusTypeEnum.Finished ||
-              record.reviewTaskStatus === EvaluateStatusTypeEnum.Cancel) &&
-              '-'}
-            {record.fillTaskStatus === TaskStatusTypeEnum.Finished && [
-              operateButtonEvaluate.config(record),
-            ]}
+            {record.fillTaskStatus !== TaskStatusTypeEnum.Finished && '-'}
+            {record.reviewTaskStatus === EvaluateStatusTypeEnum.Cancel &&
+              operateButtonEvaluate.detail(record.publishType, record)}
+            {record.fillTaskStatus === TaskStatusTypeEnum.Finished &&
+              (!record.reviewTaskStatus ||
+                record.reviewTaskStatus ===
+                  EvaluateStatusTypeEnum.NotStart) && [
+                operateButtonEvaluate.config(record),
+              ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.NotStart && [
               operateButtonEvaluate.edit(record),
               operateButtonEvaluate.allocate(record),
@@ -457,6 +500,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
               operateButtonEvaluate.allocate(record),
               operateButtonEvaluate.message,
               operateButtonEvaluate.result(record),
+              operateButtonEvaluate.finish(record),
             ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Finished && [
               operateButtonEvaluate.detail(record.publishType, record),

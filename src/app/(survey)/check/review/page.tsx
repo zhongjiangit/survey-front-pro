@@ -85,9 +85,13 @@ const CheckReview = () => {
       title: <div>评价标准及准则</div>,
       dataIndex: 'standard',
       align: 'center',
-      // TODO
       render: (_: any, record: any) => {
-        return <StandardDetailModal />;
+        return (
+          <StandardDetailModal
+            templateId={record.templateId}
+            showDom={<span>详情</span>}
+          />
+        );
       },
     },
     {
@@ -96,7 +100,13 @@ const CheckReview = () => {
       align: 'center',
       render: (_: any, record: any) => {
         return (
-          <div>
+          <div
+            className={
+              record.reviewTaskStatus === TaskStatusTypeEnum.Cancel
+                ? 'text-red-500'
+                : ''
+            }
+          >
             {
               // @ts-expect-error: TS2339
               TaskStatusObject[record.reviewTaskStatus]
@@ -182,7 +192,8 @@ const CheckReview = () => {
       render: (_: any, record: any) => {
         return (
           <div>
-            {record.reviewTaskStatus === TaskStatusTypeEnum.Processing
+            {record.reviewTaskStatus === TaskStatusTypeEnum.Processing ||
+            record.reviewTaskStatus === TaskStatusTypeEnum.Finished
               ? operateButton.detail(record)
               : '-'}
           </div>
