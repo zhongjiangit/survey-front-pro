@@ -97,7 +97,7 @@ const Basic = (props: BasicProps) => {
         }
         // 如果node.key为string类型，删除
         if (typeof node?.key === 'string') {
-          // @ts-ignore
+          // @ts-expect-error: delete
           delete node?.key;
           delete node?.type;
           delete node?.isLeaf;
@@ -115,7 +115,6 @@ const Basic = (props: BasicProps) => {
       createTag({
         currentSystemId: system.id,
         tagType: drawerData.type,
-        // @ts-ignore
         tags: tags,
       });
       setDrawerOpen(false);
