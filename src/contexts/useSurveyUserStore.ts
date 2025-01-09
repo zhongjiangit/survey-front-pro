@@ -4,7 +4,9 @@ import { persist } from 'zustand/middleware';
 
 type SurveyUserStore = {
   user: UserType | null;
+  ready: boolean;
   setUser: (user: any) => void;
+  setReady: (ready: boolean) => void;
 };
 
 /**
@@ -12,12 +14,17 @@ type SurveyUserStore = {
  */
 export const useSurveyUserStore = create<SurveyUserStore>()(
   persist(
-    set => ({
-      user: null,
-      setUser: user => set({ user }),
-    }),
+    set => {
+      return {
+        user: null,
+        ready: false,
+        setUser: user => set({ user }),
+        setReady: ready => set({ ready }),
+      };
+    },
     {
       name: 'survey.user',
     }
   )
 );
+// console.log(useSurveyUserStore())

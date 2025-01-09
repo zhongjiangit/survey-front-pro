@@ -1,7 +1,7 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { getFirstMenuByMenus, hasMenu, selectMenu } from '@/lib/get-first-menu';
+import { selectMenu } from '@/lib/get-first-menu';
 import { Role_Enum } from '@/types/CommonType';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
@@ -173,17 +173,6 @@ export default function NavLinks() {
   const selectedKeys = useMemo(() => {
     return [selectMenu(menus, pathname)?.key].filter(t => t);
   }, [menus, pathname]);
-
-  // 跳转至第一个菜单
-  useEffect(() => {
-    if (!menus?.length || hasMenu(menus, pathname)) {
-      return;
-    }
-    const firstMenu = getFirstMenuByMenus(menus);
-    if (firstMenu) {
-      router.push(firstMenu);
-    }
-  }, [pathname, menus]);
 
   const onSelect: MenuProps['onSelect'] = e => {
     router.push(e.key);

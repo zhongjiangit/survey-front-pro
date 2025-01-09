@@ -1,7 +1,12 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { getMenus } from '@/lib/get-first-menu';
+import {
+  getFirstMenuByMenus,
+  getMenus,
+  hasMenu,
+  selectMenu,
+} from '@/lib/get-first-menu';
 import { ColorScheme } from '@/types/ColorScheme';
 import { ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
@@ -14,8 +19,9 @@ import {
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import { RoleType, StaffTypeEnum } from '@/types/CommonType';
+import { RoleType } from '@/types/CommonType';
 import { getActiveRoles } from '@/lib/get-active-roles';
+import { usePathname, useRouter } from 'next/navigation';
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
 interface Props {
@@ -25,7 +31,11 @@ interface Props {
 
 export function Provider({ colorScheme, children }: Props) {
   const store = useRef(createColorSchemeStore({ colorScheme })).current;
-  const user = useSurveyUserStore(state => state.user);
+  const [user, ready, setReady] = useSurveyUserStore(state => [
+    state.user,
+    state.ready,
+    state.setReady,
+  ]);
   const [currentSystem, setCurrentSystem] = useSurveySystemStore(state => [
     state.currentSystem,
     state.setCurrentSystem,
@@ -34,25 +44,39 @@ export function Provider({ colorScheme, children }: Props) {
     state.currentOrg,
     state.setCurrentOrg,
   ]);
-  const [currentRole, setCurrentRole, setRoles, setMenus] =
+  const [currentRole, menus, setCurrentRole, setRoles, setMenus] =
     useSurveyCurrentRoleStore(state => [
       state.currentRole,
+      state.getMenus(),
       state.setCurrentRole,
       state.setRoles,
       state.setMenus,
     ]);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (!ready) {
+      setReady(true);
+      return;
+    }
+
     if (!user) {
+      if (currentSystem) {
+        setCurrentSystem(null);
+        setCurrentOrg(null);
+        setCurrentRole(null);
+        setMenus([]);
+        setRoles([]);
+      }
       return;
     }
     let _currentSystem = currentSystem;
     let _currentOrg = currentOrg;
     let _currentRole = currentRole;
     if (
-      user &&
-      (!_currentSystem ||
-        !user?.systems?.some(t => t.systemId === _currentSystem?.systemId))
+      !_currentSystem ||
+      !user?.systems?.some(t => t.systemId === _currentSystem?.systemId)
     ) {
       _currentSystem = user?.systems?.[0];
     }
@@ -66,13 +90,10 @@ export function Provider({ colorScheme, children }: Props) {
     }
 
     let roles: RoleType[] = [];
-    if (user) {
-      roles = getActiveRoles(user, _currentOrg, _currentSystem);
-    }
+    roles = getActiveRoles(user, _currentOrg, _currentSystem);
     if (
-      user &&
-      (!_currentRole ||
-        !roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole)))
+      !_currentRole ||
+      !roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole))
     ) {
       _currentRole = roles.filter(role => role.isActive)[0];
     }
@@ -82,7 +103,46 @@ export function Provider({ colorScheme, children }: Props) {
     setCurrentRole(_currentRole);
     setMenus(getMenus(_currentRole));
     setRoles(roles);
-  }, [user, currentSystem, currentOrg, currentRole]);
+  }, [ready, user, currentSystem, currentOrg, currentRole]);
+
+  // 如果用户不存在，则重定向到登录页
+  useEffect(() => {
+    if (ready && !user && pathname !== '/') {
+      router.push('/');
+      return;
+    }
+  }, [ready, pathname, user]);
+
+  // 菜单变化时，切换子菜单到父亲菜单, 切换系统\机构\角色,才会从新生产菜单
+  useEffect(() => {
+    if (menus.length) {
+      const menu = selectMenu(menus, pathname);
+      if (menu && pathname !== menu.key) {
+        router.push(menu.key);
+      }
+    }
+  }, [menus]);
+
+  // 检查是否有当前路由的访问权限,没有就跳转至第一个菜单
+  useEffect(() => {
+    if (!menus.length || hasMenu(menus, pathname)) {
+      return;
+    }
+    const firstMenu = getFirstMenuByMenus(menus);
+    if (firstMenu) {
+      router.push(firstMenu);
+    }
+  }, [pathname, menus]);
+
+  // 非登录页，要有菜单并且当前路由要在菜单内才渲染子组件
+  if (
+    !ready ||
+    (pathname !== '/' && !user) ||
+    (pathname === '/' && menus.length) ||
+    (menus.length && !hasMenu(menus, pathname))
+  ) {
+    children = null;
+  }
 
   return (
     <ColorSchemeContext.Provider value={store}>

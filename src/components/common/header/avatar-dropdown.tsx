@@ -1,7 +1,6 @@
 'use client';
 
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import {
   ApartmentOutlined,
@@ -20,9 +19,11 @@ import RoleSwitchModal from './switch-modal/role-switch-modal';
 import SystemSwitchModal from './switch-modal/system-switch-modal';
 
 export const AvatarDropdown: React.FC = () => {
-  const user = useSurveyUserStore(state => state.user);
-  const [currentSystem,setCurrentSystem] = useSurveySystemStore(state => [state.currentSystem,state.setCurrentSystem]);
-  const [currentRole,setCurrentRole] = useSurveyCurrentRoleStore(state => [state.currentRole,state.setCurrentRole]);
+  const [user, setUser] = useSurveyUserStore(state => [
+    state.user,
+    state.setUser,
+  ]);
+  const [currentRole] = useSurveyCurrentRoleStore(state => [state.currentRole]);
   const router = useRouter();
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
@@ -31,21 +32,10 @@ export const AvatarDropdown: React.FC = () => {
    * 退出登录
    */
   const loginOut = () => {
-    setCurrentSystem({
-      ...currentSystem,
-      systemName: '',
-    });
-    setCurrentRole({
-      id: undefined,
-      isActive: false,
-      key: '',
-      label: '',
-      name: undefined,
-    });
-    // 清空local storage
-    localStorage.clear();
     // 跳转到登录页
     router.push('/');
+    // 清空用户信息
+    setUser(null);
   };
 
   const onMenuClick = useCallback((event: MenuInfo) => {
@@ -107,7 +97,7 @@ export const AvatarDropdown: React.FC = () => {
       >
         <Button type="text" className="flex gap-1 items-center">
           <CircleUserRound className="w-5 h-5" />
-          {currentRole?.name}
+          {!!user && currentRole?.name}
         </Button>
       </HeaderDropdown>
       <RoleSwitchModal
