@@ -23,6 +23,10 @@
 
 .fill-detail-tabs .fillCollect-form-action {
     position: sticky;
-    bottom: 0px;
+    bottom: 0;
     background: #fff;
+}
+
+.fill-detail-tabs .ant-tabs-tab-active {
+    font-weight: bold;
 }
