@@ -5,7 +5,7 @@ export function getActiveRoles(
   currentOrg: any,
   currentSystem: any
 ): RoleType[] {
-  const roles: RoleType[] = [
+  let roles: RoleType[] = [
     {
       key: 'isPlatformManager',
       isActive: !!user.isPlatformManager,
@@ -52,5 +52,11 @@ export function getActiveRoles(
       id: currentOrg?.isStaff === 1 && currentOrg.staffId,
     },
   ];
+  // 不是顶级单位，则移除平台管理员和系统管理员
+  if (currentOrg?.isTopOrg === 0) {
+    roles = roles.filter(
+      t => !['isSystemManager', 'isPlatformManager'].includes(t.key)
+    );
+  }
   return roles;
 }

@@ -134,12 +134,11 @@ export function Provider({ colorScheme, children }: Props) {
     }
   }, [pathname, menus]);
 
-  // 非登录页，要有菜单并且当前路由要在菜单内才渲染子组件
+  // 判断路由是否需要渲染
   if (
     !ready ||
-    (pathname !== '/' && !user) ||
-    (pathname === '/' && menus.length) ||
-    (menus.length && !hasMenu(menus, pathname))
+    (pathname === '/' && user) ||
+    (pathname !== '/' && (!user || !menus.length || !hasMenu(menus, pathname)))
   ) {
     children = null;
   }
