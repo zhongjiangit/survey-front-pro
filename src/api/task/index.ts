@@ -52,6 +52,8 @@ import showReviewResult from './showReviewResult';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
+import rejectReview from './rejectReview';
+import approveReviewBatch from './approveReviewBatch';
 
 const taskApi = {
   createCollectionTask,
@@ -91,6 +93,8 @@ const taskApi = {
   setReviewReviewComplete,
   approveFill,
   approveReview,
+  rejectReview,
+  approveReviewBatch,
   deleteSingleFill,
   createSingleFill,
   saveSingleFillDetails,

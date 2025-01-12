@@ -2,18 +2,20 @@
 
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
-import { Button, Modal, Space, Table, TableProps } from 'antd';
+import { Button, message, Modal, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 
 import Api from '@/api';
+import { ApproveReviewBatchParamsType } from '@/api/task/approveReviewBatch';
 import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
+import { ListReviewDetailsManagerResponse } from '@/api/task/listReviewDetailsManager';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import {
   fullJoinRowSpanData,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
-import { TemplateTypeEnum } from '@/types/CommonType';
+import { ReviewTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { useReviewDetailColumn } from '../hooks/useReviewDetailColumn';
 import ProfessorDetail from './modules/professor-detail';
@@ -36,10 +38,13 @@ const ReviewDetailModal = (props: Props) => {
   const [pageSize, setPageSize] = useState(10);
   const { columns, setColumns } = useReviewDetailColumn([]);
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const {
     run: getListReviewDetailsManager,
     data: listReviewDetailsManagerData,
     loading: getListReviewDetailsManagerLoading,
+    refresh,
   } = useRequest(
     () => {
       if (!currentSystem || !currentOrg) {
@@ -73,14 +78,38 @@ const ReviewDetailModal = (props: Props) => {
         });
         setColumns(data.data);
         setDataSource(
-          joinRowSpanKey?.reduce(
-            (prev: any[] | undefined, keyParams) => {
-              return fullJoinRowSpanData(prev, keyParams);
-            },
-            data?.data
-            // data?.data.length ? data?.data : checkDetailData // TODO: remove this line
-          )
+          joinRowSpanKey?.reduce((prev: any[] | undefined, keyParams) => {
+            return fullJoinRowSpanData(prev, keyParams);
+          }, data?.data)
         );
+      },
+    }
+  );
+
+  const { run: approveReviewBatch } = useRequest(
+    (singleFillIds?: number[]) => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !task?.taskId) {
+        return Promise.reject('未获取到必要数据');
+      }
+      const params: ApproveReviewBatchParamsType = {
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        taskId: task.taskId,
+      };
+      if (singleFillIds) {
+        params.singleFillIds = singleFillIds;
+      }
+      console.log(params);
+      return Api.approveReviewBatch(params);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        messageApi.info('一键通过成功');
+        refresh();
+      },
+      onError: error => {
+        messageApi.error(error.toString());
       },
     }
   );
@@ -131,6 +160,8 @@ const ReviewDetailModal = (props: Props) => {
           <ProfessorDetail
             buttonText={`${text}人`}
             record={record}
+            task={task}
+            type={ReviewTypeEnum.Passed}
           ></ProfessorDetail>
         ),
     },
@@ -143,6 +174,8 @@ const ReviewDetailModal = (props: Props) => {
           <ProfessorDetail
             buttonText={`${text}人`}
             record={record}
+            task={task}
+            type={ReviewTypeEnum.WaitAudit}
           ></ProfessorDetail>
         ),
     },
@@ -155,6 +188,8 @@ const ReviewDetailModal = (props: Props) => {
           <ProfessorDetail
             buttonText={`${text}人`}
             record={record}
+            task={task}
+            type={ReviewTypeEnum.WaitSubmit}
           ></ProfessorDetail>
         ),
     },
@@ -167,27 +202,12 @@ const ReviewDetailModal = (props: Props) => {
           <ProfessorDetail
             buttonText={`${text}人`}
             record={record}
+            task={task}
+            type={ReviewTypeEnum.Reject}
           ></ProfessorDetail>
         ),
     },
   ];
-
-  // useEffect(() => {
-  //   setDataSource(
-  //     joinRowSpanKey.reduce(
-  //       (prev: any[] | undefined, keyParams) => {
-  //         return fullJoinRowSpanData(prev, keyParams);
-  //       },
-  //       listReviewDetailsManagerData?.data.length
-  //         ? listReviewDetailsManagerData?.data
-  //         : checkDetailData // TODO: remove this line
-  //     )
-  //   );
-
-  //   return () => {
-  //     setDataSource(undefined);
-  //   };
-  // }, [listReviewDetailsManagerData]);
 
   useEffect(() => {
     if (open) {
@@ -197,6 +217,7 @@ const ReviewDetailModal = (props: Props) => {
 
   return (
     <>
+      {contextHolder}
       <a
         className="text-blue-500"
         onClick={() => {
@@ -218,8 +239,27 @@ const ReviewDetailModal = (props: Props) => {
       >
         <div className="flex justify-end mb-2">
           <Space>
-            <Button type="primary">一键通过本页待审核专家</Button>
-            <Button type="primary">一键通过所有待审核专家</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                approveReviewBatch(
+                  dataSource.map(
+                    (item: ListReviewDetailsManagerResponse) =>
+                      item.singleFillId
+                  )
+                );
+              }}
+            >
+              一键通过本页待审核专家
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                approveReviewBatch();
+              }}
+            >
+              一键通过所有待审核专家
+            </Button>
           </Space>
         </div>
         <Table<DataType>

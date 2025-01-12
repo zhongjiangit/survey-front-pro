@@ -1,4 +1,5 @@
 import { SurveyService } from '@/service';
+import { ProcessStatusType, ReviewType } from '@/types/CommonType';
 import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
@@ -17,7 +18,7 @@ interface ListReviewExpertDetailsParamsType {
   currentOrgId: number;
   taskId: number;
   singleFillId: number;
-  type: number;
+  type: ReviewType;
 }
 
 /*
@@ -48,7 +49,7 @@ interface ListReviewExpertDetailsParamsType {
                   90：已驳回专家-数据
                   100：数据丢弃"
 */
-interface ListReviewExpertDetailsResponse {
+export interface ListReviewExpertDetailsResponse {
   singleFillId: number;
   expertId: number;
   expertName: string;
@@ -57,14 +58,14 @@ interface ListReviewExpertDetailsResponse {
   fillerOrgName: string;
   fillerStaffId: number;
   fillerStaffName: string;
-  totalScore: number;
-  dimensionScores: {
+  totalScore?: number;
+  dimensionScores?: {
     dimensionId: number;
     dimensionName: string;
     reviewScore: number;
   }[];
-  expertComment: string;
-  processStatus: number;
+  expertComment?: string;
+  processStatus: ProcessStatusType;
 }
 
 /**

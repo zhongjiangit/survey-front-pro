@@ -18,18 +18,13 @@ interface ApproveReviewParamsType {
   expertId: number;
 }
 
-/*
-
-*/
-export interface ApproveReviewResponse {}
-
 /**
  * approveReview
  * @param params
  * @returns
  */
 function approveReview(params: ApproveReviewParamsType) {
-  return SurveyService.post<CommonResponseType<ApproveReviewResponse>>(
+  return SurveyService.post<CommonResponseType>(
     `${baseUrl}/task/approveReview`,
     {
       ...params,
