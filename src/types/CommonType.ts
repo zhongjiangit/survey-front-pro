@@ -125,7 +125,6 @@ export const ArrWidgetTypes: WidgetType[] = [
 
 // ----------------- 通用类型 任务状态类型 -----------------
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成 9: 已取消
-// todo 看需求ui有已删除状态，接口无
 export type TaskStatusType = 0 | 1 | 2 | 9;
 
 export enum TaskStatusTypeEnum {

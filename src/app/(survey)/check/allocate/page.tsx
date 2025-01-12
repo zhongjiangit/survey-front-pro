@@ -45,7 +45,6 @@ interface CollectListItemProps {
 // FillPeople	int		填报人数
 // FillCount	int		填报份数
 // taskStatus	int		任务状态 0：未开始 1：进行中 2：完成
-//  todo 发现一个bug:页面刷新后不会根据当前路由定位到菜单栏，需要手动点击一下才会定位到
 
 const ToAllotTask = () => {
   const [pageNumber, setPageNumber] = useState(1);

@@ -217,7 +217,6 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       dataIndex: 'stage',
       align: 'center',
       render: (text: any) => {
-        //  todo 接口无字段
         return <div>{text}</div>;
       },
     },

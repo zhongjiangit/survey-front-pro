@@ -1,6 +1,7 @@
 'use client';
 
 import Api from '@/api';
+import { ListVisibleLevelsResponse } from '@/api/system/listVisibleLevels';
 import {
   getSelectedNum,
   membersToNode,
@@ -35,7 +36,6 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ListVisibleLevelsResponse } from '@/api/system/listVisibleLevels';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
@@ -159,7 +159,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         return Api.listVisibleLevels({
           currentSystemId: currentSystem.systemId!,
           currentOrgId: currentOrg.orgId!,
-          // TODO orgId是什么？
           orgId: currentOrg.orgId!,
         });
       },
@@ -319,7 +318,6 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       onOk();
       return;
     }
-    // TODO 之前所选单位是不是为空，，不为空则需要确认。
     modal.confirm({
       title: '过滤条件确认',
       icon: <ExclamationCircleFilled />,

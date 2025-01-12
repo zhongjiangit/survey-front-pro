@@ -119,7 +119,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       return Api.listVisibleLevels({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
-        // TODO orgId是什么？
         orgId: currentOrg.orgId!,
       }).then(res => res.data.slice(1));
     },
@@ -327,7 +326,6 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
       onOk();
       return;
     }
-    // TODO 之前所选单位是不是为空，，不为空则需要确认。
     modal.confirm({
       title: '过滤条件确认',
       icon: <ExclamationCircleFilled />,
