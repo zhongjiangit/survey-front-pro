@@ -12,7 +12,7 @@ import {
 } from '@/lib/join-rowspan-data';
 import { TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { Modal, Table, TableProps } from 'antd';
+import { Divider, Modal, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useReviewResultColumns } from '../hooks/useReviewResultColumns';
 import ProfessorResult from './modules/professor-result';
@@ -66,7 +66,12 @@ const ReviewResultModal = (props: Props) => {
           coKey: 'fillerStaffName',
           compareKeys: ['fillerStaffName', 'fillerCellphone'],
         });
-        setColumns(data.data);
+        setColumns(
+          data?.data?.map(item => ({
+            ...item,
+            task: task,
+          }))
+        );
         setDataSource(
           joinRowSpanKey?.reduce((prev: any[] | undefined, keyParams) => {
             return fullJoinRowSpanData(prev, keyParams);
@@ -84,7 +89,7 @@ const ReviewResultModal = (props: Props) => {
       render: (text, record) => (
         <>
           <div>{text}</div>
-          <a className="text-blue-500">{record.fillerCellphone}</a>
+          <div className="text-slate-500">{record.fillerCellphone}</div>
         </>
       ),
       onCell: text => ({
@@ -100,16 +105,13 @@ const ReviewResultModal = (props: Props) => {
       ),
       align: 'center',
       dataIndex: 'fillerAverageScore',
-      render: (text, record) =>
-        text != null && (
-          <ProfessorResult
-            buttonText={`${text}分`}
-            record={record}
-          ></ProfessorResult>
-        ),
-      onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
-      }),
+      render: (text, record) => (
+        <ProfessorResult
+          buttonText={`${text}分`}
+          record={record}
+          task={task}
+        ></ProfessorResult>
+      ),
     },
     {
       title: (
@@ -119,30 +121,53 @@ const ReviewResultModal = (props: Props) => {
         </>
       ),
       align: 'center',
-      dataIndex: 'paper',
+      dataIndex: 'singleFills',
       render: text =>
-        text && (
+        text != null && (
           <div className="flex justify-center">
-            <TemplateDetailModal
-              templateId={task.templateId}
-              TemplateType={TemplateTypeEnum.Check}
-              title="试卷详情"
-              showDom={<Circle value={text} />}
-            />
+            {text?.map((item: any, i: number) => {
+              return (
+                <div key={i}>
+                  <TemplateDetailModal
+                    templateId={task.templateId}
+                    taskId={task.taskId}
+                    singleFillId={item.singleFillId}
+                    TemplateType={TemplateTypeEnum.Check}
+                    title="试卷详情"
+                    showDom={<Circle value={item.fillIndex} />}
+                  />
+                  {i + 1 !== text.length && <Divider className="my-4" />}
+                </div>
+              );
+            })}
           </div>
         ),
     },
     {
       title: '试卷得分',
       align: 'center',
-      dataIndex: 'result',
-      render: text => text && <a>{text} </a>,
+      dataIndex: 'singleFills',
+      render: text =>
+        text != null && (
+          <div className="flex justify-center">
+            {text?.map((item: any, i: number) => {
+              return (
+                <div key={i}>
+                  <span>{`${item.score}分`}</span>
+                  {i + 1 !== text.length && <Divider className="my-4" />}
+                </div>
+              );
+            })}
+          </div>
+        ),
     },
   ];
 
   useEffect(() => {
     if (open) {
       getReviewResult();
+    } else {
+      setColumns([]);
     }
     return () => {
       setDataSource(undefined);

@@ -57,7 +57,7 @@ interface GetReviewResultStaffResponse {
  * @returns
  */
 function getReviewResultStaff(params: GetReviewResultStaffParamsType) {
-  return SurveyService.post<CommonResponseType<GetReviewResultStaffResponse[]>>(
+  return SurveyService.post<CommonResponseType<GetReviewResultStaffResponse>>(
     `${baseUrl}/task/getReviewResultStaff`,
     {
       ...params,

@@ -1,7 +1,9 @@
-import { joinRowSpanData } from '@/lib/join-rowspan-data';
-import { Modal, Table, TableProps } from 'antd';
+import Api from '@/api';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useRequest } from 'ahooks';
+import { Divider, Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { orgResultData } from '../../../testData';
 
 interface ProfessorDetailProps {
   buttonText: string;
@@ -9,57 +11,108 @@ interface ProfessorDetailProps {
   [key: string]: any;
 }
 
-const loginUserType: 'org' | 'professor' = 'org';
 const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
   buttonText,
+  value,
   record,
   modalTitle,
 }) => {
   const [open, setOpen] = useState(false);
-  const [dataSource, setDataSource] = useState<any>();
-  const joinRowSpanKey = ['orgRate'];
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  console.log('record', record);
+
+  const {
+    run: getReviewResultOrg,
+    loading: getReviewResultOrgLoading,
+    data: reviewResultOrgData,
+  } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg || !value || !record.task.taskId) {
+        return Promise.reject(
+          'currentSystem or currentOrg or value is not defined'
+        );
+      }
+      return Api.getReviewResultOrg({
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        taskId: record.task.taskId,
+        orgId: value.orgId,
+      });
+    },
+    {
+      manual: true,
+    }
+  );
 
   const columns: TableProps['columns'] = [
     {
       title: '单位平均分',
-      dataIndex: 'orgRate',
+      dataIndex: 'averageScore',
       align: 'center',
-      onCell: text => ({
-        rowSpan: text.rowSpan?.orgRate || 0,
-      }),
-      render: text => text && <a>{`${text}分`}</a>,
+
+      render: text => text && <span>{`${text}分`}</span>,
     },
     {
       title: '准测',
-      dataIndex: 'paper',
+      dataIndex: 'dimensionScores',
       align: 'center',
+      render: text => (
+        <div>
+          {text?.map((item: any, i: number) => {
+            return (
+              <div key={i}>
+                <span>{item.guideline}</span>
+                {i + 1 !== text.length && <Divider className="my-4" />}
+              </div>
+            );
+          })}
+        </div>
+      ),
     },
     {
       title: '小项均分',
       align: 'center',
-      dataIndex: 'itemRate',
-      render: text => text && <a>{`${text}分`}</a>,
+      dataIndex: 'dimensionScores',
+      render: text => (
+        <div>
+          {text?.map((item: any, i: number) => {
+            return (
+              <div key={i}>
+                <span>{`${item.reviewAverageScore}分`}</span>
+                {i + 1 !== text.length && <Divider className="my-4" />}
+              </div>
+            );
+          })}
+        </div>
+      ),
     },
     {
       title: '指标',
       align: 'center',
-      dataIndex: 'standard',
+      dataIndex: 'dimensionScores',
+      render: text => (
+        <div>
+          {text?.map((item: any, i: number) => {
+            return (
+              <div key={i}>
+                <span>{item.dimensionName}</span>
+                {i + 1 !== text.length && <Divider className="my-4" />}
+              </div>
+            );
+          })}
+        </div>
+      ),
     },
   ];
 
   useEffect(() => {
-    if (orgResultData) {
-      setDataSource(
-        joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
-          return joinRowSpanData(prev, currentKey);
-        }, orgResultData)
-      );
+    if (open) {
+      getReviewResultOrg();
     }
+  }, [getReviewResultOrg, open]);
 
-    return () => {
-      setDataSource(undefined);
-    };
-  }, [orgResultData]);
   return (
     <>
       <a
@@ -78,26 +131,17 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
         onCancel={() => {
           setOpen(false);
         }}
-        width={1400}
+        width={1200}
       >
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={
+            reviewResultOrgData?.data ? [reviewResultOrgData?.data] : []
+          }
           size="small"
-          bordered
           style={{ margin: '20px' }}
-          pagination={{
-            total: dataSource?.length,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            // current: pageNumber,
-            // pageSize: pageSize,
-            showTotal: total => `总共 ${total} 条`,
-            // onChange: (page, pageSize) => {
-            //   setPageNumber(page);
-            //   setPageSize(pageSize);
-            // },
-          }}
+          loading={getReviewResultOrgLoading}
+          pagination={false}
         ></Table>
       </Modal>
     </>

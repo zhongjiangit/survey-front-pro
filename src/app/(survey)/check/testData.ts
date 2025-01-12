@@ -636,3 +636,37 @@ export const treeData: TreeDataNode[][] = [
     },
   ],
 ];
+
+export const staffAverageData = {
+  fillerAverageScore: 10,
+  singleFills: [
+    {
+      singleFillId: 82,
+      fillIndex: 1,
+      averageScore: 8,
+      dimensionScores: [
+        { dimensionId: 1, dimensionName: '维度1', reviewAverageScore: 10 },
+        { dimensionId: 2, dimensionName: '维度2', reviewAverageScore: 10 },
+        { dimensionId: 3, dimensionName: '维度3', reviewAverageScore: 10 },
+      ],
+      expertComments: {
+        expertName: '杨专家',
+        expertComment: '好好好好',
+      },
+    },
+    {
+      singleFillId: 82,
+      fillIndex: 2,
+      averageScore: 10,
+      dimensionScores: [
+        { dimensionId: 1, dimensionName: '维度1', reviewAverageScore: 10 },
+        { dimensionId: 2, dimensionName: '维度2', reviewAverageScore: 10 },
+        { dimensionId: 3, dimensionName: '维度3', reviewAverageScore: 10 },
+      ],
+      expertComments: {
+        expertName: '杨专家',
+        expertComment: '好好好好',
+      },
+    },
+  ],
+};

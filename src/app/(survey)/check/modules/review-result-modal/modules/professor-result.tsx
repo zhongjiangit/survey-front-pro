@@ -1,8 +1,13 @@
+import Api from '@/api';
+import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
+import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
+import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { joinRowSpanData } from '@/lib/join-rowspan-data';
+import { TemplateTypeEnum } from '@/types/CommonType';
+import { useRequest } from 'ahooks';
 import { Modal, Table, TableProps } from 'antd';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { professorResultData } from '../../../testData';
 
 interface ProfessorDetailProps {
   buttonText: string;
@@ -14,56 +19,113 @@ const loginUserType: 'org' | 'professor' = 'org';
 const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
   buttonText,
   record,
+  task,
 }) => {
   const [open, setOpen] = useState(false);
   const [dataSource, setDataSource] = useState<any>();
-  const joinRowSpanKey = ['professorRate', 'paper', 'rate'];
+  const joinRowSpanKey = ['fillerAverageScore', 'fillIndex', 'averageScore'];
+
+  const currentSystem = useSurveySystemStore(state => state.currentSystem);
+  const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+
+  const {
+    run: getReviewResultStaff,
+    loading: getReviewResultStaffLoading,
+    data: reviewResultStaffData,
+  } = useRequest(
+    () => {
+      if (!currentSystem || !currentOrg || !record) {
+        return Promise.reject(
+          'currentSystem or currentOrg or record is not defined'
+        );
+      }
+
+      return Api.getReviewResultStaff({
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        taskId: task.taskId,
+        fillerStaffId: record.fillerStaffId,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: data => {
+        const professorResultData: any[] = [];
+        data.data?.singleFills?.forEach(item => {
+          const resultItem: any = {
+            ...item,
+            fillerAverageScore: data?.data?.fillerAverageScore,
+          };
+          professorResultData.push(
+            ...(resultItem.dimensionScores.map((scoreItem: any) => {
+              return { ...scoreItem, ...resultItem };
+            }) || [])
+          );
+        });
+        const finalresult = joinRowSpanKey.reduce(
+          (prev: any[] | undefined, currentKey: string) => {
+            return joinRowSpanData(prev, currentKey);
+          },
+          professorResultData
+        );
+        setDataSource(finalresult);
+      },
+    }
+  );
 
   const columns: TableProps['columns'] = [
     {
       title: '个人平均分',
-      dataIndex: 'professorRate',
+      dataIndex: 'fillerAverageScore',
       align: 'center',
-      onCell: text => ({
-        rowSpan: text.rowSpan?.professorRate || 0,
-      }),
+      onCell: record => {
+        return {
+          rowSpan: record?.rowSpan?.fillerAverageScore || 0,
+        };
+      },
     },
     {
       title: '试卷序列',
-      dataIndex: 'paper',
+      dataIndex: 'fillIndex',
       align: 'center',
-
-      render: (text: number) =>
+      render: (text: number, record) =>
         text && (
           <div className="flex justify-center">
             <a>
-              <Circle value={text} />
+              <TemplateDetailModal
+                templateId={task.templateId}
+                taskId={task.taskId}
+                singleFillId={record.singleFillId}
+                TemplateType={TemplateTypeEnum.Check}
+                title="试卷详情"
+                showDom={<Circle value={text} />}
+              />
             </a>
           </div>
         ),
-      onCell: text => ({
-        rowSpan: text.rowSpan?.paper || 0,
+      onCell: record => ({
+        rowSpan: record?.rowSpan?.fillIndex || 0,
       }),
     },
     {
       title: '试卷得分',
-      dataIndex: 'rate',
+      dataIndex: 'averageScore',
       align: 'center',
-      render: text => text && <a>{`${text}分`}</a>,
-      onCell: text => ({
-        rowSpan: text.rowSpan?.rate || 0,
+      render: text => text && <span>{`${text}分`}</span>,
+      onCell: record => ({
+        rowSpan: record?.rowSpan?.averageScore || 0,
       }),
     },
     {
       title: '指标',
       align: 'center',
-      dataIndex: 'standard',
+      dataIndex: 'dimensionName',
     },
     {
       title: '小项均分',
       align: 'center',
-      dataIndex: 'itemRate',
-      render: text => text && <a>{`${text}分`}</a>,
+      dataIndex: 'reviewAverageScore',
+      render: text => text && <span>{`${text}分`}</span>,
     },
     {
       title: '评价',
@@ -82,18 +144,11 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
   ];
 
   useEffect(() => {
-    if (professorResultData) {
-      setDataSource(
-        joinRowSpanKey.reduce((prev: any[] | undefined, currentKey: string) => {
-          return joinRowSpanData(prev, currentKey);
-        }, professorResultData)
-      );
+    if (open) {
+      getReviewResultStaff();
     }
+  }, [getReviewResultStaff, open]);
 
-    return () => {
-      setDataSource(undefined);
-    };
-  }, [professorResultData]);
   return (
     <>
       <a
@@ -106,36 +161,22 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
       </a>
       <Modal
         title={
-          <div className="mx-5 m-2">
-            {record.org1}-{record.org2}-{record.org3}-{record.name}
-          </div>
+          <div className="mx-5 m-2">{record.fillerStaffName}的评审结果</div>
         }
         open={open}
         maskClosable={false}
         onCancel={() => {
           setOpen(false);
         }}
-        width={1400}
+        width={1200}
         footer={null}
       >
         <Table
           columns={columns}
           dataSource={dataSource}
           size="small"
-          bordered
           style={{ margin: '20px' }}
-          pagination={{
-            total: dataSource?.length,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            // current: pageNumber,
-            // pageSize: pageSize,
-            showTotal: total => `总共 ${total} 条`,
-            // onChange: (page, pageSize) => {
-            //   setPageNumber(page);
-            //   setPageSize(pageSize);
-            // },
-          }}
+          pagination={false}
         ></Table>
       </Modal>
     </>
