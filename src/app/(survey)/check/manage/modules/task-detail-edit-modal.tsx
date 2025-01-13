@@ -74,6 +74,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     [record.publishType, task?.isLowest]
   );
 
+  // 判断当前是: 分配任务 不是编辑
+  const unEdit = useMemo(
+    () => record.createOrgId !== currentOrg?.orgId,
+    [record, currentOrg]
+  );
+
   const changeFilterValue = (value: string[]) => {
     // hack 查询需要依赖及时更新的标签数据
     filterValue.length = 0;
@@ -81,8 +87,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     setFilterValue(value);
   };
   useMemo(() => {
-    setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
-  }, [levelOrgs, orgMembers]);
+    setLevelOrgList(
+      (unEdit ? levelOrgs.slice(0, 1) : levelOrgs).map(t =>
+        updateTreeDataV2(t, orgMembers)
+      )
+    );
+  }, [levelOrgs, orgMembers, task]);
 
   const { run: updateInspTaskFill } = useRequest(
     values => {
