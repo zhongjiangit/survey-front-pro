@@ -214,7 +214,6 @@ const Node = (props: NodeProps) => {
         // @ts-expect-error: operationType is missing
         orgs: orgTags,
       };
-      console.log('tagId', tagId, type);
 
       if (
         type === OperationTypeEnum.Update ||
@@ -223,8 +222,7 @@ const Node = (props: NodeProps) => {
         params = {
           ...params,
           operationType: type,
-          // @ts-expect-error: operationOrgId is missing
-          operationOrgId: tagId,
+          operationOrgId: Number(tagId),
         };
       } else if (type === OperationTypeEnum.Add) {
         params = {
