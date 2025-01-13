@@ -49,7 +49,7 @@ export function useReviewResultColumns(originData: OriginData) {
       });
     }
 
-    setFinalColumns([...tempColumn, ...finalColumns]);
+    setFinalColumns([...tempColumn]);
     return () => {
       setFinalColumns([]);
     };

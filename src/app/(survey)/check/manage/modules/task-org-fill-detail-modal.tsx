@@ -42,13 +42,17 @@ const TaskOrgFillDetailModal = ({
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<any>();
   const [dataSource, setDataSource] = useState<any>();
+  const [pagination, setPagination] = useState({
+    pageNumber: 1,
+    pageSize: 10,
+  });
 
   const {
     run: getFillProcessDetails,
     data,
     refresh,
   } = useRequest(
-    () => {
+    (pageNumber, pageSize) => {
       if (!currentOrg?.orgId || !currentSystem?.systemId) {
         return Promise.reject('未获取到组织机构');
       } else if (!task?.taskId) {
@@ -57,13 +61,14 @@ const TaskOrgFillDetailModal = ({
       return Api.getFillProcessDetails({
         currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg.orgId,
-        pageNumber: 1,
-        pageSize: 10,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
         taskId: task.taskId,
       });
     },
     {
       manual: true,
+      // refreshDeps: [pageNumber, pageSize],
       onSuccess: data => {
         setColumns(data.data);
         const combineKeys =
@@ -175,9 +180,15 @@ const TaskOrgFillDetailModal = ({
 
   useEffect(() => {
     if (open) {
-      getFillProcessDetails();
+      getFillProcessDetails(pagination.pageNumber, pagination.pageSize);
     }
-  }, [getFillProcessDetails, open]);
+  }, [getFillProcessDetails, open, pagination]);
+
+  useEffect(() => {
+    return () => {
+      setPagination({ pageNumber: 1, pageSize: 10 });
+    };
+  }, []);
 
   return (
     <>
@@ -209,6 +220,11 @@ const TaskOrgFillDetailModal = ({
             total: data?.total,
             showSizeChanger: true,
             showQuickJumper: true,
+            current: pagination.pageNumber,
+            pageSize: pagination.pageSize,
+            onChange: (page, pageSize) => {
+              setPagination({ pageNumber: page, pageSize: pageSize });
+            },
             showTotal: total => `总共 ${total} 条`,
           }}
         />

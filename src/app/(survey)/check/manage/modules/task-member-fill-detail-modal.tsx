@@ -40,13 +40,17 @@ const TaskMemberFillDetailModal = ({
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<any>();
   const [form] = Form.useForm();
+  const [pagination, setPagination] = useState({
+    pageNumber: 1,
+    pageSize: 10,
+  });
 
   const {
     run: getFillProcessDetails,
-    data: fillProcessDetailsList,
+    data,
     refresh,
   } = useRequest(
-    () => {
+    (pageNumber, pageSize) => {
       if (!currentOrg?.orgId || !currentSystem?.systemId) {
         return Promise.reject('未获取到组织机构');
       } else if (!task?.taskId) {
@@ -55,8 +59,8 @@ const TaskMemberFillDetailModal = ({
       return Api.getFillProcessDetails({
         currentSystemId: currentSystem.systemId,
         currentOrgId: currentOrg.orgId,
-        pageNumber: 1,
-        pageSize: 10,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
         taskId: task.taskId,
       });
     },
@@ -218,9 +222,15 @@ const TaskMemberFillDetailModal = ({
 
   useEffect(() => {
     if (open) {
-      getFillProcessDetails();
+      getFillProcessDetails(pagination.pageNumber, pagination.pageSize);
     }
-  }, [getFillProcessDetails, open]);
+  }, [getFillProcessDetails, open, pagination]);
+
+  useEffect(() => {
+    return () => {
+      setPagination({ pageNumber: 1, pageSize: 10 });
+    };
+  }, []);
 
   return (
     <>
@@ -242,11 +252,16 @@ const TaskMemberFillDetailModal = ({
       >
         <Table
           columns={columns}
-          dataSource={fillProcessDetailsList?.data || []}
+          dataSource={data?.data || []}
           pagination={{
-            total: fillProcessDetailsList?.total || 0,
+            total: data?.total,
             showSizeChanger: true,
             showQuickJumper: true,
+            current: pagination.pageNumber,
+            pageSize: pagination.pageSize,
+            onChange: (page, pageSize) => {
+              setPagination({ pageNumber: page, pageSize: pageSize });
+            },
             showTotal: total => `总共 ${total} 条`,
           }}
         />
