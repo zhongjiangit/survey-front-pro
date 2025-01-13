@@ -74,8 +74,8 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     [record.publishType, task?.isLowest]
   );
 
-  // 判断当前是: 分配任务 不是编辑
-  const unEdit = useMemo(
+  // 是否分配任务
+  const isAllocate = useMemo(
     () => record.createOrgId !== currentOrg?.orgId,
     [record, currentOrg]
   );
@@ -86,13 +86,14 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     filterValue.push(...value);
     setFilterValue(value);
   };
+
   useMemo(() => {
     setLevelOrgList(
-      (unEdit ? levelOrgs.slice(0, 1) : levelOrgs).map(t =>
+      (isAllocate ? levelOrgs.slice(0, 1) : levelOrgs).map(t =>
         updateTreeDataV2(t, orgMembers)
       )
     );
-  }, [levelOrgs, orgMembers, task]);
+  }, [levelOrgs, orgMembers, isAllocate]);
 
   const { run: updateInspTaskFill } = useRequest(
     values => {
@@ -283,22 +284,19 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 
   const getLeveList = (task?: any, levels?: ListVisibleLevelsResponse[]) => {
-    if (task && levels) {
-      let list = levels.slice(1);
-      if (task.createOrgId !== currentOrg?.orgId) {
-        list = list.slice(
-          list.findIndex(t =>
-            task.levels.some((f: any) => f.levelIndex === t.levelIndex)
-          )
-        );
-      }
-      return list;
+    let list = (levels || []).slice(1);
+    if (isAllocate) {
+      list = list.slice(
+        list.findIndex(t =>
+          task.levels.some((f: any) => f.levelIndex === t.levelIndex)
+        )
+      );
     }
-    return [];
+    return list;
   };
   const levelList = useMemo(
     () => getLeveList(task, listVisibleLevels?.data),
-    [listVisibleLevels, task]
+    [listVisibleLevels, isAllocate]
   );
 
   const onCheckAllChange = (e: any) => {
