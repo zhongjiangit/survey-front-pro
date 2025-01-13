@@ -74,15 +74,26 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
     [record.publishType, task?.isLowest]
   );
 
+  // 是否分配任务
+  const isAllocate = useMemo(
+    () => record.createOrgId !== currentOrg?.orgId,
+    [record, currentOrg]
+  );
+
   const changeFilterValue = (value: string[]) => {
     // hack 查询需要依赖及时更新的标签数据
     filterValue.length = 0;
     filterValue.push(...value);
     setFilterValue(value);
   };
+
   useMemo(() => {
-    setLevelOrgList(levelOrgs.map(t => updateTreeDataV2(t, orgMembers)));
-  }, [levelOrgs, orgMembers]);
+    setLevelOrgList(
+      (isAllocate ? levelOrgs.slice(0, 1) : levelOrgs).map(t =>
+        updateTreeDataV2(t, orgMembers)
+      )
+    );
+  }, [levelOrgs, orgMembers, isAllocate]);
 
   const { run: updateInspTaskFill } = useRequest(
     values => {
@@ -273,22 +284,19 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 
   const getLeveList = (task?: any, levels?: ListVisibleLevelsResponse[]) => {
-    if (task && levels) {
-      let list = levels.slice(1);
-      if (task.createOrgId !== currentOrg?.orgId) {
-        list = list.slice(
-          list.findIndex(t =>
-            task.levels.some((f: any) => f.levelIndex === t.levelIndex)
-          )
-        );
-      }
-      return list;
+    let list = (levels || []).slice(1);
+    if (isAllocate) {
+      list = list.slice(
+        list.findIndex(t =>
+          task.levels.some((f: any) => f.levelIndex === t.levelIndex)
+        )
+      );
     }
-    return [];
+    return list;
   };
   const levelList = useMemo(
     () => getLeveList(task, listVisibleLevels?.data),
-    [listVisibleLevels, task]
+    [listVisibleLevels, isAllocate]
   );
 
   const onCheckAllChange = (e: any) => {
