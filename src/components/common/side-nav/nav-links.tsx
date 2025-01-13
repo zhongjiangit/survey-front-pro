@@ -76,7 +76,6 @@ export const originMenus = [
         access: [
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
-          Role_Enum.NORMAL_ADMIN,
         ],
         allowChildren: true,
       },
@@ -126,7 +125,6 @@ export const originMenus = [
         access: [
           Role_Enum.SYSTEM_ADMIN,
           Role_Enum.ORG_ADMIN,
-          Role_Enum.NORMAL_ADMIN,
         ],
         allowChildren: true,
       },
