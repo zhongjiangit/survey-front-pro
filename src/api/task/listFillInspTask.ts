@@ -32,6 +32,7 @@ interface ListFillInspTaskParamsType {
   templateId	int		模板id
   maxFillCount	int		最大可提交份数，0表示不限制
   fillTaskStatus	int		征集阶段任务状态 0：未开始 1：进行中 2：完成
+  fil1Count  int  填报份数
   processStatus	int		"评审状态 
                       10：未填报
                       20：未提交
@@ -58,6 +59,7 @@ interface ListFillInspTaskResponse {
   templateId: number;
   maxFillCount: number;
   fillTaskStatus: number;
+  fillCount: number;
   processStatus: number;
 }
 
