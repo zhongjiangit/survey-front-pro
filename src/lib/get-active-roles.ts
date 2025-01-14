@@ -18,7 +18,7 @@ export function getActiveRoles(
       label: '系统管理员',
       isActive: !!currentSystem?.isSystemManager,
       name: !!currentSystem?.isSystemManager && currentSystem.systemManagerName,
-      id: !!currentSystem?.isSystemManager && currentSystem.systemId,
+      id: !!currentSystem?.isSystemManager && currentOrg.staffId,
     },
     {
       key: 'isExpert',
