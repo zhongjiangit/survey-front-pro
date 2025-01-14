@@ -50,15 +50,12 @@ export function useFillProcessDetailColumns(
     if (!data || data.length === 0 || !data[0]?.levels) {
       return;
     }
-
     const tempColumn = Object.keys(data[0].levels).map((key, index) => {
       const levelName = data[0].levels?.[key].levelName;
       return {
         title: levelName,
         dataIndex: `org${index + 1}`,
         onCell: (text: any) => {
-          console.log('text', text);
-
           return {
             rowSpan: text.rowSpan?.[`org${index + 1}`] || 0,
           };
@@ -69,10 +66,7 @@ export function useFillProcessDetailColumns(
       };
     });
 
-    setFinalColumns([...tempColumn, ...finalColumns]);
-    return () => {
-      setFinalColumns(baseColumns);
-    };
+    setFinalColumns([...tempColumn, ...baseColumns]);
   }, [data]);
 
   return { columns: finalColumns, setColumns: setData };
