@@ -21,6 +21,7 @@ import {
   ProcessStatusType,
   ReviewTypeEnum,
   TemplateTypeEnum,
+  ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 interface Values {
@@ -277,8 +278,8 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
             operationButtons.reject(record),
           ]}
           {type === ReviewTypeEnum.WaitSubmit && operationButtons.rejectInfo}
-          {/* TODO 需要后端给出标识 */}
-          {/* {operationButtons.rejectInfo} */}
+          {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
+            operationButtons.rejectInfo}
         </Space>
       ),
     },
@@ -327,6 +328,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
           <Table
             columns={columns}
             dataSource={listReviewExpertDetailsData?.data || []}
+            loading={getListReviewExpertDetailsLoading}
             pagination={{
               total: listReviewExpertDetailsData?.data?.length || 0,
               showSizeChanger: true,

@@ -1,5 +1,9 @@
 import { SurveyService } from '@/service';
-import { ProcessStatusType, ReviewType } from '@/types/CommonType';
+import {
+  ProcessStatusType,
+  ReviewType,
+  ZeroOrOneType,
+} from '@/types/CommonType';
 import { CommonResponseType } from '@/types/ResponseType';
 import { baseUrl } from '../config';
 
@@ -48,6 +52,7 @@ interface ListReviewExpertDetailsParamsType {
                   80：已通过专家-数据
                   90：已驳回专家-数据
                   100：数据丢弃"
+  rejectedOnce int 0 | 1
 */
 export interface ListReviewExpertDetailsResponse {
   singleFillId: number;
@@ -66,6 +71,7 @@ export interface ListReviewExpertDetailsResponse {
   }[];
   expertComment?: string;
   processStatus: ProcessStatusType;
+  rejectedOnce: ZeroOrOneType;
 }
 
 /**

@@ -202,8 +202,7 @@ const ToAllotTask = () => {
     },
     {
       title: <div>填报数量</div>,
-      // TODO 这里是已经填报的数量，需要更改
-      dataIndex: 'maxFillCount',
+      dataIndex: 'fillCount',
       width: '10%',
       align: 'center',
     },
