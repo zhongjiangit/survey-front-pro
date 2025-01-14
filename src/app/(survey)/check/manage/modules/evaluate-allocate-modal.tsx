@@ -719,7 +719,7 @@ export const EvaluateAllocateModal: React.FC<
         variant="outlined"
         onClick={() => setAssignedFills([])}
       >
-        清空全部已选试题
+        清空全部已选
       </Button>
       <Button
         type="default"
@@ -729,7 +729,7 @@ export const EvaluateAllocateModal: React.FC<
           );
         }}
       >
-        全选试题
+        全选当页
       </Button>
       <Button
         type={
