@@ -252,6 +252,9 @@ export const EvaluateAllocateModal: React.FC<
     {
       ready: true,
       refreshDeps: [open, pageNumber, pageSize, JSON.stringify(tableParams)],
+      onSuccess() {
+        setAssignedFills([]);
+      },
     }
   );
 
@@ -759,9 +762,12 @@ export const EvaluateAllocateModal: React.FC<
       <Button
         type="default"
         onClick={() => {
-          setAssignedFills(
-            listFillsByTaskPage?.data.map(t => t.singleFillId) || []
-          );
+          setAssignedFills([
+            ...new Set([
+              ...assignedFills,
+              ...(listFillsByTaskPage?.data.map(t => t.singleFillId) || []),
+            ]),
+          ]);
         }}
       >
         全选当页
