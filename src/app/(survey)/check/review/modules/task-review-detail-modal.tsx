@@ -463,9 +463,10 @@ const TaskReviewDetailModal = ({
         评审详情
       </a>
       <Modal
+        style={{ top: '16px', paddingBottom: '16px' }}
         open={open}
         title="专家评审"
-        width={1400}
+        width={'100vw'}
         onCancel={() => {
           form.resetFields();
           setFormValues([]);
@@ -498,7 +499,7 @@ const TaskReviewDetailModal = ({
         <Form form={form} component={false}>
           <Table
             scroll={{
-              y: window.innerHeight - 100 - 24 - 40 - 32 - 52 - 80 - 64,
+              y: window.innerHeight - 16 - 16 - 40 - 32 - 52 - 80 - 34,
             }}
             columns={columns}
             dataSource={listReviewDetailsExpertData?.data || []}
