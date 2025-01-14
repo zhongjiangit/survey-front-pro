@@ -126,7 +126,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         key="finish"
         description={
           record.hasUncompletedFill === ZeroOrOneTypeEnum.One
-            ? '未提交的数据将丢弃是否继续？'
+            ? '有未提交或未审批的数据（可短信提醒相关用户），如果即刻完成，中间数据则会作废，请注意！'
             : '点击完成任务不可逆是否继续？'
         }
         onConfirm={() => {
@@ -553,7 +553,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       passCount: obj.fillPassCount,
       beginTimeEstimate: obj.beginTimeFillEstimate,
       endTimeEstimate: obj.endTimeFillEstimate,
-      endTimeActual: obj.endTimeFillActual,
+      endTimeFillActual: obj.endTimeFillEstimate,
       showFillPeople: obj.fillPeople,
       showFillCount: obj.fillCount,
     };
@@ -565,7 +565,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       passCount: obj.reviewPassCount,
       beginTimeEstimate: obj.beginTimeReviewEstimate,
       endTimeEstimate: obj.endTimeReviewEstimate,
-      endTimeActual: obj.endTimeReviewActual,
+      endTimeFillActual: obj.endTimeReviewEstimate,
       showFillPeople: obj.reviewPassCount,
       showFillCount: obj.reviewPassCount,
     };
@@ -588,8 +588,10 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                       task={item}
                       refreshPublishTask={refreshPublishTask}
                     />
-                    {item.fillTaskStatus !== 2 ||
-                    item.reviewTaskStatus !== 2 ? (
+                    {item.fillTaskStatus !== TaskStatusTypeEnum.Finished &&
+                    item.fillTaskStatus !== TaskStatusTypeEnum.Cancel &&
+                    item.reviewTaskStatus !== TaskStatusTypeEnum.Finished &&
+                    item.reviewTaskStatus !== TaskStatusTypeEnum.Cancel ? (
                       <TaskDeleteModal
                         taskId={item.taskId}
                         onRefresh={refreshPublishTask}

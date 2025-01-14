@@ -111,6 +111,7 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
             });
           } else if (response?.result === 0) {
             onRefresh();
+            setOpen(false);
           }
         },
       }

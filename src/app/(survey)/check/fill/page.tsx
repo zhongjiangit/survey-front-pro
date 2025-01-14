@@ -201,7 +201,7 @@ const ToAllotTask = () => {
       },
     },
     {
-      title: <div>填报数量</div>,
+      title: <div>已填报数量</div>,
       dataIndex: 'fillCount',
       width: '10%',
       align: 'center',
@@ -219,9 +219,9 @@ const ToAllotTask = () => {
               '-'
             ) : (
               <Space className="fle justify-center items-center">
-                {record.processStatus === ProcessStatusTypeEnum.NotSubmit && [
+                {(record.processStatus === ProcessStatusTypeEnum.NotSubmit ||
+                  record.processStatus === ProcessStatusTypeEnum.Reject) && [
                   operateButton.fill(record),
-                  operateButton.submit(record),
                 ]}
                 {(record.processStatus === ProcessStatusTypeEnum.Submitted ||
                   record.processStatus === ProcessStatusTypeEnum.Passed ||
@@ -229,10 +229,11 @@ const ToAllotTask = () => {
                     ProcessStatusTypeEnum.DataDiscard) && [
                   operateButton.fill(record),
                 ]}
-                {record.processStatus === ProcessStatusTypeEnum.Reject && [
-                  operateButton.fill(record),
-                  operateButton.submit(record),
-                ]}
+                {(record.processStatus === ProcessStatusTypeEnum.NotSubmit ||
+                  record.processStatus === ProcessStatusTypeEnum.Reject) &&
+                  record.fillCount !== ZeroOrOneTypeEnum.Zero && [
+                    operateButton.submit(record),
+                  ]}
                 {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
                   operateButton.reject(record)}
                 {/* TODO 添加评审结果 */}

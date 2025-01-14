@@ -16,38 +16,9 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 export const originMenus = [
-  {
-    label: '系统管理',
-    key: '/system',
-    icon: <MonitorCog className="w-4 h-4" />,
-    access: [Role_Enum.PLATFORM_ADMIN, Role_Enum.SYSTEM_ADMIN],
-    allowChildren: true,
-  },
-  {
-    label: '成员管理',
-    key: '/member',
-    icon: <UsersRound className="w-4 h-4" />,
-    access: [
-      Role_Enum.SYSTEM_ADMIN,
-      Role_Enum.ORG_ADMIN,
-      Role_Enum.NORMAL_ADMIN,
-    ],
-    allowChildren: true,
-  },
-  {
-    label: '专家配置',
-    key: '/expert',
-    icon: <BookUser className="w-4 h-4" />,
-    access: [
-      Role_Enum.SYSTEM_ADMIN,
-      Role_Enum.ORG_ADMIN,
-      Role_Enum.NORMAL_ADMIN,
-    ],
-    allowChildren: true,
-  },
   {
     label: '试题抽检',
     key: '/check',
@@ -135,6 +106,36 @@ export const originMenus = [
       },
     ],
   },
+  {
+    label: '系统管理',
+    key: '/system',
+    icon: <MonitorCog className="w-4 h-4" />,
+    access: [Role_Enum.PLATFORM_ADMIN, Role_Enum.SYSTEM_ADMIN],
+    allowChildren: true,
+  },
+  {
+    label: '成员管理',
+    key: '/member',
+    icon: <UsersRound className="w-4 h-4" />,
+    access: [
+      Role_Enum.SYSTEM_ADMIN,
+      Role_Enum.ORG_ADMIN,
+      Role_Enum.NORMAL_ADMIN,
+    ],
+    allowChildren: true,
+  },
+  {
+    label: '专家配置',
+    key: '/expert',
+    icon: <BookUser className="w-4 h-4" />,
+    access: [
+      Role_Enum.SYSTEM_ADMIN,
+      Role_Enum.ORG_ADMIN,
+      Role_Enum.NORMAL_ADMIN,
+    ],
+    allowChildren: true,
+  },
+
   {
     label: '个人中心',
     key: '/setting',

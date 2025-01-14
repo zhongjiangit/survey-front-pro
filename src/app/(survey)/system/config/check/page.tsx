@@ -82,6 +82,15 @@ export default function Page() {
         } else {
           if (response?.data.templateId === templateDetail?.newTemplateId) {
             setCanEdit(true);
+            // 为templateDetail.items添加id
+            templateDetail.items.forEach((item: any, index: number) => {
+              item.id = new Date().getTime() - index;
+            });
+            // 为templateDetail.dimensions添加id
+            templateDetail.dimensions.forEach((item: any, index: number) => {
+              item.id = new Date().getTime() - index;
+            });
+
             setItems(templateDetail?.items);
             setDimensions(templateDetail?.dimensions);
           }
@@ -193,7 +202,7 @@ export default function Page() {
             active: true,
           },
           {
-            label: '资料收集配置',
+            label: '试题抽检配置',
             href: `/system/config?id=${systemId}&tab=check`,
             active: false,
           },

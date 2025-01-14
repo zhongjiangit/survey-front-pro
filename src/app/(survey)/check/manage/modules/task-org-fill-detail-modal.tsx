@@ -123,6 +123,7 @@ const TaskOrgFillDetailModal = ({
         <Space className="flex justify-center items-center">
           {(record.processStatus === TaskProcessStatusEnum.WaitAssign ||
             record.processStatus === TaskProcessStatusEnum.NotSubmitToSelf) &&
+            record.rejectedOnce !== ZeroOrOneTypeEnum.One &&
             '-'}
           {record.processStatus !== TaskProcessStatusEnum.WaitAssign &&
             record.processStatus !== TaskProcessStatusEnum.NotSubmitToSelf && (
