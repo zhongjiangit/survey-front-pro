@@ -463,7 +463,7 @@ const TaskReviewDetailModal = ({
         评审详情
       </a>
       <Modal
-        style={{ top: '16px', paddingBottom: '16px' }}
+        style={{ top: '16px', paddingBottom: '0px' }}
         open={open}
         title="专家评审"
         width={'100vw'}
