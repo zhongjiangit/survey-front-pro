@@ -106,11 +106,11 @@ const TaskReviewDetailModal = ({
           record.processStatus === ProcessStatusTypeEnum.Submitted ||
           record.processStatus === ProcessStatusTypeEnum.Passed ||
           record.processStatus === ProcessStatusTypeEnum.PassedExpertData ||
-          record.processStatus === ProcessStatusTypeEnum.RejectExpertData ||
           record.processStatus === ProcessStatusTypeEnum.DataDiscard,
         edit:
           record.processStatus === ProcessStatusTypeEnum.NotFill ||
           record.processStatus === ProcessStatusTypeEnum.NotSubmit ||
+          record.processStatus === ProcessStatusTypeEnum.RejectExpertData ||
           record.processStatus === ProcessStatusTypeEnum.Reject,
       };
       return res;
