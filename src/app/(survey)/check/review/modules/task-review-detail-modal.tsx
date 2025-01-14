@@ -167,7 +167,10 @@ const TaskReviewDetailModal = ({
 
   const validateRecord = (idx: number) => {
     const [expertComment, reviewScoreList] = getRecordValues(idx);
-    return !reviewScoreList.some((t: any) => [null, undefined].includes(t));
+    return (
+      expertComment?.trim() &&
+      reviewScoreList.some((t: any) => ![null, undefined].includes(t))
+    );
   };
 
   const saveReview = async (idx: number, noRefresh?: boolean) => {
@@ -190,7 +193,7 @@ const TaskReviewDetailModal = ({
 
   const submitReview = async (i: number, noRefresh?: boolean) => {
     if (!validateRecord(i)) {
-      messageApi.error('请将评分填写完整!');
+      messageApi.error('请将评分与点评填写完整!');
       return;
     }
     await saveReview(i, true);
@@ -232,7 +235,7 @@ const TaskReviewDetailModal = ({
       for (let i = 0; i < list.length; i++) {
         if (recordStatus[list[i].singleFillId].edit) {
           if (!validateRecord(i)) {
-            messageApi.error('请将评分填写完整!');
+            messageApi.error('请将评分与点评填写完整!');
             return;
           }
           submitChain = submitChain.then(() => submitReview(i, true));
@@ -340,7 +343,11 @@ const TaskReviewDetailModal = ({
       },
     },
     {
-      title: <div>维度评分</div>,
+      title: (
+        <div>
+          <span style={{ color: '#ff4d4f' }}>*</span> 维度评分
+        </div>
+      ),
       dataIndex: 'dimensionScores',
       width: '11%',
       align: 'center',
@@ -376,7 +383,11 @@ const TaskReviewDetailModal = ({
       },
     },
     {
-      title: <div>专家点评</div>,
+      title: (
+        <div>
+          <span style={{ color: '#ff4d4f' }}>*</span> 专家点评
+        </div>
+      ),
       dataIndex: 'expertComment',
       align: 'center',
       render: (
