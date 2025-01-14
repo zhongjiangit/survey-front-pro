@@ -41,28 +41,30 @@ const FillDetail = ({
       >
         {action || '填报详情'}
       </span>
-      <Modal
-        title={customTitle || '填报详情'}
-        open={isFillDetailOpen}
-        onCancel={() => {
-          setIsFillDetailOpen(false);
-        }}
-        style={{ top: 20 }}
-        width={1400}
-        footer={null}
-        destroyOnClose
-        maskClosable={false}
-      >
-        <div className="py-10 min-h-96 h-[80vh] shadow-lg">
-          {isFillDetailOpen && (
-            <FillCollect
-              task={task}
-              singleFillId={singleFillId}
-              showType={showType}
-            />
-          )}
-        </div>
-      </Modal>
+      {isFillDetailOpen && (
+        <Modal
+          title={customTitle || '填报详情'}
+          open={isFillDetailOpen}
+          onCancel={() => {
+            setIsFillDetailOpen(false);
+          }}
+          style={{ top: 20 }}
+          width={1400}
+          footer={null}
+          destroyOnClose
+          maskClosable={false}
+        >
+          <div className="py-10 min-h-96 h-[80vh] shadow-lg">
+            {isFillDetailOpen && (
+              <FillCollect
+                task={task}
+                singleFillId={singleFillId}
+                showType={showType}
+              />
+            )}
+          </div>
+        </Modal>
+      )}
     </>
   );
 };

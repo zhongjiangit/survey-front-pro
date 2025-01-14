@@ -382,6 +382,41 @@ export const EvaluateAllocateModal: React.FC<
     [assignedExperts, undisabledOptions]
   );
 
+  const treeData = useMemo(
+    () =>
+      listReviewAssignByExpert?.data.map(item => ({
+        title: (
+          <div className="flex justify-start items-center gap-1">
+            <span>{item.expertName}</span>
+            <span>({item.cellphone})</span>
+            <span>已分配{item.assignedFills.length}套</span>
+          </div>
+        ),
+        key: item.expertId.toString(),
+        children: item?.assignedFills?.map(fill => {
+          return {
+            title: (
+              <FillDetail
+                task={task}
+                singleFillId={fill.singleFillId}
+                action={
+                  <div className="flex justify-start items-center gap-1">
+                    <span>{fill.orgName} / </span>
+                    <span>{fill.staffName} / </span>
+                    <span>题号:{fill.fillIndex}</span>
+                  </div>
+                }
+                customTitle="试题详情"
+                showType={DetailShowTypeEnum.Check}
+              />
+            ),
+            key: item.expertId + ',' + fill.singleFillId.toString(),
+          };
+        }),
+      })),
+    [listReviewAssignByExpert, task]
+  );
+
   const onChange = (list: string[]) => {
     setAssignedExperts(list);
   };
@@ -757,44 +792,16 @@ export const EvaluateAllocateModal: React.FC<
           <div className="bg-slate-300 p-3">已分配专家详情/删除已分配</div>
           <div className="h-80 w-full p-x overflow-auto">
             <Tree
-              checkable
+              height={320}
               checkedKeys={delAssignedFills}
               onCheck={(keys: any) => setDelAssignedFills(keys)}
-              treeData={listReviewAssignByExpert?.data.map(item => ({
-                title: (
-                  <div className="flex justify-start items-center gap-1">
-                    <span>{item.expertName}</span>
-                    <span>({item.cellphone})</span>
-                    <span>已分配{item.assignedFills.length}套</span>
-                  </div>
-                ),
-                key: item.expertId.toString(),
-                children: item?.assignedFills?.map(fill => {
-                  return {
-                    title: (
-                      <FillDetail
-                        task={task}
-                        singleFillId={fill.singleFillId}
-                        action={
-                          <div className="flex justify-start items-center gap-1">
-                            <span>{fill.orgName} / </span>
-                            <span>{fill.staffName} / </span>
-                            <span>题号:{fill.fillIndex}</span>
-                          </div>
-                        }
-                        customTitle="试题详情"
-                        showType={DetailShowTypeEnum.Check}
-                      />
-                    ),
-                    key: item.expertId + ',' + fill.singleFillId.toString(),
-                  };
-                }),
-              }))}
+              treeData={treeData}
               // defaultExpandAll
               style={{
                 flexShrink: 1,
                 // marginRight: '10%',
               }}
+              checkable
             />
           </div>
           <div className="flex p-2 justify-center">
