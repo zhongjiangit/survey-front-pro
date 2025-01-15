@@ -16,7 +16,7 @@ import {
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { Popconfirm, Space, Table } from 'antd';
+import { Empty, Popconfirm, Space, Table } from 'antd';
 import { FunctionComponent, useState } from 'react';
 import ReviewDetailModal from '../../modules/review-detail-modal';
 import ReviewResultModal from '../../modules/review-result-modal';
@@ -575,6 +575,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   return (
     <>
       <div className="flex flex-col gap-5">
+        {!!itemData?.length || <Empty />}
         {itemData?.map((item, index) => {
           return (
             <div key={index}>
