@@ -3,7 +3,7 @@
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
 import { Button, message, Modal, Space, Table, TableProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Api from '@/api';
 import { ApproveReviewBatchParamsType } from '@/api/task/approveReviewBatch';
@@ -47,6 +47,9 @@ const ReviewDetailModal = (props: Props) => {
     refresh,
   } = useRequest(
     () => {
+      if (!open) {
+        return Promise.reject('No open');
+      }
       if (!currentSystem || !currentOrg) {
         return Promise.reject('currentSystem or currentOrg is not defined');
       }
@@ -59,8 +62,7 @@ const ReviewDetailModal = (props: Props) => {
       });
     },
     {
-      manual: true,
-      refreshDeps: [pageNumber, pageSize],
+      refreshDeps: [pageNumber, pageSize, task, open],
       onSuccess: data => {
         const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
         const orgCount = data?.data[0]?.orgCount;
@@ -114,106 +116,156 @@ const ReviewDetailModal = (props: Props) => {
     }
   );
 
-  const baseColumns: TableProps<DataType>['columns'] = [
-    {
-      title: '姓名',
-      dataIndex: 'fillerStaffName',
-      align: 'center',
-      onCell: text => ({
-        rowSpan: text.rowSpan?.name || 0,
-      }),
+  const { data: taskDetail } = useRequest(
+    () => {
+      if (!open) {
+        return Promise.reject('No open');
+      }
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getInspTaskFill({
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
+        taskId: task.taskId,
+      });
     },
     {
-      title: (
-        <>
-          <div> 试卷</div>
-          <div> (点击查看详情)</div>
-        </>
-      ),
-      align: 'center',
-      dataIndex: 'fillIndex',
-      render: (text, record) => (
-        <div className="flex justify-center">
-          <TemplateDetailModal
-            templateId={task.templateId}
-            taskId={task.taskId}
-            singleFillId={record.singleFillId}
-            TemplateType={TemplateTypeEnum.Check}
-            title="试卷详情"
-            showDom={<Circle value={text} />}
-          />
-        </div>
-      ),
-    },
-    {
-      title: '评审完成度',
-      align: 'center',
-      dataIndex: 'reviewCompleteRate',
-      render: text => text != null && <span>{`${text}%`}</span>,
-    },
-    {
-      title: '已通过专家',
-      align: 'center',
-      dataIndex: 'passedExpertCount',
-      render: (text, record) =>
-        text != null && (
-          <ProfessorDetail
-            buttonText={`${text}人`}
-            record={record}
-            task={task}
-            type={ReviewTypeEnum.Passed}
-          ></ProfessorDetail>
-        ),
-    },
-    {
-      title: '待审核专家',
-      align: 'center',
-      dataIndex: 'needReviewExportCount',
-      render: (text, record) =>
-        text != null && (
-          <ProfessorDetail
-            buttonText={`${text}人`}
-            record={record}
-            task={task}
-            type={ReviewTypeEnum.WaitAudit}
-          ></ProfessorDetail>
-        ),
-    },
-    {
-      title: '待提交专家',
-      align: 'center',
-      dataIndex: 'needSubmitExportCount',
-      render: (text, record) =>
-        text != null && (
-          <ProfessorDetail
-            buttonText={`${text}人`}
-            record={record}
-            task={task}
-            type={ReviewTypeEnum.WaitSubmit}
-          ></ProfessorDetail>
-        ),
-    },
-    {
-      title: '已驳回专家',
-      align: 'center',
-      dataIndex: 'rejectedExportCount',
-      render: (text, record) =>
-        text != null && (
-          <ProfessorDetail
-            buttonText={`${text}人`}
-            record={record}
-            task={task}
-            type={ReviewTypeEnum.Reject}
-          ></ProfessorDetail>
-        ),
-    },
-  ];
-
-  useEffect(() => {
-    if (open) {
-      getListReviewDetailsManager();
+      refreshDeps: [currentSystem, currentOrg, task, open],
     }
-  }, [getListReviewDetailsManager, open]);
+  );
+  const { data: listVisibleLevels } = useRequest(
+    () => {
+      if (!open) {
+        return Promise.reject('No open');
+      }
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listVisibleLevels({
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
+        orgId: currentOrg.orgId!,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg, open],
+    }
+  );
+  const levelList = useMemo(() => {
+    if (!taskDetail || !listVisibleLevels) {
+      return [];
+    }
+    const levels = taskDetail.data.levels;
+    const levelList = listVisibleLevels.data;
+    return [
+      levelList[0],
+      ...levelList.filter(t =>
+        levels?.some(f => f.levelIndex === t.levelIndex)
+      ),
+    ];
+  }, [taskDetail, listVisibleLevels]);
+
+  const allColumns = useMemo<TableProps<DataType>['columns']>(() => {
+    return [
+      ...columns.map((t, i) => ({
+        ...t,
+        title: levelList[i]?.levelName || t.title,
+      })),
+      {
+        title: '姓名',
+        dataIndex: 'fillerStaffName',
+        align: 'center',
+        onCell: text => ({
+          rowSpan: text.rowSpan?.name || 0,
+        }),
+      },
+      {
+        title: (
+          <>
+            <div> 试卷</div>
+            <div> (点击查看详情)</div>
+          </>
+        ),
+        align: 'center',
+        dataIndex: 'fillIndex',
+        render: (text, record) => (
+          <div className="flex justify-center">
+            <TemplateDetailModal
+              templateId={task.templateId}
+              taskId={task.taskId}
+              singleFillId={record.singleFillId}
+              TemplateType={TemplateTypeEnum.Check}
+              title="试卷详情"
+              showDom={<Circle value={text} />}
+            />
+          </div>
+        ),
+      },
+      {
+        title: '评审完成度',
+        align: 'center',
+        dataIndex: 'reviewCompleteRate',
+        render: text => text != null && <span>{`${text}%`}</span>,
+      },
+      {
+        title: '已通过专家',
+        align: 'center',
+        dataIndex: 'passedExpertCount',
+        render: (text, record) =>
+          text != null && (
+            <ProfessorDetail
+              buttonText={`${text}人`}
+              record={record}
+              task={task}
+              type={ReviewTypeEnum.Passed}
+            ></ProfessorDetail>
+          ),
+      },
+      {
+        title: '待审核专家',
+        align: 'center',
+        dataIndex: 'needReviewExportCount',
+        render: (text, record) =>
+          text != null && (
+            <ProfessorDetail
+              buttonText={`${text}人`}
+              record={record}
+              task={task}
+              type={ReviewTypeEnum.WaitAudit}
+            ></ProfessorDetail>
+          ),
+      },
+      {
+        title: '待提交专家',
+        align: 'center',
+        dataIndex: 'needSubmitExportCount',
+        render: (text, record) =>
+          text != null && (
+            <ProfessorDetail
+              buttonText={`${text}人`}
+              record={record}
+              task={task}
+              type={ReviewTypeEnum.WaitSubmit}
+            ></ProfessorDetail>
+          ),
+      },
+      {
+        title: '已驳回专家',
+        align: 'center',
+        dataIndex: 'rejectedExportCount',
+        render: (text, record) =>
+          text != null && (
+            <ProfessorDetail
+              buttonText={`${text}人`}
+              record={record}
+              task={task}
+              type={ReviewTypeEnum.Reject}
+            ></ProfessorDetail>
+          ),
+      },
+    ];
+  }, [columns, levelList, task]);
 
   return (
     <>
@@ -227,7 +279,7 @@ const ReviewDetailModal = (props: Props) => {
         评审详情
       </a>
       <Modal
-        title="专家详情"
+        title="评审详情"
         open={open}
         maskClosable={false}
         onCancel={() => {
@@ -263,11 +315,11 @@ const ReviewDetailModal = (props: Props) => {
           </Space>
         </div>
         <Table<DataType>
-          columns={[...columns, ...baseColumns]}
+          columns={allColumns}
           dataSource={dataSource}
           bordered
           pagination={{
-            total: dataSource?.length,
+            total: listReviewDetailsManagerData?.total || 0,
             showSizeChanger: true,
             showQuickJumper: true,
             current: pageNumber,

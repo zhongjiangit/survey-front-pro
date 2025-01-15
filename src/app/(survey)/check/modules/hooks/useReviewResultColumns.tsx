@@ -39,7 +39,7 @@ export function useReviewResultColumns(originData: OriginData) {
           <>
             <div>{value.orgName || '-'}</div>
             <OrgResult
-              buttonText={`${value.averageScore}分`}
+              buttonText={`${value.averageScore ?? '-'} 分`}
               value={value}
               record={data[n]}
               modalTitle={value.orgName || '-'}

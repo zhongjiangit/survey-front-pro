@@ -10,12 +10,13 @@ import {
   fullJoinRowSpanData,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
-import { TemplateTypeEnum } from '@/types/CommonType';
+import { LEVEL_LABEL, TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Divider, Modal, Table, TableProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useReviewResultColumns } from '../hooks/useReviewResultColumns';
 import ProfessorResult from './modules/professor-result';
+import dayjs from 'dayjs';
 
 interface DataType {
   [key: string]: any;
@@ -40,6 +41,9 @@ const ReviewResultModal = (props: Props) => {
     data: reviewResultData,
   } = useRequest(
     () => {
+      if (!open) {
+        return Promise.reject('No open');
+      }
       if (!currentSystem || !currentOrg) {
         return Promise.reject('currentSystem or currentOrg is not defined');
       }
@@ -52,7 +56,6 @@ const ReviewResultModal = (props: Props) => {
       });
     },
     {
-      manual: true,
       onSuccess: data => {
         const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
         for (let i = 0; i < data?.data[0]?.orgCount; i++) {
@@ -78,101 +81,158 @@ const ReviewResultModal = (props: Props) => {
           }, data?.data)
         );
       },
+      refreshDeps: [
+        currentSystem,
+        currentOrg,
+        task,
+        open,
+        pageNumber,
+        pageSize,
+      ],
     }
   );
-
-  const baseColumns: TableProps<DataType>['columns'] = [
-    {
-      title: '姓名',
-      dataIndex: 'fillerStaffName',
-      align: 'center',
-      render: (text, record) => (
-        <>
-          <div>{text}</div>
-          <div className="text-slate-500">{record.fillerCellphone}</div>
-        </>
-      ),
-      onCell: text => ({
-        rowSpan: text.rowSpan?.fillerStaffName || 0,
-      }),
+  const { data: taskDetail } = useRequest(
+    () => {
+      if (!open) {
+        return Promise.reject('No open');
+      }
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.getInspTaskFill({
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
+        taskId: task.taskId,
+      });
     },
     {
-      title: (
-        <>
-          <div> 个人平均分</div>
-          <div> (点击查看详情)</div>
-        </>
-      ),
-      align: 'center',
-      dataIndex: 'fillerAverageScore',
-      render: (text, record) => (
-        <ProfessorResult
-          buttonText={`${text}分`}
-          record={record}
-          task={task}
-        ></ProfessorResult>
-      ),
-    },
-    {
-      title: (
-        <>
-          <div> 试卷</div>
-          <div> (点击查看详情)</div>
-        </>
-      ),
-      align: 'center',
-      dataIndex: 'singleFills',
-      render: text =>
-        text != null && (
-          <div className="flex justify-center">
-            {text?.map((item: any, i: number) => {
-              return (
-                <div key={i}>
-                  <TemplateDetailModal
-                    templateId={task.templateId}
-                    taskId={task.taskId}
-                    singleFillId={item.singleFillId}
-                    TemplateType={TemplateTypeEnum.Check}
-                    title="试卷详情"
-                    showDom={<Circle value={item.fillIndex} />}
-                  />
-                  {i + 1 !== text.length && <Divider className="my-4" />}
-                </div>
-              );
-            })}
-          </div>
-        ),
-    },
-    {
-      title: '试卷得分',
-      align: 'center',
-      dataIndex: 'singleFills',
-      render: text =>
-        text != null && (
-          <div className="flex justify-center">
-            {text?.map((item: any, i: number) => {
-              return (
-                <div key={i}>
-                  <span>{`${item.score}分`}</span>
-                  {i + 1 !== text.length && <Divider className="my-4" />}
-                </div>
-              );
-            })}
-          </div>
-        ),
-    },
-  ];
-
-  useEffect(() => {
-    if (open) {
-      getReviewResult();
-    } else {
-      setColumns([]);
+      refreshDeps: [currentSystem, currentOrg, task, open],
     }
-    return () => {
-      setDataSource(undefined);
-    };
-  }, [getReviewResult, open]);
+  );
+  const { data: listVisibleLevels } = useRequest(
+    () => {
+      if (!open) {
+        return Promise.reject('No open');
+      }
+      if (!currentSystem || !currentOrg) {
+        return Promise.reject('No current system');
+      }
+      return Api.listVisibleLevels({
+        currentSystemId: currentSystem.systemId!,
+        currentOrgId: currentOrg.orgId!,
+        orgId: currentOrg.orgId!,
+      });
+    },
+    {
+      refreshDeps: [currentSystem, currentOrg, open],
+    }
+  );
+  const levelList = useMemo(() => {
+    if (!taskDetail || !listVisibleLevels) {
+      return [];
+    }
+    const levels = taskDetail.data.levels;
+    const levelList = listVisibleLevels.data;
+    return [
+      levelList[0],
+      ...levelList.filter(t =>
+        levels?.some(f => f.levelIndex === t.levelIndex)
+      ),
+    ];
+  }, [taskDetail, listVisibleLevels]);
+
+  const allColumns = useMemo<TableProps<DataType>['columns']>(() => {
+    return [
+      ...columns.map((t, i) => ({
+        ...t,
+        title: (
+          <>
+            <div>{levelList[i]?.levelName || t.title}</div>
+            <div>(点击平均分查看详情)</div>
+          </>
+        ),
+      })),
+      {
+        title: '姓名',
+        dataIndex: 'fillerStaffName',
+        align: 'center',
+        render: (text, record) => (
+          <>
+            <div>{text}</div>
+            <div className="text-slate-500">{record.fillerCellphone}</div>
+          </>
+        ),
+        onCell: text => ({
+          rowSpan: text.rowSpan?.fillerStaffName || 0,
+        }),
+      },
+      {
+        title: (
+          <>
+            <div> 个人平均分</div>
+            <div> (点击查看详情)</div>
+          </>
+        ),
+        align: 'center',
+        dataIndex: 'fillerAverageScore',
+        render: (text, record) => (
+          <ProfessorResult
+            buttonText={`${text}分`}
+            record={record}
+            task={task}
+          ></ProfessorResult>
+        ),
+      },
+      {
+        title: (
+          <>
+            <div> 试卷</div>
+            <div> (点击查看详情)</div>
+          </>
+        ),
+        align: 'center',
+        dataIndex: 'singleFills',
+        render: text =>
+          text != null && (
+            <div className="flex justify-center">
+              {text?.map((item: any, i: number) => {
+                return (
+                  <div key={i}>
+                    <TemplateDetailModal
+                      templateId={task.templateId}
+                      taskId={task.taskId}
+                      singleFillId={item.singleFillId}
+                      TemplateType={TemplateTypeEnum.Check}
+                      title="试卷详情"
+                      showDom={<Circle value={item.fillIndex} />}
+                    />
+                    {i + 1 !== text.length && <Divider className="my-4" />}
+                  </div>
+                );
+              })}
+            </div>
+          ),
+      },
+      {
+        title: '试卷得分',
+        align: 'center',
+        dataIndex: 'singleFills',
+        render: text =>
+          text != null && (
+            <div className="flex justify-center">
+              {text?.map((item: any, i: number) => {
+                return (
+                  <div key={i}>
+                    <span>{`${item.score}分`}</span>
+                    {i + 1 !== text.length && <Divider className="my-4" />}
+                  </div>
+                );
+              })}
+            </div>
+          ),
+      },
+    ];
+  }, [columns, levelList, task]);
 
   return (
     <>
@@ -185,7 +245,7 @@ const ReviewResultModal = (props: Props) => {
         评审结果
       </a>
       <Modal
-        title="专家详情"
+        title="评审结果"
         open={open}
         onCancel={() => {
           setOpen(false);
@@ -196,7 +256,7 @@ const ReviewResultModal = (props: Props) => {
         loading={getReviewResultLoading}
       >
         <Table<DataType>
-          columns={[...columns, ...baseColumns]}
+          columns={allColumns}
           dataSource={dataSource}
           bordered
           pagination={{
