@@ -420,9 +420,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          margin: '0 40px 0 0',
         }}
-        className="px-20"
       >
         <div key={filterValue.join(',')} className="flex gap-20 w-full">
           {levelOrgList?.map((level: any, index: number) => (

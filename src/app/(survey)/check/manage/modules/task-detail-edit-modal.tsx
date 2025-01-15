@@ -454,6 +454,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
               {listAllAssignSub?.[index]?.levelName}
             </div>
             <Tree
+              height={360}
               treeData={level}
               checkedKeys={member}
               loadData={onLoadMember}
