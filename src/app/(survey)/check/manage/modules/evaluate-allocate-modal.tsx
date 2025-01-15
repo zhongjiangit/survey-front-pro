@@ -252,9 +252,6 @@ export const EvaluateAllocateModal: React.FC<
     {
       ready: true,
       refreshDeps: [open, pageNumber, pageSize, JSON.stringify(tableParams)],
-      onSuccess() {
-        setAssignedFills([]);
-      },
     }
   );
 
@@ -434,6 +431,16 @@ export const EvaluateAllocateModal: React.FC<
     pagination,
     filters
   ) => {
+    const d = {
+      staffName: null,
+      orgName: null,
+    };
+    if (
+      JSON.stringify({ ...d, ...tableParams.filters }) !==
+      JSON.stringify({ ...d, ...filters })
+    ) {
+      setAssignedFills([]);
+    }
     setTableParams({ pagination, filters });
   };
 
@@ -784,7 +791,14 @@ export const EvaluateAllocateModal: React.FC<
           saveReviewAssignAdd()
         }
       >
-        分配已选 ({validSelectedExpert.length ? validSelectedFills.length : 0})
+        分配已选
+        {evaluateType === 'questionsToExperts'
+          ? validSelectedFills.length
+            ? ` (${validSelectedFills.length})`
+            : ''
+          : validSelectedExpert.length
+            ? ` (${validSelectedExpert.length})`
+            : ''}
       </Button>
     </div>
   );
