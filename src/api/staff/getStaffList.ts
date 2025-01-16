@@ -6,6 +6,7 @@ import { baseUrl } from '../config';
 interface StaffListParamsType {
   currentSystemId?: number;
   currentOrgId?: number;
+  orgId?: number;
 }
 
 export interface StaffListResponse {

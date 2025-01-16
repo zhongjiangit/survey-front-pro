@@ -51,13 +51,13 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       };
     });
   }, []);
-  console.log('dataSource', dataSource);
 
   const { run: getStaffList } = useRequest(
     () => {
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
-        currentOrgId: Number(orgId),
+        currentOrgId: currentOrg?.orgId,
+        orgId: Number(orgId),
       });
     },
     {

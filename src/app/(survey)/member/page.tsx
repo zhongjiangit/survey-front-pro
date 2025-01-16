@@ -144,11 +144,12 @@ function Page() {
     () => {
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
-        currentOrgId: Number(org),
+        currentOrgId: currentOrg?.orgId,
+        orgId: Number(org),
       });
     },
     {
-      refreshDeps: [org, currentSystem?.systemId],
+      refreshDeps: [org, currentSystem?.systemId, currentOrg],
       onSuccess(response) {
         const list = response?.data;
         if (list) {
