@@ -165,15 +165,25 @@ const TaskReviewDetailModal = ({
     return [values.expertComment, reviewScoreList];
   };
 
-  const validateRecord = (idx: number) => {
+  const validateRecord = (idx: number, showError?: boolean) => {
     const [expertComment, reviewScoreList] = getRecordValues(idx);
-    return (
-      expertComment?.trim() &&
-      reviewScoreList.some((t: any) => ![null, undefined].includes(t))
-    );
+    let errorMsg = '';
+    if (!reviewScoreList.some((t: any) => ![null, undefined].includes(t))) {
+      errorMsg = '请将维度评分填写完整';
+    }
+    if (!expertComment?.trim()) {
+      errorMsg = '请输入点评内容';
+    }
+    if (showError) {
+      messageApi.info(errorMsg);
+    }
+    return errorMsg;
   };
 
   const saveReview = async (idx: number, noRefresh?: boolean) => {
+    if (!noRefresh && validateRecord(idx, true)) {
+      throw new Error('信息不完整');
+    }
     const record = listReviewDetailsExpertData?.data[idx]!;
     const [expertComment, reviewScoreList] = getRecordValues(idx);
     record.expertComment = expertComment;
@@ -192,9 +202,8 @@ const TaskReviewDetailModal = ({
   };
 
   const submitReview = async (i: number, noRefresh?: boolean) => {
-    if (!validateRecord(i)) {
-      messageApi.error('请将评分与点评填写完整!');
-      return;
+    if (!noRefresh && validateRecord(i, true)) {
+      throw new Error('信息不完整');
     }
     await saveReview(i, true);
     const record = listReviewDetailsExpertData?.data[i]!;
@@ -210,9 +219,25 @@ const TaskReviewDetailModal = ({
     }
   };
 
-  const saveCurrentPage = async () => {
-    setLoading('saveCurrentPage', true);
+  const validateCurrentPage = () => {
     const list = listReviewDetailsExpertData?.data || [];
+    for (let i = 0; i < list.length; i++) {
+      if (recordStatus[list[i].singleFillId].edit) {
+        const validateRes = validateRecord(i);
+        if (validateRes) {
+          messageApi.info('请将所有数据的维度评分与点评内容填写完整!');
+          return validateRes;
+        }
+      }
+    }
+  };
+
+  const saveCurrentPage = async () => {
+    if (validateCurrentPage()) {
+      return;
+    }
+    const list = listReviewDetailsExpertData?.data || [];
+    setLoading('saveCurrentPage', true);
     try {
       for (let i = 0; i < list.length; i++) {
         if (recordStatus[list[i].singleFillId].edit) {
@@ -227,22 +252,15 @@ const TaskReviewDetailModal = ({
   };
 
   const submitCurrentPage = async () => {
+    if (validateCurrentPage()) {
+      return;
+    }
     setLoading('submitCurrentPage', true);
     const list = listReviewDetailsExpertData?.data || [];
     try {
-      let start: any;
-      let submitChain = new Promise(resolve => (start = resolve));
       for (let i = 0; i < list.length; i++) {
-        if (recordStatus[list[i].singleFillId].edit) {
-          if (!validateRecord(i)) {
-            messageApi.error('请将评分与点评填写完整!');
-            return;
-          }
-          submitChain = submitChain.then(() => submitReview(i, true));
-        }
+        await submitReview(i, true);
       }
-      start();
-      await submitChain;
       refreshListReviewDetailsExpert();
       refreshList?.();
       messageApi.success('本页提交成功!');
