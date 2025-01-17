@@ -77,15 +77,13 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
       getFillCountDetails();
     }
   }, [getFillCountDetails, open]);
-  useEffect(() => {
-    return () => {
-      setPageNumber(1);
-      setPageSize(10);
-    };
-  }, []);
 
   return (
     <Modal
+      afterClose={() => {
+        setPageNumber(1);
+        setPageSize(10);
+      }}
       open={open}
       title="填报量"
       maskClosable={false}

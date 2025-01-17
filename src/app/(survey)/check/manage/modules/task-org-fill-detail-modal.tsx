@@ -185,12 +185,6 @@ const TaskOrgFillDetailModal = ({
     }
   }, [getFillProcessDetails, open, pagination]);
 
-  useEffect(() => {
-    return () => {
-      setPagination({ pageNumber: 1, pageSize: 10 });
-    };
-  }, []);
-
   return (
     <>
       {contextHolder}
@@ -211,6 +205,7 @@ const TaskOrgFillDetailModal = ({
         destroyOnClose
         afterClose={() => {
           setColumns([]);
+          setPagination({ pageNumber: 1, pageSize: 10 });
         }}
       >
         <Table

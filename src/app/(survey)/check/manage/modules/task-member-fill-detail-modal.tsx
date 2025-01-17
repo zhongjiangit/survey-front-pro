@@ -226,20 +226,17 @@ const TaskMemberFillDetailModal = ({
     }
   }, [getFillProcessDetails, open, pagination]);
 
-  useEffect(() => {
-    return () => {
-      setPagination({ pageNumber: 1, pageSize: 10 });
-    };
-  }, []);
-
   return (
     <>
       {contextHolder}
       <Modal
+        afterClose={() => {
+          setPagination({ pageNumber: 1, pageSize: 10 });
+        }}
         open={open}
         title={
           <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-            <h2 className="text-xl">资料详情</h2>
+            <h2 className="text-xl">资料详情1</h2>
           </div>
         }
         width={1000}
