@@ -3,7 +3,7 @@
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
 import { Button, message, Modal, Space, Table, TableProps } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Api from '@/api';
 import { ApproveReviewBatchParamsType } from '@/api/task/approveReviewBatch';
@@ -317,7 +317,6 @@ const ReviewDetailModal = (props: Props) => {
         <Table<DataType>
           columns={allColumns}
           dataSource={dataSource}
-          bordered
           pagination={{
             total: listReviewDetailsManagerData?.total || 0,
             showSizeChanger: true,
