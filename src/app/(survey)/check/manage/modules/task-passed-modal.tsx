@@ -120,7 +120,6 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
       <Table
         columns={[...columns]}
         dataSource={dataSource}
-        bordered
         pagination={{
           total: dataSource?.length,
           showSizeChanger: true,

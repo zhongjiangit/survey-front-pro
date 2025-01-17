@@ -214,7 +214,6 @@ const TaskOrgFillDetailModal = ({
         }}
       >
         <Table
-          bordered
           columns={[...columns, operationColumn]}
           dataSource={dataSource}
           pagination={{

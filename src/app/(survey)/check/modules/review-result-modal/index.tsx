@@ -263,7 +263,6 @@ const ReviewResultModal = (props: Props) => {
         <Table<DataType>
           columns={allColumns}
           dataSource={dataSource}
-          bordered
           pagination={{
             total: reviewResultData?.total,
             showSizeChanger: true,
