@@ -1,8 +1,6 @@
 'use client';
 import Api from '@/api';
 import CloseWarning from '@/components/display/close-warning';
-import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
-import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import { SendSmsTypeEnum } from '@/types/CommonType';
 import {
@@ -26,21 +24,14 @@ import React, { useEffect, useRef, useState } from 'react';
 const SecurityView: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
 
-  const user = useSurveyUserStore(state => state.user);
+  const [user, setUser] = useSurveyUserStore(state => [
+    state.user,
+    state.setUser,
+  ]);
 
   const [captchaUrl, setCaptchaUrl] = useState('');
 
   const [showCloseWarning, setShowCloseWarning] = useState(false);
-
-  const currentSystem = useSurveySystemStore(state => state.currentSystem);
-
-  const setCurrentRole = useSurveyCurrentRoleStore(
-    state => state.setCurrentRole
-  );
-
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
 
   const formRefPassword = useRef<ProFormInstance>();
 
@@ -48,21 +39,7 @@ const SecurityView: React.FC = () => {
    * 退出登录
    */
   const loginOut = () => {
-    setCurrentSystem({
-      ...currentSystem,
-      systemName: '',
-    });
-    setCurrentRole({
-      id: undefined,
-      isActive: false,
-      key: '',
-      label: '',
-      name: undefined,
-    });
-    // 清空local storage
-    localStorage.clear();
-    // 跳转到登录页
-    router.push('/');
+    setUser(null);
   };
 
   const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(

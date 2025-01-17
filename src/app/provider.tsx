@@ -63,12 +63,12 @@ export function Provider({ colorScheme, children }: Props) {
     }
 
     if (!user) {
-      setCurrentSystem(null);
-      setCurrentOrg(null);
-      setCurrentRole(null);
-      if (roles?.length) {
-        setRoles([]);
-      }
+      // setCurrentSystem(null);
+      // setCurrentOrg(null);
+      // setCurrentRole(null);
+      // if (roles?.length) {
+      //   setRoles([]);
+      // }
       if (menus?.length) {
         setMenus([]);
       }
@@ -84,6 +84,12 @@ export function Provider({ colorScheme, children }: Props) {
     ) {
       _currentSystem = user?.systems?.[0];
     }
+    if (_currentSystem) {
+      Object.assign(
+        _currentSystem,
+        user.systems.find(t => t.systemId === _currentSystem.systemId)
+      );
+    }
 
     if (
       _currentSystem &&
@@ -93,13 +99,23 @@ export function Provider({ colorScheme, children }: Props) {
       _currentOrg = _currentSystem?.orgs?.[0];
     }
 
+    if (_currentOrg) {
+      Object.assign(
+        _currentOrg,
+        _currentSystem?.orgs?.find(t => t.orgId === _currentOrg?.orgId)
+      );
+    }
+
     let _roles: RoleType[] = [];
     _roles = getActiveRoles(user, _currentOrg, _currentSystem);
-    if (
-      !_currentRole ||
-      !_roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole))
-    ) {
-      _currentRole = _roles.filter(role => role.isActive)[0];
+    if (!_currentRole || !_roles?.some(t => t.key === _currentRole?.key)) {
+      _currentRole = _roles[0];
+    }
+    if (_currentRole) {
+      Object.assign(
+        _currentRole,
+        _roles?.find(t => _roles?.find(t => t.key === _currentRole?.key))
+      );
     }
 
     setCurrentSystem(_currentSystem);

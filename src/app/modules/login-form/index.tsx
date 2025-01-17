@@ -2,11 +2,7 @@
 
 import Api from '@/api';
 import logo from '@/assets/icons/logo.png';
-import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
-import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
-import { getActiveRoles } from '@/lib/get-active-roles';
-import { getFirstMenu } from '@/lib/get-first-menu';
 import { SendSmsTypeEnum } from '@/types/CommonType';
 import {
   CodepenOutlined,
@@ -25,7 +21,6 @@ import { message, Tabs } from 'antd';
 import { FlaskConical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 export default function LoginForm() {
@@ -33,14 +28,7 @@ export default function LoginForm() {
 
   const formRef = useRef<ProFormInstance>();
 
-  const router = useRouter();
-
   const setUser = useSurveyUserStore(state => state.setUser);
-
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
-  const setCurrentOrg = useSurveyOrgStore(state => state.setCurrentOrg);
 
   const [type, setType] = useState<string>('account');
 
@@ -60,18 +48,6 @@ export default function LoginForm() {
           });
         } else if (response?.data) {
           setUser(response.data);
-          setCurrentSystem(response.data.systems[0]);
-          setCurrentOrg(response.data.systems?.[0]?.orgs[0]);
-          const roles = getActiveRoles(
-            response.data,
-            response.data.systems[0]?.orgs[0],
-            response.data.systems[0]
-          );
-          const activeRoles = roles.filter(role => role.isActive);
-          const firstMenu = getFirstMenu(activeRoles[0]);
-          if (firstMenu) {
-            router.push(firstMenu);
-          }
         }
       },
     }

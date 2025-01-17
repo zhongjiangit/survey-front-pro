@@ -9,42 +9,22 @@ import { Role_Type } from '@/types/CommonType';
 import { ProForm, ProFormText } from '@ant-design/pro-components';
 import { useRequest } from 'ahooks';
 import { message } from 'antd';
-import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 
 const BaseView: React.FC = () => {
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
-  const setCurrentRole = useSurveyCurrentRoleStore(
-    state => state.setCurrentRole
-  );
-  const setCurrentSystem = useSurveySystemStore(
-    state => state.setCurrentSystem
-  );
-  const router = useRouter();
+  const setUser = useSurveyUserStore(state => state.setUser);
   const [messageApi, contextHolder] = message.useMessage();
 
   /**
    * 退出登录
    */
   const loginOut = () => {
-    setCurrentSystem({
-      ...currentSystem,
-      systemName: '',
-    });
-    setCurrentRole({
-      id: undefined,
-      isActive: false,
-      key: '',
-      label: '',
-      name: undefined,
-    });
-    // 清空local storage
-    localStorage.clear();
-    // 跳转到登录页
-    router.push('/');
+    setUser(null);
   };
 
   const { run: changeUserName } = useRequest(

@@ -58,5 +58,5 @@ export function getActiveRoles(
       t => !['isSystemManager', 'isPlatformManager'].includes(t.key)
     );
   }
-  return roles;
+  return roles.filter(t => t.isActive);
 }
