@@ -23,7 +23,6 @@ export function useFillCountDetailsColumn(
       return;
     }
     const tempColumn: any[] = [];
-    console.log('data', data);
 
     for (let i = 0; i < levelCount; i++) {
       tempColumn.push({
@@ -40,8 +39,6 @@ export function useFillCountDetailsColumn(
           `${text?.orgName}(${text?.fillPeople}人, ${text?.fillCount}份)`,
       });
     }
-    console.log('tempColumn', tempColumn);
-
     setFinalColumns(tempColumn?.length ? tempColumn : emptyColumns);
     return () => {
       setFinalColumns(emptyColumns);

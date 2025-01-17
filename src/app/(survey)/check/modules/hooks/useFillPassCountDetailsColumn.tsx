@@ -25,7 +25,8 @@ export function useFillPassCountDetailsColumn(
     const tempColumn: any[] = [];
     for (let i = 0; i < levelCount; i++) {
       tempColumn.push({
-        title: LEVEL_LABEL[i + 1],
+        title:
+          data?.[0]?.levels[`level${i + 1}`].levelName || LEVEL_LABEL[i + 1],
         dataIndex: `org${i + 1}`,
         onCell: (text: any) => {
           return {
@@ -33,11 +34,8 @@ export function useFillPassCountDetailsColumn(
           };
         },
         align: 'center',
-        render: (text: any, record: any) => {
-          return text?.orgName && i + 1 === levelCount
-            ? `${text?.orgName}(${record?.fillPassPeople}人, ${record?.fillPassCount}份)`
-            : text?.orgName || '-';
-        },
+        render: (text: any, record: any) =>
+          `${text?.orgName}(${text?.fillPassPeople}人, ${text?.fillPassCount}份)`,
       });
     }
     setFinalColumns(tempColumn?.length ? tempColumn : emptyColumns);
