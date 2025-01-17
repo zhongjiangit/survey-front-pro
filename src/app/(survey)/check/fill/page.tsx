@@ -16,7 +16,7 @@ import {
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import { Modal, Space, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import RejectTimeline from '../../../modules/reject-timeline';
 import TaskDetail from '../../../modules/task-detail';
 
@@ -245,6 +245,12 @@ const ToAllotTask = () => {
       },
     },
   ];
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
   return (
     <>
       <Table

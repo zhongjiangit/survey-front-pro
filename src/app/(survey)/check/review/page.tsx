@@ -7,7 +7,7 @@ import { TaskStatusObject, TaskStatusTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StandardDetailModal from '../modules/standard-detail-modal';
 import TaskReviewDetailModal from './modules/task-review-detail-modal';
 
@@ -201,6 +201,12 @@ const CheckReview = () => {
       },
     },
   ];
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
   return (
     <div className="flex flex-col gap-5">
       <Table

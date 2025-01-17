@@ -3,7 +3,7 @@
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import Circle from '@/components/display/circle';
 import { Button, message, Modal, Space, Table, TableProps } from 'antd';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Api from '@/api';
 import { ApproveReviewBatchParamsType } from '@/api/task/approveReviewBatch';
@@ -266,7 +266,12 @@ const ReviewDetailModal = (props: Props) => {
       },
     ];
   }, [columns, levelList, task]);
-
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
   return (
     <>
       {contextHolder}

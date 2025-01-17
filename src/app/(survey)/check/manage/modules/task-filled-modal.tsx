@@ -77,6 +77,12 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
       getFillCountDetails();
     }
   }, [getFillCountDetails, open]);
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
 
   return (
     <Modal

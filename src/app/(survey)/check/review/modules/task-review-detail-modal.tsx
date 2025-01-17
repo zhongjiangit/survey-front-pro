@@ -474,6 +474,12 @@ const TaskReviewDetailModal = ({
   const batchBtnDisabled = Object.values(recordStatus).every(
     item => item.unedit
   );
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
   return (
     <>
       {contextHolder}

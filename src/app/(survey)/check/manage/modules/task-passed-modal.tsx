@@ -104,7 +104,12 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
       getFillPassCountDetails();
     }
   }, [getFillPassCountDetails, open]);
-
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
   return (
     <Modal
       open={open}

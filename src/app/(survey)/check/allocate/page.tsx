@@ -14,7 +14,7 @@ import {
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Space, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TaskDetailEditModal from '../manage/modules/task-detail-edit-modal';
 import TaskFilledModal from '../manage/modules/task-filled-modal';
 import TaskOrgFillDetailModal from '../manage/modules/task-org-fill-detail-modal';
@@ -295,6 +295,13 @@ const ToAllotTask = () => {
       },
     },
   ];
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
+
   return (
     <>
       <Table

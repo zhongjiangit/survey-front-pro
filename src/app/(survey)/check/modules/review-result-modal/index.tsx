@@ -13,7 +13,7 @@ import {
 import { EvaluateStatusTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Divider, Modal, Table, TableProps } from 'antd';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useReviewResultColumns } from '../hooks/useReviewResultColumns';
 import ProfessorResult from './modules/professor-result';
 
@@ -232,7 +232,12 @@ const ReviewResultModal = (props: Props) => {
       },
     ];
   }, [columns, levelList, task]);
-
+  useEffect(() => {
+    return () => {
+      setPageNumber(1);
+      setPageSize(10);
+    };
+  }, []);
   return (
     <>
       <a
