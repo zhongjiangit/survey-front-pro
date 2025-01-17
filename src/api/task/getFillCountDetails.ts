@@ -26,6 +26,7 @@ interface GetFillCountDetailsParamsType {
 
 */
 export interface GetFillCountDetailsResponse {
+  levels: { [key: string]: { levelName: string } };
   org: {
     orgId: number;
     orgName: string;

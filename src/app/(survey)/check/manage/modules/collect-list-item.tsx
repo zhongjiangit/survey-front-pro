@@ -395,7 +395,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       },
     },
     {
-      title: <div>填报量</div>,
+      title: <div>填报量1</div>,
       dataIndex: 'key8',
       align: 'center',
       render: (_: any, record: any, index: number) => {
