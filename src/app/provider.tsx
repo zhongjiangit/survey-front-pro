@@ -44,8 +44,9 @@ export function Provider({ colorScheme, children }: Props) {
     state.currentOrg,
     state.setCurrentOrg,
   ]);
-  const [currentRole, menus, setCurrentRole, setRoles, setMenus] =
+  const [roles, currentRole, menus, setCurrentRole, setRoles, setMenus] =
     useSurveyCurrentRoleStore(state => [
+      state.roles,
       state.currentRole,
       state.getMenus(),
       state.setCurrentRole,
@@ -62,15 +63,18 @@ export function Provider({ colorScheme, children }: Props) {
     }
 
     if (!user) {
-      if (currentSystem) {
-        setCurrentSystem(null);
-        setCurrentOrg(null);
-        setCurrentRole(null);
-        setMenus([]);
+      setCurrentSystem(null);
+      setCurrentOrg(null);
+      setCurrentRole(null);
+      if (roles?.length) {
         setRoles([]);
+      }
+      if (menus?.length) {
+        setMenus([]);
       }
       return;
     }
+
     let _currentSystem = currentSystem;
     let _currentOrg = currentOrg;
     let _currentRole = currentRole;
@@ -89,25 +93,28 @@ export function Provider({ colorScheme, children }: Props) {
       _currentOrg = _currentSystem?.orgs?.[0];
     }
 
-    let roles: RoleType[] = [];
-    roles = getActiveRoles(user, _currentOrg, _currentSystem);
+    let _roles: RoleType[] = [];
+    _roles = getActiveRoles(user, _currentOrg, _currentSystem);
     if (
       !_currentRole ||
-      !roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole))
+      !_roles?.some(t => JSON.stringify(t) === JSON.stringify(_currentRole))
     ) {
-      _currentRole = roles.filter(role => role.isActive)[0];
+      _currentRole = _roles.filter(role => role.isActive)[0];
     }
 
     setCurrentSystem(_currentSystem);
     setCurrentOrg(_currentOrg);
     setCurrentRole(_currentRole);
     setMenus(getMenus(_currentRole));
-    setRoles(roles);
+    setRoles(_roles);
   }, [ready, user, currentSystem, currentOrg, currentRole]);
 
   // 如果用户不存在，则重定向到登录页
   useEffect(() => {
-    if (ready && !user && pathname !== '/') {
+    if (!ready) {
+      return;
+    }
+    if (!user && pathname !== '/') {
       router.push('/');
       return;
     }
@@ -115,24 +122,27 @@ export function Provider({ colorScheme, children }: Props) {
 
   // 菜单变化时，切换子菜单到父亲菜单, 切换系统\机构\角色,才会从新生产菜单
   useEffect(() => {
-    if (menus.length) {
-      const menu = selectMenu(menus, pathname);
-      if (menu && pathname !== menu.key) {
-        router.push(menu.key);
-      }
+    if (!ready || !menus.length) {
+      return;
     }
-  }, [menus]);
+    const menu = selectMenu(menus, pathname);
+    if (menu && pathname !== menu.key) {
+      router.push(menu.key);
+    }
+  }, [ready, menus]);
 
   // 检查是否有当前路由的访问权限,没有就跳转至第一个菜单
   useEffect(() => {
-    if (!menus.length || hasMenu(menus, pathname)) {
+    if (!ready || !menus.length) {
       return;
     }
-    const firstMenu = getFirstMenuByMenus(menus);
-    if (firstMenu) {
-      router.push(firstMenu);
+    if (!hasMenu(menus, pathname)) {
+      const firstMenu = getFirstMenuByMenus(menus);
+      if (firstMenu) {
+        router.push(firstMenu);
+      }
     }
-  }, [pathname, menus]);
+  }, [ready, pathname, menus]);
 
   // 判断路由是否需要渲染
   if (
