@@ -26,6 +26,7 @@ interface TaskFillDetailModalProps {
   setOpen: (open: boolean) => void;
   task: taskType | undefined;
   refreshList: () => void;
+  origin?: boolean;
 }
 
 const TaskOrgFillDetailModal = ({
@@ -33,6 +34,7 @@ const TaskOrgFillDetailModal = ({
   setOpen,
   task,
   refreshList,
+  origin,
 }: TaskFillDetailModalProps) => {
   const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -68,7 +70,6 @@ const TaskOrgFillDetailModal = ({
     },
     {
       manual: true,
-      // refreshDeps: [pageNumber, pageSize],
       onSuccess: data => {
         setColumns(data.data);
         const combineKeys =
@@ -157,6 +158,17 @@ const TaskOrgFillDetailModal = ({
             </a>
           )}
           {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
+            <a
+              className=" text-blue-500"
+              onClick={() => {
+                setRejectModalOpen(true);
+                setCurrentRecord(record);
+              }}
+            >
+              驳回
+            </a>
+          )}
+          {record.processStatus === TaskProcessStatusEnum.Passed && origin && (
             <a
               className=" text-blue-500"
               onClick={() => {
