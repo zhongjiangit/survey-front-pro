@@ -1,5 +1,4 @@
 import { ErrorLevel, ResRejectedType } from '@/types/Service';
-import { message } from 'antd';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
 const CODE_MESSAGE: Record<number, string> = {
@@ -52,10 +51,10 @@ const showErrorTips = async (status: number, error: any) => {
 
   if (showMsg) {
     if (level === ErrorLevel.ERROR) {
-      message.error(msg || CODE_MESSAGE[status]);
+      alert(msg || CODE_MESSAGE[status]);
     }
     if (level === ErrorLevel.WARN) {
-      message.warning(msg || CODE_MESSAGE[status]);
+      alert(msg || CODE_MESSAGE[status]);
     }
   }
 };
