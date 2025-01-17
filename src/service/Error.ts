@@ -51,20 +51,25 @@ const showErrorTips = async (status: number, error: any) => {
     ?.showMsg;
 
   if (showMsg) {
-    level === ErrorLevel.ERROR && message.error(msg || CODE_MESSAGE[status]);
-    level === ErrorLevel.WARN && message.warning(msg || CODE_MESSAGE[status]);
+    if (level === ErrorLevel.ERROR) {
+      message.error(msg || CODE_MESSAGE[status]);
+    }
+    if (level === ErrorLevel.WARN) {
+      message.warning(msg || CODE_MESSAGE[status]);
+    }
   }
 };
 
 const handleErrorEffect = (status: number, error: AxiosError) => {
   switch (status) {
-    case 401:
+    case 401: {
       let timer = 0;
       timer = window.setTimeout(() => {
         window.clearTimeout(timer);
         window.location.href = `/logout?redirectUrl=${window.location.pathname}`;
       }, 3000);
       break;
+    }
     default:
       throw error;
   }

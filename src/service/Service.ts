@@ -5,6 +5,7 @@ import {
   ServiceConstructor,
   ServiceReqConfig,
 } from '@/types/Service';
+
 import type { AxiosInstance } from 'axios';
 import axios from 'axios';
 import merge from 'lodash/merge';
@@ -25,6 +26,10 @@ const defaultReqFulfilled: ReqFulfilledType = config => {
 
 // 响应体处理
 const defaultResFulfilled: ResFulfilledType = response => {
+  if (response.data.result !== 0) {
+    // 业务异常
+    alert(response.data.message);
+  }
   if (response.data.result === 101) {
     // 清空localhost缓存
     localStorage.clear();
@@ -50,9 +55,9 @@ export default class Service {
     onResRejected = defaultResRejected,
   }: ServiceConstructor = {}) {
     this.axios = axios.create(merge({}, defaultConfig));
-    // @ts-ignore
+    // @ts-expect-error: onReqFulfilled may not match AxiosRequestConfig type
     this.axios.interceptors.request.use(onReqFulfilled);
-    // @ts-ignore
+    // @ts-expect-error: onReqFulfilled may not match AxiosRequestConfig type
     this.axios.interceptors.response.use(onResFulfilled, onResRejected);
   }
 
