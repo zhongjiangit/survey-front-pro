@@ -168,13 +168,13 @@ const TaskReviewDetailModal = ({
   const validateRecord = (idx: number, showError?: boolean) => {
     const [expertComment, reviewScoreList] = getRecordValues(idx);
     let errorMsg = '';
-    if (!reviewScoreList.some((t: any) => ![null, undefined].includes(t))) {
-      errorMsg = '请将维度评分填写完整';
+    if (
+      reviewScoreList.some((t: any) => [null, undefined].includes(t)) ||
+      !expertComment?.trim()
+    ) {
+      errorMsg = '请将维度评分与点评内容填写完整';
     }
-    if (!expertComment?.trim()) {
-      errorMsg = '请输入点评内容';
-    }
-    if (showError) {
+    if (showError && errorMsg) {
       messageApi.info(errorMsg);
     }
     return errorMsg;
@@ -523,7 +523,7 @@ const TaskReviewDetailModal = ({
         <Form form={form} component={false}>
           <Table
             scroll={{
-              y: window.innerHeight - 16 - 16 - 40 - 32 - 52 - 80 - 34,
+              y: window.innerHeight - 16 - 16 - 40 - 32 - 52 - 80 - 34 - 24,
             }}
             columns={columns}
             dataSource={listReviewDetailsExpertData?.data || []}
