@@ -48,6 +48,7 @@ const ToAllotTask = () => {
     fill: (record: any) => (
       <TaskDetail
         task={record}
+        refresh={refreshFillInspTaskData}
         customTitle={
           record.processStatus === ProcessStatusTypeEnum.Reject ||
           record.processStatus === ProcessStatusTypeEnum.NotSubmit

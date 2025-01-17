@@ -67,6 +67,7 @@ export default function Page() {
       });
     },
     {
+      manual: true,
       onSuccess: response => {
         if (
           response?.data.items?.length > 0 ||

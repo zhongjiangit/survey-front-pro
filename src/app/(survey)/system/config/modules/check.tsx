@@ -8,8 +8,9 @@ import {
   ZeroOrOneType,
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useLocalStorageState, useRequest } from 'ahooks';
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Table, Tag, Tooltip } from 'antd';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -42,6 +43,7 @@ const Check = ({ system }: CheckProps) => {
       });
     },
     {
+      manual: true,
       onSuccess: (response, params) => {
         if (response?.data.items?.length > 0) {
           const newTemplateId = params[1];
@@ -75,7 +77,6 @@ const Check = ({ system }: CheckProps) => {
     {
       manual: true,
       onSuccess: (response, params) => {
-        console.log('params', params);
         getTemplateDetails(params[0].templateId, response?.data.id);
         getCheckList();
       },
@@ -114,6 +115,14 @@ const Check = ({ system }: CheckProps) => {
         title: '抽检模板',
         dataIndex: 'templateTitle',
         key: 'checkList',
+        render: (text: string, record: TemplateItemType) => (
+          <div className="flex items-center gap-1">
+            <span>{text}</span>
+            <Tooltip title={record.memo}>
+              <QuestionCircleOutlined className="cursor-pointer" />
+            </Tooltip>
+          </div>
+        ),
       },
 
       {

@@ -10,13 +10,12 @@ import {
   fullJoinRowSpanData,
   joinRowSpanKeyParamsType,
 } from '@/lib/join-rowspan-data';
-import { LEVEL_LABEL, TemplateTypeEnum } from '@/types/CommonType';
+import { EvaluateStatusTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Divider, Modal, Table, TableProps } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useReviewResultColumns } from '../hooks/useReviewResultColumns';
 import ProfessorResult from './modules/professor-result';
-import dayjs from 'dayjs';
 
 interface DataType {
   [key: string]: any;
@@ -242,10 +241,16 @@ const ReviewResultModal = (props: Props) => {
           setOpen(true);
         }}
       >
-        评审结果
+        {task.reviewTaskStatus === EvaluateStatusTypeEnum.Processing
+          ? '实时汇总'
+          : '评审结果'}
       </a>
       <Modal
-        title="评审结果"
+        title={
+          task.reviewTaskStatus === EvaluateStatusTypeEnum.Processing
+            ? '实时汇总'
+            : '评审结果'
+        }
         open={open}
         onCancel={() => {
           setOpen(false);

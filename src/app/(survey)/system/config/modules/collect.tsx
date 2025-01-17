@@ -42,6 +42,7 @@ const Collect = ({ system }: CollectProps) => {
       });
     },
     {
+      manual: true,
       onSuccess: (response, params) => {
         if (response?.data.items?.length > 0) {
           const newTemplateId = params[1];

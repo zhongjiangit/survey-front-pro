@@ -23,6 +23,7 @@ export interface CustomTreeDataNode extends TreeDataNode {
   orgName?: string;
   staffCount?: number;
   isLeaf?: boolean;
+  root?: boolean;
 }
 
 interface CustomTreeProps {
@@ -545,17 +546,19 @@ function CustomTree(props: CustomTreeProps) {
                       </Tooltip>
                     </>
                   )}
-                  <Popconfirm
-                    title="删除节点"
-                    description="该节点及子级节点将被删除且不可恢复，确认删除？"
-                    onConfirm={confirm}
-                    okText="确定"
-                    cancelText="取消"
-                  >
-                    <div onClick={e => e.stopPropagation()}>
-                      <DeleteOutlined className="hover:text-red-500" />
-                    </div>
-                  </Popconfirm>
+                  {!nodeData?.root ? (
+                    <Popconfirm
+                      title="删除节点"
+                      description="该节点及子级节点将被删除且不可恢复，确认删除？"
+                      onConfirm={confirm}
+                      okText="确定"
+                      cancelText="取消"
+                    >
+                      <div onClick={e => e.stopPropagation()}>
+                        <DeleteOutlined className="hover:text-red-500" />
+                      </div>
+                    </Popconfirm>
+                  ) : null}
                 </div>
               )}
             </div>

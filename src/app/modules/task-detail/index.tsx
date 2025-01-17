@@ -25,6 +25,7 @@ interface PageProps {
   task: taskType | undefined;
   staffId?: number;
   showType?: DetailShowType;
+  refresh?: () => void;
 }
 
 const TaskDetail = ({
@@ -32,6 +33,7 @@ const TaskDetail = ({
   showType = DetailShowTypeEnum.Check,
   staffId,
   customTitle,
+  refresh,
 }: PageProps) => {
   const { taskId, maxFillCount = 0 } = task;
   const [activeKey, setActiveKey] = useState('0');
@@ -120,6 +122,7 @@ const TaskDetail = ({
           });
           setItems(newPanes);
           setActiveKey(newActiveKey);
+          refresh?.();
         },
       }
     );

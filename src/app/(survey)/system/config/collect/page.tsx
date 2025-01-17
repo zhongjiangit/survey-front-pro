@@ -99,10 +99,8 @@ export default function Page() {
       });
     },
     {
+      manual: true,
       onSuccess: response => {
-        console.log('response', response);
-        console.log('templateDetail', templateDetail);
-
         if (response?.data.items?.length > 0) {
           setItems(response.data.items);
           setCanEdit(false);
