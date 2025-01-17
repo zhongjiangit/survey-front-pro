@@ -64,6 +64,7 @@ const CheckReview = () => {
       ),
       dataIndex: 'orgAndUser',
       align: 'center',
+      width: '15%',
       render: (_: any, record: any) => {
         return (
           <div>
@@ -77,6 +78,7 @@ const CheckReview = () => {
       title: <div>任务名称</div>,
       dataIndex: 'taskName',
       align: 'center',
+      width: '15%',
       render: (_: any, record: any) => {
         return <div>{record.taskName}</div>;
       },

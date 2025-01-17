@@ -485,9 +485,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.Cancel &&
               operateButtonEvaluate.detail(record.publishType, record)}
             {record.fillTaskStatus === TaskStatusTypeEnum.Finished &&
-              (!record.reviewTaskStatus ||
-                record.reviewTaskStatus ===
-                  EvaluateStatusTypeEnum.NotStart) && [
+              record.reviewTaskStatus == null && [
                 operateButtonEvaluate.config(record),
               ]}
             {record.reviewTaskStatus === EvaluateStatusTypeEnum.NotStart && [
@@ -625,12 +623,14 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         open={filleOrgDetailModalOpen}
         setOpen={setFillOrgDetailModalOpen}
         refreshList={refreshPublishTask}
+        origin={true}
       />
       <TaskMemberFillDetailModal
         task={viewTask}
         open={filleMemberDetailModalOpen}
         setOpen={setFillMemberDetailModalOpen}
         refreshList={refreshPublishTask}
+        origin={true}
       />
     </>
   );

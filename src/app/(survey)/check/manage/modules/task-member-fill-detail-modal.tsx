@@ -26,6 +26,7 @@ interface TaskFillDetailModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   refreshList: () => void;
+  origin?: boolean;
 }
 
 const TaskMemberFillDetailModal = ({
@@ -33,6 +34,7 @@ const TaskMemberFillDetailModal = ({
   open,
   setOpen,
   refreshList,
+  origin,
 }: TaskFillDetailModalProps) => {
   const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -193,8 +195,7 @@ const TaskMemberFillDetailModal = ({
                   通过
                 </a>
               )}
-              {(record.processStatus === TaskProcessStatusEnum.NeedSelfAudit ||
-                record.processStatus === TaskProcessStatusEnum.Passed) && (
+              {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (
                 <a
                   className=" text-blue-500"
                   onClick={() => {
@@ -205,6 +206,18 @@ const TaskMemberFillDetailModal = ({
                   驳回
                 </a>
               )}
+              {record.processStatus === TaskProcessStatusEnum.Passed &&
+                origin && (
+                  <a
+                    className=" text-blue-500"
+                    onClick={() => {
+                      setRejectModalOpen(true);
+                      setCurrentRecord(record);
+                    }}
+                  >
+                    驳回
+                  </a>
+                )}
               {record.rejectedOnce === ZeroOrOneTypeEnum.One && (
                 <RejectTimeline
                   taskId={record.taskId}
