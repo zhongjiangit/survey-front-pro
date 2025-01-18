@@ -76,8 +76,8 @@ const ExpertManage: FunctionComponent<ExpertManageProps> = ({
 
   const { run: getExpertList, loading: getListLoading } = useRequest(
     () => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId) {
-        return Promise.reject('currentSystem or currentOrg is not exist');
+      if (!currentSystem?.systemId || !orgId) {
+        return Promise.reject('currentSystem or orgId is not exist');
       }
       return Api.getExpertList({
         currentSystemId: currentSystem?.systemId,
