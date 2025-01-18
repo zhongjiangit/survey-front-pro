@@ -39,6 +39,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
   record,
   task,
   type,
+  refresh: refreshParent,
 }) => {
   const [open, setOpen] = useState(false);
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
@@ -70,6 +71,9 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
     },
     {
       manual: true,
+      onSuccess: () => {
+        refreshParent?.();
+      },
     }
   );
 
@@ -91,6 +95,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
       onSuccess: () => {
         messageApi.info('一键通过成功');
         refresh();
+        refreshParent?.();
       },
       onError: error => {
         messageApi.error(error.toString());
@@ -148,6 +153,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
           }).then(() => {
             messageApi.info('通过成功');
             refresh();
+            refreshParent?.();
           });
         }}
       >

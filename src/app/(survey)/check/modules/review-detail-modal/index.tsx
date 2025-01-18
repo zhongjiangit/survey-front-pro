@@ -102,7 +102,6 @@ const ReviewDetailModal = (props: Props) => {
       if (singleFillIds) {
         params.singleFillIds = singleFillIds;
       }
-      console.log(params);
       return Api.approveReviewBatch(params);
     },
     {
@@ -243,6 +242,7 @@ const ReviewDetailModal = (props: Props) => {
               buttonText={`${text}人`}
               record={record}
               task={task}
+              refresh={refresh}
               type={ReviewTypeEnum.WaitAudit}
             ></ProfessorDetail>
           ),
