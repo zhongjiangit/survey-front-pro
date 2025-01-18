@@ -1,6 +1,6 @@
 const message = (type: string, msg: string) => {
   if (typeof window !== 'undefined') {
-    // @ts-ignore
+    // @ts-expect-error: window.messageApi might not be typed correctly
     window.messageApi[type](msg);
   }
 };
