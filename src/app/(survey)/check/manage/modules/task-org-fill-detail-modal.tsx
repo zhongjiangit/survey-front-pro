@@ -13,7 +13,7 @@ import {
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { Form, Input, message, Modal, Space, Table } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
 import { ColumnType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 
@@ -229,6 +229,16 @@ const TaskOrgFillDetailModal = ({
           setPagination({ pageNumber: 1, pageSize: 10 });
         }}
       >
+        <div className="flex justify-end mb-2">
+          <Space>
+            <Button type="primary" onClick={() => {}}>
+              一键通过本页
+            </Button>
+            <Button type="primary" onClick={() => {}}>
+              一键通过所有
+            </Button>
+          </Space>
+        </div>
         <Table
           columns={[sortColumns, ...columns, operationColumn]}
           dataSource={dataSource}

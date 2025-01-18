@@ -14,8 +14,17 @@ import {
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
-import { Form, Input, message, Modal, Popover, Space, Table } from 'antd';
-import { ColumnsType } from 'antd/es/table';
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popover,
+  Space,
+  Table,
+} from 'antd';
+import { ColumnsType, ColumnType } from 'antd/es/table';
 import { useEffect, useMemo, useState } from 'react';
 
 interface Values {
@@ -98,6 +107,15 @@ const TaskMemberFillDetailModal = ({
     }
   );
 
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 50,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pagination.pageNumber - 1) * pagination.pageSize;
+    },
+  };
+
   const columns: ColumnsType<any> = useMemo(
     () => [
       {
@@ -170,7 +188,7 @@ const TaskMemberFillDetailModal = ({
                   <TaskDetail
                     task={task}
                     staffId={record.staffId}
-                    customTitle="资料详情"
+                    customTitle="征集详情"
                     showType={DetailShowTypeEnum.Check}
                   />
                 )}
@@ -263,8 +281,18 @@ const TaskMemberFillDetailModal = ({
         maskClosable={false}
         footer={false}
       >
+        <div className="flex justify-end mb-2">
+          <Space>
+            <Button type="primary" onClick={() => {}}>
+              一键通过本页
+            </Button>
+            <Button type="primary" onClick={() => {}}>
+              一键通过所有
+            </Button>
+          </Space>
+        </div>
         <Table
-          columns={columns}
+          columns={[sortColumns, ...columns]}
           dataSource={data?.data || []}
           pagination={{
             total: data?.total,

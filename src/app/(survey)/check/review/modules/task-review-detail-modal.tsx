@@ -23,6 +23,7 @@ import {
   Space,
   Table,
 } from 'antd';
+import { ColumnType } from 'antd/es/table';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
 
@@ -276,6 +277,15 @@ const TaskReviewDetailModal = ({
     } finally {
       setLoading('submitCurrentPage', false);
     }
+  };
+
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 100,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pageNumber - 1) * pageSize;
+    },
   };
 
   const columns: any = [
@@ -534,7 +544,7 @@ const TaskReviewDetailModal = ({
             scroll={{
               y: window.innerHeight - 16 - 16 - 40 - 32 - 52 - 80 - 34 - 24,
             }}
-            columns={columns}
+            columns={[sortColumns, ...columns]}
             dataSource={listReviewDetailsExpertData?.data || []}
             loading={getListReviewDetailsExpertLoading}
             pagination={{
