@@ -798,13 +798,15 @@ export const EvaluateAllocateModal: React.FC<
         }
       >
         分配已选
-        {evaluateType === 'questionsToExperts'
-          ? validSelectedFills.length
-            ? ` (${validSelectedFills.length})`
-            : ''
-          : validSelectedExpert.length
-            ? ` (${validSelectedExpert.length})`
-            : ''}
+        {validSelectedFills.length && validSelectedExpert.length
+          ? evaluateType === 'questionsToExperts'
+            ? validSelectedFills.length
+              ? ` (${validSelectedFills.length})`
+              : ''
+            : validSelectedExpert.length
+              ? ` (${validSelectedExpert.length})`
+              : ''
+          : ''}
       </Button>
     </div>
   );

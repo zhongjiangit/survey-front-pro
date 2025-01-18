@@ -30,8 +30,7 @@ const defaultResFulfilled: ResFulfilledType = response => {
   if (response.data.result !== 0) {
     // 业务异常
     message('error', response.data.message);
-
-    // alert(response.data.message);
+    return Promise.reject(response);
   }
   if (response.data.result === 101) {
     // 清空localhost缓存
