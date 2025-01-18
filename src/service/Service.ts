@@ -10,6 +10,7 @@ import type { AxiosInstance } from 'axios';
 import axios from 'axios';
 import merge from 'lodash/merge';
 import defaultResRejected from './Error';
+import message from '@/service/message';
 
 const baseURL = '';
 
@@ -28,7 +29,9 @@ const defaultReqFulfilled: ReqFulfilledType = config => {
 const defaultResFulfilled: ResFulfilledType = response => {
   if (response.data.result !== 0) {
     // 业务异常
-    alert(response.data.message);
+    message('info', response.data.message);
+
+    // alert(response.data.message);
   }
   if (response.data.result === 101) {
     // 清空localhost缓存

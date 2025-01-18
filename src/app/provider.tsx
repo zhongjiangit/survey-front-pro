@@ -8,7 +8,7 @@ import {
   selectMenu,
 } from '@/lib/get-first-menu';
 import { ColorScheme } from '@/types/ColorScheme';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, message, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { ReactNode, useEffect, useRef } from 'react';
 import { TouchProvider } from '../components/display/hybrid';
@@ -55,6 +55,11 @@ export function Provider({ colorScheme, children }: Props) {
     ]);
   const router = useRouter();
   const pathname = usePathname();
+  const [messageApi, contextHolder] = message.useMessage();
+  useEffect(() => {
+    // @ts-ignore
+    window.messageApi = messageApi;
+  }, [messageApi]);
 
   useEffect(() => {
     if (!ready) {
@@ -171,6 +176,7 @@ export function Provider({ colorScheme, children }: Props) {
 
   return (
     <ColorSchemeContext.Provider value={store}>
+      {contextHolder}
       <ConfigProvider
         locale={zhCN}
         theme={{

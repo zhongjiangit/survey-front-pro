@@ -1,5 +1,6 @@
 import { ErrorLevel, ResRejectedType } from '@/types/Service';
 import { AxiosError, AxiosRequestConfig } from 'axios';
+import message from '@/service/message';
 
 const CODE_MESSAGE: Record<number, string> = {
   200: '请求成功',
@@ -50,11 +51,12 @@ const showErrorTips = async (status: number, error: any) => {
     ?.showMsg;
 
   if (showMsg) {
+
     if (level === ErrorLevel.ERROR) {
-      alert(msg || CODE_MESSAGE[status]);
+      message('error', msg || CODE_MESSAGE[status]);
     }
     if (level === ErrorLevel.WARN) {
-      alert(msg || CODE_MESSAGE[status]);
+      message('warring', msg || CODE_MESSAGE[status]);
     }
   }
 };
