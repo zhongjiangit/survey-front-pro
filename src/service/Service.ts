@@ -6,11 +6,11 @@ import {
   ServiceReqConfig,
 } from '@/types/Service';
 
+import message from '@/service/message';
 import type { AxiosInstance } from 'axios';
 import axios from 'axios';
 import merge from 'lodash/merge';
 import defaultResRejected from './Error';
-import message from '@/service/message';
 
 const baseURL = '';
 
@@ -27,17 +27,19 @@ const defaultReqFulfilled: ReqFulfilledType = config => {
 
 // 响应体处理
 const defaultResFulfilled: ResFulfilledType = response => {
-  if (response.data.result !== 0) {
-    // 业务异常
-    message('error', response.data.message);
-    return Promise.reject(response);
-  }
   if (response.data.result === 101) {
     // 清空localhost缓存
     localStorage.clear();
     // 未登录, 跳转登录页
     window.location.href = '/';
   }
+
+  if (response.data.result !== 0) {
+    // 业务异常
+    message('error', response.data.message);
+    return Promise.reject(response);
+  }
+
   return response.data;
 };
 

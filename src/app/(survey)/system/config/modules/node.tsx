@@ -86,8 +86,6 @@ const Node = (props: NodeProps) => {
 
   const { run: saveOrgTree } = useRequest(
     params => {
-      console.log('params', params);
-
       return Api.saveOrgTree(params);
     },
     {
