@@ -167,6 +167,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
     ),
     rejectInfo: (
       <a className="text-blue-500" type="primary">
+        {/* TODO 添加驳回履历 */}
         驳回履历
       </a>
     ),
@@ -277,7 +278,6 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
             operationButtons.pass(record),
             operationButtons.reject(record),
           ]}
-          {type === ReviewTypeEnum.WaitSubmit && operationButtons.rejectInfo}
           {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
             operationButtons.rejectInfo}
         </Space>
