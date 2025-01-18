@@ -17,6 +17,7 @@ import {
 } from '@/lib/join-rowspan-data';
 import { ReviewTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
+import { ColumnType } from 'antd/es/table';
 import { useReviewDetailColumn } from '../hooks/useReviewDetailColumn';
 import ProfessorDetail from './modules/professor-detail';
 
@@ -165,6 +166,15 @@ const ReviewDetailModal = (props: Props) => {
       ),
     ];
   }, [taskDetail, listVisibleLevels]);
+
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 50,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pageNumber - 1) * pageSize;
+    },
+  };
 
   const allColumns = useMemo<TableProps<DataType>['columns']>(() => {
     return [
@@ -318,7 +328,7 @@ const ReviewDetailModal = (props: Props) => {
           </Space>
         </div>
         <Table<DataType>
-          columns={allColumns}
+          columns={[sortColumns, ...(allColumns || [])]}
           dataSource={dataSource}
           pagination={{
             total: listReviewDetailsManagerData?.total || 0,
