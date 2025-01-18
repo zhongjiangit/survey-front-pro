@@ -23,7 +23,7 @@ import {
   Space,
   Table,
 } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import StandardDetailModal from '../../modules/standard-detail-modal';
 
 interface TaskReviewDetailModalProps {
@@ -45,6 +45,7 @@ const TaskReviewDetailModal = ({
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<any>([]);
+  const resetFlag = useRef(true);
 
   const setLoading = (key: string, loading: boolean) => {
     _loading.loading[key] = loading;
@@ -54,9 +55,8 @@ const TaskReviewDetailModal = ({
 
   const {
     data: listReviewDetailsExpertData,
-    run: getListReviewDetailsExpert,
     loading: getListReviewDetailsExpertLoading,
-    refresh: refreshListReviewDetailsExpert,
+    refresh: _refreshListReviewDetailsExpert,
   } = useRequest(
     () => {
       if (!open) {
@@ -73,11 +73,20 @@ const TaskReviewDetailModal = ({
     {
       refreshDeps: [pageSize, pageNumber, open],
       onSuccess: data => {
-        form.resetFields();
-        form.setFieldsValue(data.data);
+        if (resetFlag.current) {
+          form.resetFields();
+          form.setFieldsValue(data.data);
+        }
+        resetFlag.current = true;
       },
     }
   );
+
+  const refreshListReviewDetailsExpert = () => {
+    resetFlag.current = false;
+    _refreshListReviewDetailsExpert();
+  };
+
   const { data: templateDetail, run: getTemplateDetails } = useRequest(
     (tempId: number) => {
       return Api.getTemplateDetails({
