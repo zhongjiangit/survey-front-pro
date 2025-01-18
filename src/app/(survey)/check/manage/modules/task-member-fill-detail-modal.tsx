@@ -188,7 +188,7 @@ const TaskMemberFillDetailModal = ({
                   <TaskDetail
                     task={task}
                     staffId={record.staffId}
-                    customTitle="征集详情"
+                    customTitle="资料详情"
                     showType={DetailShowTypeEnum.Check}
                   />
                 )}
@@ -270,7 +270,7 @@ const TaskMemberFillDetailModal = ({
         open={open}
         title={
           <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-            <h2 className="text-xl">资料详情</h2>
+            <h2 className="text-xl">征集详情</h2>
           </div>
         }
         width={1000}
