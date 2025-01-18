@@ -10,6 +10,7 @@ import { joinRowSpanDataChild } from '@/lib/join-rowspan-data';
 import {
   DetailShowTypeEnum,
   TaskProcessStatusEnum,
+  TaskStatusTypeEnum,
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
