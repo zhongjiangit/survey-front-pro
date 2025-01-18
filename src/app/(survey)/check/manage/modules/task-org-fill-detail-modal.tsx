@@ -177,17 +177,20 @@ const TaskOrgFillDetailModal = ({
               驳回
             </a>
           )}
-          {record.processStatus === TaskProcessStatusEnum.Passed && origin && (
-            <a
-              className=" text-blue-500"
-              onClick={() => {
-                setRejectModalOpen(true);
-                setCurrentRecord(record);
-              }}
-            >
-              驳回
-            </a>
-          )}
+          {record.processStatus === TaskProcessStatusEnum.Passed &&
+            // @ts-expect-error: task is possibly undefined
+            task?.fillTaskStatus !== TaskStatusTypeEnum.Finished &&
+            origin && (
+              <a
+                className=" text-blue-500"
+                onClick={() => {
+                  setRejectModalOpen(true);
+                  setCurrentRecord(record);
+                }}
+              >
+                驳回
+              </a>
+            )}
           {record.rejectedOnce === ZeroOrOneTypeEnum.One && (
             <RejectTimeline
               taskId={task?.taskId}
