@@ -13,6 +13,7 @@ import {
 import { EvaluateStatusTypeEnum, TemplateTypeEnum } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
 import { Divider, Modal, Table, TableProps } from 'antd';
+import { ColumnType } from 'antd/es/table';
 import { useEffect, useMemo, useState } from 'react';
 import { useReviewResultColumns } from '../hooks/useReviewResultColumns';
 import ProfessorResult from './modules/professor-result';
@@ -140,6 +141,15 @@ const ReviewResultModal = (props: Props) => {
     ];
   }, [taskDetail, listVisibleLevels]);
 
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 50,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pageNumber - 1) * pageSize;
+    },
+  };
+
   const allColumns = useMemo<TableProps<DataType>['columns']>(() => {
     return [
       ...columns.map((t, i) => ({
@@ -193,7 +203,7 @@ const ReviewResultModal = (props: Props) => {
         dataIndex: 'singleFills',
         render: text =>
           text != null && (
-            <div className="flex justify-center">
+            <div className="flex flex-col">
               {text?.map((item: any, i: number) => {
                 return (
                   <div key={i}>
@@ -205,7 +215,9 @@ const ReviewResultModal = (props: Props) => {
                       title="试卷详情"
                       showDom={<Circle value={item.fillIndex} />}
                     />
-                    {i + 1 !== text.length && <Divider className="my-4" />}
+                    {i + 1 !== text.length && (
+                      <Divider style={{ margin: '8px 0' }} />
+                    )}
                   </div>
                 );
               })}
@@ -218,12 +230,14 @@ const ReviewResultModal = (props: Props) => {
         dataIndex: 'singleFills',
         render: text =>
           text != null && (
-            <div className="flex justify-center">
+            <div className="flex flex-col">
               {text?.map((item: any, i: number) => {
                 return (
                   <div key={i}>
                     <span>{`${item.score}分`}</span>
-                    {i + 1 !== text.length && <Divider className="my-4" />}
+                    {i + 1 !== text.length && (
+                      <Divider style={{ margin: '8px 0' }} />
+                    )}
                   </div>
                 );
               })}
@@ -266,7 +280,7 @@ const ReviewResultModal = (props: Props) => {
         loading={getReviewResultLoading}
       >
         <Table<DataType>
-          columns={allColumns}
+          columns={[sortColumns, ...(allColumns || [])]}
           dataSource={dataSource}
           pagination={{
             total: reviewResultData?.total,

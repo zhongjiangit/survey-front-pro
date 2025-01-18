@@ -163,7 +163,7 @@ const TaskOrgFillDetailModal = ({
                 });
               }}
             >
-              通过
+              {origin ? '通过' : '提交'}
             </a>
           )}
           {record.processStatus === TaskProcessStatusEnum.NeedSelfAudit && (

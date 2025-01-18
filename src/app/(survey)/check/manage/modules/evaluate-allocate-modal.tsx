@@ -2,32 +2,35 @@
 
 import Api from '@/api';
 import { ListMyInspTaskResponse } from '@/api/task/listMyInspTask';
+import { ListReviewAssignByFillResponse } from '@/api/task/listReviewAssignByFill';
+import FillDetail from '@/app/modules/task-detail/fillDetail';
 import Circle from '@/components/display/circle';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { formatTreeData } from '@/lib/format-tree-data';
 import { cn } from '@/lib/utils';
+import { DetailShowTypeEnum } from '@/types/CommonType';
+import {
+  ExclamationCircleFilled,
+  QuestionCircleOutlined,
+  SortAscendingOutlined,
+} from '@ant-design/icons';
 import { useRequest } from 'ahooks';
-import { CheckboxProps, message, TableColumnsType, TableProps } from 'antd';
 import {
   Button,
   Checkbox,
+  CheckboxProps,
+  message,
   Modal,
   Select,
   Table,
+  TableColumnsType,
+  TableProps,
+  Tooltip,
   Tree,
   TreeSelect,
-  Tooltip,
 } from 'antd';
 import React, { useMemo, useState } from 'react';
-import {
-  ExclamationCircleFilled,
-  SortAscendingOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
-import { formatTreeData } from '@/lib/format-tree-data';
-import { ListReviewAssignByFillResponse } from '@/api/task/listReviewAssignByFill';
-import { DetailShowTypeEnum } from '@/types/CommonType';
-import FillDetail from '@/app/modules/task-detail/fillDetail';
 
 interface EvaluateAllocateModalProps {
   task: ListMyInspTaskResponse;

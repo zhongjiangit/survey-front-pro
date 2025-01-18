@@ -124,11 +124,13 @@ export const AvatarDropdown: React.FC = () => {
         }}
         placement="bottomRight"
       >
-        <Button type="text" className="flex gap-1 items-center">
-          <CircleUserRound className="w-5 h-5" />
-          <span>{!!user && currentRole?.name}</span>
-          <span> ({orgRoleName})</span>
-        </Button>
+        <div className="flex flex-col items-center">
+          <Button type="text" className="flex gap-1 items-center">
+            <CircleUserRound className="w-5 h-5" />
+            <span>{!!user && currentRole?.name}</span>
+          </Button>
+          <div className="text-sm text-blue-400">{orgRoleName}</div>
+        </div>
       </HeaderDropdown>
       <RoleSwitchModal
         isRoleModalOpen={isRoleModalOpen}
