@@ -11,6 +11,7 @@ import {
 import { useRequest } from 'ahooks';
 import type { TreeProps } from 'antd';
 import { Modal, Table } from 'antd';
+import { ColumnType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useFillCountDetailsColumn } from '../../modules/hooks/useFillCountDetailsColumn';
 
@@ -72,6 +73,15 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
     }
   );
 
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 50,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pageNumber - 1) * pageSize;
+    },
+  };
+
   useEffect(() => {
     if (open) {
       getFillCountDetails();
@@ -96,7 +106,7 @@ const TaskFilledModal = ({ open, setOpen, task }: TaskFilledModalProps) => {
       width={1200}
     >
       <Table
-        columns={[...columns]}
+        columns={[sortColumns, ...columns]}
         dataSource={dataSource}
         pagination={{
           total: dataSource?.length,

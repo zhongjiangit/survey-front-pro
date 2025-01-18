@@ -11,6 +11,7 @@ import {
 import { useRequest } from 'ahooks';
 import type { TreeDataNode, TreeProps } from 'antd';
 import { Modal, Table } from 'antd';
+import { ColumnType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useFillPassCountDetailsColumn } from '../../modules/hooks/useFillPassCountDetailsColumn';
 
@@ -95,6 +96,15 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
     }
   );
 
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 50,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pageNumber - 1) * pageSize;
+    },
+  };
+
   const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
     console.log('selected', selectedKeys, info);
   };
@@ -122,7 +132,7 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
       width={1200}
     >
       <Table
-        columns={[...columns]}
+        columns={[sortColumns, ...columns]}
         dataSource={dataSource}
         pagination={{
           total: dataSource?.length,
