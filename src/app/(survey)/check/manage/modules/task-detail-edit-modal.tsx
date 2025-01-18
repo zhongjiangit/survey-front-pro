@@ -120,12 +120,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
         levelIndex: index || 1,
-        tags: filterValue
-          .map(item => ({
-            key: Number(item),
-          }))
-          .filter(t => t.key !== -1),
-        showUntagged: filterValue.includes('-1') ? 1 : 0,
+        tags: filterValue.map(item => ({
+          key: Number(item),
+        })),
       });
     },
     {
@@ -186,6 +183,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       return Api.getTagList({
         currentSystemId: currentSystem.systemId!,
         tagType: tagType,
+        showUntagged: 1,
       });
     },
     {
@@ -211,12 +209,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       return Api.listAllAssignSub({
         currentSystemId: currentSystem.systemId!,
         currentOrgId: currentOrg.orgId!,
-        staffTags: filterValue
-          .map(item => ({
-            key: Number(item),
-          }))
-          .filter(t => t.key !== -1),
-        showUntagged: filterValue.includes('-1') ? 1 : 0,
+        staffTags: filterValue.map(item => ({
+          key: Number(item),
+        })),
       }).then(res => res.data);
     },
     {
@@ -342,12 +337,9 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       currentSystemId: currentSystem?.systemId,
       currentOrgId: currentOrg?.orgId,
       orgId: Number(key),
-      tags: filterValue
-        .map(item => ({
-          key: Number(item),
-        }))
-        .filter(t => t.key !== -1),
-      showUntagged: filterValue.includes('-1') ? 1 : 0,
+      tags: filterValue.map(item => ({
+        key: Number(item),
+      })),
     });
     const members = membersToNode(res.data);
     setOrgMembers((t: any) => ({ ...t, [key]: members }));
