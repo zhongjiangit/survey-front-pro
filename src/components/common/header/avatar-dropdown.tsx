@@ -113,7 +113,9 @@ export const AvatarDropdown: React.FC = () => {
       label: '退出登录',
     },
   ];
-
+  if (!user) {
+    return null;
+  }
   return (
     <>
       <HeaderDropdown
