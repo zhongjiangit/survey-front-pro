@@ -8,6 +8,7 @@ import {
 } from '@/contexts/useGlobalSettingsStore';
 import { useSurveyCurrentRoleStore } from '@/contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
+import { useSurveyUserStore } from '@/contexts/useSurveyUserStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLongPress } from 'react-use';
@@ -26,6 +27,10 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
   const setDeveloperFlags = useGlobalSettingsStore(
     state => state.setDeveloperFlags
   );
+  const [user, setUser] = useSurveyUserStore(state => [
+    state.user,
+    state.setUser,
+  ]);
 
   const longPressEvent = useLongPress(
     (event: TouchEvent | MouseEvent) => {
@@ -64,7 +69,7 @@ export default function Header({ isThemeShow = false }: HeaderProps) {
 
       <div className="flex items-center gap-2">
         {isThemeShow && <ThemeSwitcher />}
-        {currentRole?.id && <AvatarDropdown />}
+        {!!user && <AvatarDropdown />}
       </div>
     </div>
   );

@@ -12,12 +12,14 @@ function CloseWarning() {
     const instance = modal.success({
       title: '更新成功',
       content: `信息更新成功，系统 ${secondsToGo} 秒钟后即将退出，请重新登录。`,
+      footer: null,
     });
 
     const timer = setInterval(() => {
       secondsToGo -= 1;
       instance.update({
         content: `信息更新成功，系统 ${secondsToGo} 秒钟后即将退出，请重新登录。`,
+        footer: null,
       });
     }, 1000);
 

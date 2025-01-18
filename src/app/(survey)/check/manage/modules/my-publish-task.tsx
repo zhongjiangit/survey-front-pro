@@ -41,6 +41,7 @@ const MyPublishTask = () => {
         tabType="self"
         itemData={myPublishTackData?.data}
         refreshPublishTask={refreshMyPublishTask}
+        pagination={{ pageNumber, pageSize }}
       />
       <div className="flex py-4 justify-end">
         <Pagination

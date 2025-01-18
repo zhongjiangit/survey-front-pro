@@ -24,6 +24,9 @@ function Page() {
   // 获取当前管理员单位及以下的所有单位
   useRequest(
     () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
       return Api.getOrgList({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,

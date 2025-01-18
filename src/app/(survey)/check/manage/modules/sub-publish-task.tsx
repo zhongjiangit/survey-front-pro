@@ -40,6 +40,7 @@ const SubPublishTask = () => {
         tabType="subordinate"
         itemData={subPublishTackData?.data}
         refreshPublishTask={refreshSubPublishTask}
+        pagination={{ pageNumber, pageSize }}
       />
       <div className="flex py-4 justify-end">
         <Pagination
