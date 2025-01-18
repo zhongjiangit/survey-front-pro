@@ -119,6 +119,7 @@ const TaskPassedModal = ({ open, setOpen, task }: TaskPassedModalProps) => {
       onOk={() => {
         setOpen(false);
       }}
+      width={1200}
     >
       <Table
         columns={[...columns]}
