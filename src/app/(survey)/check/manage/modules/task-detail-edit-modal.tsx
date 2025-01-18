@@ -279,15 +279,12 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
   );
 
   const getLeveList = (task?: any, levels?: ListVisibleLevelsResponse[]) => {
-    let list = (levels || []).slice(1);
-    if (isAllocate) {
-      list = list.slice(
-        list.findIndex(t =>
-          task.levels.some((f: any) => f.levelIndex === t.levelIndex)
-        )
-      );
-    }
-    return list;
+    const list = (levels || []).slice(1);
+    return list.slice(
+      list.findIndex(t =>
+        task.levels.some((f: any) => f.levelIndex === t.levelIndex)
+      )
+    );
   };
   const levelList = useMemo(
     () => getLeveList(task, listVisibleLevels?.data),
