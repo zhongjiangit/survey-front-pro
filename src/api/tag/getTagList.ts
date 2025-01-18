@@ -8,7 +8,11 @@ export interface TagListType {
   tags: CustomTreeDataNode;
 }
 
-function getTagList(params: { currentSystemId: number; tagType: TagTypeType }) {
+function getTagList(params: {
+  currentSystemId: number;
+  tagType: TagTypeType;
+  showUntagged?: 0 | 1;
+}) {
   return SurveyService.post<CommonResponseType<CustomTreeDataNode[]>>(
     `${baseUrl}/tag/list`,
     {

@@ -81,14 +81,17 @@ export const EvaluateAllocateModal: React.FC<
         Api.getTagList({
           currentSystemId: currentSystem.systemId!,
           tagType: 3,
+          showUntagged: 1,
         }),
         Api.getTagList({
           currentSystemId: currentSystem.systemId!,
           tagType: 1,
+          showUntagged: 1,
         }),
         Api.getTagList({
           currentSystemId: currentSystem.systemId!,
           tagType: 2,
+          showUntagged: 1,
         }),
       ]);
     },
