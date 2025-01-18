@@ -88,7 +88,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
     }
   );
 
-  const { run: createStaff } = useRequest(
+  const { runAsync: createStaff } = useRequest(
     params => {
       return Api.createStaff(params);
     },
@@ -102,7 +102,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
     }
   );
 
-  const { run: updateStaff } = useRequest(
+  const { runAsync: updateStaff } = useRequest(
     params => {
       return Api.updateStaff(params);
     },
@@ -116,7 +116,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
     }
   );
 
-  const { run: deleteStaff } = useRequest(
+  const { runAsync: deleteStaff } = useRequest(
     params => {
       return Api.deleteStaff(params);
     },
@@ -136,8 +136,8 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       values.tags = values.tags?.map((tag: number) => ({ key: tag }));
 
       if (currentSystem?.systemId && currentOrg?.orgId) {
-        if (typeof values.id === 'number') {
-          updateStaff({
+        if (values.id !== 'new') {
+          return updateStaff({
             id: values.id,
             currentSystemId: currentSystem?.systemId,
             currentOrgId: currentOrg?.orgId,
@@ -147,7 +147,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
             tags: values?.tags || [],
           });
         } else {
-          createStaff({
+          return createStaff({
             currentSystemId: currentSystem?.systemId,
             currentOrgId: currentOrg?.orgId,
             staffName: values.staffName,
@@ -157,6 +157,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
           });
         }
       }
+      return Promise.reject('currentSystem or currentOrg is not exist');
     },
     [currentSystem?.systemId, currentOrg?.orgId, updateStaff, createStaff]
   );
@@ -164,12 +165,13 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
   const onDelete = useCallback(
     (id: number) => {
       if (currentSystem?.systemId && currentOrg?.orgId) {
-        deleteStaff({
+        return deleteStaff({
           id,
           currentSystemId: currentSystem?.systemId,
           currentOrgId: currentOrg?.orgId,
         });
       }
+      return Promise.reject('currentSystem or currentOrg is not exist');
     },
     [currentSystem, currentOrg, deleteStaff]
   );
@@ -299,7 +301,6 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               >
                 编辑
               </a>,
-
               <Popconfirm
                 key="delete"
                 title="删除此项"
@@ -326,7 +327,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
           ? {
               record: () => {
                 return {
-                  id: String(Date.now()),
+                  id: 'new',
                 };
               },
             }
@@ -338,13 +339,13 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       onChange={value => setDataSource(value as TableFormDateType[])}
       editable={{
         type: 'single',
-        editableKeys,
         onSave: async (rowKey, data, row) => {
-          onSave(data);
+          return onSave(data);
         },
-        onChange: setEditableRowKeys,
         onDelete: async key => {
-          onDelete(key as number);
+          if (key !== 'new') {
+            return onDelete(key as number);
+          }
         },
       }}
     />
