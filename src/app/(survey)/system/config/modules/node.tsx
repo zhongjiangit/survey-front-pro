@@ -50,6 +50,7 @@ const Node = (props: NodeProps) => {
   const nodeSelected = searchParams.get('node');
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
+  const [isNewNode, setIsNewNode] = useState(false);
 
   const { data: tagList, run: getTagList } = useRequest(() => {
     return Api.getTagList({
@@ -148,6 +149,11 @@ const Node = (props: NodeProps) => {
           // 重新获取标签列表
           getTagList();
           const values = response?.data;
+          if (!values.cellphone) {
+            setIsNewNode(true);
+          } else {
+            setIsNewNode(false);
+          }
           form.setFieldsValue({
             managerName: values.managerName,
             cellphone: values.cellphone,
@@ -312,7 +318,7 @@ const Node = (props: NodeProps) => {
                   htmlType="submit"
                   loading={setOrgDetailLoading}
                 >
-                  保存单位配置
+                  {isNewNode ? '新增单位管理者' : '更新单位管理者'}
                 </Button>
               </Form.Item>
             </Form>

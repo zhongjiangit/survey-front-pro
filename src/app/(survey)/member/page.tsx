@@ -142,6 +142,11 @@ function Page() {
 
   const { refresh: refreshStaffList } = useRequest(
     () => {
+      if (!currentSystem || !currentOrg || !org) {
+        return Promise.reject(
+          'currentSystem or currentOrg or org is not exist'
+        );
+      }
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,

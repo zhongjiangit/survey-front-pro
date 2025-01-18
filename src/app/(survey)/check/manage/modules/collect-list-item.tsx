@@ -111,7 +111,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             }
           }}
         >
-          详情
+          征集详情
         </a>
       );
     },
@@ -551,7 +551,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       passCount: obj.fillPassCount,
       beginTimeEstimate: obj.beginTimeFillEstimate,
       endTimeEstimate: obj.endTimeFillEstimate,
-      endTimeFillActual: obj.endTimeFillEstimate,
+      endTimeFillActual: obj.endTimeFillActual,
       showFillPeople: obj.fillPeople,
       showFillCount: obj.fillCount,
     };
@@ -563,7 +563,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       passCount: obj.reviewPassCount,
       beginTimeEstimate: obj.beginTimeReviewEstimate,
       endTimeEstimate: obj.endTimeReviewEstimate,
-      endTimeFillActual: obj.endTimeReviewEstimate,
+      endTimeFillActual: obj.endTimeReviewActual,
       showFillPeople: obj.reviewPassCount,
       showFillCount: obj.reviewPassCount,
     };
