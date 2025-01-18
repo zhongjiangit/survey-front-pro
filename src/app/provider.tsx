@@ -119,7 +119,7 @@ export function Provider({ colorScheme, children }: Props) {
     if (_currentRole) {
       Object.assign(
         _currentRole,
-        _roles?.find(t => _roles?.find(t => t.key === _currentRole?.key))
+        _roles?.find(t => t.key === _currentRole?.key)
       );
     }
 
