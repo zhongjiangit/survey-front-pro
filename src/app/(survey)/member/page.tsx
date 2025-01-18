@@ -147,9 +147,6 @@ function Page() {
           'currentSystem or currentOrg or org is not exist'
         );
       }
-      console.log('currentSystem', currentSystem);
-      console.log('currentOrg', currentOrg);
-      console.log('org', org);
 
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,

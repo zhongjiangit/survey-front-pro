@@ -1,7 +1,6 @@
 'use client';
 
 import Api from '@/api';
-import { StaffListResponse } from '@/api/staff/getStaffList';
 import ExpertManage from '@/app/modules/expert-manage';
 import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
@@ -17,7 +16,6 @@ function Page() {
   const [expertTags, setExpertTags] = useState<any>([]);
   const [staffOrg, setStaffOrg] = useState<any>();
   const [orgList, setOrgList] = useState<CustomTreeDataNode[]>([]);
-  const [adminStaff, setAdminStaff] = useState<StaffListResponse>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
@@ -90,33 +88,6 @@ function Page() {
     }
   );
 
-  // 获取当前单位的所有成员
-  useRequest(
-    () => {
-      if (!currentSystem?.systemId || !org) {
-        return Promise.reject('未获取到组织机构');
-      }
-      return Api.getStaffList({
-        currentSystemId: currentSystem?.systemId,
-        currentOrgId: Number(org),
-      });
-    },
-    {
-      refreshDeps: [org, currentSystem?.systemId],
-      onSuccess(response) {
-        const list = response?.data;
-        if (list) {
-          const adminStaff = list.filter(
-            staff => staff.id === currentOrg?.staffId
-          );
-          if (adminStaff[0]) {
-            setAdminStaff(adminStaff[0]);
-          }
-        }
-      },
-    }
-  );
-
   // 递归遍历treeData,找到其中key与currentOrg中的orgId相同的对象
   const findOrg = useCallback(
     (
@@ -143,7 +114,7 @@ function Page() {
   return (
     <main className="flex flex-col gap-5">
       <div className="flex w-full items-center justify-start gap-2">
-        <h1 className={`text-2xl`}>单位成员管理</h1>
+        <h1 className={`text-2xl`}>专家管理</h1>
       </div>
       <h2 className="flex items-center">
         <span className="text-red-600">*</span>&nbsp;你是
