@@ -597,10 +597,9 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
                       task={item}
                       refreshPublishTask={refreshPublishTask}
                     />
-                    {item.fillTaskStatus !== TaskStatusTypeEnum.Finished &&
-                    item.fillTaskStatus !== TaskStatusTypeEnum.Cancel &&
-                    item.reviewTaskStatus !== TaskStatusTypeEnum.Finished &&
-                    item.reviewTaskStatus !== TaskStatusTypeEnum.Cancel ? (
+                    {item.fillTaskStatus === TaskStatusTypeEnum.Finished ||
+                    item.reviewTaskStatus === TaskStatusTypeEnum.Finished ||
+                    item.fillTaskStatus !== TaskStatusTypeEnum.Cancel ? (
                       <TaskDeleteModal
                         taskId={item.taskId}
                         onRefresh={refreshPublishTask}
