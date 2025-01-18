@@ -95,11 +95,9 @@ export function Provider({ colorScheme, children }: Props) {
         user.systems.find(t => t.systemId === _currentSystem.systemId)
       );
     }
-
     if (
-      _currentSystem &&
-      (!_currentOrg ||
-        !_currentSystem?.orgs?.some(t => t.orgId === _currentOrg?.orgId))
+      !_currentOrg ||
+      !_currentSystem?.orgs?.some(t => t.orgId === _currentOrg?.orgId)
     ) {
       _currentOrg = _currentSystem?.orgs?.[0];
     }
