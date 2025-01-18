@@ -10,6 +10,7 @@ import {
   TaskProcessStatusEnum,
   TaskProcessStatusObject,
   TaskProcessStatusType,
+  TaskStatusTypeEnum,
   ZeroOrOneTypeEnum,
 } from '@/types/CommonType';
 import { useRequest } from 'ahooks';
@@ -207,6 +208,8 @@ const TaskMemberFillDetailModal = ({
                 </a>
               )}
               {record.processStatus === TaskProcessStatusEnum.Passed &&
+                // @ts-expect-error: task is possibly undefined
+                task?.fillTaskStatus !== TaskStatusTypeEnum.Finished &&
                 origin && (
                   <a
                     className=" text-blue-500"
@@ -249,7 +252,7 @@ const TaskMemberFillDetailModal = ({
         open={open}
         title={
           <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-            <h2 className="text-xl">资料详情1</h2>
+            <h2 className="text-xl">资料详情</h2>
           </div>
         }
         width={1000}
