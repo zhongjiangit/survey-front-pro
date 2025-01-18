@@ -29,7 +29,7 @@ const defaultReqFulfilled: ReqFulfilledType = config => {
 const defaultResFulfilled: ResFulfilledType = response => {
   if (response.data.result !== 0) {
     // 业务异常
-    message('info', response.data.message);
+    message('error', response.data.message);
 
     // alert(response.data.message);
   }
