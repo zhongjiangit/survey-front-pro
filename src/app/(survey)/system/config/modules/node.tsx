@@ -106,11 +106,13 @@ const Node = (props: NodeProps) => {
     },
     {
       manual: true,
-      onSuccess() {
-        messageApi.open({
-          type: 'success',
-          content: '配置保存成功',
-        });
+      onSuccess(data) {
+        if (data?.result === 0) {
+          messageApi.open({
+            type: 'success',
+            content: '配置保存成功',
+          });
+        }
       },
     }
   );

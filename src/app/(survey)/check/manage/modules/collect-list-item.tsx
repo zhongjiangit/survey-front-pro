@@ -34,10 +34,14 @@ interface CollectListItemProps {
   tabType: 'self' | 'subordinate';
   itemData: ItemDataType | undefined;
   refreshPublishTask: () => void;
+  pagination: {
+    pageNumber: number;
+    pageSize: number;
+  };
 }
 
 const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
-  const { itemData, tabType, refreshPublishTask } = props;
+  const { itemData, tabType, refreshPublishTask, pagination } = props;
 
   const [filledNumModalOpen, setFilledNumModalOpen] = useState(false);
   const [passedNumModalOpen, setPassedNumModalOpen] = useState(false);
@@ -579,7 +583,13 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
             <div key={index}>
               <div className="flex justify-between items-center">
                 <div className="font-bold text-lg pb-2 pl-4">
-                  <span>NO.{index + 1}</span> {item?.taskName}
+                  <span>
+                    NO.
+                    {index +
+                      1 +
+                      (pagination.pageNumber - 1) * pagination.pageSize}
+                  </span>{' '}
+                  {item?.taskName}
                 </div>
                 {tabType === 'self' && (
                   <div className="flex gap-2">
