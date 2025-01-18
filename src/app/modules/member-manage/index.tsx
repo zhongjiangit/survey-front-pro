@@ -9,7 +9,7 @@ import {
   type ProColumnType,
 } from '@ant-design/pro-components';
 import { useRequest } from 'ahooks';
-import { Popconfirm, Select, Tag, TreeSelect } from 'antd';
+import { Form, Popconfirm, Select, Tag, TreeSelect } from 'antd';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 interface TableFormDateType {
@@ -41,6 +41,7 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
   const currentRole = useSurveyCurrentRoleStore(state => state.currentRole);
   const [adminStaff, setAdminStaff] = useState<StaffListResponse | null>(null);
+  const [form] = Form.useForm();
 
   const formatMemberData = useCallback((data: TableFormDateType[]) => {
     return data.map(item => {
@@ -296,7 +297,11 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
               <a
                 key="edit"
                 onClick={() => {
-                  action?.startEditable(record.id);
+                  // @ts-ignore
+                  if (action?.editableKeys?.[0] === 'new') {
+                    return;
+                  }
+                  setEditableRowKeys([record.id]);
                 }}
               >
                 编辑
@@ -336,11 +341,23 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
       columns={columns}
       rowKey="id"
       value={dataSource}
-      onChange={value => setDataSource(value as TableFormDateType[])}
       editable={{
         type: 'single',
+        form,
+        editableKeys,
+        onChange(keys) {
+          form.resetFields();
+          setEditableRowKeys(keys);
+        },
         onSave: async (rowKey, data, row) => {
-          return onSave(data);
+          await onSave(data);
+          setEditableRowKeys([]);
+        },
+        async onCancel(key) {
+          if (key !== 'new') {
+            setEditableRowKeys([]);
+            return Promise.reject('cancel');
+          }
         },
         onDelete: async key => {
           if (key !== 'new') {
