@@ -81,7 +81,7 @@ const Node = (props: NodeProps) => {
   }, [tagList]);
 
   const setTags = useCallback((tags: any) => {
-    setOrgTags([{ ...tags[0], root: true }]);
+    setOrgTags(tags.length ? [{ ...tags[0], root: true }] : []);
   }, []);
 
   const { run: saveOrgTree } = useRequest(

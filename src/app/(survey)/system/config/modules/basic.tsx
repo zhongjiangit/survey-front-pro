@@ -29,13 +29,13 @@ const Basic = (props: BasicProps) => {
     (tags: any) => {
       switch (drawerData?.type) {
         case 1:
-          setOrgTags({ ...tags[0], root: true });
+          setOrgTags(tags.length ? { ...tags[0], root: true } : tags[0]);
           break;
         case 2:
-          setMemberTags({ ...tags[0], root: true });
+          setMemberTags(tags.length ? { ...tags[0], root: true } : tags[0]);
           break;
         case 3:
-          setExpertTags({ ...tags[0], root: true });
+          setExpertTags(tags.length ? { ...tags[0], root: true } : tags[0]);
           break;
         default:
           break;
