@@ -524,11 +524,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
             );
           }}
         </Form.Item>
-        <Form.Item
-          name="orgs"
-          label=""
-          rules={[{ required: true, message: '请选择单位' }]}
-        >
+        <Form.Item name="orgs" label="">
           <Checkbox.Group
             options={listLevelAssignSub?.data.map(item => ({
               label: item.orgName,
