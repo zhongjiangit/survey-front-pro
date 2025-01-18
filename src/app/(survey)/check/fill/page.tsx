@@ -139,6 +139,7 @@ const ToAllotTask = () => {
       title: <div>任务名称</div>,
       dataIndex: 'taskName',
       align: 'center',
+      width: '20%',
       render: (text: string) => {
         return <div>{text}</div>;
       },
