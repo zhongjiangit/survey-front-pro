@@ -54,6 +54,9 @@ const MemberManage: FunctionComponent<MemberManageProps> = ({
 
   const { run: getStaffList } = useRequest(
     () => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !orgId) {
+        return Promise.reject('currentSystem or currentOrg is not exist');
+      }
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,

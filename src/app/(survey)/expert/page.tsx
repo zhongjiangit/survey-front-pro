@@ -22,7 +22,7 @@ function Page() {
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
   // 获取当前管理员单位及以下的所有单位
-  const {} = useRequest(
+  useRequest(
     () => {
       return Api.getOrgList({
         currentSystemId: currentSystem?.systemId,
@@ -36,7 +36,9 @@ function Page() {
         if (treeData && currentOrg?.orgId) {
           setOrgList([treeData]);
           const orgNode = findOrg([treeData], currentOrg.orgId);
-          orgNode && setStaffOrg(orgNode);
+          if (orgNode) {
+            setStaffOrg(orgNode);
+          }
         }
       },
     }
@@ -55,7 +57,7 @@ function Page() {
   }, [currentOrg?.orgId]);
 
   // 获取专家标签
-  const {} = useRequest(
+  useRequest(
     () => {
       if (!currentSystem?.systemId) {
         return Promise.reject('currentSystem is not exist');
@@ -74,7 +76,8 @@ function Page() {
             if (node.children) {
               node.children.forEach(addValue);
             }
-            // @ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             node.value = node.key;
           };
           tags.forEach(addValue);
@@ -85,8 +88,11 @@ function Page() {
   );
 
   // 获取当前单位的所有成员
-  const {} = useRequest(
+  useRequest(
     () => {
+      if (!currentSystem?.systemId || !org) {
+        return Promise.reject('未获取到组织机构');
+      }
       return Api.getStaffList({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: Number(org),
