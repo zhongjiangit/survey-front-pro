@@ -220,7 +220,7 @@ const TaskMemberFillDetailModal = ({
                 )}
               {record.rejectedOnce === ZeroOrOneTypeEnum.One && (
                 <RejectTimeline
-                  taskId={record.taskId}
+                  taskId={task?.taskId}
                   staffId={record.staffId}
                   key="reject"
                 />

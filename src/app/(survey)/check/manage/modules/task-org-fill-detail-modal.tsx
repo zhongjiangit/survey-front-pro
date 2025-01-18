@@ -114,6 +114,15 @@ const TaskOrgFillDetailModal = ({
     }
   );
 
+  const sortColumns: ColumnType = {
+    title: 'No.',
+    width: 50,
+    align: 'center',
+    render: (_: any, __: any, index: number) => {
+      return index + 1 + (pagination.pageNumber - 1) * pagination.pageSize;
+    },
+  };
+
   const operationColumn: ColumnType = {
     title: '操作',
     dataIndex: 'operation',
@@ -181,7 +190,7 @@ const TaskOrgFillDetailModal = ({
           )}
           {record.rejectedOnce === ZeroOrOneTypeEnum.One && (
             <RejectTimeline
-              taskId={record.taskId}
+              taskId={task?.taskId}
               staffId={record.staffId}
               key="reject"
             />
@@ -204,7 +213,7 @@ const TaskOrgFillDetailModal = ({
         open={open}
         title={
           <div className="flex gap-5 items-center justify-between mb-3 pr-10">
-            <h2 className="text-xl">资料详情</h2>
+            <h2 className="text-xl">征集详情</h2>
           </div>
         }
         width={1200}
@@ -221,7 +230,7 @@ const TaskOrgFillDetailModal = ({
         }}
       >
         <Table
-          columns={[...columns, operationColumn]}
+          columns={[sortColumns, ...columns, operationColumn]}
           dataSource={dataSource}
           pagination={{
             total: data?.total,

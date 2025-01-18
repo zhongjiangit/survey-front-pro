@@ -5,11 +5,10 @@ import { Modal, Timeline } from 'antd';
 import { useEffect, useState } from 'react';
 import Api from '../../../api';
 import { useSurveyOrgStore } from '../../../contexts/useSurveyOrgStore';
-import { useSurveyCurrentRoleStore } from '../../../contexts/useSurveyRoleStore';
 import { useSurveySystemStore } from '../../../contexts/useSurveySystemStore';
 
 interface RejectTimelineProps {
-  taskId: number;
+  taskId?: number;
   staffId: number;
 }
 
@@ -35,7 +34,7 @@ const RejectTimeline = ({ taskId, staffId }: RejectTimelineProps) => {
    */
   const { data, run } = useRequest(
     () => {
-      if (!currentSystem?.systemId || !currentOrg?.orgId) {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !taskId) {
         return Promise.reject('currentSystem or currentOrg is not exist');
       }
       return Api.listRejectFill({
