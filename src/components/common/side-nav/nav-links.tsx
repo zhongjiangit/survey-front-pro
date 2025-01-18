@@ -44,7 +44,7 @@ export const originMenus = [
       {
         label: '分配',
         key: '/check/allocate',
-        access: [Role_Enum.SYSTEM_ADMIN, Role_Enum.ORG_ADMIN],
+        access: [Role_Enum.ORG_ADMIN],
         allowChildren: true,
       },
       {
