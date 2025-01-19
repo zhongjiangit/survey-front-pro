@@ -75,8 +75,8 @@ const ReviewDetailModal = (props: Props) => {
           });
         }
         joinRowSpanKey.push({
-          coKey: 'name',
-          compareKeys: ['name', `org${orgCount}`], //姓名列的合并条件是name和org的最后一级均相同
+          coKey: 'fillerStaffName',
+          compareKeys: ['fillerStaffName', 'fillerStaffId', `org${orgCount}`], //姓名列的合并条件是name和org的最后一级均相同
           childKey: { [`org${orgCount}`]: 'orgId' },
         });
         setColumns(data.data);
@@ -182,12 +182,11 @@ const ReviewDetailModal = (props: Props) => {
         title: levelList[i]?.levelName || t.title,
       })),
       {
-        // TODO 评审详情的姓名需要用fillerStaffId
         title: '姓名',
         dataIndex: 'fillerStaffName',
         align: 'center',
         onCell: text => ({
-          rowSpan: text.rowSpan?.name || 0,
+          rowSpan: text.rowSpan?.fillerStaffName || 0,
         }),
       },
       {
