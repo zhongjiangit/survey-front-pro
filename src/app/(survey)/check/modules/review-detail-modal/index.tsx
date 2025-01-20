@@ -222,7 +222,7 @@ const ReviewDetailModal = (props: Props) => {
         align: 'center',
         dataIndex: 'passedExpertCount',
         render: (text, record) =>
-          text != null && (
+          !!text && (
             <ProfessorDetail
               buttonText={`${text}人`}
               record={record}
@@ -236,7 +236,7 @@ const ReviewDetailModal = (props: Props) => {
         align: 'center',
         dataIndex: 'needReviewExportCount',
         render: (text, record) =>
-          text != null && (
+          !!text && (
             <ProfessorDetail
               buttonText={`${text}人`}
               record={record}
@@ -251,7 +251,7 @@ const ReviewDetailModal = (props: Props) => {
         align: 'center',
         dataIndex: 'needSubmitExportCount',
         render: (text, record) =>
-          text != null && (
+          !!text && (
             <ProfessorDetail
               buttonText={`${text}人`}
               record={record}
@@ -265,7 +265,7 @@ const ReviewDetailModal = (props: Props) => {
         align: 'center',
         dataIndex: 'rejectedExportCount',
         render: (text, record) =>
-          text != null && (
+          !!text && (
             <ProfessorDetail
               buttonText={`${text}人`}
               record={record}
@@ -275,7 +275,7 @@ const ReviewDetailModal = (props: Props) => {
           ),
       },
     ];
-  }, [columns, levelList, task]);
+  }, [columns, levelList, refresh, task]);
   return (
     <>
       {contextHolder}
