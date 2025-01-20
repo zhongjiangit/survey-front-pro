@@ -317,6 +317,10 @@ const TaskMemberFillDetailModal = ({
                       item.processStatus === TaskProcessStatusEnum.NeedSelfAudit
                   )
                   .map((item: any) => item.staffId);
+                if (staffIds?.length === 0) {
+                  messageApi.info('没有可通过的数据');
+                  return;
+                }
                 approveFillBatch(staffIds);
               }}
             >
