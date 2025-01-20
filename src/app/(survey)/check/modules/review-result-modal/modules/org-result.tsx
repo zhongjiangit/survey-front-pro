@@ -21,8 +21,6 @@ const OrgResult: FunctionComponent<ProfessorDetailProps> = ({
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
-  console.log('record', record);
-
   const {
     run: getReviewResultOrg,
     loading: getReviewResultOrgLoading,

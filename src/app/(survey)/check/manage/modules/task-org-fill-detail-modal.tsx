@@ -89,6 +89,31 @@ const TaskOrgFillDetailModal = ({
     }
   );
 
+  const { run: approveFillBatch } = useRequest(
+    (staffIds?: number[]) => {
+      if (!currentSystem?.systemId || !currentOrg?.orgId || !task?.taskId) {
+        return Promise.reject('未获取到组织机构');
+      }
+      return Api.approveFillBatch({
+        currentSystemId: currentSystem.systemId,
+        currentOrgId: currentOrg.orgId,
+        taskId: task.taskId,
+        staffIds: staffIds,
+      });
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        messageApi.info('驳回成功');
+        setRejectModalOpen(false);
+        refresh();
+      },
+      onError: error => {
+        messageApi.error(error.toString());
+      },
+    }
+  );
+
   const { run: rejectFill } = useRequest(
     (values: Values) => {
       if (!currentSystem?.systemId || !currentOrg?.orgId || !task?.taskId) {
@@ -235,10 +260,26 @@ const TaskOrgFillDetailModal = ({
       >
         <div className="flex justify-end mb-2">
           <Space>
-            <Button type="primary" onClick={() => {}}>
+            <Button
+              type="primary"
+              onClick={() => {
+                const staffIds = data?.data
+                  ?.filter(
+                    (item: any) =>
+                      item.processStatus === TaskProcessStatusEnum.NeedSelfAudit
+                  )
+                  .map((item: any) => item.staffId);
+                approveFillBatch(staffIds);
+              }}
+            >
               一键通过本页
             </Button>
-            <Button type="primary" onClick={() => {}}>
+            <Button
+              type="primary"
+              onClick={() => {
+                approveFillBatch();
+              }}
+            >
               一键通过所有
             </Button>
           </Space>

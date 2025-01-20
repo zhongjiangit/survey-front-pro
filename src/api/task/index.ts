@@ -1,7 +1,9 @@
 import deleteFillAttachment from '@/api/task/deleteFillAttachment';
 import uploadFillAttachment from '@/api/task/uploadFillAttachment';
 import approveFill from './approveFill';
+import approveFillBatch from './approveFillBatch';
 import approveReview from './approveReview';
+import approveReviewBatch from './approveReviewBatch';
 import createCollectionTask from './createCollectionTask';
 import createInspTask from './createInspTask';
 import createSingleFill from './createSingleFill';
@@ -41,6 +43,7 @@ import listSingleFill from './listSingleFill';
 import listSubCollectionTask from './listSubCollectionTask';
 import listSubInspTask from './listSubInspTask';
 import rejectFill from './rejectFill';
+import rejectReview from './rejectReview';
 import reviewAssignAdd from './reviewAssignAdd';
 import reviewAssignDelete from './reviewAssignDelete';
 import saveReviewDetails from './saveReviewDetails';
@@ -52,8 +55,6 @@ import showReviewResult from './showReviewResult';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
-import rejectReview from './rejectReview';
-import approveReviewBatch from './approveReviewBatch';
 
 const taskApi = {
   createCollectionTask,
@@ -92,6 +93,7 @@ const taskApi = {
   setInspFillComplete,
   setReviewReviewComplete,
   approveFill,
+  approveFillBatch,
   approveReview,
   rejectReview,
   approveReviewBatch,
