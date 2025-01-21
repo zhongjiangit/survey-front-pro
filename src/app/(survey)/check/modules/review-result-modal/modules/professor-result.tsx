@@ -155,7 +155,7 @@ const ProfessorResult: FunctionComponent<ProfessorDetailProps> = ({
         onClick={() => {
           setOpen(true);
         }}
-        className="text-blue-500"
+        className="text-blue-500 block max-w-8"
       >
         {buttonText}
       </a>

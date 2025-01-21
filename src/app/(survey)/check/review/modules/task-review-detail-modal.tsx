@@ -502,8 +502,8 @@ const TaskReviewDetailModal = ({
   return (
     <>
       {contextHolder}
-      <a className="text-blue-500" onClick={() => setOpen(true)}>
-        评审详情1
+      <a className="text-blue-500 block max-w-8" onClick={() => setOpen(true)}>
+        评审详情
       </a>
       <Modal
         style={{ top: '16px', paddingBottom: '0px' }}

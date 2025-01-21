@@ -103,7 +103,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     detail: (record: ListMyInspTaskResponse) => {
       return (
         <a
-          className=" text-blue-500"
+          className="text-blue-500 block max-w-8"
           key="detail"
           onClick={() => {
             if (record.publishType === PublishTypeEnum.Org) {
@@ -580,7 +580,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
         {!!itemData?.length || <Empty />}
         {itemData?.map((item, index) => {
           return (
-            <div key={index}>
+            <div key={index} className="mb-4">
               <div className="flex justify-between items-center">
                 <div className="font-bold text-lg pb-2 pl-4">
                   <span>

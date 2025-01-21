@@ -172,7 +172,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
       </a>
     ),
     rejectInfo: (
-      <a className="text-blue-500" type="primary">
+      <a className="text-blue-500 block max-w-8" type="primary">
         {/* TODO 添加驳回履历 */}
         驳回履历
       </a>
@@ -304,7 +304,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         onClick={() => {
           setOpen(true);
         }}
-        className="text-blue-500"
+        className="text-blue-500 block max-w-8"
       >
         {buttonText}
       </a>

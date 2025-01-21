@@ -120,7 +120,7 @@ const TemplateDetailModal = ({
   return (
     <>
       <a
-        className="text-blue-500 flex justify-center"
+        className="text-blue-500 flex justify-center max-w-8"
         onClick={() => {
           setOpen(true);
         }}

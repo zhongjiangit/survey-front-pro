@@ -202,7 +202,7 @@ const TaskDetail = ({
     <>
       {contextHolder}
       <a
-        className="text-blue-500"
+        className="text-blue-500 block max-w-8"
         onClick={() => {
           setIsFillDetailOpen(true);
         }}

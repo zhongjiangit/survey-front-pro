@@ -280,7 +280,7 @@ const ReviewDetailModal = (props: Props) => {
     <>
       {contextHolder}
       <a
-        className="text-blue-500"
+        className="text-blue-500 block max-w-8"
         onClick={() => {
           setOpen(true);
         }}

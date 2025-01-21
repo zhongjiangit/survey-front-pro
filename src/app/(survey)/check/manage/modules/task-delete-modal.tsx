@@ -141,7 +141,7 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
     <>
       {contextHolder}
       <a
-        className="text-blue-500"
+        className="text-blue-500 font-bold"
         onClick={() => {
           setOpen(true);
         }}

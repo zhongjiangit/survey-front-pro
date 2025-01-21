@@ -64,7 +64,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
 
   return (
     <>
-      <a className="text-blue-500" onClick={() => setOpen(true)}>
+      <a className="text-blue-500 font-bold" onClick={() => setOpen(true)}>
         {linkName || '编辑'}
       </a>
       <Modal

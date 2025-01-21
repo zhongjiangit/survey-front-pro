@@ -255,7 +255,7 @@ const ReviewResultModal = (props: Props) => {
   return (
     <>
       <a
-        className="text-blue-500"
+        className="text-blue-500 block max-w-8"
         onClick={() => {
           setOpen(true);
         }}

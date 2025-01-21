@@ -57,7 +57,7 @@ const RejectTimeline = ({ taskId, staffId }: RejectTimelineProps) => {
 
   return (
     <>
-      <a className="text-blue-500" onClick={showModal}>
+      <a className="text-blue-500 block max-w-8" onClick={showModal}>
         驳回履历
       </a>
       <Modal
