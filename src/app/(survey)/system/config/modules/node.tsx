@@ -84,6 +84,22 @@ const Node = (props: NodeProps) => {
     setOrgTags(tags.length ? [{ ...tags[0], root: true }] : []);
   }, []);
 
+  const { loading: getOrgListLoading, refresh: refreshOrgList } = useRequest(
+    () => {
+      return Api.getOrgList({
+        currentSystemId: system.id,
+      });
+    },
+    {
+      refreshDeps: [system.id],
+      onSuccess(response) {
+        if (response?.data?.orgs) {
+          setTags([response?.data?.orgs]);
+        }
+      },
+    }
+  );
+
   const { run: saveOrgTree } = useRequest(
     params => {
       return Api.saveOrgTree(params);
@@ -94,6 +110,9 @@ const Node = (props: NodeProps) => {
         if (response?.data?.orgs) {
           setTags([response?.data?.orgs]);
         }
+      },
+      onError(error) {
+        refreshOrgList();
       },
     }
   );
@@ -110,22 +129,6 @@ const Node = (props: NodeProps) => {
             type: 'success',
             content: '配置保存成功',
           });
-        }
-      },
-    }
-  );
-
-  const { loading: getOrgListLoading } = useRequest(
-    () => {
-      return Api.getOrgList({
-        currentSystemId: system.id,
-      });
-    },
-    {
-      refreshDeps: [system.id],
-      onSuccess(response) {
-        if (response?.data?.orgs) {
-          setTags([response?.data?.orgs]);
         }
       },
     }

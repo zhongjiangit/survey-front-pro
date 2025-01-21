@@ -44,7 +44,7 @@ const Basic = (props: BasicProps) => {
     [drawerData?.type]
   );
 
-  const { run: getTagList } = useRequest(
+  const { run: getTagList, refresh: refreshTagList } = useRequest(
     type => {
       const tagType = type || 1;
       return Api.getTagList({
@@ -67,6 +67,9 @@ const Basic = (props: BasicProps) => {
       manual: true,
       onSuccess(response) {
         setTags([response?.data?.tags]);
+      },
+      onError(error) {
+        refreshTagList();
       },
     }
   );
