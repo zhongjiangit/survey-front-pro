@@ -33,6 +33,7 @@ import listMyCollectionTask from './listMyCollectionTask';
 import listMyInspTask from './listMyInspTask';
 import listNeedReviewExpertDetails from './listNeedReviewExpertDetails';
 import listRejectFill from './listRejectFill';
+import listRejectReview from './listRejectReview';
 import listReviewAssignByExpert from './listReviewAssignByExpert';
 import listReviewAssignByFill from './listReviewAssignByFill';
 import listReviewDetailsExpert from './listReviewDetailsExpert';
@@ -83,6 +84,7 @@ const taskApi = {
   listReviewDetailsManager,
   listNeedReviewExpertDetails,
   listRejectFill,
+  listRejectReview,
   rejectFill,
   getSingleFillDetails,
   listReviewDetailsExpert,

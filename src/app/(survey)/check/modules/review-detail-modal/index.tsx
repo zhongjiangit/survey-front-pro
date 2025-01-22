@@ -227,6 +227,7 @@ const ReviewDetailModal = (props: Props) => {
               buttonText={`${text}人`}
               record={record}
               task={task}
+              refresh={refresh}
               type={ReviewTypeEnum.Passed}
             ></ProfessorDetail>
           ),

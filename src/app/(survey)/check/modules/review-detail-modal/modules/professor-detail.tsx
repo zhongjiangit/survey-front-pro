@@ -13,6 +13,7 @@ import { FunctionComponent, useEffect, useState } from 'react';
 
 import Api from '@/api';
 import { ListReviewExpertDetailsResponse } from '@/api/task/listReviewExpertDetails';
+import RejectTimelineReview from '@/app/modules/reject-timeline-review';
 import TemplateDetailModal from '@/app/modules/template-detail-modal';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
@@ -71,9 +72,6 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
     },
     {
       manual: true,
-      onSuccess: () => {
-        refreshParent?.();
-      },
     }
   );
 
@@ -129,6 +127,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         messageApi.info('驳回成功');
         setRejectModalOpen(false);
         refresh();
+        refreshParent?.();
       },
       onError: error => {
         messageApi.error(error.toString());
@@ -171,11 +170,12 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         驳回
       </a>
     ),
-    rejectInfo: (
-      <a className="text-blue-500 block max-w-8" type="primary">
-        {/* TODO 添加驳回履历 */}
-        驳回履历
-      </a>
+    rejectInfo: (record: ListReviewExpertDetailsResponse) => (
+      <RejectTimelineReview
+        taskId={task?.taskId}
+        singleFillId={record.singleFillId}
+        expertId={record.expertId}
+      />
     ),
   };
 
@@ -285,7 +285,11 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
             operationButtons.reject(record),
           ]}
           {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
-            operationButtons.rejectInfo}
+            operationButtons.rejectInfo(record)}
+          {type !== ReviewTypeEnum.Passed &&
+            type !== ReviewTypeEnum.WaitAudit &&
+            record.rejectedOnce === ZeroOrOneTypeEnum.Zero &&
+            '-'}
         </Space>
       ),
     },
@@ -304,7 +308,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         onClick={() => {
           setOpen(true);
         }}
-        className="text-blue-500 block max-w-8"
+        className="text-blue-500"
       >
         {buttonText}
       </a>
