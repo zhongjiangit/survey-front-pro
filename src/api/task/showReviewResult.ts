@@ -34,7 +34,8 @@ interface ShowReviewResultParamsType {
     fillIndex	int		试题编号
     score	int		试卷得分
  */
-export interface ShowReviewResultResponse {
+
+export type ShowReviewResultResponseItems = {
   orgCount: number;
   org: {
     orgId: number;
@@ -51,6 +52,11 @@ export interface ShowReviewResultResponse {
     score: number;
   }[];
   levels: any;
+};
+
+export interface ShowReviewResultResponse {
+  details: ShowReviewResultResponseItems[];
+  taskAverageScore: number;
 }
 
 /**
@@ -59,7 +65,7 @@ export interface ShowReviewResultResponse {
  * @returns
  */
 function showReviewResult(params: ShowReviewResultParamsType) {
-  return SurveyService.post<CommonResponseType<ShowReviewResultResponse[]>>(
+  return SurveyService.post<CommonResponseType<ShowReviewResultResponse>>(
     `${baseUrl}/task/showReviewResult`,
     {
       ...params,

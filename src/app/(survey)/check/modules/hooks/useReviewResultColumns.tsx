@@ -1,13 +1,13 @@
 'use client';
 
 import { ListReviewDetailsManagerResponse } from '@/api/task/listReviewDetailsManager';
-import { ShowReviewResultResponse } from '@/api/task/showReviewResult';
+import { ShowReviewResultResponseItems } from '@/api/task/showReviewResult';
 import { LEVEL_LABEL } from '@/types/CommonType';
 import { useEffect, useState } from 'react';
 import OrgResult from '../review-result-modal/modules/org-result';
 type OriginData =
   | ListReviewDetailsManagerResponse[]
-  | ShowReviewResultResponse[]
+  | ShowReviewResultResponseItems[]
   | undefined;
 
 export function useReviewResultColumns(originData: OriginData) {

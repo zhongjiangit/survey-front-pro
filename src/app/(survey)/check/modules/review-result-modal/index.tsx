@@ -58,7 +58,7 @@ const ReviewResultModal = (props: Props) => {
     {
       onSuccess: data => {
         const joinRowSpanKey: joinRowSpanKeyParamsType[] = [];
-        for (let i = 0; i < data?.data[0]?.orgCount; i++) {
+        for (let i = 0; i < data?.data?.details[0]?.orgCount; i++) {
           joinRowSpanKey.push({
             coKey: `org${i + 1}`,
             compareKeys: [`org${i + 1}`],
@@ -70,7 +70,7 @@ const ReviewResultModal = (props: Props) => {
           compareKeys: ['fillerStaffName', 'fillerCellphone'],
         });
         setColumns(
-          data?.data?.map(item => ({
+          data?.data?.details?.map(item => ({
             ...item,
             task: task,
           }))
@@ -78,7 +78,7 @@ const ReviewResultModal = (props: Props) => {
         setDataSource(
           joinRowSpanKey?.reduce((prev: any[] | undefined, keyParams) => {
             return fullJoinRowSpanData(prev, keyParams);
-          }, data?.data)
+          }, data?.data.details)
         );
       },
       refreshDeps: [
