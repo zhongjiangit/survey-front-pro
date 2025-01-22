@@ -14,6 +14,7 @@ import {
   ExclamationCircleFilled,
   QuestionCircleOutlined,
   SortAscendingOutlined,
+  SortDescendingOutlined,
 } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import {
@@ -62,7 +63,7 @@ export const EvaluateAllocateModal: React.FC<
   const [tableParams, _setTableParams] = useState<any>({
     pagination: { current: 1, pageSize: 10 },
     filters: {},
-    order: 1,
+    order: ['asc', null],
   });
   // 已分配试题表格参数
   const [assignFillTableParams, setAssignFillTableParams] = useState<any>({
@@ -244,11 +245,15 @@ export const EvaluateAllocateModal: React.FC<
       if (!currentSystem?.systemId || !currentOrg?.orgId) {
         return Promise.reject('currentSystem or currentOrg is not exist');
       }
+
       return Api.listFillsByTaskPage({
         currentSystemId: currentSystem?.systemId,
         currentOrgId: currentOrg?.orgId,
         taskId: task.taskId,
-        order: tableParams.order,
+        order: [
+          { orgName: tableParams.order[0] },
+          { expertCount: tableParams.order[1] },
+        ].filter(t => Object.values(t)[0]),
         pageNumber: tableParams.pagination.current,
         pageSize: tableParams.pagination.pageSize,
         orgTags: tableParams.filters.orgName?.map((t: any) => ({ key: t })),
@@ -463,31 +468,43 @@ export const EvaluateAllocateModal: React.FC<
     }
   };
 
+  const sort = (
+    order: 'desc' | 'asc' | null,
+    orderBy: (order: 'desc' | 'asc' | null) => void
+  ) => {
+    return (
+      <a
+        className="ml-4"
+        style={{ color: order ? '#1677ff' : '#999' }}
+        onClick={() => orderBy(order === 'asc' ? 'desc' : order ? null : 'asc')}
+      >
+        {order === 'asc' ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        )}
+      </a>
+    );
+  };
+
   const columns: TableColumnsType<DataType> = useMemo(() => {
+    const orderParams = tableParams.order;
     const checkProps = (record: DataType) => {
       const disabled = disabledFills[record.singleFillId];
       const checked = !disabled && assignedFills.includes(record.singleFillId);
       return { checked, disabled };
     };
-    const orderBy = () =>
-      setTableParams({ order: tableParams.order === 1 ? 2 : 1 });
-    const orderColors = ['#1677ff', '#999'];
-    if (tableParams.order === 2) {
-      orderColors.reverse();
-    }
+    const orderBy = (idx: number, order: 'desc' | 'asc' | null) => {
+      setTableParams({ order: Object.assign(orderParams, { [idx]: order }) });
+    };
+
     return [
       {
         title() {
           return (
             <>
               <span>单位</span>
-              <a
-                className="ml-4"
-                style={{ color: orderColors[0] }}
-                onClick={orderBy}
-              >
-                <SortAscendingOutlined />
-              </a>
+              {sort(tableParams.order[0], order => orderBy(0, order))}
             </>
           );
         },
@@ -528,13 +545,7 @@ export const EvaluateAllocateModal: React.FC<
           return (
             <>
               <span>已分配专家</span>
-              <a
-                className="ml-4"
-                style={{ color: orderColors[1] }}
-                onClick={orderBy}
-              >
-                <SortAscendingOutlined />
-              </a>
+              {sort(tableParams.order[1], order => orderBy(1, order))}
             </>
           );
         },

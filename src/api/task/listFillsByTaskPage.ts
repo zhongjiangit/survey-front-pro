@@ -19,7 +19,7 @@ interface ListFillsByTaskPageParamsType {
   orgTags?: { key: number | string }[];
   staffTags?: { key: number | string }[];
   //排序方式 1:按单位排序 2:按分配专家数量排序
-  order: number;
+  order: { orgName?: string | null; expertCount?: string | null }[];
 }
 
 /*
