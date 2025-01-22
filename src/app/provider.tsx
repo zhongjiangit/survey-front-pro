@@ -70,7 +70,7 @@ export function Provider({ colorScheme, children }: Props) {
       console.error = () => {};
       window.addEventListener('error', e => {
         // @ts-ignore
-        if (window.__enable_error) {
+        if (window.__enabled_error) {
           return;
         }
         e.stopPropagation();
