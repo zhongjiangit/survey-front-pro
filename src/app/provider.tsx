@@ -57,9 +57,27 @@ export function Provider({ colorScheme, children }: Props) {
   const pathname = usePathname();
   const [messageApi, contextHolder] = message.useMessage();
   useEffect(() => {
+    // HACK 全局挂载messageApi
     // @ts-ignore
     window.messageApi = messageApi;
   }, [messageApi]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      // @ts-ignore
+      window.__enabled_error = false;
+      // HACK 禁止控制台输出错误信息
+      console.error = () => {};
+      window.addEventListener('error', e => {
+        // @ts-ignore
+        if (window.__enable_error) {
+          return;
+        }
+        e.stopPropagation();
+        e.preventDefault();
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (!ready) {
