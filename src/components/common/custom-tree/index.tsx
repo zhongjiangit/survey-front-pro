@@ -12,7 +12,7 @@ import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
 import { message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
 import RenderInput from './render-input';
 
@@ -63,6 +63,43 @@ function CustomTree(props: CustomTreeProps) {
     key: number | string;
     title: string;
   }>();
+  const [editKey, setEditKey] = useState<string | number | null>(null);
+  const isNew = useMemo(() => {
+    return isNaN(Number(currentNode?.key));
+  }, [currentNode]);
+
+  const nodeMap = useMemo(() => {
+    const genItem = (
+      node: CustomTreeDataNode,
+      parent?: CustomTreeDataNode
+    ) => ({
+      node,
+      parent,
+    });
+    const list = treeData.map(t => genItem(t));
+    const map: {
+      [key: string]: {
+        depth: number;
+        node: CustomTreeDataNode;
+        parent?: CustomTreeDataNode;
+      };
+    } = {};
+    let depth = 1;
+    while (list.length) {
+      list.forEach(({ node, parent }) => {
+        map[node.key] = { depth, node, parent };
+      });
+      depth++;
+      const length = list.length;
+      list.push(
+        ...list
+          .map(t => (t.node.children || []).map(f => genItem(f, t.node)))
+          .flat()
+      );
+      list.splice(0, length);
+    }
+    return map;
+  }, [treeData]);
 
   /**
    * 初始化数据
@@ -139,34 +176,24 @@ function CustomTree(props: CustomTreeProps) {
     [searchParams, replace, pathname]
   );
 
-  /**
-   * 检查是否存在input类型节点  存在则不允许新增
-   * @param treeData
-   * @returns
-   */
-  const checkNode = useCallback(
-    (
-      treeData: CustomTreeDataNode[],
-      nodeData?: CustomTreeDataNode
-    ): boolean => {
-      return treeData.some(node => {
-        if (node.type === 'input') {
-          if (nodeData && nodeData?.type !== 'input') {
-            messageApi.open({
-              type: 'error',
-              content: '请先保存编辑中节点',
-            });
-          }
-          return true;
-        }
-        if (node.children) {
-          return checkNode(node.children);
-        }
-        return false;
-      });
-    },
-    [messageApi]
-  );
+  const selectNode = (key: string | number) => {
+    const node = nodeMap[key]?.node;
+    if (node) {
+      setSelectedKeys([node.key]);
+      setCurrentNode({ key: node.key, title: String(node.title) });
+    }
+  };
+
+  const delNode = (key: string | number) => {
+    const parent = nodeMap[key]?.parent;
+    const data = [...treeData];
+    if (parent?.children) {
+      parent.children = parent.children?.filter(t => t.key !== key);
+      setTreeData(data);
+      selectNode(parent.key);
+    }
+    return data;
+  };
 
   /**
    * 保存节点
@@ -176,116 +203,68 @@ function CustomTree(props: CustomTreeProps) {
    */
   const saveNode = useCallback(
     (key: string, title: string) => {
+      setEditKey(null);
       if (!title) {
-        messageApi.open({
-          type: 'error',
-          content: '请输入节点名称',
-        });
-        return;
-      }
-      if (treeData.length === 0) {
-        setTreeSourceData([{ key, title }], OperationTypeEnum.Add, key);
-        setSelectedKeysData([key]);
-        // messageApi.open({
-        //   type: 'success',
-        //   content: '节点保存成功',
-        // });
-        return;
-      }
-      // 递归遍历树节点，找到指定节点并更新节点名称
-      const saveNode = (
-        treeData: CustomTreeDataNode[],
-        key: string,
-        title: string
-      ) => {
-        return treeData.map(node => {
-          if (node.key == key) {
-            node.title = currentNode?.title;
-            node.type = 'text';
-          } else if (node.children) {
-            saveNode(node.children, key, title);
+        if (isNew) {
+          const parent = nodeMap[key]?.parent;
+          if (parent?.children) {
+            parent.children = parent.children?.filter(t => t.key !== key);
+            setTreeData([...treeData]);
+            selectNode(parent.key);
           }
-          return node;
-        });
-      };
-      console.log('currentNode', currentNode);
+        }
+        return;
+      }
 
-      const type = isNaN(Number(currentNode?.key))
-        ? OperationTypeEnum.Add
-        : OperationTypeEnum.Update;
-      setTreeSourceData(saveNode(treeData, key, title), type, currentNode?.key);
-      setCurrentNode(undefined);
-      // messageApi.open({
-      //   type: 'success',
-      //   content: '节点保存成功',
-      // });
+      const { node, parent } = nodeMap[key] || {};
+      if (node && node.title === title) {
+        return;
+      }
+      if (node) {
+        node.title = title;
+      }
+      let data = [...treeData];
+      const type = isNew ? OperationTypeEnum.Add : OperationTypeEnum.Update;
+      if (treeData.length === 0) {
+        data = [{ key, title }];
+      }
+      if (isNew && parent) {
+        selectNode(parent.key);
+      }
+      setTreeSourceData(data, type, key);
     },
-    [treeData, currentNode, setTreeSourceData, messageApi, setSelectedKeysData]
+    [
+      nodeMap,
+      treeData,
+      currentNode,
+      isNew,
+      setTreeSourceData,
+      setSelectedKeysData,
+    ]
   );
   /**
    * 创建节点
    * @returns
    */
-  const onCreate = () => {
-    // 递归遍历树节点，如果树节点中已经有input类型节点，则不允许新增
-    if (checkNode(treeData)) {
-      return;
-    }
+  const onCreate = (parentNode: CustomTreeDataNode) => {
     const node = {
       // 生成 uuid 作为 key
       key: uuidv4(),
       type: 'input',
       title: '',
     };
-    setCurrentNode({ key: node.key, title: '' });
-    // 递归遍历树节点，找到指定节点并添加子节点
-    const addNode = (
-      treeData: CustomTreeDataNode[],
-      key: string,
-      node: CustomTreeDataNode
-    ) => {
-      return treeData.map(item => {
-        if (item.key == key) {
-          if (item.children) {
-            item.children.push(node);
-          } else {
-            item.children = [node];
-          }
-        } else if (item.children) {
-          addNode(item.children, key, node);
-        }
-        return item;
-      });
-    };
+
+    parentNode.children = (parentNode.children || []).concat([node]);
     // 如果expandedKeys中没有当前节点的key，则添加当前节点的key
     if (!expandedKeys.includes(String(selectedKeys[0]))) {
       setExpandedKeys([...expandedKeys, selectedKeys[0]]);
     }
-    const newTreeData = addNode(treeData, String(selectedKeys[0]), node);
-    setTreeData(newTreeData);
-  };
 
-  /**
-   * 编辑节点
-   */
-  const onEdit = useCallback(() => {
-    // 递归遍历树节点，如果树节点中已经有input类型节点，则不允许编辑
-    if (checkNode(treeData)) {
-      return;
-    }
-    // 递归遍历树节点，找到指定节点并更新节点名称
-    const editNode = (treeData: CustomTreeDataNode[], key: string) => {
-      return treeData.map(node => {
-        if (node.key == key) {
-          node.type = 'input';
-        } else if (node.children) {
-          editNode(node.children, key);
-        }
-        return node;
-      });
-    };
-    setTreeData(editNode(treeData, String(selectedKeys[0])));
-  }, [checkNode, selectedKeys, treeData]);
+    setCurrentNode({ key: node.key, title: '' });
+    setEditKey(node.key);
+    setSelectedKeys([node.key]);
+    setTreeData([...treeData]);
+  };
 
   /**
    * 打开/关闭节点
@@ -302,35 +281,20 @@ function CustomTree(props: CustomTreeProps) {
    */
   const onSelect: TreeProps['onSelect'] = selectedKeysValue => {
     if (selectedKeysValue.length > 0) {
-      setSelectedKeysData(selectedKeysValue);
+      selectNode(selectedKeysValue[0] as string);
     }
   };
 
   /**
    * 删除节点
    */
-  const confirm: PopconfirmProps['onConfirm'] = () => {
-    // 递归遍历树节点，删除指定节点
-    const deleteNode = (treeData: CustomTreeDataNode[], key: string) => {
-      return treeData.filter(node => {
-        if (node.key == key) {
-          if (selectedKeys.length > 0 && key === selectedKeys[0]) {
-            setSelectedKeysData([]);
-          }
-          return false;
-        }
-        if (node.children) {
-          node.children = deleteNode(node.children, key);
-        }
-        return true;
-      });
-    };
+  const confirm = (node: CustomTreeDataNode) => {
     setTreeSourceData(
-      deleteNode(treeData, String(currentNode?.key)),
+      delNode(node.key),
       OperationTypeEnum.Delete,
       currentNode?.key
     );
-    setCurrentNode(undefined);
+    return true;
   };
 
   /**
@@ -419,30 +383,6 @@ function CustomTree(props: CustomTreeProps) {
     setTreeSourceData(data);
   };
 
-  // 找到当前nodeData是treeData下第几层级的数据,同级节点的深度是一样的
-  const findDepth = (
-    treeData: CustomTreeDataNode[],
-    key: React.Key,
-    currentDepth: number = 1
-  ): number => {
-    for (const node of treeData) {
-      if (node.key === key) {
-        return currentDepth;
-      }
-      if (node.children) {
-        const depth = findDepth(node.children, key, currentDepth + 1);
-        if (depth !== -1) {
-          return depth;
-        }
-      }
-    }
-    return -1; // 如果未找到节点，返回 -1
-  };
-
-  useEffect(() => {
-    setSelectedKeys([]);
-  }, []);
-
   return (
     <>
       {contextHolder}
@@ -453,14 +393,17 @@ function CustomTree(props: CustomTreeProps) {
             <RenderInput
               currentNode={currentNode}
               setCurrentNode={setCurrentNode}
-              onSave={() => {
-                saveNode(uuidv4(), currentNode?.title as string);
+              onSave={(data: any) => {
+                saveNode(uuidv4(), data?.title);
               }}
-            ></RenderInput>
+            />
             <Tooltip title="保存节点">
               <SaveOutlined
                 className="hover:text-blue-400"
-                onClick={() => saveNode(uuidv4(), currentNode?.title as string)}
+                onClick={() => {
+                  // 失去焦点自动保存
+                  // saveNode(uuidv4(), currentNode?.title as string);
+                }}
               />
             </Tooltip>
           </div>
@@ -482,44 +425,39 @@ function CustomTree(props: CustomTreeProps) {
         onDragEnter={onDragEnter}
         onDrop={onDrop}
         titleRender={nodeData => {
-          const depth = findDepth(treeData, nodeData.key as string);
+          const { depth } = nodeMap[nodeData.key] || { depth: -1 };
           return (
-            <div
-              className="group flex items-center justify-center gap-1"
-              onClick={() => {
-                if (!checkNode(treeData, nodeData)) {
-                  setCurrentNode({
-                    key: nodeData.key as string,
-                    title: nodeData.title as string,
-                  });
-                }
-              }}
-            >
-              {nodeData.type === 'input' && (
+            <div className="group flex items-center justify-center gap-1">
+              {currentNode?.key == nodeData.key && editKey === nodeData.key ? (
                 <RenderInput
                   currentNode={currentNode}
                   setCurrentNode={setCurrentNode}
-                  onSave={() => {
-                    saveNode(
-                      currentNode?.key as string,
-                      currentNode?.title as string
-                    );
+                  onSave={(data: any) => {
+                    saveNode(data.key, data.title);
                   }}
-                ></RenderInput>
+                />
+              ) : (
+                <span
+                  onDoubleClick={() => {
+                    setEditKey(nodeData.key);
+                  }}
+                >
+                  {nodeData.title as string}
+                </span>
               )}
-              {nodeData.type !== 'input' && (nodeData.title as string)}
               {nodeData.key == currentNode?.key && (
                 <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                  {nodeData.type === 'input' ? (
+                  {editKey === nodeData.key ? (
                     <Tooltip title="保存节点">
                       <SaveOutlined
                         className="hover:text-blue-400"
-                        onClick={() =>
-                          saveNode(
-                            nodeData.key as string,
-                            currentNode?.title as string
-                          )
-                        }
+                        onClick={() => {
+                          // 失去焦点自动保存
+                          // saveNode(
+                          //   nodeData.key as string,
+                          //   currentNode?.title as string,
+                          // );
+                        }}
                       />
                     </Tooltip>
                   ) : (
@@ -528,7 +466,7 @@ function CustomTree(props: CustomTreeProps) {
                         <Tooltip title="新增下级节点">
                           <PlusCircleOutlined
                             className="hover:text-blue-400"
-                            onClick={() => onCreate()}
+                            onClick={() => onCreate(nodeData)}
                           />
                         </Tooltip>
                       )}
@@ -540,17 +478,18 @@ function CustomTree(props: CustomTreeProps) {
                               key: nodeData.key?.toString() as string | number,
                               title: nodeData.title?.toString() as string,
                             });
-                            onEdit();
+                            setEditKey(nodeData.key);
+                            // onEdit();
                           }}
                         />
                       </Tooltip>
                     </>
                   )}
-                  {!nodeData?.root ? (
+                  {!nodeData?.root && editKey !== nodeData.key && (
                     <Popconfirm
                       title="删除节点"
                       description="该节点及子级节点将被删除且不可恢复，确认删除？"
-                      onConfirm={confirm}
+                      onConfirm={() => confirm(nodeData)}
                       okText="确定"
                       cancelText="取消"
                     >
@@ -558,7 +497,7 @@ function CustomTree(props: CustomTreeProps) {
                         <DeleteOutlined className="hover:text-red-500" />
                       </div>
                     </Popconfirm>
-                  ) : null}
+                  )}
                 </div>
               )}
             </div>
