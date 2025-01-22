@@ -36,6 +36,7 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
+import { treeSelectToChecked } from '@/lib/utils';
 const { RangePicker } = DatePicker;
 
 interface TaskDetailEditModalProps {
@@ -452,6 +453,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
               onCheck={onSelectMember}
               style={{ flexShrink: 1 }}
               titleRender={titleRender}
+              onClick={e => treeSelectToChecked(e.nativeEvent)}
             />
           </div>
         ))}
