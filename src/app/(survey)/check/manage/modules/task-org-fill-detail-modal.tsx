@@ -5,7 +5,10 @@ import RejectTimeline from '@/app/modules/reject-timeline';
 import TaskDetail, { taskType } from '@/app/modules/task-detail';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
-import { useFillProcessDetailColumns } from '@/hooks/useFillProcessDetailColumns';
+import {
+  formaterTableData,
+  useFillProcessDetailColumns,
+} from '@/hooks/useFillProcessDetailColumns';
 import { joinRowSpanDataChild } from '@/lib/join-rowspan-data';
 import {
   DetailShowTypeEnum,
@@ -84,7 +87,7 @@ const TaskOrgFillDetailModal = ({
           },
           data?.data
         );
-        setDataSource(tableData);
+        setDataSource(formaterTableData(data.data || tableData));
       },
     }
   );
