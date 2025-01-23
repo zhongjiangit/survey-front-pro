@@ -112,7 +112,7 @@ const Node = (props: NodeProps) => {
         }
       },
       onError(error) {
-        refreshOrgList();
+        // refreshOrgList();
       },
     }
   );
@@ -260,7 +260,7 @@ const Node = (props: NodeProps) => {
           <CustomTree
             dataSource={orgTags ? orgTags : []}
             setParam
-            setDataSource={setTags}
+            // setDataSource={setTags}
             onHandleCreate={onCreate}
             maxDepth={system.levelCount}
           />

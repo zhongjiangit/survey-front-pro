@@ -8,7 +8,7 @@ import {
   PlusCircleOutlined,
   SaveOutlined,
 } from '@ant-design/icons';
-import type { PopconfirmProps, TreeDataNode, TreeProps } from 'antd';
+import type { TreeDataNode, TreeProps } from 'antd';
 import { message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -119,15 +119,19 @@ function CustomTree(props: CustomTreeProps) {
       type?: OperationType,
       key?: number | string
     ) => {
-      setTreeData(data);
-      if (setDataSource) {
-        setDataSource(data);
-      }
+      // if (setDataSource) {
+      //   setDataSource(data);
+      // } else {
+      //   setTreeData(data);
+      // }
+
       if (onHandleCreate) {
         onHandleCreate(data, type, key);
+      } else {
+        setTreeData(data);
       }
     },
-    [setDataSource, onHandleCreate]
+    [onHandleCreate]
   );
 
   /**
@@ -176,20 +180,23 @@ function CustomTree(props: CustomTreeProps) {
     [searchParams, replace, pathname]
   );
 
-  const selectNode = (key: string | number) => {
-    const node = nodeMap[key]?.node;
-    if (node) {
-      setSelectedKeys([node.key]);
-      setCurrentNode({ key: node.key, title: String(node.title) });
-    }
-  };
+  const selectNode = useCallback(
+    (key: string | number) => {
+      const node = nodeMap[key]?.node;
+      if (node) {
+        setSelectedKeys([node.key]);
+        setCurrentNode({ key: node.key, title: String(node.title) });
+      }
+    },
+    [nodeMap]
+  );
 
   const delNode = (key: string | number) => {
     const parent = nodeMap[key]?.parent;
     const data = [...treeData];
     if (parent?.children) {
       parent.children = parent.children?.filter(t => t.key !== key);
-      setTreeData(data);
+      // setTreeData(data);
       selectNode(parent.key);
     }
     return data;
@@ -233,14 +240,7 @@ function CustomTree(props: CustomTreeProps) {
       }
       setTreeSourceData(data, type, key);
     },
-    [
-      nodeMap,
-      treeData,
-      currentNode,
-      isNew,
-      setTreeSourceData,
-      setSelectedKeysData,
-    ]
+    [nodeMap, treeData, isNew, setTreeSourceData, selectNode]
   );
   /**
    * 创建节点
