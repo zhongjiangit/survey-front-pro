@@ -84,6 +84,9 @@ const TaskOrgFillDetailModal = ({
           },
           data?.data
         );
+        if (tableData) {
+          tableData.slice = () => tableData;
+        }
         setDataSource(tableData);
       },
     }

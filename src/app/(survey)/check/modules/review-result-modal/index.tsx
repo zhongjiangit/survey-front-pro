@@ -75,11 +75,17 @@ const ReviewResultModal = (props: Props) => {
             task: task,
           }))
         );
-        setDataSource(
-          joinRowSpanKey?.reduce((prev: any[] | undefined, keyParams) => {
+        const tableData = joinRowSpanKey?.reduce(
+          (prev: any[] | undefined, keyParams) => {
             return fullJoinRowSpanData(prev, keyParams);
-          }, data?.data.details)
+          },
+          data?.data.details
         );
+
+        if (tableData) {
+          tableData.slice = () => tableData;
+        }
+        setDataSource(tableData);
       },
       refreshDeps: [
         currentSystem,

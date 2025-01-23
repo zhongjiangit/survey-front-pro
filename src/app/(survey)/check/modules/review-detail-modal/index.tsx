@@ -80,11 +80,18 @@ const ReviewDetailModal = (props: Props) => {
           childKey: { [`org${orgCount}`]: 'orgId' },
         });
         setColumns(data.data);
-        setDataSource(
-          joinRowSpanKey?.reduce((prev: any[] | undefined, keyParams) => {
+
+        const tableData = joinRowSpanKey?.reduce(
+          (prev: any[] | undefined, keyParams) => {
             return fullJoinRowSpanData(prev, keyParams);
-          }, data?.data)
+          },
+          data?.data
         );
+
+        if (tableData) {
+          tableData.slice = () => tableData;
+        }
+        setDataSource(tableData);
       },
     }
   );
