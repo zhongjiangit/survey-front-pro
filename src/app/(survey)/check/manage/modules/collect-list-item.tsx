@@ -51,6 +51,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
   const [viewTask, setViewTask] = useState<taskType>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
+  const [evaluateConfigDefaultOpen, setEvaluateConfigDefaultOpen] =
+    useState(false);
 
   const { run: setInspFillComplete } = useRequest(
     (taskId: number) => {
@@ -67,6 +69,7 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
       manual: true,
       onSuccess: () => {
         refreshPublishTask();
+        setEvaluateConfigDefaultOpen(true);
       },
     }
   );
@@ -157,6 +160,8 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     config: (record: ListMyInspTaskResponse) => {
       return (
         <EvaluateConfigModal
+          defaultOpen={evaluateConfigDefaultOpen}
+          setDefaultOpen={setEvaluateConfigDefaultOpen}
           taskId={record.taskId}
           taskName={record.taskName}
           refreshPublishTask={refreshPublishTask}

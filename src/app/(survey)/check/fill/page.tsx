@@ -19,6 +19,7 @@ import { Modal, Space, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import RejectTimeline from '../../../modules/reject-timeline';
 import TaskDetail from '../../../modules/task-detail';
+import ReviewResultModal from '../modules/review-result-modal';
 
 const ToAllotTask = () => {
   const [modal, contextHolder] = Modal.useModal();
@@ -90,6 +91,7 @@ const ToAllotTask = () => {
         提交
       </a>
     ),
+    result: (record: any) => <ReviewResultModal task={record} />,
   };
 
   const { data: fillInspTaskData, refreshAsync: refreshFillInspTaskData } =
@@ -238,7 +240,8 @@ const ToAllotTask = () => {
                   ]}
                 {record.rejectedOnce === ZeroOrOneTypeEnum.One &&
                   operateButton.reject(record)}
-                {/* TODO 添加评审结果 */}
+                {record.processStatus === ProcessStatusTypeEnum.Passed &&
+                  operateButton.result(record)}
               </Space>
             )}
           </>

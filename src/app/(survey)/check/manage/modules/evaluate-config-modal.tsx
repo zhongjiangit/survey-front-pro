@@ -14,6 +14,7 @@ interface EvaluateConfigModalProps {
   taskId: number;
   taskName?: string;
   defaultOpen?: boolean;
+  setDefaultOpen?: (open: boolean) => void;
   refreshPublishTask?: () => void;
 }
 
@@ -29,6 +30,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
   taskId,
   taskName,
   defaultOpen = false,
+  setDefaultOpen,
   refreshPublishTask,
 }: EvaluateConfigModalProps) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -92,6 +94,7 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
         manual: true,
         onSuccess() {
           setOpen(false);
+          setDefaultOpen?.(false);
           refreshPublishTask?.();
         },
       }
@@ -115,7 +118,10 @@ const EvaluateConfigModal: React.FC<EvaluateConfigModalProps> = ({
           htmlType: 'submit',
           loading: updateInspTaskReviewLoading,
         }}
-        onCancel={() => setOpen(false)}
+        onCancel={() => {
+          setOpen(false);
+          setDefaultOpen?.(false);
+        }}
         modalRender={dom => (
           <Form
             layout="horizontal"
