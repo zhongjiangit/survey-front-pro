@@ -122,7 +122,7 @@ const TaskMemberFillDetailModal = ({
     {
       manual: true,
       onSuccess: () => {
-        messageApi.info('驳回成功');
+        messageApi.info('一键通过成功');
         setRejectModalOpen(false);
         refresh();
       },
