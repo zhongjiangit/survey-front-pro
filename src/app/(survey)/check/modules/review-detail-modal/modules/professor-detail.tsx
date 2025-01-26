@@ -345,7 +345,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
               showQuickJumper: true,
               // current: pageNumber,
               // pageSize: pageSize,
-              showTotal: total => `总共 ${total} 条`,
+              // showTotal: total => `总共 ${total} 条`,
               // onChange: (page, pageSize) => {
               //   setPageNumber(page);
               //   setPageSize(pageSize);

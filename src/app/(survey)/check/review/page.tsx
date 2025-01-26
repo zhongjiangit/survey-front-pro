@@ -220,7 +220,7 @@ const CheckReview = () => {
           showQuickJumper: true,
           pageSize,
           total: listReviewTaskExpertData?.total,
-          showTotal: total => `总共 ${total} 条`,
+          // showTotal: total => `总共 ${total} 条`,
           onChange: (page, pageSize) => {
             setPageNumber(page);
             setPageSize(pageSize);

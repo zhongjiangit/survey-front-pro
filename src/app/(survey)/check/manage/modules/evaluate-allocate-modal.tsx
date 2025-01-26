@@ -768,7 +768,7 @@ export const EvaluateAllocateModal: React.FC<
         showQuickJumper: true,
         current: tableParams.pagination.current,
         pageSize: tableParams.pagination.pageSize,
-        showTotal: total => `总共 ${total} 条`,
+        // showTotal: total => `总共 ${total} 条`,
       }}
       onChange={handleTableChange}
     />
@@ -896,7 +896,7 @@ export const EvaluateAllocateModal: React.FC<
             showQuickJumper: true,
             current: assignFillTableParams.pagination.current,
             pageSize: assignFillTableParams.pagination.pageSize,
-            showTotal: total => `总共 ${total} 条`,
+            // showTotal: total => `总共 ${total} 条`,
           }}
           onChange={(pagination, filters) =>
             setAssignFillTableParams({ pagination, filters })

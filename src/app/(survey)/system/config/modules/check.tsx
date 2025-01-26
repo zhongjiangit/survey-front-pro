@@ -202,7 +202,7 @@ const Check = ({ system }: CheckProps) => {
           total: checkList?.total,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: total => `总共 ${total} 条`,
+          // showTotal: total => `总共 ${total} 条`,
         }}
       />
       <CreateModal

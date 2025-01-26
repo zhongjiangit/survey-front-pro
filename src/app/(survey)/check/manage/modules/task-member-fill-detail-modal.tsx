@@ -349,7 +349,7 @@ const TaskMemberFillDetailModal = ({
             onChange: (page, pageSize) => {
               setPagination({ pageNumber: page, pageSize: pageSize });
             },
-            showTotal: total => `总共 ${total} 条`,
+            // showTotal: total => `总共 ${total} 条`,
           }}
         />
       </Modal>
