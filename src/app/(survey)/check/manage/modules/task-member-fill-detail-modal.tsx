@@ -125,6 +125,7 @@ const TaskMemberFillDetailModal = ({
         messageApi.info('一键通过成功');
         setRejectModalOpen(false);
         refresh();
+        refreshList();
       },
       onError: error => {
         messageApi.error(error.toString());

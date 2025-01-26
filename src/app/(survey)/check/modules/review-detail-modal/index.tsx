@@ -27,10 +27,11 @@ interface DataType {
 
 interface Props {
   task: ListMyInspTaskResponse;
+  refreshParent?: () => void;
 }
 
 const ReviewDetailModal = (props: Props) => {
-  const { task } = props;
+  const { task, refreshParent } = props;
   const [dataSource, setDataSource] = useState<any>();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
@@ -116,6 +117,7 @@ const ReviewDetailModal = (props: Props) => {
       onSuccess: () => {
         messageApi.info('一键通过成功');
         refresh();
+        refreshParent?.();
       },
       onError: error => {
         messageApi.error(error.toString());

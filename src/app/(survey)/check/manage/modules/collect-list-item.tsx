@@ -185,7 +185,9 @@ const CollectListItem: FunctionComponent<CollectListItemProps> = props => {
     },
     // 评审详情
     detail: (type: PublishTypeType, record: ListMyInspTaskResponse) => {
-      return <ReviewDetailModal task={record} />;
+      return (
+        <ReviewDetailModal task={record} refreshParent={refreshPublishTask} />
+      );
     },
     finish: (record: any) => (
       <Popconfirm
