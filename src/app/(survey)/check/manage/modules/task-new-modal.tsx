@@ -13,6 +13,7 @@ import { CustomTreeDataNode } from '@/components/common/custom-tree';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import { useSurveySystemStore } from '@/contexts/useSurveySystemStore';
 import { formatTreeData } from '@/lib/format-tree-data';
+import { treeSelectToChecked } from '@/lib/utils';
 import {
   publishTypeEnum,
   PublishTypeEnum,
@@ -44,7 +45,6 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { treeSelectToChecked } from '@/lib/utils';
 
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
@@ -637,7 +637,7 @@ const TaskAddNewModal: React.FC<TaskEditModalProps> = ({
               ></Select>
             </Form.Item>
             {templateId && (
-              <a className="text-blue-500 absolute top-9 left-56">
+              <a className="text-blue-500 absolute top-9 left-64">
                 <TemplateDetailModal
                   templateId={templateId}
                   TemplateType={TemplateTypeEnum.Check}

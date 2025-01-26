@@ -224,26 +224,32 @@ const ToAllotTask = () => {
       dataIndex: 'key7',
       align: 'center',
       render: (_: any, record: any) => {
-        return (
-          <div
-            onClick={() => {
-              setPassedNumModalOpen(true);
-              setViewTask(record);
-            }}
-          >
-            {record.publishType === PublishTypeEnum.Org ? (
-              <div>
-                <a className="text-blue-500 block">{record.fillPassPeople}人</a>
-                <a className="text-blue-500 block">{record.fillPassCount}份</a>
-              </div>
-            ) : (
-              <div>
-                <div>{record.fillPassPeople}人</div>
-                <div>{record.fillPassCount}份</div>
-              </div>
-            )}
-          </div>
-        );
+        if (record.fillPassPeople || record.fillPassCount) {
+          return (
+            <div
+              onClick={() => {
+                setPassedNumModalOpen(true);
+                setViewTask(record);
+              }}
+            >
+              {record.publishType === PublishTypeEnum.Org ? (
+                <div>
+                  <a className="text-blue-500 block">
+                    {record.fillPassPeople}人
+                  </a>
+                  <a className="text-blue-500 block">
+                    {record.fillPassCount}份
+                  </a>
+                </div>
+              ) : (
+                <div>
+                  <div>{record.fillPassPeople}人</div>
+                  <div>{record.fillPassCount}份</div>
+                </div>
+              )}
+            </div>
+          );
+        }
       },
     },
     {
@@ -251,26 +257,28 @@ const ToAllotTask = () => {
       dataIndex: 'key8',
       align: 'center',
       render: (_: any, record: any) => {
-        return (
-          <div
-            onClick={() => {
-              setFilledNumModalOpen(true);
-              setViewTask(record);
-            }}
-          >
-            {record.publishType === PublishTypeEnum.Org ? (
-              <div>
-                <a className="text-blue-500 block">{record.fillPeople}人</a>
-                <a className="text-blue-500 block">{record.fillCount}份</a>
-              </div>
-            ) : (
-              <div>
-                <div>{record.fillPeople}人</div>
-                <div>{record.fillCount}份</div>
-              </div>
-            )}
-          </div>
-        );
+        if (record.fillPeople || record.fillCount) {
+          return (
+            <div
+              onClick={() => {
+                setFilledNumModalOpen(true);
+                setViewTask(record);
+              }}
+            >
+              {record.publishType === PublishTypeEnum.Org ? (
+                <div>
+                  <a className="text-blue-500 block">{record.fillPeople}人</a>
+                  <a className="text-blue-500 block">{record.fillCount}份</a>
+                </div>
+              ) : (
+                <div>
+                  <div>{record.fillPeople}人</div>
+                  <div>{record.fillCount}份</div>
+                </div>
+              )}
+            </div>
+          );
+        }
       },
     },
     {
