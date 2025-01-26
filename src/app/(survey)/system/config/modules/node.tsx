@@ -304,7 +304,7 @@ const Node = (props: NodeProps) => {
               <Form.Item name="tags" label="单位标签">
                 <TreeSelect
                   showSearch
-                  style={{ width: '320px' }}
+                  style={{ width: '400px' }}
                   dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                   placeholder="请选择单位标签"
                   allowClear
@@ -316,13 +316,20 @@ const Node = (props: NodeProps) => {
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={setOrgDetailLoading}
-                >
-                  {isNewNode ? '新增单位管理者' : '更新单位管理者'}
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={setOrgDetailLoading}
+                  >
+                    {isNewNode ? '新增单位管理者' : '更新单位管理者'}
+                  </Button>
+                  {!isNewNode ? (
+                    <div className="text-sm text-red-500">
+                      管理者更替后，原管理员自动降为普通成员，如需删除，单位管理员要再做进一步操作。
+                    </div>
+                  ) : null}
+                </div>
               </Form.Item>
             </Form>
           ) : (
