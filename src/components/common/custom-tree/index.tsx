@@ -11,6 +11,7 @@ import {
 import type { TreeDataNode, TreeProps } from 'antd';
 import { message, Popconfirm, Tree } from 'antd';
 import Tooltip from 'antd/lib/tooltip';
+import _ from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { v1 as uuidv4 } from 'uuid';
@@ -193,13 +194,26 @@ function CustomTree(props: CustomTreeProps) {
 
   const delNode = (key: string | number) => {
     const parent = nodeMap[key]?.parent;
-    const data = [...treeData];
     if (parent?.children) {
-      parent.children = parent.children?.filter(t => t.key !== key);
       // setTreeData(data);
       selectNode(parent.key);
     }
-    return data;
+
+    // 根据key删除节点及子节点
+    const del = (data: CustomTreeDataNode[], key: string | number) => {
+      return data.filter(item => {
+        if (item.key === key) {
+          return false;
+        }
+        if (item.children) {
+          item.children = del(item.children, key);
+          return true;
+        }
+        return true;
+      });
+    };
+    const treeDataClone = _.cloneDeep(treeData);
+    return del(treeDataClone, key);
   };
 
   /**
