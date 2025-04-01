@@ -120,7 +120,7 @@ const ReviewDetailModal = (props: Props) => {
         refreshParent?.();
       },
       onError: error => {
-        messageApi.error(error.toString());
+        // messageApi.error(error.toString());
       },
     }
   );

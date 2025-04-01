@@ -113,7 +113,7 @@ const TaskOrgFillDetailModal = ({
         refreshList();
       },
       onError: error => {
-        messageApi.error(error.toString());
+        // messageApi.error(error.toString());
       },
     }
   );
@@ -139,7 +139,7 @@ const TaskOrgFillDetailModal = ({
         refresh();
       },
       onError: error => {
-        messageApi.error(error.toString());
+        // messageApi.error(error.toString());
       },
     }
   );

@@ -96,7 +96,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         refreshParent?.();
       },
       onError: error => {
-        messageApi.error(error.toString());
+        // messageApi.error(error.toString());
       },
     }
   );
@@ -130,7 +130,7 @@ const ProfessorDetail: FunctionComponent<ProfessorDetailProps> = ({
         refreshParent?.();
       },
       onError: error => {
-        messageApi.error(error.toString());
+        // messageApi.error(error.toString());
       },
     }
   );
