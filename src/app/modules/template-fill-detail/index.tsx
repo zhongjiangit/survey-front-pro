@@ -24,6 +24,7 @@ interface TemplateDetailProps {
   taskId: number;
   templateType?: TemplateType;
   showType?: DetailShowType;
+  refresh?: () => void;
 }
 
 const TemplateFillDetail = ({
@@ -32,6 +33,7 @@ const TemplateFillDetail = ({
   singleFillId,
   taskId,
   showType = DetailShowTypeEnum.Fill,
+  refresh,
 }: TemplateDetailProps) => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -86,6 +88,7 @@ const TemplateFillDetail = ({
           ...values,
         }).then(res => {
           getSingleFillDetails();
+          refresh?.();
           return res;
         });
       },

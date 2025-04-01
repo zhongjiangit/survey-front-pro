@@ -10,6 +10,7 @@ interface FillCollectProps {
   singleFillId?: number;
   showType?: DetailShowType;
   noFill?: boolean;
+  refresh?: () => void;
 }
 
 const FillCollect = ({
@@ -17,6 +18,7 @@ const FillCollect = ({
   task,
   showType,
   noFill,
+  refresh,
 }: FillCollectProps) => {
   const { taskId, taskName, templateId, description } = task;
   return (
@@ -32,6 +34,7 @@ const FillCollect = ({
             taskId={taskId}
             singleFillId={singleFillId}
             showType={showType}
+            refresh={refresh}
           />
         )}
       </div>

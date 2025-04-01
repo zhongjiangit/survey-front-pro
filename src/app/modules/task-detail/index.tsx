@@ -76,6 +76,7 @@ const TaskDetail = ({
                 singleFillId={item.singleFillId}
                 task={task}
                 showType={showType}
+                refresh={refresh}
               />
             ),
             key: `newTab${item.singleFillId}`,
@@ -115,7 +116,11 @@ const TaskDetail = ({
             label: `NO ${newPanes.length + 1}`,
             singleFillId: data.data.singleFillId,
             children: (
-              <FillCollect singleFillId={data.data.singleFillId} task={task} />
+              <FillCollect
+                singleFillId={data.data.singleFillId}
+                task={task}
+                refresh={refresh}
+              />
             ),
             key: newActiveKey,
             closable: showType === DetailShowTypeEnum.Fill,
@@ -154,6 +159,7 @@ const TaskDetail = ({
           if (targetKey === activeKey) {
             setActiveKey(newItems[idx]?.key || newItems[idx - 1]?.key);
           }
+          refresh?.();
         }
       },
     }
