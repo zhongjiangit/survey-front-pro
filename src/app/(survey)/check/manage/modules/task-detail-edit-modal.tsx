@@ -308,7 +308,7 @@ const TaskDetailEditModal: React.FC<TaskDetailEditModalProps> = ({
       setOrgMembers({});
       form.setFieldValue('orgs', []);
       if (!assignTaskToMember) {
-        getListLevelAssignSub(form.getFieldValue('levels')?.[0]);
+        getListLevelAssignSub(levelList[0].levelIndex);
       }
       if (assignTaskToMember) {
         getListAllAssignSub();
