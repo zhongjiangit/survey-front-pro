@@ -18,15 +18,14 @@ import {
 import { useRequest } from 'ahooks';
 import { message, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import Image from 'next/image';
+import verifyCaptcha from '@/api/common/verifyCaptcha';
 
 interface TaskDeleteModalProps {
   taskId: number;
   onRefresh: () => void;
 }
-
 const TaskDeleteModal = (props: TaskDeleteModalProps) => {
   const { taskId, onRefresh } = props;
   const [open, setOpen] = useState(false);
@@ -41,20 +40,6 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
   const formRefDeleteTask = useRef<ProFormInstance>();
-
-  const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(
-    () => {
-      return Api.getCaptcha();
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        const blob = response.data;
-        const url = URL.createObjectURL(blob);
-        setCaptchaUrl(url);
-      },
-    }
-  );
 
   const { run: sendSms, loading: sendSmsLoading } = useRequest(
     params => {
@@ -117,7 +102,17 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
       }
     );
 
-  const handleFinish = (values: any) => {
+  // 验证码校验
+  const { runAsync: validateCaptcha, data: validateCaptchaRes } = useRequest(
+    async (text: string = '') => {
+      if (text.trim().length < 4) {
+        return Promise.resolve(false);
+      }
+      const res = await Api.verifyCaptcha(text);
+      return res.data.data.passed === 1;
+    }
+  );
+  const handleFinish = async (values: any) => {
     const params = {
       taskId: taskId,
       verifyCode: values.verifyCode,
@@ -127,15 +122,23 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
     deleteReviewTask(params);
   };
 
+  const refreshCaptcha = () => {
+    formRefDeleteTask.current?.setFieldsValue({
+      captcha: '',
+    });
+    formRefDeleteTask.current?.validateFields(['captcha']);
+    setCaptchaUrl(Api.getCaptchaUrl());
+  };
+
   useEffect(() => {
     if (open) {
-      getCaptcha();
+      refreshCaptcha();
       formRefDeleteTask.current?.resetFields();
       formRefDeleteTask.current?.setFieldsValue({
         cellphone: user?.cellphone,
       });
     }
-  }, [getCaptcha, open, user?.cellphone]);
+  }, [open, user?.cellphone]);
 
   return (
     <>
@@ -205,20 +208,31 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
               fieldProps={{
                 size: 'large',
                 prefix: <CodepenOutlined />,
-                style: { width: 360 },
+                style: { width: 353 },
+                maxLength: 4,
               }}
               name="captcha"
               placeholder={'请输入右侧图形码！'}
               rules={[
+                { required: true, message: '请输入图形码！' },
                 {
-                  required: true,
-                  message: '请输入图形码！',
+                  validator(_, value = '', callback) {
+                    validateCaptcha(value).then(res => {
+                      callback(
+                        res
+                          ? undefined
+                          : value.length < 4
+                            ? ' '
+                            : '验证码输入错误或已过期,请刷新！'
+                      );
+                    });
+                  },
                 },
               ]}
             />
             {captchaUrl && (
               <div
-                onClick={getCaptcha}
+                onClick={refreshCaptcha}
                 className="overflow-hidden cursor-pointer"
               >
                 <Image src={captchaUrl} alt="Captcha" width={120} height={40} />
@@ -229,10 +243,12 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
           <ProFormCaptcha
             fieldProps={{
               size: 'large',
+              maxLength: 6,
               prefix: <LockOutlined />,
             }}
             captchaProps={{
               size: 'large',
+              disabled: !validateCaptchaRes,
             }}
             placeholder={'请输入验证码！'}
             captchaTextRender={(timing, count) => {
@@ -243,10 +259,8 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
             }}
             name="verifyCode"
             rules={[
-              {
-                required: true,
-                message: '验证码是必填项！',
-              },
+              { required: true, message: '请输入短信验证码！' },
+              { len: 6, message: ' ' },
             ]}
             onGetCaptcha={async phone => {
               handleGetCaptcha();
