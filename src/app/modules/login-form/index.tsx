@@ -22,6 +22,7 @@ import { FlaskConical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import useCaptcha from '@/hooks/useCaptcha';
 
 export default function LoginForm() {
   const [messageApi, contextHolder] = message.useMessage();
@@ -32,7 +33,16 @@ export default function LoginForm() {
 
   const [type, setType] = useState<string>('account');
 
-  const [captchaUrl, setCaptchaUrl] = useState('');
+  const {
+    captchaUrl,
+    captchaCode,
+    setCaptchaCode,
+    getCaptcha,
+    sendSms,
+    validateCaptchaRes,
+    validatePhone,
+    validatePhoneRes,
+  } = useCaptcha({ eventType: SendSmsTypeEnum.Login });
 
   const { run, loading } = useRequest(
     params => {
@@ -53,45 +63,6 @@ export default function LoginForm() {
     }
   );
 
-  const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(
-    () => {
-      return Api.getCaptcha();
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        const blob = response.data;
-        const url = URL.createObjectURL(blob);
-        setCaptchaUrl(url);
-      },
-    }
-  );
-
-  const { run: sendSms, loading: sendSmsLoading } = useRequest(
-    params => {
-      return Api.sendSms({ ...params, eventType: SendSmsTypeEnum.Login });
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        if (response?.message) {
-          messageApi.open({
-            type: 'error',
-            content: response.message,
-          });
-        } else if (response?.result === 0) {
-          message.success('验证码发送成功！');
-        }
-      },
-      onError: error => {
-        messageApi.open({
-          type: 'error',
-          content: error.message,
-        });
-      },
-    }
-  );
-
   useEffect(() => {
     if (type === 'mobile') {
       getCaptcha();
@@ -105,7 +76,6 @@ export default function LoginForm() {
         'cellphone',
         'captcha',
       ]);
-      console.log(values);
       sendSms(values);
     } catch (errorInfo) {
       // Intentionally ignored
@@ -219,7 +189,7 @@ export default function LoginForm() {
                   message: '手机号是必填项！',
                 },
                 {
-                  pattern: /^1\d{10}$/,
+                  validator: (_, val) => validatePhone(val),
                   message: '不合法的手机号！',
                 },
               ]}
@@ -229,15 +199,16 @@ export default function LoginForm() {
                 fieldProps={{
                   size: 'large',
                   prefix: <CodepenOutlined />,
+                  value: captchaCode,
+                  maxLength: 4,
+                  onChange: (e: any) => {
+                    setCaptchaCode(e.target.value);
+                  },
                 }}
                 name="captcha"
                 placeholder={'请输入右侧图形码！'}
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入图形码！',
-                  },
-                ]}
+                validateStatus={validateCaptchaRes ? 'error' : ''}
+                help={validateCaptchaRes}
               />
               {captchaUrl && (
                 <div
@@ -253,7 +224,6 @@ export default function LoginForm() {
                 </div>
               )}
             </div>
-
             <ProFormCaptcha
               fieldProps={{
                 size: 'large',
@@ -261,6 +231,7 @@ export default function LoginForm() {
               }}
               captchaProps={{
                 size: 'large',
+                disabled: !!validateCaptchaRes || !validatePhoneRes,
               }}
               placeholder={'请输入验证码！'}
               captchaTextRender={(timing, count) => {
