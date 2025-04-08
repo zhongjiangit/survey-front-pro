@@ -20,6 +20,7 @@ import { Key } from 'lucide-react';
 import Image from 'next/image';
 import router from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
+import useCaptcha from '@/hooks/useCaptcha';
 
 const SecurityView: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -29,60 +30,24 @@ const SecurityView: React.FC = () => {
     state.setUser,
   ]);
 
-  const [captchaUrl, setCaptchaUrl] = useState('');
-
   const [showCloseWarning, setShowCloseWarning] = useState(false);
 
   const formRefPassword = useRef<ProFormInstance>();
 
+  const {
+    captchaUrl,
+    captchaCode,
+    setCaptchaCode,
+    getCaptcha,
+    sendSms,
+    validateCaptchaRes,
+  } = useCaptcha({ eventType: SendSmsTypeEnum.ChangePassword, messageApi });
   /**
    * 退出登录
    */
   const loginOut = () => {
     setUser(null);
   };
-
-  const { run: getCaptcha, loading: getCaptchaLoading } = useRequest(
-    () => {
-      return Api.getCaptcha();
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        const blob = response.data;
-        const url = URL.createObjectURL(blob);
-        setCaptchaUrl(url);
-      },
-    }
-  );
-
-  const { run: sendSms, loading: sendSmsLoading } = useRequest(
-    params => {
-      return Api.sendSms({
-        ...params,
-        eventType: SendSmsTypeEnum.ChangePassword,
-      });
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        if (response?.message) {
-          messageApi.open({
-            type: 'error',
-            content: response.message,
-          });
-        } else if (response?.result === 0) {
-          messageApi.success('验证码发送成功！');
-        }
-      },
-      onError: error => {
-        messageApi.open({
-          type: 'error',
-          content: error.message,
-        });
-      },
-    }
-  );
 
   const handleGetCaptcha = async () => {
     try {
@@ -194,15 +159,16 @@ const SecurityView: React.FC = () => {
               fieldProps={{
                 size: 'large',
                 prefix: <CodepenOutlined />,
+                value: captchaCode,
+                maxLength: 4,
+                onChange: (e: any) => {
+                  setCaptchaCode(e.target.value);
+                },
               }}
               name="captcha"
               placeholder={'请输入右侧图形码！'}
-              rules={[
-                {
-                  required: true,
-                  message: '请输入图形码！',
-                },
-              ]}
+              validateStatus={validateCaptchaRes ? 'error' : ''}
+              help={validateCaptchaRes}
             />
             {captchaUrl && (
               <div
@@ -221,6 +187,7 @@ const SecurityView: React.FC = () => {
             }}
             captchaProps={{
               size: 'large',
+              disabled: !!validateCaptchaRes,
             }}
             placeholder={'请输入验证码！'}
             captchaTextRender={(timing, count) => {

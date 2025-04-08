@@ -18,6 +18,7 @@ import { useRequest } from 'ahooks';
 import { message } from 'antd';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
+import useCaptcha from '@/hooks/useCaptcha';
 
 const Phone: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -27,14 +28,18 @@ const Phone: React.FC = () => {
     state.setUser,
   ]);
 
-  const [captchaUrlOld, setCaptchaUrlOld] = useState('');
-
-  const [captchaUrlNew, setCaptchaUrlNew] = useState('');
-
   const [showCloseWarning, setShowCloseWarning] = useState(false);
 
   const formRefPassword = useRef<ProFormInstance>();
 
+  const oldPhoneCaptcha = useCaptcha({
+    eventType: SendSmsTypeEnum.ConfirmOldPhone,
+    messageApi,
+  });
+  const newPhoneCaptcha = useCaptcha({
+    eventType: SendSmsTypeEnum.ConfirmNewPhone,
+    messageApi,
+  });
   /**
    * 退出登录
    */
@@ -42,87 +47,12 @@ const Phone: React.FC = () => {
     setUser(null);
   };
 
-  const { run: getOldCaptcha, loading: getOldCaptchaLoading } = useRequest(
-    () => {
-      return Api.getCaptcha();
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        const blob = response.data;
-        const url = URL.createObjectURL(blob);
-        setCaptchaUrlOld(url);
-      },
-    }
-  );
-
-  const { run: getNewCaptcha, loading: getNewCaptchaLoading } = useRequest(
-    () => {
-      return Api.getCaptcha();
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        const blob = response.data;
-        const url = URL.createObjectURL(blob);
-        setCaptchaUrlNew(url);
-      },
-    }
-  );
-
-  const { run: sendSms, loading: sendSmsLoading } = useRequest(
-    params => {
-      return Api.sendSms({
-        ...params,
-      });
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        if (response?.message) {
-          messageApi.open({
-            type: 'error',
-            content: response.message,
-          });
-        } else if (response?.result === 0) {
-          messageApi.success('验证码发送成功！');
-        }
-      },
-      onError: error => {
-        messageApi.open({
-          type: 'error',
-          content: error.message,
-        });
-      },
-    }
-  );
-
-  const handleGetCaptcha = async (type: 'new' | 'old') => {
+  const handleGetCaptcha = async () => {
     try {
-      if (type === 'old') {
-        const values = await formRefPassword.current?.validateFields([
-          'captchaOld',
-        ]);
-
-        console.log(values);
-        const params = {
-          captcha: values.captchaOld,
-          cellphone: user?.cellphone,
-          eventType: SendSmsTypeEnum.ConfirmOldPhone,
-        };
-        sendSms(params);
-      } else {
-        const values = await formRefPassword.current?.validateFields([
-          'cellphoneNew',
-          'captchaNew',
-        ]);
-        const params = {
-          captcha: values.captchaNew,
-          cellphone: values.cellphoneNew,
-          eventType: SendSmsTypeEnum.ConfirmNewPhone,
-        };
-        sendSms(params);
-      }
+      const values = await formRefPassword.current?.validateFields([
+        'cellphoneNew',
+      ]);
+      newPhoneCaptcha.sendSms({ cellphone: values.cellphoneNew });
     } catch (errorInfo) {
       // console.log('Failed:', errorInfo);
     }
@@ -163,15 +93,17 @@ const Phone: React.FC = () => {
   };
 
   useEffect(() => {
-    getNewCaptcha();
-    getOldCaptcha();
+    oldPhoneCaptcha.getCaptcha();
+    newPhoneCaptcha.getCaptcha();
     formRefPassword.current?.resetFields();
-  }, [getNewCaptcha, getOldCaptcha]);
+  }, [oldPhoneCaptcha.getCaptcha, newPhoneCaptcha.getCaptcha]);
 
   return (
     <div className="flex pt-3">
+      {contextHolder}
       <div className="flex flex-col gap-4 min-w-56 max-w-96">
         <ProForm
+          formRef={formRefPassword}
           layout="vertical"
           onFinish={handleFinish}
           submitter={{
@@ -195,23 +127,24 @@ const Phone: React.FC = () => {
               fieldProps={{
                 size: 'large',
                 prefix: <CodepenOutlined />,
+                value: oldPhoneCaptcha.captchaCode,
+                maxLength: 4,
+                onChange: (e: any) => {
+                  oldPhoneCaptcha.setCaptchaCode(e.target.value);
+                },
               }}
               name="captchaOld"
               placeholder={'请输入右侧图形码！'}
-              rules={[
-                {
-                  required: true,
-                  message: '请输入图形码！',
-                },
-              ]}
+              validateStatus={oldPhoneCaptcha.validateCaptchaRes ? 'error' : ''}
+              help={oldPhoneCaptcha.validateCaptchaRes}
             />
-            {captchaUrlOld && (
+            {oldPhoneCaptcha.captchaUrl && (
               <div
-                onClick={getOldCaptcha}
+                onClick={oldPhoneCaptcha.getCaptcha}
                 className="overflow-hidden cursor-pointer"
               >
                 <Image
-                  src={captchaUrlOld}
+                  src={oldPhoneCaptcha.captchaUrl}
                   alt="CaptchaOld"
                   width={120}
                   height={40}
@@ -227,6 +160,7 @@ const Phone: React.FC = () => {
             }}
             captchaProps={{
               size: 'large',
+              disabled: !!oldPhoneCaptcha.validateCaptchaRes,
             }}
             placeholder={'请输入旧手机号验证码！'}
             captchaTextRender={(timing, count) => {
@@ -243,9 +177,7 @@ const Phone: React.FC = () => {
               },
             ]}
             onGetCaptcha={async phone => {
-              handleGetCaptcha('old');
-              console.log(phone);
-              message.success('获取验证码成功！');
+              oldPhoneCaptcha.sendSms({ cellphone: user?.cellphone });
             }}
           />
           <ProFormText
@@ -261,7 +193,7 @@ const Phone: React.FC = () => {
                 message: '手机号是必填项！',
               },
               {
-                pattern: /^1\d{10}$/,
+                validator: (_, val) => newPhoneCaptcha.validatePhone(val),
                 message: '不合法的手机号！',
               },
             ]}
@@ -271,23 +203,24 @@ const Phone: React.FC = () => {
               fieldProps={{
                 size: 'large',
                 prefix: <CodepenOutlined />,
+                value: newPhoneCaptcha.captchaCode,
+                maxLength: 4,
+                onChange: (e: any) => {
+                  newPhoneCaptcha.setCaptchaCode(e.target.value);
+                },
               }}
               name="captcha"
               placeholder={'请输入右侧图形码！'}
-              rules={[
-                {
-                  required: true,
-                  message: '请输入图形码！',
-                },
-              ]}
+              validateStatus={newPhoneCaptcha.validateCaptchaRes ? 'error' : ''}
+              help={newPhoneCaptcha.validateCaptchaRes}
             />
-            {captchaUrlNew && (
+            {newPhoneCaptcha.captchaUrl && (
               <div
-                onClick={getNewCaptcha}
+                onClick={newPhoneCaptcha.getCaptcha}
                 className="overflow-hidden cursor-pointer"
               >
                 <Image
-                  src={captchaUrlNew}
+                  src={newPhoneCaptcha.captchaUrl}
                   alt="CaptchaNew"
                   width={120}
                   height={40}
@@ -303,6 +236,9 @@ const Phone: React.FC = () => {
             }}
             captchaProps={{
               size: 'large',
+              disabled:
+                !!newPhoneCaptcha.validateCaptchaRes ||
+                !newPhoneCaptcha.validatePhoneRes,
             }}
             placeholder={'请输入新手机号验证码！'}
             captchaTextRender={(timing, count) => {
@@ -319,8 +255,7 @@ const Phone: React.FC = () => {
               },
             ]}
             onGetCaptcha={async phone => {
-              handleGetCaptcha('new');
-              message.success('获取验证码成功！验证码为：1234');
+              handleGetCaptcha();
             }}
           />
         </ProForm>

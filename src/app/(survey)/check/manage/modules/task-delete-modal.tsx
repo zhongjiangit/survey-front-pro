@@ -20,7 +20,6 @@ import { message, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import Image from 'next/image';
-import verifyCaptcha from '@/api/common/verifyCaptcha';
 import useCaptcha from '@/hooks/useCaptcha';
 
 interface TaskDeleteModalProps {
@@ -33,8 +32,6 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const user = useSurveyUserStore(state => state.user);
-
-  // const [captchaUrl, setCaptchaUrl] = useState('');
 
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
