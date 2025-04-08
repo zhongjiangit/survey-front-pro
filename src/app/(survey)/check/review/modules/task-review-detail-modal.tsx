@@ -190,16 +190,20 @@ const TaskReviewDetailModal = ({
     return errorMsg;
   };
 
-  const saveReview = async (idx: number, noRefresh?: boolean) => {
-    if (!noRefresh && validateRecord(idx, true)) {
-      throw new Error('信息不完整');
-    }
+  const getRecord = (idx: number) => {
     const record = listReviewDetailsExpertData?.data[idx]!;
     const [expertComment, reviewScoreList] = getRecordValues(idx);
     record.expertComment = expertComment;
     record.dimensionScores.forEach((t, i) => {
       t.reviewScore = reviewScoreList[i];
     });
+    return record;
+  };
+  const saveReview = async (idx: number, noRefresh?: boolean) => {
+    if (!noRefresh && validateRecord(idx, true)) {
+      throw new Error('信息不完整');
+    }
+    const record = getRecord(idx);
     const loadingKey = record.singleFillId + '_save';
     setLoading(loadingKey, true);
     await saveReviewDetails(record).finally(() => {
@@ -242,23 +246,37 @@ const TaskReviewDetailModal = ({
     }
   };
 
-  const saveCurrentPage = async () => {
-    if (validateCurrentPage()) {
+  const saveCurrentPage = async (isSubmit: boolean = false) => {
+    if (!isSubmit && validateCurrentPage()) {
       return;
     }
     const list = listReviewDetailsExpertData?.data || [];
-    setLoading('saveCurrentPage', true);
-    try {
-      for (let i = 0; i < list.length; i++) {
-        if (recordStatus[list[i].singleFillId].edit) {
-          await saveReview(i, true);
+    const setSaveCurrentPageLoading = (status: boolean) => {
+      if (!isSubmit) setLoading('saveCurrentPage', status);
+    };
+    const reviewDetails = list.reduce<ListReviewDetailsExpertResponse[]>(
+      (res, t, i) => {
+        if (recordStatus[t.singleFillId].edit) {
+          res.push(getRecord(i));
         }
-      }
+        return res;
+      },
+      []
+    );
+    setSaveCurrentPageLoading(true);
+    await Api.saveReviewDetailsBatch({
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg!.orgId!,
+      taskId: task.taskId,
+      reviewDetails: reviewDetails,
+    }).finally(() => {
+      setSaveCurrentPageLoading(false);
+    });
+    if (!isSubmit) {
       refreshListReviewDetailsExpert();
       messageApi.success('本页保存成功!');
-    } finally {
-      setLoading('saveCurrentPage', false);
     }
+    return reviewDetails;
   };
 
   const submitCurrentPage = async () => {
@@ -266,17 +284,18 @@ const TaskReviewDetailModal = ({
       return;
     }
     setLoading('submitCurrentPage', true);
-    const list = listReviewDetailsExpertData?.data || [];
-    try {
-      for (let i = 0; i < list.length; i++) {
-        await submitReview(i, true);
-      }
-      refreshListReviewDetailsExpert();
-      refreshList?.();
-      messageApi.success('本页提交成功!');
-    } finally {
+    const reviewDetails = await saveCurrentPage(true);
+    await Api.expertSubmitBatch({
+      currentSystemId: currentSystem?.systemId!,
+      currentOrgId: currentOrg!.orgId!,
+      taskId: task.taskId,
+      singleFillIds: (reviewDetails || []).map(t => t.singleFillId),
+    }).finally(() => {
       setLoading('submitCurrentPage', false);
-    }
+    });
+    refreshListReviewDetailsExpert();
+    refreshList?.();
+    messageApi.success('本页提交成功!');
   };
 
   const sortColumns: ColumnType = {

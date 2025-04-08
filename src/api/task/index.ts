@@ -56,6 +56,8 @@ import showReviewResult from './showReviewResult';
 import updateCollectionTask from './updateCollectionTask';
 import updateInspTaskFill from './updateInspTaskFill';
 import updateInspTaskReview from './updateInspTaskReview';
+import expertSubmitBatch from './expertSubmitBatch';
+import saveReviewDetailsBatch from './saveReviewDetailsBatch';
 
 const taskApi = {
   createCollectionTask,
@@ -116,6 +118,8 @@ const taskApi = {
   getReviewResultOrg,
   getReviewResultStaff,
   listReviewExpertDetails,
+  expertSubmitBatch,
+  saveReviewDetailsBatch,
 };
 
 export default taskApi;
