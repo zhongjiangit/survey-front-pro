@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSurveyOrgStore } from '@/contexts/useSurveyOrgStore';
 import Image from 'next/image';
 import verifyCaptcha from '@/api/common/verifyCaptcha';
+import useCaptcha from '@/hooks/useCaptcha';
 
 interface TaskDeleteModalProps {
   taskId: number;
@@ -33,41 +34,21 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
 
   const user = useSurveyUserStore(state => state.user);
 
-  const [captchaUrl, setCaptchaUrl] = useState('');
+  // const [captchaUrl, setCaptchaUrl] = useState('');
 
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
 
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
 
   const formRefDeleteTask = useRef<ProFormInstance>();
-
-  const { run: sendSms, loading: sendSmsLoading } = useRequest(
-    params => {
-      return Api.sendSms({
-        ...params,
-        eventType: SendSmsTypeEnum.ChangePassword,
-      });
-    },
-    {
-      manual: true,
-      onSuccess: response => {
-        if (response?.message) {
-          messageApi.open({
-            type: 'error',
-            content: response.message,
-          });
-        } else if (response?.result === 0) {
-          messageApi.success('验证码发送成功！');
-        }
-      },
-      onError: error => {
-        messageApi.open({
-          type: 'error',
-          content: error.message,
-        });
-      },
-    }
-  );
+  const {
+    captchaUrl,
+    captchaCode,
+    setCaptchaCode,
+    getCaptcha,
+    sendSms,
+    validateCaptchaRes,
+  } = useCaptcha({ eventType: SendSmsTypeEnum.CancelTask, messageApi });
 
   const handleGetCaptcha = async () => {
     try {
@@ -102,16 +83,6 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
       }
     );
 
-  // 验证码校验
-  const { runAsync: validateCaptcha, data: validateCaptchaRes } = useRequest(
-    async (text: string = '') => {
-      if (text.trim().length < 4) {
-        return Promise.resolve(false);
-      }
-      const res = await Api.verifyCaptcha(text);
-      return res.data.data.passed === 1;
-    }
-  );
   const handleFinish = async (values: any) => {
     const params = {
       taskId: taskId,
@@ -122,17 +93,9 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
     deleteReviewTask(params);
   };
 
-  const refreshCaptcha = () => {
-    formRefDeleteTask.current?.setFieldsValue({
-      captcha: '',
-    });
-    formRefDeleteTask.current?.validateFields(['captcha']);
-    setCaptchaUrl(Api.getCaptchaUrl());
-  };
-
   useEffect(() => {
     if (open) {
-      refreshCaptcha();
+      getCaptcha();
       formRefDeleteTask.current?.resetFields();
       formRefDeleteTask.current?.setFieldsValue({
         cellphone: user?.cellphone,
@@ -209,30 +172,19 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
                 size: 'large',
                 prefix: <CodepenOutlined />,
                 style: { width: 353 },
+                value: captchaCode,
                 maxLength: 4,
-              }}
-              name="captcha"
-              placeholder={'请输入右侧图形码！'}
-              rules={[
-                { required: true, message: '请输入图形码！' },
-                {
-                  validator(_, value = '', callback) {
-                    validateCaptcha(value).then(res => {
-                      callback(
-                        res
-                          ? undefined
-                          : value.length < 4
-                            ? ' '
-                            : '验证码输入错误或已过期,请刷新！'
-                      );
-                    });
-                  },
+                onChange: (e: any) => {
+                  setCaptchaCode(e.target.value);
                 },
-              ]}
+              }}
+              placeholder={'请输入右侧图形码！'}
+              validateStatus={validateCaptchaRes ? 'error' : ''}
+              help={validateCaptchaRes}
             />
             {captchaUrl && (
               <div
-                onClick={refreshCaptcha}
+                onClick={getCaptcha}
                 className="overflow-hidden cursor-pointer"
               >
                 <Image src={captchaUrl} alt="Captcha" width={120} height={40} />
@@ -248,7 +200,7 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
             }}
             captchaProps={{
               size: 'large',
-              disabled: !validateCaptchaRes,
+              disabled: !!validateCaptchaRes,
             }}
             placeholder={'请输入验证码！'}
             captchaTextRender={(timing, count) => {
@@ -258,10 +210,7 @@ const TaskDeleteModal = (props: TaskDeleteModalProps) => {
               return '获取验证码';
             }}
             name="verifyCode"
-            rules={[
-              { required: true, message: '请输入短信验证码！' },
-              { len: 6, message: ' ' },
-            ]}
+            rules={[{ required: true, message: '请输入短信验证码！' }]}
             onGetCaptcha={async phone => {
               handleGetCaptcha();
             }}

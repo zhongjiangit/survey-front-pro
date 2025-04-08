@@ -3,11 +3,14 @@ import { useRequest } from 'ahooks';
 import Api from '@/api';
 import { SendSmsTypeEnum } from '@/types/CommonType';
 import { message } from 'antd';
+import type { MessageInstance } from 'antd/es/message/interface';
 
 export default function useCaptcha({
   eventType = SendSmsTypeEnum.Login,
+  messageApi,
 }: {
-  eventType: SendSmsTypeEnum;
+  eventType?: SendSmsTypeEnum;
+  messageApi?: MessageInstance;
 }) {
   const [captchaUrl, setCaptchaUrl] = useState('');
   const [captchaCode, _setCaptchaCode] = useState('');
@@ -50,12 +53,18 @@ export default function useCaptcha({
   const { run: sendSms, loading: sendSmsLoading } = useRequest(
     async params => {
       if (!(await validateCaptcha(captchaCode))) {
-        return Api.sendSms({ ...params, eventType: eventType });
+        return Api.sendSms({
+          ...params,
+          captcha: captchaCode,
+          eventType: eventType,
+        });
       }
+      return Promise.reject('');
     },
     {
+      manual: true,
       onSuccess: response => {
-        message.success('验证码发送成功！');
+        (messageApi || message).success('验证码发送成功！');
       },
     }
   );

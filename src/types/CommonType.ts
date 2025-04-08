@@ -38,6 +38,7 @@ export enum SendSmsTypeEnum {
   ChangePassword = 2,
   ConfirmOldPhone = 3,
   ConfirmNewPhone = 4,
+  CancelTask = 5,
 }
 
 // ----------------- 通用类型 0 | 1 -----------------
