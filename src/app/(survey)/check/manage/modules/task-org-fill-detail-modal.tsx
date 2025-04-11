@@ -40,11 +40,12 @@ const TaskOrgFillDetailModal = ({
   const [messageApi, contextHolder] = message.useMessage();
   const currentSystem = useSurveySystemStore(state => state.currentSystem);
   const currentOrg = useSurveyOrgStore(state => state.currentOrg);
-  const { columns, setColumns } = useFillProcessDetailColumns([]);
+  const { columns, setColumns, getCombineKeys, getLevels } =
+    useFillProcessDetailColumns([]);
   const [form] = Form.useForm();
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<any>();
-  const [dataSource, setDataSource] = useState<any>();
+  const [dataSource, setDataSource] = useState<any[]>();
   const [pagination, setPagination] = useState({
     pageNumber: 1,
     pageSize: 10,
@@ -71,22 +72,18 @@ const TaskOrgFillDetailModal = ({
     },
     {
       manual: true,
-      onSuccess: data => {
+      onSuccess: (data, [pageNumber, pageSize]) => {
         setColumns(data.data);
-        const combineKeys =
-          data.data[0].levels &&
-          Object.keys(data.data[0].levels).map(
-            (_key, index) => `org${index + 1}`
+        let tableData: any[] = data.data || [];
+        getCombineKeys(data.data).forEach(key => {
+          tableData = joinRowSpanDataChild(
+            tableData,
+            key,
+            'orgId',
+            (pageNumber - 1) * pageSize
           );
-        const tableData = (combineKeys || []).reduce(
-          (prev: any[] | undefined, currentKey: string) => {
-            return joinRowSpanDataChild(prev, currentKey, 'orgId');
-          },
-          data?.data
-        );
-        if (tableData) {
-          tableData.slice = () => tableData;
-        }
+        });
+        tableData.slice = () => tableData;
         setDataSource(tableData);
       },
     }
@@ -148,8 +145,11 @@ const TaskOrgFillDetailModal = ({
     title: 'No.',
     width: 50,
     align: 'center',
-    render: (_: any, __: any, index: number) => {
-      return index + 1 + (pagination.pageNumber - 1) * pagination.pageSize;
+    dataIndex: 'seq',
+    onCell: (text: any) => {
+      return {
+        rowSpan: text.rowSpan?.[text.seqSpanKey] || 0,
+      };
     },
   };
 
@@ -297,14 +297,20 @@ const TaskOrgFillDetailModal = ({
           dataSource={dataSource}
           pagination={{
             total: data?.total,
-            showSizeChanger: true,
-            showQuickJumper: true,
+            showSizeChanger: {
+              optionRender({ value }) {
+                return `${value} 组/页`;
+              },
+              labelRender({ value }) {
+                return `${value} 组/页`;
+              },
+            },
             current: pagination.pageNumber,
             pageSize: pagination.pageSize,
             onChange: (page, pageSize) => {
               setPagination({ pageNumber: page, pageSize: pageSize });
             },
-            // showTotal: total => `总共 ${total} 条`,
+            showTotal: total => `总共 ${total} 组`,
           }}
         />
       </Modal>

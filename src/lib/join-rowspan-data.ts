@@ -79,30 +79,25 @@ export const fullJoinRowSpanData = (
 export const joinRowSpanDataChild = (
   array: any[] | undefined,
   keyStr: string,
-  childKey: string
-): undefined | any[] => {
-  if (!array || array.length === 0) return;
+  childKey: string,
+  initSeq: number
+): any[] => {
+  if (!array || array.length === 0) return [];
   const arr = _.cloneDeep(array);
-  // 1、startItem(默认rowSpan = 1)记录开始计数的对象
-  let startItem: any = arr[0];
-  if (startItem.rowSpan) {
-    startItem.rowSpan[keyStr] = 1;
-  } else {
-    startItem.rowSpan = { [keyStr]: 1 };
-  }
-  // 2、遍历数组，取下一项进行比较，当name相同则startItem的rowSpan+1, 否则设置新的startItem为下一项
-  arr.forEach((item: any, index) => {
-    const nextItem: any = arr[index + 1] || {};
-    if (item[keyStr]?.[childKey] === nextItem[keyStr]?.[childKey]) {
+  let startItem: any;
+  let seq = initSeq || 0;
+  const getOrgId = (t: any): string => t?.[keyStr]?.[childKey];
+  for (let i = 0; i < arr.length; i++) {
+    const preItem: any = arr[i - 1];
+    const item: any = arr[i];
+    if (i !== 0 && getOrgId(item) && getOrgId(preItem) == getOrgId(item)) {
       startItem.rowSpan[keyStr]++;
-    } else {
-      startItem = nextItem;
-      if (startItem.rowSpan) {
-        startItem.rowSpan[keyStr] = 1;
-      } else {
-        startItem.rowSpan = { [keyStr]: 1 };
-      }
+      continue;
     }
-  });
+    startItem = item;
+    startItem.seq = ++seq;
+    startItem.seqSpanKey = keyStr;
+    (startItem.rowSpan ??= {})[keyStr] = 1;
+  }
   return arr;
 };

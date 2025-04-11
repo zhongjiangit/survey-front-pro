@@ -6,7 +6,7 @@ import {
   TaskProcessStatusType,
 } from '@/types/CommonType';
 import { TableColumnsType } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 
 const baseColumns: TableColumnsType = [
   {
@@ -46,18 +46,41 @@ export function useFillProcessDetailColumns(
   >(originData);
   const [finalColumns, setFinalColumns] = useState(baseColumns);
 
+  const getLevels = (
+    data: GetFillProcessDetailsResponse[]
+  ): { levelName: string; dataIndex: string }[] => {
+    const obj = data.reduce<{ [key: string]: { levelName: string } }>(
+      (res, t) => {
+        return Object.keys(res).length < Object.keys(t.levels).length
+          ? t.levels
+          : res;
+      },
+      {}
+    );
+    return Object.values(obj).map(({ levelName }, i) => {
+      return {
+        levelName,
+        dataIndex: `org${i + 1}`,
+      };
+    });
+  };
+
+  const getCombineKeys = (data: GetFillProcessDetailsResponse[]) => {
+    return Object.values(getLevels(data)).map(t => t.dataIndex);
+  };
+
   useEffect(() => {
     if (!data || data.length === 0 || !data[0]?.levels) {
       return;
     }
-    const tempColumn = Object.keys(data[0].levels).map((key, index) => {
-      const levelName = data[0].levels?.[key].levelName;
+    const levels = getLevels(data);
+    const tempColumn = levels.map(({ levelName, dataIndex }, index) => {
       return {
         title: levelName,
-        dataIndex: `org${index + 1}`,
+        dataIndex: dataIndex,
         onCell: (text: any) => {
           return {
-            rowSpan: text.rowSpan?.[`org${index + 1}`] || 0,
+            rowSpan: text.rowSpan?.[dataIndex] || 0,
           };
         },
         render: (value: any) => {
@@ -65,9 +88,13 @@ export function useFillProcessDetailColumns(
         },
       };
     });
-
     setFinalColumns([...tempColumn, ...baseColumns]);
   }, [data]);
 
-  return { columns: finalColumns, setColumns: setData };
+  return {
+    columns: finalColumns,
+    setColumns: setData,
+    getLevels,
+    getCombineKeys,
+  };
 }
