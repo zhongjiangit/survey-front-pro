@@ -1,5 +1,102 @@
-## Next.js App
+# 调研前端系统 (Survey Front Pro)
 
-This is the starter template for the Next.js App Router Course. It contains the starting code for the dashboard application.
+## 项目简介
 
-For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
+本项目是一个基于 **Next.js 15** + **React 19** + **TypeScript** 构建的企业级**调研数据采集与审核管理平台**。系统支持多角色、多层级的组织架构管理，提供完整的问卷/抽检任务的创建、分配、填报和审核工作流。
+
+---
+
+## 主要功能
+
+### 1. 试题抽检（Check）
+- **管理**：创建、编辑、删除抽检任务
+- **分配**：将抽检任务分配至指定组织或成员
+- **填报**：成员在线填写抽检数据
+- **审核**：专家对提交的抽检结果进行评审（支持批量通过/驳回）
+
+### 2. 资料收集（Collect）
+- **管理**：创建和管理资料收集任务
+- **分配**：将收集任务分配至各级组织
+- **填报**：成员提交收集的资料与数据
+
+### 3. 系统管理（System）
+- 平台管理员创建、编辑、配置调研系统
+- 管理抽检与收集的系统级模板
+
+### 4. 成员管理（Member）
+- 管理员工/成员信息，分配角色与所属组织
+
+### 5. 专家配置（Expert）
+- 配置参与审核任务的专家信息
+
+### 6. 个人中心（Setting）
+- 用户基本信息、密码、手机号等个人设置
+
+### 7. 充值/续费（Recharge）
+- 系统使用配额管理与续费操作
+
+---
+
+## 角色权限
+
+系统包含 7 个权限层级：
+
+| 角色 | 说明 |
+|------|------|
+| 平台管理员 | 管理所有系统与顶层配置 |
+| 系统管理员 | 管理所属系统的任务与成员 |
+| 组织管理员 | 管理本组织内的任务与成员 |
+| 普通管理员 | 有限的任务管理权限 |
+| 成员 | 填报调研数据 |
+| 专家 | 审核填报结果 |
+| 未登录 | 仅访问登录页 |
+
+---
+
+## 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| 框架 | Next.js 15 (App Router)、React 19、TypeScript 5.5 |
+| UI 组件库 | Ant Design 5、TailwindCSS |
+| 状态管理 | Zustand |
+| 表单验证 | react-hook-form + zod |
+| HTTP 客户端 | Axios |
+| 认证 | NextAuth.js v5 (beta) |
+| 部署 | Docker |
+
+---
+
+## 快速开始
+
+```bash
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+
+# 构建生产版本
+pnpm build
+
+# 启动生产服务器
+pnpm start
+```
+
+---
+
+## 目录结构
+
+```
+src/
+├── app/          # Next.js App Router 页面与路由
+├── api/          # API 接口定义（120+ 端点）
+├── components/   # 公共组件
+├── contexts/     # React Context（主题、颜色方案等）
+├── hooks/        # 自定义 React Hooks
+├── lib/          # 工具函数
+├── service/      # Axios 请求封装与拦截器
+├── styles/       # 全局样式
+├── types/        # TypeScript 类型定义
+└── typings/      # 全局类型声明
+```
